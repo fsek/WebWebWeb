@@ -1,4 +1,4 @@
-# Web 3.0
+# WebWebWeb
 
 Install VSCode extensions from Microsoft:
 - Python
