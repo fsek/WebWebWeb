@@ -11,7 +11,7 @@ Install Python 3.12: https://www.python.org/downloads/
 
 Then make sure you have the right version. Open your terminal and run `python --version`. 
 
-## 1. Virutal environment
+## 1. Virtual environment
 We use virtual environments to have a reproducible environment to run our project in. Create your virtual environment: `python -m venv ./.venv`.
 
 Always activate your virtual environment when working on the project by running: 
