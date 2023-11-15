@@ -1,8 +1,9 @@
 # WebWebWeb
 
-Install VSCode extensions from Microsoft:
-- Python
-- Black Formatter
+Install these VSCode extensions:
+- [Python](https://marketplace.visualstudio.com/items?itemName=ms-python.python)
+- [Black Formatter](https://marketplace.visualstudio.com/items?itemName=ms-python.black-formatter)
+- [SQLite Viewer](https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer)
 
 VSCode should not inconsitently highlight errors on different machines. Therefore we have a `.vscode/settings.json` which tells these extensions how to behave having this project opened.
 
@@ -26,6 +27,7 @@ The file `requirements.txt` lists all pip packages and versions needed. Install 
 
 `pip install -r requirements.txt`
 
+If pulling or switching branch changes `requirements.txt` you will have to re-run this command to update packages in your `.venv`.
 
 ## 3. Start server 
 `uvicorn main:app --reload`
