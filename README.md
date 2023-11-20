@@ -26,7 +26,7 @@ We use virtual environments to have a reproducible environment to run our projec
 
 Always activate your virtual environment when working on the project by running:
 
-- Windows: `.venv/Scripts/Activate`
+- Windows: `.\.venv\Scripts\Activate`
 - MacOS: `source ./.venv/bin/activate`
 
 You should now see (.venv) in your terminal.
@@ -38,7 +38,7 @@ The file `requirements.txt` lists all pip packages and versions needed. Install 
 
 `pip install -r ./requirements.txt`
 
-If pulling or switching branch changes `requirements.txt` you will have to re-run this command to update packages in your `.venv`.
+When pulling or switching branch results in a changed `requirements.txt` you will have to re-run this command to update packages in your `.venv`.
 
 ## 4. Start server
 
