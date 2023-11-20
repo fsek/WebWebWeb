@@ -17,7 +17,7 @@ def set_sqlite_pragma(dbapi_connection: Any, connection_record):
 SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}, echo=False
+    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}, echo=True
 )
 DBSession = sessionmaker(engine)
 
