@@ -7,10 +7,12 @@ class BaseSchema(BaseModel):
     # This model_config lets pydantic validate a databse model
 
 
+# TODO: Add  relevant fields  schemas  once users and books are related
+
+
 class BookRead(BaseSchema):
     id: int
     title: str
-    user_id: int | None
 
 
 class BookCreate(BaseSchema):
@@ -19,12 +21,13 @@ class BookCreate(BaseSchema):
 
 class UserCreate(BaseSchema):
     name: str
-    age: int
-    password: str
 
 
 class UserRead(BaseSchema):
     id: int
     name: str
-    age: int
-    books: list[BookRead]
+
+
+class AssignPayload:
+    user_id: int
+    book_id: int
