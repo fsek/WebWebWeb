@@ -28,6 +28,6 @@ class UserRead(BaseSchema):
     name: str
 
 
-class AssignPayload:
+class AssignPayload(BaseSchema):
     user_id: int
     book_id: int
