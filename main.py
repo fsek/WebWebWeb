@@ -2,27 +2,11 @@ from fastapi import Depends, FastAPI
 from database import get_db, engine
 from sqlalchemy.orm import Session
 from db_models import BaseModelDB
-from schemas import BaseSchema
+from schemas import ChildRead, FamilyCreate
 
 app = FastAPI()
 
 BaseModelDB.metadata.create_all(engine)
-
-
-class ParentRead(BaseSchema):
-    id: int
-    # parents: list["ChildRead"]
-    # If we try returning a circular reference from a route we get recursion error
-
-
-class ChildRead(BaseSchema):
-    id: int
-    parents: list[ParentRead]
-
-
-class FamilyCreate(BaseSchema):
-    # TODO replace pass and implement
-    pass
 
 
 @app.get("/make-family", response_model=ChildRead)
