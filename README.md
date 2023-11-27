@@ -31,6 +31,8 @@ Always activate your virtual environment when working on the project by running:
 
 You should now see (.venv) in your terminal.
 
+Now, to point the Python extension to our venv, hit `Ctrl+Shift+P` or `Cmd+Shift+P` and select `Python: Select Interpreter`. Then select the row pointing to the `./.venv/` of this project.
+
 ## 3. Installing dependencies
 
 Our project will need packages not native to Python. FastAPI is one such dependency. The actual package files are not checked into Git. Instead, a file listing the required packages exists in the project.
