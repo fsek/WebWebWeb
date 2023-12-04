@@ -4,5 +4,10 @@
     "editor.formatOnSave": true
   },
   "python.analysis.typeCheckingMode": "strict",
-  "python.analysis.autoImportCompletions": true
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.diagnosticSeverityOverrides": {
+    "reportUnusedImport": "warning",
+  
+  }
+  
 }
