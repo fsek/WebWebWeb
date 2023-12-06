@@ -1,6 +1,6 @@
 # Roadmap
 
-Sketch database structure at https://app.quickdatabasediagrams.com/#/d/4IsUDl
+Sketch database structure at https://app.quickdatabasediagrams.com/
 
 Write the models.
 
