@@ -11,4 +11,15 @@ JWT
 
 Divide routes using Routers. A router can have a dependency. That way, auth can be enforced for a group of paths.
 
-Sentry for performance and error reporting
+Sentry for performance and error reporting.
+
+## Background tasks
+
+What are some background tasks we need?
+
+Find and suggest a library or if FastAPI docs already cover it.
+
+## Image processing
+
+Images will have to be posted, compressed, thumbnailed.
+Old web: Request placed temporary file on disk. Imagemagick put this into permanent directory on disk along processed copy.
