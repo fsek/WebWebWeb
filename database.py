@@ -7,7 +7,7 @@ from sqlalchemy import event
 
 # Temporarty because SQLite need it to enable foreign key constraint
 @event.listens_for(Engine, "connect")
-def set_sqlite_pragma(dbapi_connection: Any, connection_record):
+def set_sqlite_pragma(dbapi_connection: Any, connection_record: Any):
     cursor = dbapi_connection.cursor()
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
