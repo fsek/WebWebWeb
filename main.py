@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import Depends, FastAPI
 from fastapi.concurrency import asynccontextmanager
 from database import create_db_and_tables
@@ -16,9 +17,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-# Create database tables
-# Note: SQLite database structre cannot be updated. Delete and run again to update
 
 
 app.include_router(
@@ -47,5 +45,5 @@ app.include_router(
 
 
 @app.get("/authenticated-route")
-async def authenticated_route(user: User_DB = Depends(current_active_user)):
+async def authenticated_route(user: Annotated[User_DB, Depends(current_active_user)]):
     return {"message": f"Hello {user.email}!"}

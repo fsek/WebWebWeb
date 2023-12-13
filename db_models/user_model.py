@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 from fastapi_users.db import SQLAlchemyBaseUserTable
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from db_models.base_model import BaseModel_DB
 
@@ -15,11 +16,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     id: Mapped[int] = mapped_column(primary_key=True)  # type: ignore . It's fine
 
-    # posts: Mapped["Post_DB"] = relationship()
-    # posts: Mapped["Post_DB"] = relationship()
+    posts: Mapped["Post_DB"] = relationship(back_populates="user")
 
-    # post_user: Mapped["PostUser_DB"] = relationship()
-    # event_user: Mapped["EventUser_DB"] = relationship()
+    # post_user: Mapped["PostUser_DB"] = relationship(back_populates="user")
+    # event_user: Mapped["EventUser_DB"] = relationship(back_populates="user")
 
     # notifications: Mapped[list["Notification_DB"]]
 

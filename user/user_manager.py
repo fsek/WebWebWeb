@@ -5,7 +5,7 @@ from fastapi_users import BaseUserManager, IntegerIDMixin
 from db_models.user_model import User_DB
 
 
-SECRET = "SECRET"
+SECRET = "SECRET!"
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):

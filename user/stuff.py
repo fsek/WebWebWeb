@@ -1,3 +1,4 @@
+from typing import Any
 from fastapi_users.authentication import (
     AuthenticationBackend,
     BearerTransport,
@@ -10,6 +11,8 @@ from fastapi_users import FastAPIUsers
 from database import get_async_session
 from db_models.user_model import User_DB
 from user.user_manager import UserManager
+from fastapi_users.password import PasswordHelper
+from passlib.context import CryptContext
 
 SECRET = "MEGA SECRET"
 
@@ -31,10 +34,14 @@ async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLAlchemyUserDatabase[User_DB, int](session, User_DB)
 
 
+context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
+password_helper = PasswordHelper(context)
+
+
 async def get_user_manager(user_db: SQLAlchemyUserDatabase[User_DB, int] = Depends(get_user_db)):
-    yield UserManager(user_db)
+    yield UserManager(user_db, password_helper)
 
 
 USERS = FastAPIUsers[User_DB, int](get_user_manager, [auth_backend])
 
-current_active_user = USERS.current_user(active=True)
+current_active_user: Any = USERS.current_user(active=True)
