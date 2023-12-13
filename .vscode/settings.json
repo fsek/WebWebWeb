@@ -7,6 +7,8 @@
   "python.analysis.autoImportCompletions": true,
   "python.analysis.diagnosticSeverityOverrides": {
     "reportUnusedImport": "warning",  
-  }
-  
+  },
+  "black-formatter.args": [
+    "--line-length=100"
+  ]
 }
