@@ -9,6 +9,6 @@
     "reportUnusedImport": "warning",  
   },
   "black-formatter.args": [
-    "--line-length=100"
+    "--line-length=120"
   ]
 }
