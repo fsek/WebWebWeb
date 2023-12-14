@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
-from base_model import BaseModel_DB
 
 from sqlalchemy.orm import mapped_column, Mapped, relationship
+
+from .base_model import BaseModel_DB
 
 
 if TYPE_CHECKING:
@@ -10,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Event_DB(BaseModel_DB):
-    __tablename__ = "events_table"
+    __tablename__ = "event_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

@@ -5,5 +5,5 @@ from sqlalchemy.orm import (
 )
 
 
-class BaseModel_DB(DeclarativeBase):
+class BaseModel_DB(MappedAsDataclass, DeclarativeBase, kw_only=True):
     pass

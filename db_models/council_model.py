@@ -8,7 +8,7 @@ if TYPE_CHECKING:
 
 
 class Council_DB(BaseModel_DB):
-    __tablename__ = "councils_table"
+    __tablename__ = "council_table"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

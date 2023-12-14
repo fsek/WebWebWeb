@@ -1,8 +1,7 @@
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from db_models.base_model import BaseModel_DB
-
+from db_models import *
 
 # Temporarty because SQLite need it to enable foreign key constraint
 # @event.listens_for(Any, "connect")
@@ -20,14 +19,9 @@ engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 
-# class A(BaseModel_DB):
-# __tablename__
-# id: Mapped[int] = mapped_column(primary_key=True)
-
-
 async def create_db_and_tables():
     async with engine.begin() as conn:
-        await conn.run_sync(BaseModel_DB.metadata.create_all)
+        await conn.run_sync(base_model.BaseModel_DB.metadata.create_all)
 
 
 # A route accesses DB by Depends()'ing on this:
