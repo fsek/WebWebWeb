@@ -19,20 +19,13 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     __tablename__ = "user_table"
     id: Mapped[int] = mapped_column(primary_key=True, init=False)  # type: ignore . It's fine
 
-    post_users: Mapped[list["PostUser_DB"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan"
-    )
+    post_users: Mapped[list["PostUser_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
-    event_users: Mapped[list["EventUser_DB"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan"
-    )
-    posts: AssociationProxy[list["Post_DB"]] = association_proxy(
-        target_collection="post_users", attr="post"
-    )
+    event_users: Mapped[list["EventUser_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
-    events: AssociationProxy[list["Event_DB"]] = association_proxy(
-        target_collection="event_users", attr="event"
-    )
+    posts: AssociationProxy[list["Post_DB"]] = association_proxy(target_collection="post_users", attr="post")
+
+    events: AssociationProxy[list["Event_DB"]] = association_proxy(target_collection="event_users", attr="event")
 
     # notifications: Mapped[list["Notification_DB"]]
 
