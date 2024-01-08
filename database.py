@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 from db_models import *
 
 # Temporarty because SQLite need it to enable foreign key constraint
@@ -15,12 +15,12 @@ from db_models import *
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./database.sqlite"
 
 
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
-async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
+engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+session_maker = sessionmaker(engine, expire_on_commit=False)
 
 
-async def create_db_and_tables():
-    async with engine.begin() as conn:
+def create_db_and_tables():
+    with engine.begin() as conn:
         await conn.run_sync(base_model.BaseModel_DB.metadata.create_all)  # type: ignore
 
 
