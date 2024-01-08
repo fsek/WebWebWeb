@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 class EventUser_DB(BaseModel_DB):
     __tablename__ = "event_user_table"
 
-    user: Mapped["User_DB"] = relationship(back_populates="event_user")
+    user: Mapped["User_DB"] = relationship(back_populates="event_users")
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
 
-    event: Mapped["Event_DB"] = relationship(back_populates="event_user")
+    event: Mapped["Event_DB"] = relationship(back_populates="event_users")
     event_id: Mapped[int] = mapped_column(ForeignKey("event_table.id"), primary_key=True)

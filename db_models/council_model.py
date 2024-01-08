@@ -4,7 +4,8 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 
 
 if TYPE_CHECKING:
-    from post_model import Post_DB
+    from .post_model import Post_DB
+    from .event_model import Event_DB
 
 
 class Council_DB(BaseModel_DB):
@@ -12,8 +13,10 @@ class Council_DB(BaseModel_DB):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    posts: Mapped[list["Post_DB"]] = relationship()
+    posts: Mapped[list["Post_DB"]] = relationship(back_populates="council")
 
-    # has many users through posts
+    # has many users through posts post_users
+
+    events: Mapped[list["Event_DB"]] = relationship(back_populates="council")
 
     pass

@@ -15,15 +15,11 @@ class Post_DB(BaseModel_DB):
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
-    council: Mapped["Council_DB"] = relationship()
+    council: Mapped["Council_DB"] = relationship(back_populates="posts")
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
 
-    post_users: Mapped[list["PostUser_DB"]] = relationship(
-        back_populates="post", cascade="all, delete-orphan"
-    )
+    post_users: Mapped[list["PostUser_DB"]] = relationship(back_populates="post", cascade="all, delete-orphan")
 
-    users: AssociationProxy[list["User_DB"]] = association_proxy(
-        target_collection="post_users", attr="user"
-    )
+    users: AssociationProxy[list["User_DB"]] = association_proxy(target_collection="post_users", attr="user")
 
     # has many users through postusers

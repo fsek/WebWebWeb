@@ -1,5 +1,6 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import DateTime, ForeignKey
+from sqlalchemy import ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
@@ -16,9 +17,9 @@ class Event_DB(BaseModel_DB):
     id: Mapped[int] = mapped_column(primary_key=True)
     # event_signup: Mapped[EventSignu] = relationsip()
 
-    starts_at: Mapped[DateTime] = mapped_column(nullable=False)
+    starts_at: Mapped[datetime] = mapped_column(nullable=False)
 
-    ends_at: Mapped[DateTime] = mapped_column(nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(nullable=False)
 
     description_sv: Mapped[str] = mapped_column()
     description_en: Mapped[str] = mapped_column()

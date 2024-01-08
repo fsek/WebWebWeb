@@ -15,13 +15,13 @@ from db_models import *
 SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./database.sqlite"
 
 
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
+engine = create_async_engine(SQLALCHEMY_DATABASE_URL, echo=True)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 
 async def create_db_and_tables():
     async with engine.begin() as conn:
-        await conn.run_sync(base_model.BaseModel_DB.metadata.create_all)
+        await conn.run_sync(base_model.BaseModel_DB.metadata.create_all)  # type: ignore
 
 
 # A route accesses DB by Depends()'ing on this:
