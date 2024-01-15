@@ -3,7 +3,8 @@ from sqlalchemy.orm import (
     DeclarativeBase,
     MappedAsDataclass,
 )
+from sqlalchemy.ext.asyncio import AsyncAttrs
 
 
-class BaseModel_DB(MappedAsDataclass, DeclarativeBase, kw_only=True):
+class BaseModel_DB(MappedAsDataclass, AsyncAttrs, DeclarativeBase, kw_only=True):
     pass

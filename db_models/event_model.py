@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class Event_DB(BaseModel_DB):
     __tablename__ = "event_table"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, init=False)
     # event_signup: Mapped[EventSignu] = relationsip()
 
     starts_at: Mapped[datetime] = mapped_column(nullable=False)
@@ -26,10 +26,14 @@ class Event_DB(BaseModel_DB):
 
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
 
-    council: Mapped["Council_DB"] = relationship(back_populates="events")
+    council: Mapped["Council_DB"] = relationship(back_populates="events", init=False)
 
-    event_users: Mapped[list["EventUser_DB"]] = relationship(back_populates="event", cascade="all, delete-orphan")
-    users: AssociationProxy[list["User_DB"]] = association_proxy(target_collection="event_users", attr="user")
+    event_users: Mapped[list["EventUser_DB"]] = relationship(
+        back_populates="event", cascade="all, delete-orphan", init=False
+    )
+    users: AssociationProxy[list["User_DB"]] = association_proxy(
+        target_collection="event_users", attr="user", init=False
+    )
 
     # has many users through event users
 

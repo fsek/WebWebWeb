@@ -1,6 +1,8 @@
 from typing import AsyncGenerator
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from db_models import base_model
 from db_models import *
 
 # Temporarty because SQLite need it to enable foreign key constraint
@@ -12,19 +14,27 @@ from db_models import *
 
 
 # SQLite database will be a single file at project root
-SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./database.sqlite"
+SQLALCHEMY_DATABASE_URL_ASYNC = "sqlite+aiosqlite:///./database.sqlite"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
 
 
+async_engine = create_async_engine(SQLALCHEMY_DATABASE_URL_ASYNC, echo=True)
 engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
-session_maker = sessionmaker(engine, expire_on_commit=False)
+
+session_factory = sessionmaker(engine, expire_on_commit=False)
+async_sessionmaker = async_sessionmaker(async_engine, expire_on_commit=False)
 
 
-def create_db_and_tables():
-    with engine.begin() as conn:
-        await conn.run_sync(base_model.BaseModel_DB.metadata.create_all)  # type: ignore
+def get_db():
+    with session_factory() as session:
+        yield session
+
+
+def init_db():
+    base_model.BaseModel_DB.metadata.create_all(bind=engine)
 
 
 # A route accesses DB by Depends()'ing on this:
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
+    async with async_sessionmaker() as session:
         yield session

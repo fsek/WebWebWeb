@@ -44,4 +44,8 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase[User_DB, int] = Depen
 
 USERS = FastAPIUsers[User_DB, int](get_user_manager, [auth_backend])
 
+# Theses are functions to feed into Depends. They validate the current authenticated user
 current_active_user: Any = USERS.current_user(active=True)
+USERS.
+# this one will only let through active, verified superusers
+current_superuser: Any = USERS.current_user(active=True, verified=True, superuser=True)
