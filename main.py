@@ -1,14 +1,16 @@
 from typing import Annotated
 from fastapi import Depends, FastAPI
 from fastapi.concurrency import asynccontextmanager
+from fastapi_users import jwt
 from database import get_db, init_db, session_factory
+
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
 from db_models.user_model import User_DB
 from schemas.schemas import UserCreate, UserCreatedResponse, UserRead
 from sqlalchemy.orm import Session
 from seed import seed_if_empty
-from user.stuff import USERS, auth_backend, current_active_user
+from user.user_stuff import SECRET, USERS, auth_backend, current_active_user
 from routes import router
 
 
@@ -52,10 +54,10 @@ async def permission(user: User_DB = Depends(current_active_user), db: Session =
     # db.query(User_DB).filter(User_DB.id == )
 
     a = await user.awaitable_attrs.posts
-    for post in a:
-        perms: list[Permission_DB] = await post.awaitable_attrs.permissions
-        # for perm in perms:
-        # print(1)
+    # for post in a:
+    # perms: list[Permission_DB] = await post.awaitable_attrs.permissions
+    # for perm in perms:
+    # print(1)
     # p = user.posts[0]
     # perm = p.permissions
 
@@ -63,5 +65,9 @@ async def permission(user: User_DB = Depends(current_active_user), db: Session =
 
 
 @app.get("/perm-route")
-async def perm(user: Annotated[User_DB, Depends(permission)]):
-    return {"message": f"Hello {user.email}!"}
+async def perm(a: Annotated[tuple[User_DB, str], Depends(current_active_user)]):
+    user, token = a
+    p = jwt.decode_jwt(token, SECRET, audience=["fastapi-users:auth"])
+    print(p)
+
+    # return {"message": f"Hello {user.email}!"}

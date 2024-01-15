@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from .post_user_model import PostUser_DB
     from .user_model import User_DB
 
-    # from .post_permission_model import PostPermission_DB
+    from .post_permission_model import PostPermission_DB
     from .permission_model import Permission_DB
 
 creator: Callable[["User_DB"], "PostUser_DB"] = lambda user: PostUser_DB(user=user)
