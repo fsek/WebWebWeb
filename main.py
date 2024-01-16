@@ -1,16 +1,20 @@
-from typing import Annotated
-from fastapi import Depends, FastAPI
+from typing import Annotated, cast
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.concurrency import asynccontextmanager
 from fastapi_users import jwt
-from database import get_db, init_db, session_factory
+from database import init_db, session_factory
 
-from db_models.permission_model import Permission_DB
-from db_models.post_model import Post_DB
+from db_models.permission_model import PermissionAction, PermissionTarget
 from db_models.user_model import User_DB
 from schemas.schemas import UserCreate, UserCreatedResponse, UserRead
-from sqlalchemy.orm import Session
 from seed import seed_if_empty
-from user.user_stuff import SECRET, USERS, auth_backend, current_active_user
+from user.user_stuff import (
+    SECRET,
+    USERS,
+    AccessTokenData,
+    auth_backend,
+    current_active_verified_user,
+)
 from routes import router
 
 
@@ -46,28 +50,43 @@ app.include_router(router=router)
 
 
 @app.get("/authenticated-route")
-async def authenticated_route(user: Annotated[User_DB, Depends(current_active_user)]):
+async def authenticated_route(user: Annotated[User_DB, Depends(current_active_verified_user)]):
     return {"message": f"Hello {user.email}!"}
 
 
-async def permission(user: User_DB = Depends(current_active_user), db: Session = Depends(get_db)):
-    # db.query(User_DB).filter(User_DB.id == )
+# Create dependency to allow only a user with our own defined permissions
+class Permission:
+    @classmethod
+    def base(cls):
+        return Depends(current_active_verified_user)
 
-    a = await user.awaitable_attrs.posts
-    # for post in a:
-    # perms: list[Permission_DB] = await post.awaitable_attrs.permissions
-    # for perm in perms:
-    # print(1)
-    # p = user.posts[0]
-    # perm = p.permissions
+    @classmethod
+    def require(cls, action: PermissionAction, target: PermissionTarget):
+        def dependency(user_and_token: tuple[User_DB, str] = Depends(current_active_verified_user)):
+            user, token = user_and_token
+            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, SECRET, audience=["fastapi-users:auth"]))
+            user_role = f"{action}:{target}"
 
-    return user
+            if user_role not in decoded_token["roles"]:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+            return user
+
+        return Depends(dependency)
 
 
-@app.get("/perm-route")
-async def perm(a: Annotated[tuple[User_DB, str], Depends(current_active_user)]):
-    user, token = a
-    p = jwt.decode_jwt(token, SECRET, audience=["fastapi-users:auth"])
-    print(p)
+@app.get("/perm-view", dependencies=[Permission.require("view", "Event")])
+async def perm():
+    # doing something view only
+    print()
 
-    # return {"message": f"Hello {user.email}!"}
+
+@app.get("/perm-manage", dependencies=[Permission.require("manage", "Event")])
+async def perm2():
+    # doing something heavier, like deleting users
+    print()
+
+
+@app.get("/perm-user")
+async def perm3(user: Annotated[User_DB, Permission.base()]):
+    # doing something heavier, like deleting users
+    print(user)

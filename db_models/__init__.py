@@ -1,11 +1,20 @@
-from os.path import dirname, basename, isfile, join
-import glob
+from .base_model import BaseModel_DB
+from .council_model import Council_DB
+from .event_model import Event_DB
+from .event_user_model import EventUser_DB
+from .permission_model import Permission_DB
+from .post_model import Post_DB
+from .post_permission_model import PostPermission_DB
+from .user_model import User_DB
 
-# This is a hack to set __all__ to a list of all files in current directory
-# That way when doing "from db_models import *" it will bring all files into scope
-# needed because the file creating all tables needs every db_model imported
-
-# the legit alternative is importing every model here explicitly. Might be the more proper way later
-
-modules = glob.glob(join(dirname(__file__), "*.py"))
-__all__ = [basename(f)[:-3] for f in modules if isfile(f) and not f.endswith("__init__.py")]  # type: ignore
+# Import all models that exist here and list them in __all__
+__all__ = [
+    "BaseModel_DB",
+    "Council_DB",
+    "Event_DB",
+    "EventUser_DB",
+    "Permission_DB",
+    "Post_DB",
+    "PostPermission_DB",
+    "User_DB",
+]

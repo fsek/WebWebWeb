@@ -41,9 +41,7 @@ class JWTStrategy(Strategy[models.UP, models.ID], Generic[models.UP, models.ID])
             return None
 
         try:
-            data = decode_jwt(
-                token, self.decode_key, self.token_audience, algorithms=[self.algorithm]
-            )
+            data = decode_jwt(token, self.decode_key, self.token_audience, algorithms=[self.algorithm])
             user_id = data.get("sub")
             if user_id is None:
                 return None
@@ -56,13 +54,14 @@ class JWTStrategy(Strategy[models.UP, models.ID], Generic[models.UP, models.ID])
         except (exceptions.UserNotExists, exceptions.InvalidID):
             return None
 
+    # CUSTOM: adding this to add roles into token. Called in write_token
+    async def get_user_roles(self, user: models.UP) -> list[str]:
+        ...
+
     async def write_token(self, user: models.UP) -> str:
-        data = {"sub": str(user.id), "aud": self.token_audience}
-        return generate_jwt(
-            data, self.encode_key, self.lifetime_seconds, algorithm=self.algorithm
-        )
+        roles = await self.get_user_roles(user)
+        data = {"sub": str(user.id), "aud": self.token_audience, "roles": roles}
+        return generate_jwt(data, self.encode_key, self.lifetime_seconds, algorithm=self.algorithm)
 
     async def destroy_token(self, token: str, user: models.UP) -> None:
-        raise StrategyDestroyNotSupportedError(
-            "A JWT can't be invalidated: it's valid until it expires."
-        )
+        raise StrategyDestroyNotSupportedError("A JWT can't be invalidated: it's valid until it expires.")
