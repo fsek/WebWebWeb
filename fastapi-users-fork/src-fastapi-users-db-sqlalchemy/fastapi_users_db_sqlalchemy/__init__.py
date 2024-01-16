@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, Type
 from fastapi_users.db.base import BaseUserDatabase
 from fastapi_users.models import ID, OAP, UP
 from sqlalchemy import Boolean, ForeignKey, Integer, String, func, select
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, declared_attr, mapped_column
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, Session
 from sqlalchemy.sql import Select
 
 from fastapi_users_db_sqlalchemy.generics import GUID
@@ -29,19 +28,11 @@ class SQLAlchemyBaseUserTable(Generic[ID]):
         is_superuser: bool
         is_verified: bool
     else:
-        email: Mapped[str] = mapped_column(
-            String(length=320), unique=True, index=True, nullable=False
-        )
-        hashed_password: Mapped[str] = mapped_column(
-            String(length=1024), nullable=False
-        )
+        email: Mapped[str] = mapped_column(String(length=320), unique=True, index=True, nullable=False)
+        hashed_password: Mapped[str] = mapped_column(String(length=1024), nullable=False)
         is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-        is_superuser: Mapped[bool] = mapped_column(
-            Boolean, default=False, nullable=False
-        )
-        is_verified: Mapped[bool] = mapped_column(
-            Boolean, default=False, nullable=False
-        )
+        is_superuser: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+        is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
 
 class SQLAlchemyBaseUserTableUUID(SQLAlchemyBaseUserTable[UUID_ID]):
@@ -65,17 +56,11 @@ class SQLAlchemyBaseOAuthAccountTable(Generic[ID]):
         account_id: str
         account_email: str
     else:
-        oauth_name: Mapped[str] = mapped_column(
-            String(length=100), index=True, nullable=False
-        )
+        oauth_name: Mapped[str] = mapped_column(String(length=100), index=True, nullable=False)
         access_token: Mapped[str] = mapped_column(String(length=1024), nullable=False)
         expires_at: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
-        refresh_token: Mapped[Optional[str]] = mapped_column(
-            String(length=1024), nullable=True
-        )
-        account_id: Mapped[str] = mapped_column(
-            String(length=320), index=True, nullable=False
-        )
+        refresh_token: Mapped[Optional[str]] = mapped_column(String(length=1024), nullable=True)
+        account_id: Mapped[str] = mapped_column(String(length=320), index=True, nullable=False)
         account_email: Mapped[str] = mapped_column(String(length=320), nullable=False)
 
 
@@ -88,9 +73,7 @@ class SQLAlchemyBaseOAuthAccountTableUUID(SQLAlchemyBaseOAuthAccountTable[UUID_I
 
         @declared_attr
         def user_id(cls) -> Mapped[GUID]:
-            return mapped_column(
-                GUID, ForeignKey("user.id", ondelete="cascade"), nullable=False
-            )
+            return mapped_column(GUID, ForeignKey("user.id", ondelete="cascade"), nullable=False)
 
 
 class SQLAlchemyUserDatabase(Generic[UP, ID], BaseUserDatabase[UP, ID]):
@@ -102,13 +85,13 @@ class SQLAlchemyUserDatabase(Generic[UP, ID], BaseUserDatabase[UP, ID]):
     :param oauth_account_table: Optional SQLAlchemy OAuth accounts model.
     """
 
-    session: AsyncSession
+    session: Session
     user_table: Type[UP]
     oauth_account_table: Optional[Type[SQLAlchemyBaseOAuthAccountTable]]
 
     def __init__(
         self,
-        session: AsyncSession,
+        session: Session,
         user_table: Type[UP],
         oauth_account_table: Optional[Type[SQLAlchemyBaseOAuthAccountTable]] = None,
     ):
@@ -121,9 +104,7 @@ class SQLAlchemyUserDatabase(Generic[UP, ID], BaseUserDatabase[UP, ID]):
         return await self._get_user(statement)
 
     async def get_by_email(self, email: str) -> Optional[UP]:
-        statement = select(self.user_table).where(
-            func.lower(self.user_table.email) == func.lower(email)
-        )
+        statement = select(self.user_table).where(func.lower(self.user_table.email) == func.lower(email))
         return await self._get_user(statement)
 
     async def get_by_oauth_account(self, oauth: str, account_id: str) -> Optional[UP]:
@@ -141,49 +122,47 @@ class SQLAlchemyUserDatabase(Generic[UP, ID], BaseUserDatabase[UP, ID]):
     async def create(self, create_dict: Dict[str, Any]) -> UP:
         user = self.user_table(**create_dict)
         self.session.add(user)
-        await self.session.commit()
-        await self.session.refresh(user)
+        self.session.commit()
+        self.session.refresh(user)
         return user
 
     async def update(self, user: UP, update_dict: Dict[str, Any]) -> UP:
         for key, value in update_dict.items():
             setattr(user, key, value)
         self.session.add(user)
-        await self.session.commit()
-        await self.session.refresh(user)
+        self.session.commit()
+        self.session.refresh(user)
         return user
 
     async def delete(self, user: UP) -> None:
-        await self.session.delete(user)
-        await self.session.commit()
+        self.session.delete(user)
+        self.session.commit()
 
     async def add_oauth_account(self, user: UP, create_dict: Dict[str, Any]) -> UP:
         if self.oauth_account_table is None:
             raise NotImplementedError()
 
-        await self.session.refresh(user)
+        self.session.refresh(user)
         oauth_account = self.oauth_account_table(**create_dict)
         self.session.add(oauth_account)
         user.oauth_accounts.append(oauth_account)  # type: ignore
         self.session.add(user)
 
-        await self.session.commit()
+        self.session.commit()
 
         return user
 
-    async def update_oauth_account(
-        self, user: UP, oauth_account: OAP, update_dict: Dict[str, Any]
-    ) -> UP:
+    async def update_oauth_account(self, user: UP, oauth_account: OAP, update_dict: Dict[str, Any]) -> UP:
         if self.oauth_account_table is None:
             raise NotImplementedError()
 
         for key, value in update_dict.items():
             setattr(oauth_account, key, value)
         self.session.add(oauth_account)
-        await self.session.commit()
+        self.session.commit()
 
         return user
 
     async def _get_user(self, statement: Select) -> Optional[UP]:
-        results = await self.session.execute(statement)
+        results = self.session.execute(statement)
         return results.unique().scalar_one_or_none()

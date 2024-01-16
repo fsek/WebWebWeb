@@ -29,11 +29,11 @@ class User_DB(BaseModel_DB, Mixin):
     lastname: Mapped[str] = mapped_column(String(70))
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan", init=False, lazy="selectin"
+        back_populates="user", cascade="all, delete-orphan", init=False
     )
 
     event_users: Mapped[list["EventUser_DB"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan", init=False, lazy="selectin"
+        back_populates="user", cascade="all, delete-orphan", init=False
     )
 
     posts: AssociationProxy[list["Post_DB"]] = association_proxy(

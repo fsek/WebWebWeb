@@ -5,10 +5,10 @@ from fastapi_users.authentication import (
     JWTStrategy,
 )
 from fastapi_users.db import SQLAlchemyUserDatabase
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from fastapi import Depends
 from fastapi_users import FastAPIUsers
-from database import get_async_session
+from database import get_async_session, get_db
 from db_models.post_model import Post_DB
 from db_models.user_model import User_DB
 from user.user_manager import UserManager
@@ -40,7 +40,7 @@ class CustStrategy(JWTStrategy[User_DB, int]):
 
 
 def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
-    strat = CustStrategy(secret=SECRET, lifetime_seconds=20)
+    strat = CustStrategy(secret=SECRET, lifetime_seconds=3600)
     return strat
 
 
@@ -51,7 +51,7 @@ auth_backend = AuthenticationBackend[User_DB, int](
 )
 
 
-async def get_user_db(session: AsyncSession = Depends(get_async_session)):
+async def get_user_db(session: Session = Depends(get_db)):
     yield SQLAlchemyUserDatabase[User_DB, int](session, User_DB)
 
 
@@ -66,9 +66,11 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase[User_DB, int] = Depen
 USERS = FastAPIUsers[User_DB, int](get_user_manager, [auth_backend])
 
 # Theses are functions to feed into Depends. They validate the current authenticated user
-current_active_user: Any = USERS.current_user_token(active=True)
+# current_active_user: Any = USERS.current_user_token(active=True)
 
-current_active_verified_user: Any = USERS.current_user_token(active=True, verified=False)
+current_active_verified_user: Any = USERS.current_user(active=True, verified=False)
+
+current_active_verified_user_token: Any = USERS.current_user(active=True, verified=False)
 
 # this one will only let through active, verified superusers
 current_superuser: Any = USERS.current_user_token(active=True, verified=True, superuser=True)

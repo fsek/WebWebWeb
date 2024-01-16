@@ -14,6 +14,7 @@ from user.user_stuff import (
     AccessTokenData,
     auth_backend,
     current_active_verified_user,
+    current_active_verified_user_token,
 )
 from routes import router
 
@@ -62,7 +63,7 @@ class Permission:
 
     @classmethod
     def require(cls, action: PermissionAction, target: PermissionTarget):
-        def dependency(user_and_token: tuple[User_DB, str] = Depends(current_active_verified_user)):
+        def dependency(user_and_token: tuple[User_DB, str] = Depends(current_active_verified_user_token)):
             user, token = user_and_token
             decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, SECRET, audience=["fastapi-users:auth"]))
             user_role = f"{action}:{target}"
@@ -89,4 +90,6 @@ async def perm2():
 @app.get("/perm-user")
 async def perm3(user: Annotated[User_DB, Permission.base()]):
     # doing something heavier, like deleting users
-    print(user)
+    print("now at here")
+    for post in user.posts:
+        print(post.name)
