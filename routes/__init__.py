@@ -3,6 +3,7 @@ from .user_router import user_router
 from .post_router import post_router
 from .permission_router import permission_router
 from .auth_router import auth_router
+from .event_router import event_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -14,3 +15,5 @@ main_router.include_router(post_router, prefix="/posts", tags=["posts"])
 main_router.include_router(permission_router, prefix="/permissions", tags=["permissions"])
 
 main_router.include_router(auth_router, prefix="/auth", tags=["auth"])
+
+main_router.include_router(event_router, prefix="/events", tags=["events"])

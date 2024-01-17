@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from faker import Faker
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -79,10 +79,12 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
 
 
 def seed_events(db: Session, one_council: Council_DB):
+    start = datetime.datetime.now(datetime.timezone.utc)
+    end = start + datetime.timedelta(hours=3)
     event = Event_DB(
         council_id=one_council.id,
-        starts_at=datetime.today(),
-        ends_at=datetime.now(),
+        starts_at=start,
+        ends_at=end,
         description_en="Dis gun be litty",
         description_sv="Det blir fett gäähda",
     )
