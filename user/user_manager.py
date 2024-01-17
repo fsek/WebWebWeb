@@ -4,7 +4,6 @@ from fastapi_users import BaseUserManager, IntegerIDMixin
 
 from db_models.user_model import User_DB
 
-
 SECRET = "SECRET!"
 
 
@@ -15,12 +14,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):
     async def on_after_register(self, user: User_DB, request: Optional[Request] = None):
         print(f"User {user.id} has registered.")
 
-    async def on_after_forgot_password(
-        self, user: User_DB, token: str, request: Optional[Request] = None
-    ):
+    async def on_after_forgot_password(self, user: User_DB, token: str, request: Optional[Request] = None):
         print(f"User {user.id} has forgot their password. Reset token: {token}")
 
-    async def on_after_request_verify(
-        self, user: User_DB, token: str, request: Optional[Request] = None
-    ):
+    async def on_after_request_verify(self, user: User_DB, token: str, request: Optional[Request] = None):
         print(f"Verification requested for user {user.id}. Verification token: {token}")
+        # TODO send email to user email with token in link for verification

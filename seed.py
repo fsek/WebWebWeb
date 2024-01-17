@@ -1,5 +1,4 @@
 from datetime import datetime
-from math import floor
 from faker import Faker
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
@@ -8,8 +7,7 @@ from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
-from db_models.post_permission_model import PostPermission_DB
-from schemas.schemas import UserCreate
+from schemas.user_schemas import UserCreate
 from db_models.user_model import User_DB
 
 fake = Faker()
@@ -18,15 +16,28 @@ fake = Faker()
 def seed_users(db: Session, app: FastAPI):
     # This one seeds by actually calling user register route. Other create models directly
     client = TestClient(app)
-    admin = UserCreate(email="admin@fsektionen.se", firstname="Admin", lastname="Adminsson", password="dabdab")
+
+    boss = UserCreate(email="boss@fsektionen.se", firstname="Boss", lastname="AllaPostersson", password="dabdab")
     user = UserCreate(email="user@fsektionen.se", firstname="User", lastname="Userström", password="dabdab")
 
-    admin_response = client.post("/auth/register", json=admin.model_dump())
-    assert admin_response.status_code == 201
+    boss_response = client.post("/auth/register", json=boss.model_dump())
+    assert boss_response.status_code == 201
     response = client.post("/auth/register", json=user.model_dump())
     assert response.status_code == 201
+
     client.close()
-    return admin_response.json(), response.json()
+    boss_id = boss_response.json()["id"]
+    user_id = response.json()["id"]
+
+    # now fetch the created users and set is_verified to True
+    boss = db.query(User_DB).filter_by(id=boss_id).one()
+    user = db.query(User_DB).filter_by(id=user_id).one()
+
+    boss.is_verified = True
+    user.is_verified = True
+
+    db.commit()
+    return boss, user
 
 
 def seed_councils(db: Session):
@@ -37,11 +48,11 @@ def seed_councils(db: Session):
     return councils
 
 
-def seed_posts(db: Session, one_council: Council_DB):
+def seed_posts(db: Session, some_councils: list[Council_DB]):
     posts = [
-        Post_DB(name="Buggmästare", council_id=one_council.id),
-        Post_DB(name="Mytoman", council_id=one_council.id),
-        Post_DB(name="Lallare", council_id=one_council.id),
+        Post_DB(name="Buggmästare", council_id=some_councils[0].id),
+        Post_DB(name="Lallare", council_id=some_councils[0].id),
+        Post_DB(name="Mytoman", council_id=some_councils[1].id),
     ]
     db.add_all(posts)
     db.commit()
@@ -49,18 +60,21 @@ def seed_posts(db: Session, one_council: Council_DB):
     return posts
 
 
-def seed_post_users(db: Session, one_post: Post_DB):
-    # Give a post to half of users
-    users = db.query(User_DB).all()
-    for u in users:
-        u.posts.append(one_post)
+def seed_post_users(db: Session, boss: User_DB, user: User_DB, posts: list[Post_DB]):
+    # Give posts to users
+    boss.posts = posts
+    user.posts.append(posts[0])
 
     db.commit()
 
 
-def seed_permissions(db: Session, one_post: Post_DB):
-    perm = Permission_DB(action="read", target="A")
-    one_post.permissions.append(perm)
+def seed_permissions(db: Session, posts: list[Post_DB]):
+    perm1 = Permission_DB(action="manage", target="Permission")
+    perm2 = Permission_DB(action="view", target="User")
+    perm3 = Permission_DB(action="manage", target="Event")
+    posts[0].permissions.append(perm1)
+    posts[0].permissions.append(perm2)
+    posts[1].permissions.append(perm3)
     db.commit()
 
 
@@ -83,14 +97,14 @@ def seed_if_empty(app: FastAPI, db: Session):
 
     print("Time to seed.")
 
-    seed_users(db, app)
-
     councils = seed_councils(db)
 
-    posts = seed_posts(db, councils[0])
+    posts = seed_posts(db, councils)
 
-    seed_post_users(db, posts[0])
+    seed_permissions(db, posts)
+
+    boss, user = seed_users(db, app)
+
+    seed_post_users(db, boss, user, posts)
 
     seed_events(db, councils[1])
-
-    seed_permissions(db, posts[0])
