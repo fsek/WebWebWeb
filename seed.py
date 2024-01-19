@@ -87,6 +87,8 @@ def seed_events(db: Session, one_council: Council_DB):
         ends_at=end,
         description_en="Dis gun be litty",
         description_sv="Det blir fett gäähda",
+        title_en="Phat party",
+        title_sv="Loyde gähdda",
     )
     db.add(event)
     db.commit()

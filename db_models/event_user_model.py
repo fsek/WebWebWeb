@@ -1,13 +1,12 @@
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from .base_model import BaseModel_DB
-
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 
 if TYPE_CHECKING:
-    from event_model import Event_DB
     from user_model import User_DB
+    from event_model import Event_DB
 
 
 class EventUser_DB(BaseModel_DB):

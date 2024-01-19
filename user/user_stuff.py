@@ -42,9 +42,9 @@ USERS = FastAPIUsers[User_DB, int](get_user_manager, [auth_backend])
 
 # current_active_user: Any = USERS.current_user_token(active=True)
 
-current_active_verified_user: Any = USERS.current_user(active=True, verified=True)
+current_verified_user: Any = USERS.current_user(verified=True)
 
-current_active_verified_user_token: Any = USERS.current_user_token(active=True, verified=True)
+current_verified_user_token: Any = USERS.current_user_token(verified=True)
 
 # this one will only let through active, verified superusers
 # current_superuser: Any = USERS.current_user_token(active=True, verified=True, superuser=True)

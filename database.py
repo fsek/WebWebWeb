@@ -2,8 +2,6 @@ from typing import Annotated
 from fastapi import Depends
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
-
-# from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from db_models import base_model
 from db_models import *
 
@@ -16,15 +14,10 @@ from db_models import *
 
 
 # SQLite database will be a single file at project root
-SQLALCHEMY_DATABASE_URL_ASYNC = "sqlite+aiosqlite:///./database.sqlite"
 SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
 
-
-# async_engine = create_async_engine(SQLALCHEMY_DATABASE_URL_ASYNC, echo=True)
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
-
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
 session_factory = sessionmaker(engine, expire_on_commit=False)
-# async_sessionmaker = async_sessionmaker(async_engine, expire_on_commit=False)
 
 
 # A route accesses DB by "Depends()"ing on this:

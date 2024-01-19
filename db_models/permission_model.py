@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 from sqlalchemy import String
-from helper_types.permission_types import PermissionAction, PermissionTarget
+
+from helpers.types import PERMISSION_TARGET, PERMISSION_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 
@@ -13,8 +14,8 @@ class Permission_DB(BaseModel_DB):
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    action: Mapped[PermissionAction] = mapped_column(String(160))
+    action: Mapped[PERMISSION_TYPE] = mapped_column(String(160))
 
     post_permissions: Mapped[list["PostPermission_DB"]] = relationship(back_populates="permission", init=False)
 
-    target: Mapped[PermissionTarget] = mapped_column(String(160))
+    target: Mapped[PERMISSION_TARGET] = mapped_column(String(160))

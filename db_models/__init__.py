@@ -6,8 +6,10 @@ from .permission_model import Permission_DB
 from .post_model import Post_DB
 from .post_permission_model import PostPermission_DB
 from .user_model import User_DB
+from .event_signup_model import EventSignup_DB
 
-# Import all models that exist here and list them in __all__
+# Import all models that exist into this file and list them in __all__
+
 __all__ = [
     "BaseModel_DB",
     "Council_DB",
@@ -17,4 +19,5 @@ __all__ = [
     "Post_DB",
     "PostPermission_DB",
     "User_DB",
+    "EventSignup_DB",
 ]

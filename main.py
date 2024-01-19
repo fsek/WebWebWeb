@@ -24,14 +24,19 @@ app.include_router(router=main_router)
 
 @app.get("/")
 def hello_route():
-    return {"message": "Welcome to F-Sektionen backend server!"}
+    return {"message": "Velkom to Fsek bäckänd"}
 
 
-@app.get("/user", dependencies=[Permission.base()])
-def normal_user_route():
-    return {"message": "Congratz! Only users can reach this route"}
+@app.get("/user-only", dependencies=[Permission.base()])
+def user_only():
+    return {"message": "Hello, you are not so special."}
 
 
-@app.get("/manage-event", dependencies=[Permission.require("manage", "Event")])
+@app.get("/member-only", dependencies=[Permission.member()])
+def member_only():
+    return {"message": "Congratz! Only members can reach this route"}
+
+
+@app.get("/manage-event-only", dependencies=[Permission.require("manage", "Event")])
 def permission_route():
     return {"message": "Congratz. You reached a manage:Event route"}

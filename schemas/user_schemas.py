@@ -1,11 +1,8 @@
-from pydantic import BaseModel, ConfigDict
+from typing import Annotated
+from pydantic import StringConstraints
 from fastapi_users import schemas as fastapi_users_schemas
-
-
-# Inherit from when creating Pydantic Models
-class BaseSchema(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    # This model_config lets pydantic validate a databse model
+from helpers.constants import MAX_FIRSTNAME_LEN, MAX_LASTNAME_LEN
+from schemas.base_schema import BaseSchema
 
 
 class _UserEventRead(BaseSchema):
@@ -18,29 +15,26 @@ class _UserPostRead(BaseSchema):
     council_id: int
 
 
-class UserCreatedResponse(fastapi_users_schemas.BaseUser[int], BaseSchema):
-    # This is a specific response model for 'register' route. fastapi-users lirary uses async SQLAlchemy so
-    # this schema can't contain related attributes since they would need lazy load which can't be done with async session
-    id: int
-    firstname: str
-    email: str
-    posts: list[_UserPostRead]
-
-
 class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     firstname: str
+    lastname: str
     email: str
     posts: list[_UserPostRead]
     events: list[_UserEventRead]
 
 
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
-    firstname: str
-    lastname: str
+    firstname: Annotated[str, StringConstraints(max_length=MAX_FIRSTNAME_LEN)]
+    lastname: Annotated[str, StringConstraints(max_length=MAX_LASTNAME_LEN)]
     pass
 
 
-class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
-    firstname: str
-    lastname: str
-    pass
+class MeUpdate(BaseSchema):
+    firstname: str | None = None
+    lastname: str | None = None
+
+
+# class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
+#     firstname: str
+#     lastname: str
+#     pass
