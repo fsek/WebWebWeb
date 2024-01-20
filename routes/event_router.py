@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from database import DB_dependency
 from db_models.event_model import Event_DB
-from schemas.event_schemas import EventCreate, EventRead
+from api_schemas.event_schemas import EventCreate, EventRead
 from services.event_service import create_new_event, delete_event
 from user.permission import Permission
 

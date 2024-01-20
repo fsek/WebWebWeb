@@ -1,4 +1,4 @@
-from schemas.user_schemas import BaseSchema
+from api_schemas.base_schema import BaseSchema
 
 
 class _PostPermissionRead(BaseSchema):

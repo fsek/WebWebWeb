@@ -2,7 +2,7 @@ from typing import Annotated
 from pydantic import StringConstraints
 from fastapi_users import schemas as fastapi_users_schemas
 from helpers.constants import MAX_FIRSTNAME_LEN, MAX_LASTNAME_LEN
-from schemas.base_schema import BaseSchema
+from api_schemas.base_schema import BaseSchema
 
 
 class _UserEventRead(BaseSchema):

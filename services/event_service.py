@@ -1,8 +1,8 @@
-from datetime import timedelta, timezone, datetime
+from datetime import UTC, timedelta, datetime
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from db_models.event_model import Event_DB
-from schemas.event_schemas import EventCreate
+from api_schemas.event_schemas import EventCreate
 
 
 def create_new_event(data: EventCreate, db: Session):
@@ -11,23 +11,27 @@ def create_new_event(data: EventCreate, db: Session):
     if data.starts_at.utcoffset() != zero_dt or data.ends_at.utcoffset() != zero_dt:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Datetimes must be UTC")
 
-    start = data.starts_at.astimezone(timezone.utc)
-    end = data.ends_at.astimezone(timezone.utc)
+    start = data.starts_at.astimezone(UTC)
+    end = data.ends_at.astimezone(UTC)
     start = start.replace(second=0, microsecond=0)  # round down to whole minutes
     end = end.replace(second=0, microsecond=0)
 
     if end <= start:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Start date must be before end")
 
-    if start < datetime.now(timezone.utc):
+    if start < datetime.now(UTC):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event start cannot be in the past")
 
     event = Event_DB(
         starts_at=start,
         ends_at=end,
+        title_sv=data.title_sv,
+        title_en=data.title_en,
         description_sv=data.description_sv,
         description_en=data.description_en,
         council_id=data.council_id,
+        signup_start=data.signup_start,
+        signup_end=data.signup_end,
     )
     db.add(event)
     db.commit()

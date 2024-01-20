@@ -1,8 +1,9 @@
-from typing import Annotated, Any, Dict, cast
+from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
+from api_schemas.base_schema import BaseSchema
 from database import DB_dependency
 from db_models.user_model import User_DB
-from schemas.user_schemas import BaseSchema, MeUpdate, UserRead
+from api_schemas.user_schemas import MeUpdate, UserRead
 from user.permission import Permission
 
 user_router = APIRouter()
@@ -21,11 +22,15 @@ def get_me(user: Annotated[User_DB, Permission.base()]):
 
 @user_router.patch("/me", response_model=UserRead)
 def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()], db: DB_dependency):
-    update_dict = data.model_dump(exclude_none=True, exclude_unset=True)
-    # Warning: this is assuming we don't need any validation above just setting attributes directly.
-    # if no db column definitions or custom validates directives cover our needed validation on fields allowed into this route then we gotta add it here
+    # Since we edit user, look it up using "db" and not from permission so were are in same session
+    me = db.query(User_DB).filter_by(id=current_user.id).one()
 
-    db.query(User_DB).filter_by(id=current_user.id).values(**update_dict)
+    # not elegant, will have to find better wat for future update routes
+    if data.firstname:
+        me.firstname = data.firstname
+    if data.lastname:
+        me.lastname = data.lastname
+
     db.commit()
     return current_user
 

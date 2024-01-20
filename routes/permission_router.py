@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import DB_dependency, get_db
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
-from schemas.permission_schemas import PermissionCreate, PermissionRead, UpdatePermission
+from api_schemas.permission_schemas import PermissionCreate, PermissionRead, UpdatePermission
 from services.permission_service import assign_permission, unassign_permission
 from user.permission import Permission
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from database import DB_dependency
 from db_models.post_model import Post_DB
-from schemas.post_schemas import PostRead
+from api_schemas.post_schemas import PostRead
 
 post_router = APIRouter()
 

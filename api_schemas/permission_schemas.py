@@ -1,6 +1,6 @@
 from typing import Literal
+from api_schemas.base_schema import BaseSchema
 from helpers.types import PERMISSION_TARGET, PERMISSION_TYPE
-from schemas.user_schemas import BaseSchema
 
 
 class PermissionRead(BaseSchema):

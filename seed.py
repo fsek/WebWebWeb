@@ -7,7 +7,7 @@ from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
-from schemas.user_schemas import UserCreate
+from api_schemas.user_schemas import UserCreate
 from db_models.user_model import User_DB
 
 fake = Faker()
@@ -79,16 +79,18 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
 
 
 def seed_events(db: Session, one_council: Council_DB):
-    start = datetime.datetime.now(datetime.timezone.utc)
-    end = start + datetime.timedelta(hours=3)
+    starts_at = datetime.datetime.now(datetime.UTC)
+    signup_start = starts_at + datetime.timedelta(hours=2)
+    ends_at = starts_at + datetime.timedelta(hours=3)
     event = Event_DB(
         council_id=one_council.id,
-        starts_at=start,
-        ends_at=end,
+        starts_at=starts_at,
+        ends_at=ends_at,
         description_en="Dis gun be litty",
         description_sv="Det blir fett gäähda",
         title_en="Phat party",
         title_sv="Loyde gähdda",
+        signup_start=signup_start,
     )
     db.add(event)
     db.commit()
