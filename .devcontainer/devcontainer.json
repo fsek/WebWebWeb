@@ -29,5 +29,6 @@
             }
         }
     },
-    "postCreateCommand": "python -m pip install -r requirements.txt && pg_ctlcluster 16 main restart"
+    "postCreateCommand": "python -m pip install -r requirements.txt",
+    "postStartCommand": "pg_ctlcluster 16 main restart"
 }
