@@ -1,0 +1,33 @@
+{
+    "build": {
+        // Path is relative to the devcontainer.json file.
+        "dockerfile": "Dockerfile"
+    },
+    // Configure tool-specific properties.
+    "customizations": {
+        // Configure properties specific to VS Code.
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "ms-python.black-formatter"
+            ],
+            // Set *default* container specific settings.json values on container create.
+            "settings": {
+                "python.defaultInterpreterPath": "/usr/local/bin/python",
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter",
+                    "editor.formatOnSave": true
+                },
+                "editor.insertSpaces": true,
+                "editor.tabSize": 4,
+                "python.analysis.typeCheckingMode": "strict",
+                "python.analysis.autoImportCompletions": true,
+                "python.analysis.diagnosticSeverityOverrides": {
+                    "reportUnusedImport": "warning",
+                    "reportUnusedVariable": "warning"
+                }
+            }
+        }
+    },
+    "postCreateCommand": "python -m pip install -r requirements.txt && pg_ctlcluster 16 main restart"
+}

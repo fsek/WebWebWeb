@@ -14,7 +14,10 @@ from db_models import *
 
 
 # SQLite database will be a single file at project root
-SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
+# SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
+SQLALCHEMY_DATABASE_URL = (
+    "postgresql+psycopg2://postgres:password@localhost:5432/postgres"
+)
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 session_factory = sessionmaker(engine, expire_on_commit=False)

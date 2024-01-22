@@ -80,8 +80,9 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
 
 def seed_events(db: Session, one_council: Council_DB):
     starts_at = datetime.datetime.now(datetime.UTC)
-    signup_start = starts_at + datetime.timedelta(hours=2)
-    ends_at = starts_at + datetime.timedelta(hours=3)
+    signup_start = starts_at + datetime.timedelta(hours=1)
+    signup_end = signup_start + datetime.timedelta(hours=1)
+    ends_at = signup_end + datetime.timedelta(hours=1)
     event = Event_DB(
         council_id=one_council.id,
         starts_at=starts_at,
@@ -91,6 +92,7 @@ def seed_events(db: Session, one_council: Council_DB):
         title_en="Phat party",
         title_sv="Loyde gähdda",
         signup_start=signup_start,
+        signup_end=signup_end
     )
     db.add(event)
     db.commit()
@@ -114,3 +116,5 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_post_users(db, boss, user, posts)
 
     seed_events(db, councils[1])
+    
+    print("Done seeding!")
