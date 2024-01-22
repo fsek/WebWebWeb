@@ -1,8 +1,9 @@
-from typing import AsyncGenerator
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-
-from db_models.base_model import BaseModel_DB
-
+from typing import Annotated
+from fastapi import Depends
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+from db_models import base_model
+from db_models import *
 
 # Temporarty because SQLite need it to enable foreign key constraint
 # @event.listens_for(Any, "connect")
@@ -13,24 +14,23 @@ from db_models.base_model import BaseModel_DB
 
 
 # SQLite database will be a single file at project root
-SQLALCHEMY_DATABASE_URL = "sqlite+aiosqlite:///./database.sqlite"
+# SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
+SQLALCHEMY_DATABASE_URL = (
+    "postgresql+psycopg2://postgres:password@localhost:5432/postgres"
+)
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL)
+session_factory = sessionmaker(engine, expire_on_commit=False)
 
 
-engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
-async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
-
-
-# class A(BaseModel_DB):
-# __tablename__
-# id: Mapped[int] = mapped_column(primary_key=True)
-
-
-async def create_db_and_tables():
-    async with engine.begin() as conn:
-        await conn.run_sync(BaseModel_DB.metadata.create_all)
-
-
-# A route accesses DB by Depends()'ing on this:
-async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
+# A route accesses DB by "Depends()"ing on this:
+def get_db():
+    with session_factory() as session:
         yield session
+
+
+DB_dependency = Annotated[Session, Depends(get_db)]
+
+
+def init_db():
+    base_model.BaseModel_DB.metadata.create_all(bind=engine)
