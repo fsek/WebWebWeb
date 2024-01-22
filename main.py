@@ -24,7 +24,7 @@ app.include_router(router=main_router)
 
 @app.get("/")
 def hello_route():
-    return {"message": "Velkoasdasdfm tasdfaasdfasdfsdfo Fsek bäckänd"}
+    return {"message": "1asdfasdf234"}
 
 
 @app.get("/user-only", dependencies=[Permission.base()])
