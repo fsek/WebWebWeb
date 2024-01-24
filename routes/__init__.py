@@ -19,4 +19,4 @@ main_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 
 main_router.include_router(event_router, prefix="/events", tags=["events"])
 
-main_router.include_router(event_signup_router, prefix="/events/signup", tags=["event signup"])
+main_router.include_router(event_signup_router, prefix="/event_signup", tags=["event signup"])
