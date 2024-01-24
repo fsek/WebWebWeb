@@ -13,22 +13,24 @@
             ],
             // Set *default* container specific settings.json values on container create.
             "settings": {
-                "python.defaultInterpreterPath": "/usr/local/bin/python",
                 "[python]": {
+                    "defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python3.11",
+                    "terminal.activateEnvironment": true,
+                    "terminal.activateEnvInCurrentTerminal": true,
                     "editor.defaultFormatter": "ms-python.black-formatter",
-                    "editor.formatOnSave": true
+                    "editor.formatOnSave": true,
+                    "analysis.typeCheckingMode": "strict",
+                    "analysis.autoImportCompletions": true,
+                    "analysis.diagnosticSeverityOverrides": {
+                        "reportUnusedImport": "warning",
+                        "reportUnusedVariable": "warning"
+                    }
                 },
                 "editor.insertSpaces": true,
-                "editor.tabSize": 4,
-                "python.analysis.typeCheckingMode": "strict",
-                "python.analysis.autoImportCompletions": true,
-                "python.analysis.diagnosticSeverityOverrides": {
-                    "reportUnusedImport": "warning",
-                    "reportUnusedVariable": "warning"
-                }
+                "editor.tabSize": 4
             }
         }
     },
-    "postCreateCommand": "python -m pip install -r requirements.txt",
+    "postCreateCommand": "python3.11 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt",
     "postStartCommand": "pg_ctlcluster 16 main restart"
 }

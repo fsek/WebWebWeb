@@ -12,7 +12,6 @@ from db_models.user_model import User_DB
 
 fake = Faker()
 
-
 def seed_users(db: Session, app: FastAPI):
     # This one seeds by actually calling user register route. Other create models directly
     client = TestClient(app)
