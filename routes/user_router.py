@@ -39,7 +39,7 @@ class UpdateUserMember(BaseSchema):
     is_member: bool
 
 
-@user_router.patch("/{user_id}/member-status", dependencies=[Permission.require("manage", "User")])
+@user_router.patch("/member-status/{user_id}", dependencies=[Permission.require("manage", "User")])
 def update_user(user_id: int, data: UpdateUserMember, db: DB_dependency):
     user = db.query(User_DB).filter_by(id=user_id).one_or_none()
     if user is None:
@@ -51,4 +51,7 @@ def update_user(user_id: int, data: UpdateUserMember, db: DB_dependency):
     return user
 
 
-# TODO update your own stuff, delete routes
+# TODO update your own stuff,
+
+
+# TODO delete routes

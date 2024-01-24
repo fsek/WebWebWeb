@@ -24,12 +24,12 @@ app.include_router(router=main_router)
 
 @app.get("/")
 def hello_route():
-    return {"message": "1asdfasdf234"}
+    return {"message": "Välkommen till F-Sektionens bäckend"}
 
 
 @app.get("/user-only", dependencies=[Permission.base()])
 def user_only():
-    return {"message": "Hello, you are not so special."}
+    return {"message": "Hello, you are a user."}
 
 
 @app.get("/member-only", dependencies=[Permission.member()])

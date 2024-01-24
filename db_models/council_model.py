@@ -19,8 +19,6 @@ class Council_DB(BaseModel_DB):
 
     posts: Mapped[list["Post_DB"]] = relationship(back_populates="council", init=False)
 
-    # has many users through posts post_users
-
     events: Mapped[list["Event_DB"]] = relationship(back_populates="council", init=False)
 
     pass

@@ -14,7 +14,6 @@ def get_all_events(db: DB_dependency):
     return events
 
 
-# perhaps only be able to create events for your own council?
 @event_router.post("/", dependencies=[Permission.require("manage", "Event")])
 def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
@@ -25,3 +24,6 @@ def create_event(data: EventCreate, db: DB_dependency):
 def remove(event_id: int, db: DB_dependency):
     delete_event(event_id, db)
     return
+
+
+# TODO patch route

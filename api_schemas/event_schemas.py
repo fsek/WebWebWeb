@@ -16,7 +16,7 @@ class EventRead(BaseSchema):
 
 
 # we dont need to be as strict about out data as in data.
-# str is fine for Read but Create needs max_length
+# str is fine for Read but Create needs max_length, good validation
 
 
 class EventCreate(BaseSchema):
