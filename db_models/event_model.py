@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
-from sqlalchemy import CheckConstraint, ForeignKey, String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from .base_model import BaseModel_DB
@@ -15,10 +15,6 @@ if TYPE_CHECKING:
 
 class Event_DB(BaseModel_DB):
     __tablename__ = "event_table"
-    __table_args__ = (
-        # this will make postgres refuse inserting ending date earlier than starting
-        CheckConstraint("starts_at < ends_at"),
-    )
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     starts_at: Mapped[datetime] = mapped_column()

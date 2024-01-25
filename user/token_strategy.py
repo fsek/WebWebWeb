@@ -1,9 +1,5 @@
 from typing import TypedDict
-from fastapi_users.authentication import (
-    JWTStrategy,
-)
-from db_models.permission_model import Permission_DB
-from db_models.post_model import Post_DB
+from fastapi_users.authentication import JWTStrategy
 from db_models.user_model import User_DB
 
 JWT_SECRET = "MEGA SECRET"
@@ -20,14 +16,12 @@ class AccessTokenData(TypedDict):
 class CustomTokenStrategy(JWTStrategy[User_DB, int]):
     # on login we add our own permissions data into the JWT token
     async def get_user_permissions(self, user: User_DB) -> list[str]:
-        # gotta load posts through .post_users here, not through .posts.
-        perms: list[str] = []
-        for post_user in user.post_users:
-            post: Post_DB = await post_user.awaitable_attrs.post
-            permissions: list[Permission_DB] = await post.awaitable_attrs.permissions
-            for perm in permissions:
-                perms.append(self.encode_permission(perm.action, perm.target))
-        return perms
+        # lets add all permissions form the user's post
+        all_perms: list[str] = []
+        for post in user.posts:
+            for perm in post.permissions:
+                all_perms.append(self.encode_permission(perm.action, perm.target))
+        return all_perms
 
     @classmethod
     def decode_permission(cls, permission: str) -> tuple[str, str]:

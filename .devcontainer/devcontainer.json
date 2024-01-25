@@ -13,24 +13,24 @@
             ],
             // Set *default* container specific settings.json values on container create.
             "settings": {
+                "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python3.11",
+                "python.terminal.activateEnvironment": true,
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.analysis.typeCheckingMode": "strict",
+                "python.analysis.autoImportCompletions": true,
+                "python.analysis.diagnosticSeverityOverrides": {
+                    "reportUnusedImport": "warning",
+                    "reportUnusedVariable": "warning"
+                },
                 "[python]": {
-                    "defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python3.11",
-                    "terminal.activateEnvironment": true,
-                    "terminal.activateEnvInCurrentTerminal": true,
                     "editor.defaultFormatter": "ms-python.black-formatter",
                     "editor.formatOnSave": true,
-                    "analysis.typeCheckingMode": "strict",
-                    "analysis.autoImportCompletions": true,
-                    "analysis.diagnosticSeverityOverrides": {
-                        "reportUnusedImport": "warning",
-                        "reportUnusedVariable": "warning"
-                    }
+                    "editor.insertSpaces": true,
+                    "editor.tabSize": 4
                 },
                 "black-formatter.args": [
                     "--line-length=120"
-                ],
-                "editor.insertSpaces": true,
-                "editor.tabSize": 4
+                ]
             }
         }
     },
