@@ -16,6 +16,8 @@ RUN sed -i '1s;^;host all postgres samenet trust\n;' /etc/postgresql/16/main/pg_
 # python venv must be installed through apt
 RUN apt install -y python3.11 python3.11-venv sudo git
 
+ENV ENV=development
+
 # In prod we must NOT run our container with root user, security risk. 
 # In the future I think we should use non-root user event in dev to make environment similar to prod
 

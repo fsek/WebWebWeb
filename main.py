@@ -4,14 +4,16 @@ from database import init_db, session_factory
 from seed import seed_if_empty
 from routes import main_router
 from user.permission import Permission
+from os import environ
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Not needed if you setup a migration system like Alembic
-    init_db()
-    with session_factory() as db:
-        seed_if_empty(app, db)
+    if environ.get("ENV") == "development":
+        # Not needed if you setup a migration system like Alembic
+        init_db()
+        with session_factory() as db:
+            seed_if_empty(app, db)
 
     yield
     # after yield comes shutdown logic
