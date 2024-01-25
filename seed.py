@@ -12,6 +12,7 @@ from db_models.user_model import User_DB
 
 fake = Faker()
 
+
 def seed_users(db: Session, app: FastAPI):
     # This one seeds by actually calling user register route. Other create models directly
     client = TestClient(app)
@@ -91,7 +92,7 @@ def seed_events(db: Session, one_council: Council_DB):
         title_en="Phat party",
         title_sv="Loyde gähdda",
         signup_start=signup_start,
-        signup_end=signup_end
+        signup_end=signup_end,
     )
     db.add(event)
     db.commit()
@@ -99,6 +100,7 @@ def seed_events(db: Session, one_council: Council_DB):
 
 
 def seed_if_empty(app: FastAPI, db: Session):
+    # If there's no user, assumed DB is empty and seed it.
     if db.query(User_DB).count() > 0:
         return
 
@@ -115,5 +117,5 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_post_users(db, boss, user, posts)
 
     seed_events(db, councils[1])
-    
+
     print("Done seeding!")
