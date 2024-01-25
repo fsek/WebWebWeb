@@ -7,15 +7,15 @@ The function names should be written in snake_case.
 ## Schemas
 For many different objects, a lot of basic schemas will be used for similar purposes. One common naming convention is to follow CRUD: Create, Read, Update and Delete, which describes how the most common schemas should be named. Let's say we want to create some schemas for an database model 'Example'. For the different routes, the schemas should ideally be named: 
 
-For the POST route: `ExampleCreate`,
-For the GET route: `ExampleRead`,
-For the PATCH route: `ExampleUpdate`,
-For the DELETE route: `ExampleDelete`.
+- For the POST route: `ExampleCreate`,
+- For the GET route: `ExampleRead`,
+- For the PATCH route: `ExampleUpdate`,
+- For the DELETE route: `ExampleDelete`.
 
 All schemas should be written in PascalCase. 
 
 ## Database models
-Database models should be written with Pascal_Case_With_Underscores, with suffix _DB. For example, `Example_DB`. The `__tablename__` property should be snake_case and end with _table, for example `example_table`. 
+Database models should be written with PascalCase, with suffix _DB. For example, `CoolExample_DB`. The `__tablename__` property should be snake_case and end with _table, for example `cool_example_table`. 
 
 ## Association Tables
 Association tables should be written with snake_case. An association table that relates cats and dogs should ideally be named `cat_dog_association`. The tablename should be the same, but with 'table' instead of 'association': `cat_dog_table`. 
