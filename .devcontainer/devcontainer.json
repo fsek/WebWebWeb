@@ -10,7 +10,27 @@
             "extensions": [
                 "ms-python.python",
                 "ms-python.black-formatter"
-            ]
+            ],
+            "settings": {
+                "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python3.11",
+                "python.terminal.activateEnvironment": true,
+                "python.terminal.activateEnvInCurrentTerminal": true,
+                "python.analysis.typeCheckingMode": "strict",
+                "python.analysis.autoImportCompletions": true,
+                "python.analysis.diagnosticSeverityOverrides": {
+                    "reportUnusedImport": "warning",
+                    "reportUnusedVariable": "warning"
+                },
+                "[python]": {
+                    "editor.defaultFormatter": "ms-python.black-formatter",
+                    "editor.formatOnSave": true,
+                    "editor.insertSpaces": true,
+                    "editor.tabSize": 4
+                },
+                "black-formatter.args": [
+                    "--line-length=120"
+                ]
+            }
         }
     },
     "postCreateCommand": "python3.11 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt",
