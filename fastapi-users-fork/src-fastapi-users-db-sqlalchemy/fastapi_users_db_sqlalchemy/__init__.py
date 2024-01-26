@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, Dict, Generic, Optional, Type
 from fastapi_users.db.base import BaseUserDatabase
 from fastapi_users.models import ID, OAP, UP
 from sqlalchemy import Boolean, ForeignKey, Integer, String, func, select
-from sqlalchemy.orm import Mapped, declared_attr, mapped_column, Session
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column, Session, MappedAsDataclass
 from sqlalchemy.sql import Select
 
 from fastapi_users_db_sqlalchemy.generics import GUID
@@ -15,7 +15,7 @@ __version__ = "6.0.1"
 UUID_ID = uuid.UUID
 
 
-class SQLAlchemyBaseUserTable(Generic[ID]):
+class SQLAlchemyBaseUserTable(Generic[ID], MappedAsDataclass):
     """Base SQLAlchemy users table definition."""
 
     __tablename__ = "user"

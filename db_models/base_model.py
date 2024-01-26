@@ -8,5 +8,5 @@ from sqlalchemy.orm import (
 # Base DB model. Inherit from this one when you create your own DB models.
 # MappedAsDataclass is what automatically creates the model's constructor, __init__(),
 # with proper function arguments
-class BaseModel_DB(MappedAsDataclass, DeclarativeBase, kw_only=True):
+class BaseModel_DB(DeclarativeBase, MappedAsDataclass, kw_only=True):
     pass

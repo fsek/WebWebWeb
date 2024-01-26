@@ -1,5 +1,7 @@
 annotated-types==0.6.0
 anyio==4.2.0
+argon2-cffi==23.1.0
+argon2-cffi-bindings==21.2.0
 bcrypt==4.1.2
 certifi==2023.11.17
 cffi==1.16.0
@@ -8,21 +10,25 @@ cryptography==42.0.1
 dnspython==2.5.0
 email-validator==2.1.0.post1
 fastapi==0.109.0
--e git+https://github.com/fsek/WebWebWeb.git@eb5e53efbff7d94108ed759a988bad7b7a442bec#egg=fastapi_users&subdirectory=fastapi-users-fork/src-fastapi-users
--e git+https://github.com/fsek/WebWebWeb.git@eb5e53efbff7d94108ed759a988bad7b7a442bec#egg=fastapi_users_db_sqlalchemy&subdirectory=fastapi-users-fork/src-fastapi-users-db-sqlalchemy
+-e ./fastapi-users-fork/src-fastapi-users
+-e ./fastapi-users-fork/src-fastapi-users-db-sqlalchemy
 greenlet==3.0.3
 h11==0.14.0
 httpcore==1.0.2
 httptools==0.6.1
 httpx==0.26.0
 idna==3.6
+iniconfig==2.0.0
 makefun==1.15.2
+packaging==23.2
 passlib==1.7.4
+pluggy==1.4.0
 psycopg==3.1.17
 pycparser==2.21
 pydantic==2.5.3
 pydantic_core==2.14.6
 PyJWT==2.8.0
+pytest==7.4.4
 python-dotenv==1.0.1
 python-multipart==0.0.6
 PyYAML==6.0.1

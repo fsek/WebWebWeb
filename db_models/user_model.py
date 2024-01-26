@@ -6,7 +6,6 @@ from helpers.constants import MAX_FIRSTNAME_LEN, MAX_LASTNAME_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
-from sqlalchemy.orm import MappedAsDataclass
 from .post_user_model import PostUser_DB
 
 if TYPE_CHECKING:
@@ -20,12 +19,7 @@ if TYPE_CHECKING:
 post_user_creator: Callable[["Post_DB"], "PostUser_DB"] = lambda post: PostUser_DB(post=post)
 
 
-class Mixin(MappedAsDataclass, SQLAlchemyBaseUserTable[int]):
-    # special mixin to include FastAPI Users base class
-    pass
-
-
-class User_DB(BaseModel_DB, Mixin):
+class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     __tablename__ = "user_table"
     id: Mapped[int] = mapped_column(primary_key=True, init=False)  # type: ignore . It's fine
 

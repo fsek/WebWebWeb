@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
+import uvicorn
 from database import init_db, session_factory
 from seed import seed_if_empty
 from routes import main_router
@@ -49,3 +50,7 @@ def member_only():
 @app.get("/manage-event-only", dependencies=[Permission.require("manage", "Event")])
 def permission_route():
     return {"message": "Congratz. You reached a manage:Event route"}
+
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
