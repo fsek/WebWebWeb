@@ -1,5 +1,4 @@
 import datetime
-from faker import Faker
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -9,8 +8,6 @@ from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
 from api_schemas.user_schemas import UserCreate
 from db_models.user_model import User_DB
-
-fake = Faker()
 
 
 def seed_users(db: Session, app: FastAPI):

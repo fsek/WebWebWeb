@@ -19,7 +19,14 @@ async def lifespan(app: FastAPI):
     # after yield comes shutdown logic
 
 
-app = FastAPI(lifespan=lifespan)
+# No Swagger/OpenAPI page for production
+no_docs = environ.get("ENV") == "production"
+
+app = FastAPI(
+    lifespan=lifespan,
+    redoc_url=None if no_docs else "/redoc",
+    docs_url=None if no_docs else "/docs",
+)
 
 app.include_router(router=main_router)
 

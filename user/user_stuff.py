@@ -1,8 +1,5 @@
 from typing import Any
-from fastapi_users.authentication import (
-    AuthenticationBackend,
-    BearerTransport,
-)
+from fastapi_users.authentication import AuthenticationBackend, BearerTransport
 from fastapi_users.db import SQLAlchemyUserDatabase
 from sqlalchemy.orm import Session
 from fastapi import Depends
@@ -38,13 +35,8 @@ async def get_user_manager(user_db: SQLAlchemyUserDatabase[User_DB, int] = Depen
 USERS = FastAPIUsers[User_DB, int](get_user_manager, [auth_backend])
 
 # Below are dependencies (functions to feed into Depends()).
-# They validate the client to be a user we have given a token
-
-# current_active_user: Any = USERS.current_user_token(active=True)
+# They validate the client to be a user who we have given a token.
 
 current_verified_user: Any = USERS.current_user(verified=True)
 
 current_verified_user_token: Any = USERS.current_user_token(verified=True)
-
-# this one will only let through active, verified superusers
-# current_superuser: Any = USERS.current_user_token(active=True, verified=True, superuser=True)
