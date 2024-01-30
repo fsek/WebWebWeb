@@ -43,7 +43,7 @@ This repo uses VSCode's Dev Containers extension to standardize the development 
 
 ## Pip installing new packages
 Our project will need packages not native to Python. FastAPI is one such dependency. The actual package files are not checked into Git. Instead, a file listing the required packages exists in the project.
-The file `requirements.txt` lists all pip packages and versions needed. Install these by running:
+The file `requirements.txt` lists all pip packages and versions needed. 
 
-`pip install -r ./requirements.txt`
+To add a new package, add a new line in `requirements.txt` specifiying package name and exact version. Then, in terminal, while in the `WebWebWeb` folder, run `pip install -r requirements.txt`.
 
