@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from database import DB_dependency
-from db_models.post_model import Post_DB, PostUser_DB
+from db_models.post_model import Post_DB
 from api_schemas.post_schemas import PostRead
 from fastapi import status, HTTPException
 from user.permission import Permission
@@ -27,7 +27,7 @@ def delete_post(post_id: int, db: DB_dependency):
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     db.delete(post)
     db.commit()
-    return status.HTTP_204_NO_CONTENT
+    return
 
 
 # TODO PATCH
