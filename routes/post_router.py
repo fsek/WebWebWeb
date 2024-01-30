@@ -26,8 +26,6 @@ def delete_post(post_id: int, db: DB_dependency):
     if post is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     db.delete(post)
-    peopleWithPost = db.query(PostUser_DB).filter_by(id=post_id)
-    db.delete(peopleWithPost)
     db.commit()
     return status.HTTP_204_NO_CONTENT
 
