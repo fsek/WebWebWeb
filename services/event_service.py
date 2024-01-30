@@ -48,7 +48,8 @@ def delete_event(event_id: int, db: Session):
     db.delete(event)
     db.commit()
 
-def update_event(event_id:int,data:EventUpdate,db:Session):
+
+def update_event(event_id: int, data: EventUpdate, db: Session):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
