@@ -19,6 +19,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     firstname: str
     lastname: str
     email: str
+    telephone: str
     posts: list[_UserPostRead]
     events: list[_UserEventRead]
 

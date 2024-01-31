@@ -16,6 +16,7 @@ class EventSignup_DB(BaseModel_DB):
 
     event_id: Mapped[int] = mapped_column(ForeignKey("event_table.id"), primary_key=True, init=False)
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True, init=False)
+    priority: Mapped[int] = mapped_column(default= 0)
 
     user: Mapped["User_DB"] = relationship(back_populates="event_signups")
     event: Mapped["Event_DB"] = relationship(back_populates="event_signups")
