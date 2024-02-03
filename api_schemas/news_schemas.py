@@ -13,8 +13,8 @@ class NewsRead(BaseSchema):
     content_sv: str
     content_en: str
     author_id: int
-    pinned_from: datetime
-    pinned_to: datetime
+    pinned_from: datetime | None
+    pinned_to: datetime | None
 
 
 class NewsCreate(BaseSchema):

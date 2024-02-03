@@ -25,11 +25,11 @@ class News_DB(BaseModel_DB):
 
     author_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"))
 
-    author: Mapped[Optional["User_DB"]] = relationship(back_populates="user", init=False)
+    author: Mapped[Optional["User_DB"]] = relationship(back_populates="news", init=False)
 
-    pinned_from: Mapped[Optional[datetime]] = mapped_column()
+    pinned_from: Mapped[Optional[datetime]] = mapped_column(default=None)
 
-    pinned_to: Mapped[Optional[datetime]] = mapped_column()
+    pinned_to: Mapped[Optional[datetime]] = mapped_column(default=None)
 
     # categories: Mapped[list["Category_DB"]]
     # image: Mapped["Image_DB"]

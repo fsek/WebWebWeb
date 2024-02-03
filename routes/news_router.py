@@ -1,11 +1,11 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
 
-from api_schemas.news_schemas import NewsCreate, NewsRead
+from api_schemas.news_schemas import NewsCreate, NewsRead, NewsUpdate
 from database import DB_dependency
 from db_models.news_model import News_DB
 from db_models.user_model import User_DB
-from services.news_service import create_new_news
+from services.news_service import create_new_news, update_existing_news
 from user.permission import Permission
 
 
@@ -32,21 +32,17 @@ def create_news(data: NewsCreate, author: Annotated[User_DB, Permission.base()],
     return news
 
 
-@news_router.delete(
-    "/{news_id}", dependencies=[Permission.require("manage", "News")], status_code=status.HTTP_204_NO_CONTENT
-)
+@news_router.delete("/{news_id}", dependencies=[Permission.require("manage", "News")], response_model=NewsRead)
 def delete_news(news_id: int, db: DB_dependency):
     news = db.query(News_DB).filter_by(id=news_id).one_or_none()
     if news is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     db.delete(news)
     db.commit()
-    return
+    return news
 
 
-# TODO: patch route
-# @news_router.patch("/{news_id}", dependencies=[Permission.require("manage", "News")], response_model=NewsRead)
-# def update_news(news_id: int, data: NewsUpdate, db: DB_dependency):
-#     news = db.query(News_DB).filter_by(id=news_id).one_or_none()
-#     if news is None:
-#         raise HTTPException(status.HTTP_404_NOT_FOUND)
+@news_router.patch("/{news_id}", dependencies=[Permission.require("manage", "News")], response_model=NewsRead)
+def update_news(news_id: int, updated_news: NewsUpdate, db: DB_dependency):
+    news = update_existing_news(news_id, updated_news, db)
+    return news

@@ -36,7 +36,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     )
     event_signups: Mapped[list["EventSignup_DB"]] = relationship(back_populates="user", init=False)
 
-    news: Mapped[list["News_DB"]] = relationship(back_populates="news", init=False)
+    news: Mapped[list["News_DB"]] = relationship(back_populates="author", init=False)
 
     member_type: Mapped[Optional[MEMBER_TYPE]] = mapped_column(String(200), default=None)
 
