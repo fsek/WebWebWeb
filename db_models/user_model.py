@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .event_signup_model import EventSignup_DB
     from .post_user_model import PostUser_DB
     from .event_model import Event_DB
+    from .news_model import News_DB
 
 # called by SQLAlchemy when user.posts.append(some_post)
 post_user_creator: Callable[["Post_DB"], "PostUser_DB"] = lambda post: PostUser_DB(post=post)
@@ -34,6 +35,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
         back_populates="user", cascade="all, delete-orphan", init=False
     )
     event_signups: Mapped[list["EventSignup_DB"]] = relationship(back_populates="user", init=False)
+
+    news: Mapped[list["News_DB"]] = relationship(back_populates="author", init=False)
 
     member_type: Mapped[Optional[MEMBER_TYPE]] = mapped_column(String(200), default=None)
 
