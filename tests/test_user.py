@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-from api_schemas.user_schemas import UserCreate
 from main import app
 
 client = TestClient(app)
