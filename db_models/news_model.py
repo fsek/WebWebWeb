@@ -23,7 +23,7 @@ class News_DB(BaseModel_DB):
 
     content_en: Mapped[str] = mapped_column(String(MAX_NEWS_CONTENT))
 
-    author_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"))
+    author_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"), default=None)
 
     author: Mapped[Optional["User_DB"]] = relationship(back_populates="news", init=False)
 
