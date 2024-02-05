@@ -8,6 +8,8 @@ from .post_permission_model import PostPermission_DB
 from .user_model import User_DB
 from .event_signup_model import EventSignup_DB
 from .news_model import News_DB
+from .song_model import Song_DB
+from .song_category_model import SongCategory_DB
 
 # Import all models that exist into this file and list them in __all__
 
@@ -22,4 +24,6 @@ __all__ = [
     "User_DB",
     "EventSignup_DB",
     "News_DB",
+    "Song_DB",
+    "SongCategory_DB",
 ]
