@@ -7,6 +7,8 @@ from db_models.event_model import Event_DB
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
 from api_schemas.user_schemas import UserCreate
+from db_models.song_category_model import SongCategory_DB
+from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
 
 
@@ -69,9 +71,13 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm1 = Permission_DB(action="manage", target="Permission")
     perm2 = Permission_DB(action="view", target="User")
     perm3 = Permission_DB(action="manage", target="Event")
+    perm4 = Permission_DB(action="manage", target="Post")
+    perm5 = Permission_DB(action="manage", target="Song")
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
+    posts[0].permissions.append(perm4)
+    posts[0].permissions.append(perm5)
     db.commit()
 
 
@@ -96,6 +102,22 @@ def seed_events(db: Session, one_council: Council_DB):
     return event
 
 
+def seed_songs_and_song_category(db: Session):
+    category = SongCategory_DB(name="Lofi hip hop - beats to study/relax to")
+    db.add(category)
+
+    song = Song_DB(
+        title="Never Gonna Give You Up",
+        author="rick astley n77",
+        content="Blah,blah,blah",
+        category_id=1,
+    )
+
+    db.add(song)
+    db.commit()
+    return
+
+
 def seed_if_empty(app: FastAPI, db: Session):
     # If there's no user, assumed DB is empty and seed it.
     if db.query(User_DB).count() > 0:
@@ -114,5 +136,7 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_post_users(db, boss, user, posts)
 
     seed_events(db, councils[1])
+
+    seed_songs_and_song_category(db)
 
     print("Done seeding!")
