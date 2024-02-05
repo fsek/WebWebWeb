@@ -27,9 +27,8 @@ def remove(event_id: int, db: DB_dependency):
     delete_event(event_id, db)
     return
 
-@event_router.patch(
-    "/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead
-)
-def update(event_id: int,data:EventUpdate,db: DB_dependency):
-    event = update_event(event_id,data,db)
+
+@event_router.patch("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
+def update(event_id: int, data: EventUpdate, db: DB_dependency):
+    event = update_event(event_id, data, db)
     return event
