@@ -5,6 +5,7 @@ from .permission_router import permission_router
 from .auth_router import auth_router
 from .event_router import event_router
 from .event_signup_router import event_signup_router
+from .news_router import news_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -20,3 +21,5 @@ main_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 main_router.include_router(event_router, prefix="/events", tags=["events"])
 
 main_router.include_router(event_signup_router, prefix="/event-signup", tags=["event signup"])
+
+main_router.include_router(news_router, prefix="/news", tags=["news"])

@@ -23,6 +23,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     events: list[_UserEventRead]
 
 
+# fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     firstname: Annotated[str, StringConstraints(max_length=MAX_FIRSTNAME_LEN)]
     lastname: Annotated[str, StringConstraints(max_length=MAX_LASTNAME_LEN)]

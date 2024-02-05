@@ -5,15 +5,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from db_models import base_model
 from db_models import *
 
-# Temporarty because SQLite need it to enable foreign key constraint
-# @event.listens_for(Any, "connect")
-# def set_sqlite_pragma(dbapi_connection: Any, connection_record: Any):
-#     cursor = dbapi_connection.cursor()
-#     cursor.execute("PRAGMA foreign_keys=ON")
-#     cursor.close()
 
-
-# SQLite database will be a single file at project root
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
 SQLALCHEMY_DATABASE_URL = "postgresql+psycopg://postgres:password@localhost:5432/postgres"
 
