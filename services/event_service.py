@@ -48,17 +48,18 @@ def delete_event(event_id: int, db: Session):
     db.delete(event)
     db.commit()
 
-def update_event(event_id:int,data:EventUpdate,db:Session):
+
+def update_event(event_id: int, data: EventUpdate, db: Session):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    if len(data.description_en) != 0:
+    if data.description_en is not None:
         event.description_en = data.description_en
-    if len(data.description_sv) != 0:
+    if data.description_sv is not None:
         event.description_sv = data.description_sv
-    if len(data.title_en) != 0:
+    if data.title_en is not None:
         event.title_en = data.title_en
-    if len(data.title_sv) != 0:
+    if data.title_sv is not None:
         event.title_sv = data.title_sv
     db.commit()
     return event
