@@ -23,9 +23,9 @@ class News_DB(BaseModel_DB):
 
     content_en: Mapped[str] = mapped_column(String(MAX_NEWS_CONTENT))
 
-    author_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"), default=None)
+    author_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
 
-    author: Mapped[Optional["User_DB"]] = relationship(back_populates="news", init=False)
+    author: Mapped["User_DB"] = relationship(back_populates="news", init=False)
 
     pinned_from: Mapped[Optional[datetime]] = mapped_column(default=None)
 

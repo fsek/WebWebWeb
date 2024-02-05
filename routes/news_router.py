@@ -25,8 +25,8 @@ def get_news(news_id: int, db: DB_dependency):
     return news
 
 
-@news_router.post("/", dependencies=[Permission.require("manage", "News")], response_model=NewsRead)
-def create_news(data: NewsCreate, author: Annotated[User_DB, Permission.base()], db: DB_dependency):
+@news_router.post("/", response_model=NewsRead)
+def create_news(data: NewsCreate, author: Annotated[User_DB, Permission.require("manage", "News")], db: DB_dependency):
     news = create_new_news(data, author.id, db)
     return news
 
