@@ -12,6 +12,7 @@ class NewsRead(BaseSchema):
     content_sv: str
     content_en: str
     author_id: int
+    created_at: datetime
     pinned_from: datetime | None
     pinned_to: datetime | None
 

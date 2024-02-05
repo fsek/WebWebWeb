@@ -13,7 +13,7 @@ news_router = APIRouter()
 
 @news_router.get("/", response_model=list[NewsRead])
 def get_all_news(db: DB_dependency):
-    news = db.query(News_DB).all()
+    news = db.query(News_DB).order_by(News_DB.created_at.desc()).all()
     return news
 
 
