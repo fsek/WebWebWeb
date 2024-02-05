@@ -3,8 +3,8 @@ from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB
 from api_schemas.post_schemas import PostRead, PostCreate
+from services.post_service import create_new_post
 from user.permission import Permission
-from services.post_service import *
 from fastapi import status, HTTPException
 
 post_router = APIRouter()
