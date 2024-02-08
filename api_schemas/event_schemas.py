@@ -1,5 +1,4 @@
 import datetime
-from tkinter import N
 from typing import Annotated
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
@@ -33,7 +32,7 @@ class EventCreate(BaseSchema):
 
 
 class EventUpdate(BaseSchema):
-    title_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None
-    title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None
-    description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None
-    description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None
+    title_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
+    title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
+    description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
+    description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
