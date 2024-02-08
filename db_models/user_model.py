@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from helpers.constants import MAX_FIRSTNAME_LEN, MAX_LASTNAME_LEN
+from helpers.constants import MAX_FIRSTNAME_LEN, MAX_LASTNAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
@@ -26,6 +26,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     firstname: Mapped[str] = mapped_column(String(MAX_FIRSTNAME_LEN))
     lastname: Mapped[str] = mapped_column(String(MAX_LASTNAME_LEN))
+    telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
