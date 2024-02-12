@@ -29,3 +29,10 @@ class EventCreate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)]
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
+
+
+class EventUpdate(BaseSchema):
+    title_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
+    title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
+    description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
+    description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None

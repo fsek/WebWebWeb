@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
+from db_models.news_model import News_DB
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
 from api_schemas.user_schemas import UserCreate
@@ -72,12 +73,14 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm2 = Permission_DB(action="view", target="User")
     perm3 = Permission_DB(action="manage", target="Event")
     perm4 = Permission_DB(action="manage", target="Post")
-    perm5 = Permission_DB(action="manage", target="Song")
+    perm5 = Permission_DB(action="manage", target="News")
+    perm6 = Permission_DB(action="manage", target="Song")
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
     posts[0].permissions.append(perm4)
-    posts[0].permissions.append(perm5)
+    posts[1].permissions.append(perm5)
+    posts[0].permissions.append(perm6)
     db.commit()
 
 
@@ -100,6 +103,28 @@ def seed_events(db: Session, one_council: Council_DB):
     db.add(event)
     db.commit()
     return event
+
+
+def seed_news(db: Session, user: User_DB):
+    news = [
+        News_DB(
+            title_sv="Min första nyhet :))",
+            title_en="My first news :smilyface:",
+            content_sv="Oj här var det ju en massa spännande saker man kunde läsa!",
+            content_en="Whoops here there was a lot of content to read!",
+            author_id=user.id,
+        ),
+        News_DB(
+            title_sv="En annan nyhet",
+            title_en="Another news",
+            content_sv="Lite mer content",
+            content_en="A bit more content",
+            author_id=user.id,
+        ),
+    ]
+
+    db.add_all(news)
+    db.commit()
 
 
 def seed_songs_and_song_category(db: Session):
@@ -136,6 +161,8 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_post_users(db, boss, user, posts)
 
     seed_events(db, councils[1])
+
+    seed_news(db, boss)
 
     seed_songs_and_song_category(db)
 

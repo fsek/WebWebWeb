@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from db_models.event_model import Event_DB
-from api_schemas.event_schemas import EventCreate
+from api_schemas.event_schemas import EventCreate, EventUpdate
 from helpers.date_util import force_utc, round_whole_minute
 
 
@@ -47,3 +47,19 @@ def delete_event(event_id: int, db: Session):
 
     db.delete(event)
     db.commit()
+
+
+def update_event(event_id: int, data: EventUpdate, db: Session):
+    event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
+    if event is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    if data.description_en is not None:
+        event.description_en = data.description_en
+    if data.description_sv is not None:
+        event.description_sv = data.description_sv
+    if data.title_en is not None:
+        event.title_en = data.title_en
+    if data.title_sv is not None:
+        event.title_sv = data.title_sv
+    db.commit()
+    return event
