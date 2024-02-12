@@ -13,6 +13,7 @@ class NewsRead(BaseSchema):
     content_en: str
     author_id: int
     created_at: datetime_utc
+    bumped_at: datetime_utc | None
     pinned_from: datetime_utc | None
     pinned_to: datetime_utc | None
 
