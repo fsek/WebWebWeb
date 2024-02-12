@@ -53,3 +53,15 @@ def update_existing_news(news_id: int, data: NewsUpdate, db: Session):
     db.commit()
     db.refresh(news)
     return news
+
+
+def bump_existing_news(news_id: int, db: Session):
+    news = db.query(News_DB).filter_by(id=news_id).one_or_none()
+    if news is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    
+    setattr(news, 'bumped_at', datetime.now())
+
+    db.commit()
+    db.refresh(news)
+    return news
