@@ -33,6 +33,7 @@ def create_new_event(data: EventCreate, db: Session):
         council_id=data.council_id,
         signup_start=signup_start,
         signup_end=signup_end,
+        max_event_users=data.max_event_users
     )
     db.add(event)
     db.commit()
@@ -61,5 +62,7 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
         event.title_en = data.title_en
     if data.title_sv is not None:
         event.title_sv = data.title_sv
+    if data.max_event_users is not None:
+        event.max_event_users = data.max_event_users
     db.commit()
     return event
