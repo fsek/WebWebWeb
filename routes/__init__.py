@@ -16,16 +16,22 @@ main_router.include_router(user_router, prefix="/users", tags=["users"])
 
 main_router.include_router(post_router, prefix="/posts", tags=["posts"])
 
-main_router.include_router(permission_router, prefix="/permissions", tags=["permissions"])
+main_router.include_router(
+    permission_router, prefix="/permissions", tags=["permissions"]
+)
 
 main_router.include_router(auth_router, prefix="/auth", tags=["auth"])
 
 main_router.include_router(event_router, prefix="/events", tags=["events"])
 
-main_router.include_router(event_signup_router, prefix="/event-signup", tags=["event signup"])
+main_router.include_router(
+    event_signup_router, prefix="/event-signup", tags=["event signup"]
+)
 
 main_router.include_router(news_router, prefix="/news", tags=["news"])
 
 main_router.include_router(song_router, prefix="/songs", tags=["songs"])
 
-main_router.include_router(song_category_router, prefix="/songs-category", tags=["songs category"])
+main_router.include_router(
+    song_category_router, prefix="/songs-category", tags=["songs category"]
+)
