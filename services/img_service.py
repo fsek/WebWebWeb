@@ -1,11 +1,5 @@
-from datetime import UTC, datetime
-from annotated_types import LowerCase
-from fastapi import HTTPException, status, UploadFile, File
-from pydantic import FilePath
+from fastapi import HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
-from PIL import Image
-from fastapi.responses import FileResponse
-import os.path
 from pathlib import Path
 from db_models.img_model import Img_DB
 import random
