@@ -12,14 +12,17 @@ import random
 
 
 def upload_img(db: Session, file: UploadFile = File()):
-    # This will be moved to services later
     try:
-        hash = random.getrandbits(128)
+        salt = random.getrandbits(24)
 
-        file_path = Path(f"/path_to_put/{str(hash)}.jpeg")
-        # file_path = Path(f"/path_to_put/1.png") {str(Image.open(file.file).format).lower()}")
+        # file_path = Path(f"/path_to_put/{str(hash)}.jpeg")
+
+        if file.filename is None:
+            raise HTTPException(400, detail="The file has no name")
+
+        file_path = Path(f"/{salt}{file.filename.replace(' ', '')}")
         if file_path.is_file():
-            raise HTTPException(409)
+            raise HTTPException(409, detail="Filename is equal to already existing file")
 
         file_path.write_bytes(file.file.read())
         img = Img_DB(path=file_path.name)

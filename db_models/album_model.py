@@ -8,6 +8,9 @@ if TYPE_CHECKING:
     from .img_model import Img_DB
 
 
+# TODO idk, lots of shit
+
+
 class Album_DB(BaseModel_DB):
     __tablename__ = "album_table"
 

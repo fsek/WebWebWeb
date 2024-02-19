@@ -37,4 +37,4 @@ def upload(db: DB_dependency, file: UploadFile = File()):
 
 @img_router.get("/{path}")
 def get_img(path: str, db: DB_dependency):
-    return FileResponse(f"/path_to_put/{path}")
+    return FileResponse(f"/{path}")
