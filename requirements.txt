@@ -10,8 +10,8 @@ cryptography==42.0.1
 dnspython==2.5.0
 email-validator==2.1.0.post1
 fastapi==0.109.0
--e git+https://github.com/fsek/WebWebWeb.git@c7167641e4c9e7b1725206c22a19128b60e22506#egg=fastapi_users
--e git+https://github.com/fsek/WebWebWeb.git@c7167641e4c9e7b1725206c22a19128b60e22506#egg=fastapi_users_db_sqlalchemy
+-e ./fastapi-users-fork/src-fastapi-users
+-e ./fastapi-users-fork/src-fastapi-users-db-sqlalchemy
 greenlet==3.0.3
 h11==0.14.0
 httpcore==1.0.2
