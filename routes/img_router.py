@@ -18,6 +18,7 @@ from PIL import Image
 from fastapi.responses import FileResponse
 import os.path
 from pathlib import Path
+from services.img_service import upload_img
 
 img_router = APIRouter()
 
@@ -30,24 +31,10 @@ def get_all_imgs(db: DB_dependency):
 
 
 @img_router.post("/")
-def upload_img(db: DB_dependency, file: UploadFile = File()):
-    # This will be moved to services later
-    try:
-        file_path = Path(f"/path_to_put/{file.filename}")
-        if file_path.is_file():
-            raise HTTPException(404)
-
-        file_path.write_bytes(file.file.read())
-        img = Img_DB(path=file_path.name)
-        db.add(img)
-        db.commit
-        return {"message": "File saved successfully"}
-
-    except Exception as e:
-        raise e
-        return {"message": e.args}
+def upload(db: DB_dependency, file: UploadFile = File()):
+    return upload_img(db, file)
 
 
-@img_router.get("/{id}")
-def get_img(id: str, db: DB_dependency):
-    return FileResponse(f"/path_to_put/{id}")
+@img_router.get("/{path}")
+def get_img(path: str, db: DB_dependency):
+    return FileResponse(f"/path_to_put/{path}")

@@ -10,8 +10,8 @@ cryptography==42.0.1
 dnspython==2.5.0
 email-validator==2.1.0.post1
 fastapi==0.109.0
--e ./fastapi-users-fork/src-fastapi-users
--e ./fastapi-users-fork/src-fastapi-users-db-sqlalchemy
+-e git+https://github.com/fsek/WebWebWeb.git@c7167641e4c9e7b1725206c22a19128b60e22506#egg=fastapi_users&subdirectory=fastapi-users-fork/src-fastapi-users
+-e git+https://github.com/fsek/WebWebWeb.git@c7167641e4c9e7b1725206c22a19128b60e22506#egg=fastapi_users_db_sqlalchemy&subdirectory=fastapi-users-fork/src-fastapi-users-db-sqlalchemy
 greenlet==3.0.3
 h11==0.14.0
 httpcore==1.0.2
@@ -22,6 +22,7 @@ iniconfig==2.0.0
 makefun==1.15.2
 packaging==23.2
 passlib==1.7.4
+pillow==10.2.0
 pluggy==1.4.0
 psycopg==3.1.17
 pycparser==2.21
