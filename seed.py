@@ -11,26 +11,14 @@ from api_schemas.user_schemas import UserCreate
 from db_models.song_category_model import SongCategory_DB
 from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
 def seed_users(db: Session, app: FastAPI):
     # This one seeds by actually calling user register route. Other create models directly
     client = TestClient(app)
-
-    boss = UserCreate(
-        email="boss@fsektionen.se",
-        firstname="Boss",
-        lastname="AllaPostersson",
-        password="dabdab",
-        telephone_number="+46760187158",
-    )
-    user = UserCreate(
-        email="user@fsektionen.se",
-        firstname="User",
-        lastname="Userström",
-        password="dabdab",
-        telephone_number="+45124567812",
-    )
+    boss = UserCreate(email="boss@fsektionen.se", firstname="Boss", lastname="AllaPostersson", password="dabdab", telephone_number=PhoneNumber("+46760187158"))
+    user = UserCreate(email="user@fsektionen.se", firstname="User", lastname="Userström", password="dabdab", telephone_number=PhoneNumber("+45124567812"))
 
     boss_response = client.post("/auth/register", json=boss.model_dump())
     assert boss_response.status_code == 201
