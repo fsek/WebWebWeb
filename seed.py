@@ -177,4 +177,6 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_news(db, boss)
     seed_songs_and_song_category(db)
 
+    seed_songs_and_song_category(db)
+
     print("Done seeding!")
