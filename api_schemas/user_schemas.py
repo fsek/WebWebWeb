@@ -22,7 +22,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     email: str
     posts: list[_UserPostRead]
     events: list[_UserEventRead]
-    telephone_number: str
+    telephone_number: PhoneNumber
 
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):

@@ -6,7 +6,8 @@ from .auth_router import auth_router
 from .event_router import event_router
 from .event_signup_router import event_signup_router
 from .news_router import news_router
-from .img_router import img_router
+from .song_router import song_router
+from .song_category_router import song_category_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -25,4 +26,6 @@ main_router.include_router(event_signup_router, prefix="/event-signup", tags=["e
 
 main_router.include_router(news_router, prefix="/news", tags=["news"])
 
-main_router.include_router(img_router, prefix="/imgs", tags=["img"])
+main_router.include_router(song_router, prefix="/songs", tags=["songs"])
+
+main_router.include_router(song_category_router, prefix="/songs-category", tags=["songs category"])
