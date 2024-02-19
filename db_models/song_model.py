@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING
 
 from db_models.song_category_model import SongCategory_DB
-from helpers.constants import MAX_SONG_AUTHOR, MAX_SONG_CONTENT, MAX_SONG_TITLE
+from helpers.constants import MAX_SONG_AUTHOR, MAX_SONG_CONTENT, MAX_SONG_TITLE, MAX_SONG_MELODY
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import Optional
@@ -19,9 +19,11 @@ class Song_DB(BaseModel_DB):
 
     title: Mapped[str] = mapped_column(String(MAX_SONG_TITLE))
 
-    author: Mapped[str] = mapped_column(String(MAX_SONG_AUTHOR))
-
     content: Mapped[str] = mapped_column(String(MAX_SONG_CONTENT))
+
+    author: Mapped[Optional[str]] = mapped_column(String(MAX_SONG_AUTHOR), default=None)
+
+    melody: Mapped[Optional[str]] = mapped_column(String(MAX_SONG_MELODY), default=None)
 
     category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("songcategory_table.id"), default=None)
 
