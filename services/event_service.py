@@ -1,17 +1,13 @@
 from datetime import UTC, datetime
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
+from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
 from api_schemas.event_schemas import EventCreate, EventUpdate
-from helpers.date_util import force_utc, round_whole_minute
+from helpers.date_util import round_whole_minute
 
 
 def create_new_event(data: EventCreate, db: Session):
-    force_utc(data.starts_at)
-    force_utc(data.ends_at)
-    force_utc(data.signup_start)
-    force_utc(data.signup_end)
-
     start = round_whole_minute(data.starts_at)
     end = round_whole_minute(data.ends_at)
     signup_start = round_whole_minute(data.signup_start)
@@ -22,6 +18,11 @@ def create_new_event(data: EventCreate, db: Session):
 
     if start < datetime.now(UTC):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event start cannot be in the past, silly.")
+
+    # Check if council exists. It's just some extra validation
+    council = db.query(Council_DB).filter_by(id=data.council_id).one_or_none()
+    if council is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "That council does not exist")
 
     event = Event_DB(
         starts_at=start,

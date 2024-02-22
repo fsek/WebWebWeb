@@ -3,7 +3,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from api_schemas.news_schemas import NewsCreate, NewsUpdate
 from db_models.news_model import News_DB
-from helpers.date_util import force_utc, round_whole_minute
+from helpers.date_util import round_whole_minute
 
 
 def validate_pinned_times(pinned_from: datetime | None, pinned_to: datetime | None):
@@ -13,8 +13,6 @@ def validate_pinned_times(pinned_from: datetime | None, pinned_to: datetime | No
         )
 
     if pinned_from is not None and pinned_to is not None:
-        force_utc(pinned_from)
-        force_utc(pinned_to)
         pinned_from = round_whole_minute(pinned_from)
         pinned_to = round_whole_minute(pinned_to)
 
