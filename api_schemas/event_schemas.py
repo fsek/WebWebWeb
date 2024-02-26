@@ -13,6 +13,7 @@ class EventRead(BaseSchema):
     title_en: str
     description_sv: str
     description_en: str
+    max_event_users: int
 
 
 # we dont need to be as strict about out data as in data.
@@ -29,6 +30,7 @@ class EventCreate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)]
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
+    max_event_users: int
 
 
 class EventUpdate(BaseSchema):
@@ -36,3 +38,4 @@ class EventUpdate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
+    max_event_users: int | None = None
