@@ -4,6 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+## Hej ny ändring 
 # Define the association table for the many-to-many relationship between Student and Teacher
 student_teacher_table = Table('student_teacher', Base.metadata,
     Column('student_id', Integer, ForeignKey('students.id')),
