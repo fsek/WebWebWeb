@@ -11,6 +11,10 @@ class _UserEventRead(BaseSchema):
     id: int
 
 
+class _UserCafeRead(BaseSchema):
+    id: int
+
+
 class _UserPostRead(BaseSchema):
     id: int
     name: str
