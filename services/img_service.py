@@ -5,12 +5,11 @@ from db_models.img_model import Img_DB
 import random
 
 
-def upload_img(db: Session, file: UploadFile = File()):
+def upload_img(db: Session, album_id: int, file: UploadFile = File()):
     try:
         salt = random.getrandbits(24)
 
         # file_path = Path(f"/path_to_put/{str(hash)}.jpeg")
-
         if file.filename is None:
             raise HTTPException(400, detail="The file has no name")
 
@@ -19,9 +18,9 @@ def upload_img(db: Session, file: UploadFile = File()):
             raise HTTPException(409, detail="Filename is equal to already existing file")
 
         file_path.write_bytes(file.file.read())
-        img = Img_DB(path=file_path.name)
+        img = Img_DB(path=file_path.name, album_id=album_id)
         db.add(img)
-        db.commit
+        db.commit()
         return {"message": "File saved successfully"}
 
     except Exception as e:

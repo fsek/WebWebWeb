@@ -1,5 +1,4 @@
-from os import path
-from typing import TYPE_CHECKING, Optional
+from typing import Optional
 from sqlalchemy import ForeignKey
 from .album_model import Album_DB
 from .base_model import BaseModel_DB
@@ -13,6 +12,6 @@ class Img_DB(BaseModel_DB):
 
     path: Mapped[str] = mapped_column()
 
-    album_id: Mapped[Optional[int]] = mapped_column(ForeignKey("album_table.id"), default=None)
+    album_id: Mapped[int] = mapped_column(ForeignKey("album_table.id"), default=None)
 
-    album: Mapped[Optional["Album_DB"]] = relationship(back_populates="imgs", init=False)
+    album: Mapped["Album_DB"] = relationship(back_populates="imgs", init=False)

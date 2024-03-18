@@ -1,5 +1,13 @@
+from os import name
 from api_schemas.base_schema import BaseSchema
+from db_models.img_model import Img_DB
 
 
-class albumCreate(BaseSchema):
+class AlbumCreate(BaseSchema):
     name: str
+
+
+class AlbumRead(BaseSchema):
+    id: int
+    name: str
+    imgs: list[Img_DB]

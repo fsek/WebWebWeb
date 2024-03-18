@@ -1,6 +1,4 @@
-from os import path
-from typing import TYPE_CHECKING, Optional
-from sqlalchemy import ForeignKey
+from typing import TYPE_CHECKING
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
