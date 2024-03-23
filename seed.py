@@ -13,8 +13,7 @@ from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
 from db_models.book_model import Book_DB
 from db_models.book_category_model import BookCategory_DB
-
-# from pydantic_extra_types.phone_numbers import PhoneNumber
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
 def seed_users(db: Session, app: FastAPI):
@@ -25,14 +24,14 @@ def seed_users(db: Session, app: FastAPI):
         firstname="Boss",
         lastname="AllaPostersson",
         password="dabdab",
-        #       telephone_number=PhoneNumber("+46760187158"),
+        telephone_number=PhoneNumber("+46737043345"),
     )
     user = UserCreate(
         email="user@fsektionen.se",
         firstname="User",
         lastname="Userström",
         password="dabdab",
-        #       telephone_number=PhoneNumber("+46706427444"),
+        telephone_number=PhoneNumber("+46737043345"),
     )
 
     boss_response = client.post("/auth/register", json=boss.model_dump())
@@ -167,7 +166,7 @@ def seed_books_and_book_category(db: Session):
         user="Electric Gigolo",
         transaction="Buy",
         price=6122,
-        category_id=1,
+        category_id=0,
     )
     db.add(book)
     db.commit()
@@ -196,6 +195,6 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_news(db, boss)
     seed_songs_and_song_category(db)
 
-    seed_songs_and_song_category(db)
+    seed_books_and_book_category(db)
 
     print("Done seeding!")

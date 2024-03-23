@@ -19,14 +19,14 @@ class Book_DB(BaseModel_DB):
 
     title: Mapped[str] = mapped_column(String(MAX_BOOK_TITLE))
 
-    user: Mapped[Optional[str]] = mapped_column(String(MAX_BOOK_USER), default=None)
-
     transaction: Mapped[Optional[str]] = mapped_column(String(MAX_BOOK_TRANSACTION))
+
+    user: Mapped[Optional[str]] = mapped_column(String(MAX_BOOK_USER))
+
+    price: Mapped[int] = mapped_column()
 
     category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("bookcategory_table.id"), default=None)
 
     category: Mapped[Optional["BookCategory_DB"]] = relationship(back_populates="books", init=False)
-
-    price: Mapped[int] = mapped_column(default=0)
 
     pass
