@@ -7,8 +7,6 @@ from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 from api_schemas.ad_schema import AdRead, AdCreate
 
-event_router = APIRouter()
-
 ad_router = APIRouter()
 
 

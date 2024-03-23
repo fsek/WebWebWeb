@@ -1,7 +1,9 @@
 import datetime
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+from sqlalchemy import false
 from sqlalchemy.orm import Session
+from db_models.ad_model import BookAd_DB
 from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
 from db_models.news_model import News_DB
@@ -154,6 +156,40 @@ def seed_songs_and_song_category(db: Session):
     db.commit()
     return
 
+def seed_ads(db:Session):
+    ad = BookAd_DB(title = "Endim", course = "FMNAF05", author = "Jonas", seller = "Karl", price = 50, selling = True)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Flerdim", course = "FMNAF25", author = "Jonas", seller = "Benjamin", price = 190, selling = True)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Linalg", course = "FMNAF35", author = "Jonas", seller = "Gustav", price = 920, selling = True)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Våglära", course = "VAG01", author = "Tjalle", seller = "Karl", price = 9430, selling = False)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Java", course = "JA25", author = "Patrik", seller = "Karl", price = 50, selling = True)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "EffektivC", course = "EC10", author = "Skeppstedt", seller = "Benjamin", price = 90, selling = True)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Matstat", course = "MATS100", author = "Tant", seller = "Karl", price = 670, selling = False)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Termo", course = "VARM20", author = "Thomas", seller = "Karl", price = 90, selling = True)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Kemi", course = "BOOM12", author = "Bengt", seller = "Johanna", price = 10, selling = False)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Endim", course = "FMNAF05", author = "Jonas", seller = "Cilla", price = 1, selling = True)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title = "Endim", course = "FMNAF05", author = "Jonas", seller = "Maja", price = 10, selling = True)
+    db.add(ad)
+    db.commit()
 
 def seed_if_empty(app: FastAPI, db: Session):
     # If there's no user, assumed DB is empty and seed it.
