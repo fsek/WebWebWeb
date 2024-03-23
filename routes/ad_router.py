@@ -1,11 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
-from api_schemas.ad_schema import AdRead
 from database import DB_dependency
 from db_models.ad_model import BookAd_DB
-from api_schemas.event_schemas import EventCreate, EventRead, EventUpdate
-from services.event_service import create_new_event, delete_event, update_event
-from user.permission import Permission
-from api_schemas.ad_schema import AdRead, AdCreate
+from api_schemas.ad_schema import AdRead, AdCreate, AdUpdate
 
 ad_router = APIRouter()
 
@@ -61,3 +57,24 @@ def remove_ad(id:int, db: DB_dependency):
     db.delete(ad)
     db.commit()
     return ad
+
+@ad_router.put("/updateAd/{id}", response_model = AdRead)
+def update_ad(id:int, data:AdUpdate,db: DB_dependency):
+    ad = db.query(BookAd_DB).filter_by(ad_id=id).one_or_none()
+    if ad is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    if data.title is not None:
+        ad.title = data.title
+    if data.author is not None:
+        ad.author = data.author
+    if data.price is not None:
+        ad.price = data.price
+    if data.course is not None:
+        ad.course = data.course
+    if data.selling is not None:
+        ad.selling = data.selling
+    if data.condition is not None:
+        ad.condition = data.condition
+    db.commit()
+    return ad
+    
