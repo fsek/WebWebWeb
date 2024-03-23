@@ -31,21 +31,21 @@ def get_ad_by_id(id:int, db: DB_dependency):
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return ad
 
-@ad_router.get("/{username}", response_model=list[AdRead])
+@ad_router.get("/username/{username}", response_model=list[AdRead])
 def get_ad_by_user(username:str, db: DB_dependency):
     ads = db.query(BookAd_DB).filter_by(seller = username).all()
     if len(ads) == 0:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return ads
 
-@ad_router.get("/{authorname}", response_model = list[AdRead])
+@ad_router.get("/authorname/{authorname}", response_model = list[AdRead])
 def get_book_ad_by_author(authorname:str, db: DB_dependency):
     ads = db.query(BookAd_DB).filter_by(author = authorname).all()
     if len(ads) == 0:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return ads
 
-@ad_router.get("/{stitle}", response_model = list[AdRead])
+@ad_router.get("/title/{stitle}", response_model = list[AdRead])
 def get_book_ad_by_title(stitle:str, db: DB_dependency):
     ads = db.query(BookAd_DB).filter_by(title = stitle).all()
     if len(ads) == 0:

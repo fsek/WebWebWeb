@@ -214,5 +214,7 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_songs_and_song_category(db)
 
     seed_songs_and_song_category(db)
+    
+    seed_ads(db)
 
     print("Done seeding!")
