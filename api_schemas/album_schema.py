@@ -1,4 +1,3 @@
-from os import name
 from api_schemas.base_schema import BaseSchema
 from db_models.img_model import Img_DB
 

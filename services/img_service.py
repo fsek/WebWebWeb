@@ -8,8 +8,6 @@ import random
 def upload_img(db: Session, album_id: int, file: UploadFile = File()):
     try:
         salt = random.getrandbits(24)
-
-        # file_path = Path(f"/path_to_put/{str(hash)}.jpeg")
         if file.filename is None:
             raise HTTPException(400, detail="The file has no name")
 
