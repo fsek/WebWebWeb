@@ -2,11 +2,14 @@ from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from helpers.constants import MAX_FIRSTNAME_LEN, MAX_LASTNAME_LEN, MAX_TELEPHONE_LEN
+from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from .post_user_model import PostUser_DB
+import datetime
+from helpers.types import datetime_utc
+
 
 if TYPE_CHECKING:
     from .post_model import Post_DB
@@ -24,9 +27,13 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     __tablename__ = "user_table"
     id: Mapped[int] = mapped_column(primary_key=True, init=False)  # type: ignore . It's fine
 
-    firstname: Mapped[str] = mapped_column(String(MAX_FIRSTNAME_LEN))
-    lastname: Mapped[str] = mapped_column(String(MAX_LASTNAME_LEN))
+    first_name: Mapped[str] = mapped_column(String(MAX_FIRST_NAME_LEN))
+    last_name: Mapped[str] = mapped_column(String(MAX_LAST_NAME_LEN))
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
+
+    start_year: Mapped[int] = mapped_column(default=datetime.date.today().year) #start year at the guild 
+    
+    account_created: Mapped[datetime_utc] = mapped_column(default=datetime.datetime.now()) #date and time the account was created
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False

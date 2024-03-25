@@ -26,10 +26,13 @@ def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()
     me = db.query(User_DB).filter_by(id=current_user.id).one()
 
     # not elegant, will have to find better wat for future update routes
-    if data.firstname:
-        me.firstname = data.firstname
-    if data.lastname:
-        me.lastname = data.lastname
+    if data.first_name:
+        me.first_name = data.first_name
+    if data.last_name:
+        me.last_name = data.last_name
+    if data.start_year:
+        me.start_year = data.start_year
+
 
     db.commit()
     return current_user

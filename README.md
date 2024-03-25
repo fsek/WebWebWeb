@@ -32,7 +32,7 @@ This repo uses VSCode's Dev Containers extension to standardize the development 
 ## Play around
 1. Try calling some routes. You will find some routes fail since you are not logged in. Find the "Authorize" button and login using boss@fsektionen.se `dabdab`. 
 
-1. Call the GET `/users/me` route to view the logged in used. Change your lastname to something creative by calling the PATCH `/users/me`.
+1. Call the GET `/users/me` route to view the logged in used. Change your last name to something creative by calling the PATCH `/users/me`.
 
 1. Evidently, the database is already filled with some starting data. This was done in the `seed.py` file when the server started. Go check it out!
 
