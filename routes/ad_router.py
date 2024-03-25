@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from database import DB_dependency
 from db_models.ad_model import BookAd_DB
 from api_schemas.ad_schema import AdRead, AdCreate, AdUpdate
+from db_models.user_model import User_DB
 
 ad_router = APIRouter()
 
@@ -14,7 +15,7 @@ def get_all_ads(db: DB_dependency):
 
 @ad_router.post("/", response_model=AdRead)
 def create_ad(data: AdCreate, db: DB_dependency):
-    ad = BookAd_DB(title = data.title, course = data.course, author = data.author, seller = data.seller, selling = data.selling, condition = data.condition, price = data.price)
+    ad = BookAd_DB(title = data.title, course = data.course, author = data.author, user_id = data.user_id, selling = data.selling, condition = data.condition, price = data.price)
     db.add(ad)
     db.commit()
     return ad
@@ -29,9 +30,10 @@ def get_ad_by_id(id:int, db: DB_dependency):
 
 @ad_router.get("/username/{username}", response_model=list[AdRead])
 def get_ad_by_user(username:str, db: DB_dependency):
-    ads = db.query(BookAd_DB).filter_by(seller = username).all()
-    if len(ads) == 0:
+    user = db.query(User_DB).filter_by(firstname = username).one_or_none()
+    if user is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+    ads = db.query(BookAd_DB).filter_by(user_id = user.id).all()
     return ads
 
 @ad_router.get("/authorname/{authorname}", response_model = list[AdRead])

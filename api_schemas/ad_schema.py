@@ -1,5 +1,4 @@
 from typing import Annotated
-
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_BOOK_AUTHOR, MAX_BOOK_TITLE
@@ -10,8 +9,7 @@ class AdRead(BaseSchema):
     author: str | None
     price: int | None
     course: str | None
-    author: str | None
-    seller: str
+    user_id: int
     selling: bool
     condition: int
     
@@ -21,8 +19,7 @@ class AdCreate(BaseSchema):
     author: str | None
     price: int | None
     course: str | None
-    author: str | None
-    seller: str
+    user_id: int
     selling: bool
     condition: int
     

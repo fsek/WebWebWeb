@@ -7,6 +7,8 @@ from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from .post_user_model import PostUser_DB
+from .ad_model import BookAd_DB
+
 
 if TYPE_CHECKING:
     from .post_model import Post_DB
@@ -15,6 +17,7 @@ if TYPE_CHECKING:
     from .post_user_model import PostUser_DB
     from .event_model import Event_DB
     from .news_model import News_DB
+    from .ad_model import BookAd_DB
 
 # called by SQLAlchemy when user.posts.append(some_post)
 post_user_creator: Callable[["Post_DB"], "PostUser_DB"] = lambda post: PostUser_DB(post=post)
@@ -27,6 +30,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     firstname: Mapped[str] = mapped_column(String(MAX_FIRSTNAME_LEN))
     lastname: Mapped[str] = mapped_column(String(MAX_LASTNAME_LEN))
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
+    
+    book_ads: Mapped[list["BookAd_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
