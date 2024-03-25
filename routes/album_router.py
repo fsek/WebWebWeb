@@ -21,3 +21,5 @@ def get_albums(db: DB_dependency):
 @album_router.get("/", response_model=AlbumRead)
 def get_one_album(db: DB_dependency, id: int):
     return get_album(db,id)
+
+# TODO Fixa delete route till albums, borde inte kunna ta bort om de innehåller bilder

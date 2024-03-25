@@ -5,8 +5,6 @@ from db_models.album_model import Album_DB
 from pathlib import Path
 
 def add_album(db: Session, album: AlbumCreate):
-    
-    
     file_path = Path(f"/{album.name}")
     if file_path.is_dir() or file_path.is_file():
         raise HTTPException(409, detail="album or file with this name already exists")
