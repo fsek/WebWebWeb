@@ -4,3 +4,6 @@ from fastapi import UploadFile
 
 class ImgCreate(BaseSchema):
     File: UploadFile
+
+class ImgInAlbum(BaseSchema):
+    id: int

@@ -1,5 +1,5 @@
 from api_schemas.base_schema import BaseSchema
-from db_models.img_model import Img_DB
+from api_schemas.img_schema import ImgInAlbum
 
 
 class AlbumCreate(BaseSchema):
@@ -9,4 +9,4 @@ class AlbumCreate(BaseSchema):
 class AlbumRead(BaseSchema):
     id: int
     name: str
-    imgs: list[Img_DB]
+    imgs: list[ImgInAlbum]

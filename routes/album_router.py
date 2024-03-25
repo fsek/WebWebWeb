@@ -9,7 +9,7 @@ album_router = APIRouter()
 
 
 @album_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
-def upload_album(db: DB_dependency, album: AlbumCreate):
+def create_album(db: DB_dependency, album: AlbumCreate):
     return add_album(db,album)
 
 
