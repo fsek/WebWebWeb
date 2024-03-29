@@ -68,9 +68,9 @@ def seed_users(db: Session, app: FastAPI):
     client.close()
     boss_id = boss_response.json()["id"]
     user_id = response.json()["id"]
-    user2_id = response.json()["id"]
-    user3_id = response.json()["id"]
-    user4_id = response.json()["id"]
+    user2_id = user2_response.json()["id"]
+    user3_id = user3_response.json()["id"]
+    user4_id = user4_response.json()["id"]  
 
     # now fetch the created users and set is_verified to True
     boss = db.query(User_DB).filter_by(id=boss_id).one()
@@ -114,7 +114,6 @@ def seed_post_users(db: Session, boss: User_DB, user: User_DB, posts: list[Post_
     # Give posts to users
     boss.posts = posts
     user.posts.append(posts[0])
-
     db.commit()
 
 
@@ -125,12 +124,14 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm4 = Permission_DB(action="manage", target="Post")
     perm5 = Permission_DB(action="manage", target="News")
     perm6 = Permission_DB(action="manage", target="Song")
+    perm7 = Permission_DB(action="manage", target="Ads")
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
     posts[0].permissions.append(perm4)
     posts[1].permissions.append(perm5)
     posts[0].permissions.append(perm6)
+    posts[0].permissions.append(perm7)
     db.commit()
 
 
