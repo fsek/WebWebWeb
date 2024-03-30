@@ -9,7 +9,6 @@ from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 if TYPE_CHECKING:
     from .user_model import User_DB
     from event_user_model import EventUser_DB
-    from .event_signup_model import EventSignup_DB
     from council_model import Council_DB
 
 
@@ -31,8 +30,6 @@ class Event_DB(BaseModel_DB):
 
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped["Council_DB"] = relationship(back_populates="events", init=False)
-
-    event_signups: Mapped[list["EventSignup_DB"]] = relationship(back_populates="event", init=False)
 
     event_users: Mapped[list["EventUser_DB"]] = relationship(
         back_populates="event", cascade="all, delete-orphan", init=False
