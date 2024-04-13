@@ -1,7 +1,9 @@
-from fastapi import APIRouter, status
+from fastapi import APIRouter, HTTPException, status
 from database import DB_dependency
 from db_models.event_model import Event_DB
 from api_schemas.event_schemas import EventCreate, EventRead, EventUpdate
+from api_schemas.user_schemas import UserRead
+from db_models.event_user_model import EventUser_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 
@@ -32,3 +34,10 @@ def remove(event_id: int, db: DB_dependency):
 def update(event_id: int, data: EventUpdate, db: DB_dependency):
     event = update_event(event_id, data, db)
     return event
+
+@event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
+def getAllSignups(event_id: int, db: DB_dependency):
+    people = db.query(EventUser_DB).filter_by(event_id = event_id).all()
+    if len(people)==0:
+        raise HTTPException(status.HTTP_204_NO_CONTENT, detail="No user has signed up to this event")
+    return people
