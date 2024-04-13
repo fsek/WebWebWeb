@@ -12,7 +12,7 @@ event_signup_router = APIRouter()
 
 # Sing current user up to an event
 @event_signup_router.post("/{event_id}")
-def signup_route(event_id: int, me: Annotated[User_DB, Permission.base()], db: DB_dependency):
+def signup_route(event_id: int, me: Annotated[User_DB, Permission.member()], db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
