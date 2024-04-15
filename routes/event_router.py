@@ -6,6 +6,7 @@ from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
+import random
 
 event_router = APIRouter()
 
@@ -40,4 +41,12 @@ def getAllSignups(event_id: int, db: DB_dependency):
     people = db.query(EventUser_DB).filter_by(event_id = event_id).all()
     if len(people)==0:
         raise HTTPException(status.HTTP_204_NO_CONTENT, detail="No user has signed up to this event")
+    return people
+
+@event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
+def getRandomSignup(event_id: int, db: DB_dependency):
+    people = db.query(EventUser_DB).filter_by(event_id = event_id).all()
+    if len(people)==0:
+        raise HTTPException(status.HTTP_204_NO_CONTENT, detail="No user has signed up to this event")
+    random.shuffle(people)
     return people
