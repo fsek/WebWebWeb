@@ -20,15 +20,15 @@ def seed_users(db: Session, app: FastAPI):
     client = TestClient(app)
     boss = UserCreate(
         email="boss@fsektionen.se",
-        firstname="Boss",
-        lastname="AllaPostersson",
+        first_name="Boss",
+        last_name="AllaPostersson",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
     )
     user = UserCreate(
         email="user@fsektionen.se",
-        firstname="User",
-        lastname="Userström",
+        first_name="User",
+        last_name="Userström",
         password="dabdab",
         telephone_number=PhoneNumber("+46706427444"),
     )
