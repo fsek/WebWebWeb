@@ -1,11 +1,19 @@
-from typing import Literal
+from datetime import datetime, timedelta
+from typing import Annotated, Literal, TypeAlias
+from pydantic import AfterValidator
+
+
+def force_utc(date: datetime):
+    if date.utcoffset() != timedelta(0):
+        raise ValueError(f"datetime must be UTC. utcoffset was {date.utcoffset()}")
+    return date
+
+
+datetime_utc: TypeAlias = Annotated[datetime, AfterValidator(force_utc)]
+
 
 # a user who is a member can have some member types
 MEMBER_TYPE = Literal["member", "novice", "mentor"]
-
-#
-#
-#
 
 
 # With these we define special permissions beyond being just a logged-in and verified user
