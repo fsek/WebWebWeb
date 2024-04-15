@@ -47,6 +47,7 @@ def seed_users(db: Session, app: FastAPI):
 
     boss.is_verified = True
     user.is_verified = True
+    boss.is_member = True
 
     db.commit()
     return boss, user
