@@ -31,6 +31,8 @@ class Event_DB(BaseModel_DB):
 
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped["Council_DB"] = relationship(back_populates="events", init=False)
+    
+    max_event_users: Mapped[int] = mapped_column(default=0)
 
     event_users: Mapped[list["EventUser_DB"]] = relationship(
         back_populates="event", cascade="all, delete-orphan", init=False

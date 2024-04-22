@@ -3,8 +3,8 @@
 # Warning! These are used in db model definitions. Changing these will require db migration
 
 ## User
-MAX_FIRSTNAME_LEN = 100
-MAX_LASTNAME_LEN = 100
+MAX_FIRST_NAME_LEN = 100
+MAX_LAST_NAME_LEN = 100
 MAX_TELEPHONE_LEN = 20
 
 ## Event
@@ -15,6 +15,11 @@ MAX_EVENT_TITLE = 100
 MAX_NEWS_TITLE = 100
 MAX_NEWS_CONTENT = 3000
 
+
+##
+MAX_BOOK_TITLE = 100
+MAX_BOOK_CONTENT = 300
+MAX_BOOK_AUTHOR = 100
 
 # Song
 MAX_SONG_TITLE = 200
