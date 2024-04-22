@@ -34,22 +34,22 @@ def seed_users(db: Session, app: FastAPI):
     )
     user2 = UserCreate(
         email="user2@fsektionen.se",
-        firstname="User2",
-        lastname="Userström2",
+        first_name="User2",
+        last_name="Userström2",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
     )
     user3 = UserCreate(
         email="user3@fsektionen.se",
-        firstname="User3",
-        lastname="Userström3",
+        first_name="User3",
+        last_name="Userström3",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
     )
     user4 = UserCreate(
         email="user4@fsektionen.se",
-        firstname="User4",
-        lastname="Userström4",
+        first_name="User4",
+        last_name="Userström4",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
     )
@@ -70,7 +70,7 @@ def seed_users(db: Session, app: FastAPI):
     user_id = response.json()["id"]
     user2_id = user2_response.json()["id"]
     user3_id = user3_response.json()["id"]
-    user4_id = user4_response.json()["id"]  
+    user4_id = user4_response.json()["id"]
 
     # now fetch the created users and set is_verified to True
     boss = db.query(User_DB).filter_by(id=boss_id).one()
@@ -79,13 +79,12 @@ def seed_users(db: Session, app: FastAPI):
     user3 = db.query(User_DB).filter_by(id=user3_id).one()
     user4 = db.query(User_DB).filter_by(id=user4_id).one()
 
-
     boss.is_verified = True
     user.is_verified = True
     user2.is_verified = True
     user3.is_verified = True
     user4.is_verified = True
-    
+
     db.commit()
     return boss, user
 
@@ -193,42 +192,44 @@ def seed_songs_and_song_category(db: Session):
     db.commit()
     return
 
-def seed_ads(db:Session):
+
+def seed_ads(db: Session):
     users = db.query(User_DB).all()
-    
-    ad = BookAd_DB(title = "Endim", course = "FMNAF05", author = "Jonas", price = 50, selling = True, user_id = users[0].id)
+
+    ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=50, selling=True, user_id=users[0].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Flerdim", course = "FMNAF25", author = "Jonas", price = 190, selling = True, user_id = users[0].id)
+    ad = BookAd_DB(title="Flerdim", course="FMNAF25", author="Jonas", price=190, selling=True, user_id=users[0].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Linalg", course = "FMNAF35", author = "Jonas", price = 920, selling = True,user_id = users[2].id)
+    ad = BookAd_DB(title="Linalg", course="FMNAF35", author="Jonas", price=920, selling=True, user_id=users[2].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Våglära", course = "VAG01", author = "Tjalle", price = 9430, selling = False, user_id = users[1].id)
+    ad = BookAd_DB(title="Våglära", course="VAG01", author="Tjalle", price=9430, selling=False, user_id=users[1].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Java", course = "JA25", author = "Patrik", price = 50, selling = True, user_id = users[1].id)
+    ad = BookAd_DB(title="Java", course="JA25", author="Patrik", price=50, selling=True, user_id=users[1].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "EffektivC", course = "EC10", author = "Skeppstedt", price = 90, selling = True, user_id = users[0].id)
+    ad = BookAd_DB(title="EffektivC", course="EC10", author="Skeppstedt", price=90, selling=True, user_id=users[0].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Matstat", course = "MATS100", author = "Tant", price = 670, selling = False, user_id = users[1].id)
+    ad = BookAd_DB(title="Matstat", course="MATS100", author="Tant", price=670, selling=False, user_id=users[1].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Termo", course = "VARM20", author = "Thomas", price = 90, selling = True, user_id = users[1].id)
+    ad = BookAd_DB(title="Termo", course="VARM20", author="Thomas", price=90, selling=True, user_id=users[1].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Kemi", course = "BOOM12", author = "Bengt", price = 10, selling = False, user_id = users[3].id)
+    ad = BookAd_DB(title="Kemi", course="BOOM12", author="Bengt", price=10, selling=False, user_id=users[3].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Endim", course = "FMNAF05", author = "Jonas", price = 1, selling = True, user_id = users[4].id)
+    ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=1, selling=True, user_id=users[4].id)
     db.add(ad)
     db.commit()
-    ad = BookAd_DB(title = "Endim", course = "FMNAF05", author = "Jonas", price = 10, selling = True, user_id = users[2].id)
+    ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=10, selling=True, user_id=users[2].id)
     db.add(ad)
     db.commit()
+
 
 def seed_if_empty(app: FastAPI, db: Session):
     # If there's no user, assumed DB is empty and seed it.
@@ -253,7 +254,7 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_songs_and_song_category(db)
 
     seed_songs_and_song_category(db)
-    
+
     seed_ads(db)
 
     print("Done seeding!")
