@@ -46,7 +46,12 @@ def getAllSignups(event_id: int, db: DB_dependency):
 @event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
 def getRandomSignup(event_id: int, db: DB_dependency):
     people = db.query(EventUser_DB).filter_by(event_id = event_id).all()
+    event = db.query(Event_DB).filter_by(event_id = event_id).one_or_none()
+    if event is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND,  detail="No event exist")
     if len(people)==0:
         raise HTTPException(status.HTTP_204_NO_CONTENT, detail="No user has signed up to this event")
+    
+    random.seed(event_id)
     random.shuffle(people)
     return people
