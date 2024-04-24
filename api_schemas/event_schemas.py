@@ -9,6 +9,8 @@ class EventRead(BaseSchema):
     id: int
     starts_at: datetime_utc
     ends_at: datetime_utc
+    signup_start: datetime_utc
+    signup_end: datetime_utc
     title_sv: str
     title_en: str
     description_sv: str
