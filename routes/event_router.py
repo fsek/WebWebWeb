@@ -1,3 +1,4 @@
+from sqlite3 import IntegrityError
 from fastapi import APIRouter, HTTPException, status
 from database import DB_dependency
 from db_models.event_model import Event_DB
@@ -7,6 +8,7 @@ from db_models.event_user_model import EventUser_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
+from typing import List
 
 event_router = APIRouter()
 
@@ -51,7 +53,30 @@ def getRandomSignup(event_id: int, db: DB_dependency):
         raise HTTPException(status.HTTP_404_NOT_FOUND,  detail="No event exist")
     if len(people)==0:
         raise HTTPException(status.HTTP_204_NO_CONTENT, detail="No user has signed up to this event")
-    
+    if len(people) <= event.max_event_users:
+        return people
+            
+    prioritized_people:List[EventUser_DB] = []
+    for priority in event.priorities:
+        # Assuming 'people' is a list of objects and each object has a 'priority' attribute
+        prioritized_people.extend([person for person in people if person.priority == priority])
+
+    # Ensure no duplicates, maintain order
+    seen:set[EventUser_DB] = set()
+    unique_prioritized_people:List[EventUser_DB] = []
+    for person in prioritized_people:
+        if person not in seen:  # Make sure to check person.id since that's what you add to 'seen'
+            seen.add(person)  # Adding person.id to the set
+            people.remove(person)
+            unique_prioritized_people.append(person)
+
+    # Now 'unique_prioritized_people' will have unique persons according to their id, preserving order
+
+    places_left = event.max_event_users - len(unique_prioritized_people) 
     random.seed(event_id)
     random.shuffle(people)
+    
+    unique_prioritized_people.extend(people[:places_left])
+    
+    
     return people
