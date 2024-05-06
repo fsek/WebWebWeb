@@ -16,7 +16,6 @@ from helpers.types import datetime_utc
 if TYPE_CHECKING:
     from .post_model import Post_DB
     from .event_user_model import EventUser_DB
-    from .event_signup_model import EventSignup_DB
     from .post_user_model import PostUser_DB
     from .event_model import Event_DB
     from .news_model import News_DB

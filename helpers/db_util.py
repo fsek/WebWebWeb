@@ -17,4 +17,4 @@ def created_at_column():
 
 
 def latest_modified_column():
-    return mapped_column(onupdate=get_now_utc, init=False)
+    return mapped_column(insert_default=get_now_utc,onupdate=get_now_utc, init=False)

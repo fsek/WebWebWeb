@@ -1,4 +1,3 @@
-from sqlite3 import IntegrityError
 from fastapi import APIRouter, HTTPException, status
 from database import DB_dependency
 from db_models.event_model import Event_DB
@@ -79,4 +78,4 @@ def getRandomSignup(event_id: int, db: DB_dependency):
     unique_prioritized_people.extend(people[:places_left])
     
     
-    return people
+    return unique_prioritized_people

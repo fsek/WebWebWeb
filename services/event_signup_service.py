@@ -13,6 +13,28 @@ def signup_to_event(event1: Event_DB, user1: User_DB, usersignup: EventSignupCre
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
 
     signup = EventUser_DB(user=user1,user_id=user1.id, event=event1, event_id=event1.id)
+    
+    
+    if usersignup.priority is not None:
+        signup.priority = usersignup.priority
+    db.add(signup)
+    db.commit()
+    return signup
+
+
+from datetime import datetime, timezone
+
+def signup_to_event(event1: Event_DB, user1: User_DB, usersignup: EventSignupCreate, db: Session):
+    now = datetime.now(timezone.utc)
+    if event1.signup_start < now:
+        raise HTTPException(status_code=400, detail="Event signup deadline is passed")
+
+    signup = EventUser_DB(
+        user=user1,
+        user_id=user1.id,
+        event=event1,
+        event_id=event1.id,  
+    )
     if usersignup.priority is not None:
         signup.priority = usersignup.priority
     db.add(signup)

@@ -5,12 +5,13 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
-from priority_model import Priority_DB
 
 if TYPE_CHECKING:
     from .user_model import User_DB
     from event_user_model import EventUser_DB
     from council_model import Council_DB
+    from priority_model import Priority_DB
+
 
 
 class Event_DB(BaseModel_DB):
