@@ -26,31 +26,23 @@ def get_all_albums(db: Session):
 
 
 def get_album(db: Session, id: int):
-    try:
-        album = db.query(Album_DB).filter(Album_DB.id == id).one_or_none()
-        if album is None:
-            raise HTTPException(404, detail="Album not found")
+    album = db.query(Album_DB).filter(Album_DB.id == id).one_or_none()
+    if album is None:
+        raise HTTPException(404, detail="Album not found")
 
-        return album
-
-    except Exception as e:
-        raise e
+    return album
 
 
 def delete_album(db: Session, id: int):
-    try:
-        album = db.query(Album_DB).filter(Album_DB.id == id).one_or_none()
-        if album is None:
-            raise HTTPException(404, detail="Album not found")
+    album = db.query(Album_DB).filter(Album_DB.id == id).one_or_none()
+    if album is None:
+        raise HTTPException(404, detail="Album not found")
 
-        if len(album.imgs) != 0:
-            raise HTTPException(404, detail="Album isn't empty")
+    if len(album.imgs) != 0:
+        raise HTTPException(404, detail="Album isn't empty")
 
-        os.rmdir(f"/{album.path}")
-        db.delete(album)
-        db.commit()
+    os.rmdir(f"/{album.path}")
+    db.delete(album)
+    db.commit()
 
-        return {"message": "Album removed successfully"}
-
-    except Exception as e:
-        raise e
+    return {"message": "Album removed successfully"}
