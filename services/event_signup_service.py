@@ -9,9 +9,9 @@ from api_schemas.event_signup import EventSignupCreate
 
 def signup_to_event(event1: Event_DB, user1: User_DB, usersignup: EventSignupCreate , db: Session):
     now = datetime.now(UTC)
-    if event1.signup_start < now:
+    if event1.signup_end < now:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
-
+    
     signup = EventUser_DB(user=user1,user_id=user1.id, event=event1, event_id=event1.id)
     
     if usersignup.priority is not None:
