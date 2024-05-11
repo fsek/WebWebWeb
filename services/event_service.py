@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
 from api_schemas.event_schemas import EventCreate, EventUpdate
+from db_models.priority_model import Priority_DB
 from helpers.date_util import round_whole_minute
 
 
@@ -36,9 +37,17 @@ def create_new_event(data: EventCreate, db: Session):
         signup_end=signup_end,
         max_event_users=data.max_event_users
     )
-    db.add(event)
-    db.commit()
+    db.add(event)  # This adds the event itself to the session
+    db.flush()  # This is optional but can be helpful to ensure 'event.id' is set if used immediately after
+    priorities = [Priority_DB(priority=priority, event_id=event.id) for priority in data.priorities]
 
+    # Add each priority to the session individually
+    for priority in priorities:
+        db.add(priority)
+    db.commit()  # Commit all changes to the database
+    
+    db.refresh(event)
+    
     return event
 
 

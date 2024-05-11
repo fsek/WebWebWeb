@@ -4,6 +4,7 @@ from db_models.event_model import Event_DB
 from api_schemas.event_schemas import EventCreate, EventRead, EventUpdate
 from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
+from db_models.priority_model import Priority_DB
 from db_models.user_model import User_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
@@ -23,7 +24,6 @@ def get_all_events(db: DB_dependency):
 def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
     return event
-
 
 @event_router.delete(
     "/{event_id}", dependencies=[Permission.require("manage", "Event")], status_code=status.HTTP_204_NO_CONTENT
@@ -53,7 +53,7 @@ def getAllSignups(event_id: int, db: DB_dependency):
 
 @event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
 def getRandomSignup(event_id: int, db: DB_dependency):
-    event = db.query(Event_DB).filter_by(event_id = event_id).one_or_none()
+    event = db.query(Event_DB).filter_by(id = event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND,  detail="No event exist")
     peoplesignups = db.query(EventUser_DB).filter_by(event_id = event_id).all()
@@ -85,5 +85,6 @@ def getRandomSignup(event_id: int, db: DB_dependency):
     
     unique_prioritized_people.extend(peoplesignups[:places_left])
     
-    
-    return unique_prioritized_people
+    users:list[User_DB] = [event_user.user for event_user in unique_prioritized_people]
+
+    return users
