@@ -2,7 +2,7 @@ from typing import Annotated
 from api_schemas.base_schema import BaseSchema
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
-from helpers.types import datetime_utc
+from helpers.types import MEMBER_ROLES, datetime_utc
 from pydantic import StringConstraints
 
 
@@ -35,7 +35,7 @@ class EventCreate(BaseSchema):
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     max_event_users: int
-    priorities: list[str]
+    priorities: list[MEMBER_ROLES] | None = None
 
 
 class EventUpdate(BaseSchema):

@@ -4,7 +4,6 @@ from db_models.event_model import Event_DB
 from api_schemas.event_schemas import EventCreate, EventRead, EventUpdate
 from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
-from db_models.priority_model import Priority_DB
 from db_models.user_model import User_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission

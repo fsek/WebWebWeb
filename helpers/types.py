@@ -14,7 +14,7 @@ datetime_utc: TypeAlias = Annotated[datetime, AfterValidator(force_utc)]
 
 # a user who is a member can have some member types
 MEMBER_TYPE = Literal["member", "novice", "mentor, photographer"]
-
+MEMBER_ROLES = Literal["photographer", "ordförande", "dinmamma"]
 
 # With these we define special permissions beyond being just a logged-in and verified user
 # Action/Target division is just for our convenience.
