@@ -2,6 +2,7 @@ import datetime
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from db_models.ad_model import BookAd_DB
 from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
 from db_models.news_model import News_DB
@@ -19,35 +20,71 @@ def seed_users(db: Session, app: FastAPI):
     client = TestClient(app)
     boss = UserCreate(
         email="boss@fsektionen.se",
-        firstname="Boss",
-        lastname="AllaPostersson",
+        first_name="Boss",
+        last_name="AllaPostersson",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
     )
     user = UserCreate(
         email="user@fsektionen.se",
-        firstname="User",
-        lastname="Userström",
+        first_name="User",
+        last_name="Userström",
         password="dabdab",
         telephone_number=PhoneNumber("+46706427444"),
+    )
+    user2 = UserCreate(
+        email="user2@fsektionen.se",
+        first_name="User2",
+        last_name="Userström2",
+        password="dabdab",
+        telephone_number=PhoneNumber("+46760187158"),
+    )
+    user3 = UserCreate(
+        email="user3@fsektionen.se",
+        first_name="User3",
+        last_name="Userström3",
+        password="dabdab",
+        telephone_number=PhoneNumber("+46760187158"),
+    )
+    user4 = UserCreate(
+        email="user4@fsektionen.se",
+        first_name="User4",
+        last_name="Userström4",
+        password="dabdab",
+        telephone_number=PhoneNumber("+46760187158"),
     )
 
     boss_response = client.post("/auth/register", json=boss.model_dump())
     assert boss_response.status_code == 201
     response = client.post("/auth/register", json=user.model_dump())
     assert response.status_code == 201
+    user2_response = client.post("/auth/register", json=user2.model_dump())
+    assert user2_response.status_code == 201
+    user3_response = client.post("/auth/register", json=user3.model_dump())
+    assert user3_response.status_code == 201
+    user4_response = client.post("/auth/register", json=user4.model_dump())
+    assert user4_response.status_code == 201
 
     client.close()
     boss_id = boss_response.json()["id"]
     user_id = response.json()["id"]
+    user2_id = user2_response.json()["id"]
+    user3_id = user3_response.json()["id"]
+    user4_id = user4_response.json()["id"]
 
     # now fetch the created users and set is_verified to True
     boss = db.query(User_DB).filter_by(id=boss_id).one()
     user = db.query(User_DB).filter_by(id=user_id).one()
+    user2 = db.query(User_DB).filter_by(id=user2_id).one()
+    user3 = db.query(User_DB).filter_by(id=user3_id).one()
+    user4 = db.query(User_DB).filter_by(id=user4_id).one()
 
     boss.is_verified = True
     user.is_verified = True
     boss.is_member = True
+    user2.is_verified = True
+    user3.is_verified = True
+    user4.is_verified = True
 
     db.commit()
     return boss, user
@@ -77,7 +114,6 @@ def seed_post_users(db: Session, boss: User_DB, user: User_DB, posts: list[Post_
     # Give posts to users
     boss.posts = posts
     user.posts.append(posts[0])
-
     db.commit()
 
 
@@ -89,6 +125,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm5 = Permission_DB(action="manage", target="News")
     perm6 = Permission_DB(action="manage", target="Song")
     perm7 = Permission_DB(action="manage", target="Gallery")
+    perm7 = Permission_DB(action="manage", target="Ads")
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
@@ -158,6 +195,44 @@ def seed_songs_and_song_category(db: Session):
     return
 
 
+def seed_ads(db: Session):
+    users = db.query(User_DB).all()
+
+    ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=50, selling=True, user_id=users[0].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Flerdim", course="FMNAF25", author="Jonas", price=190, selling=True, user_id=users[0].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Linalg", course="FMNAF35", author="Jonas", price=920, selling=True, user_id=users[2].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Våglära", course="VAG01", author="Tjalle", price=9430, selling=False, user_id=users[1].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Java", course="JA25", author="Patrik", price=50, selling=True, user_id=users[1].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="EffektivC", course="EC10", author="Skeppstedt", price=90, selling=True, user_id=users[0].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Matstat", course="MATS100", author="Tant", price=670, selling=False, user_id=users[1].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Termo", course="VARM20", author="Thomas", price=90, selling=True, user_id=users[1].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Kemi", course="BOOM12", author="Bengt", price=10, selling=False, user_id=users[3].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=1, selling=True, user_id=users[4].id)
+    db.add(ad)
+    db.commit()
+    ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=10, selling=True, user_id=users[2].id)
+    db.add(ad)
+    db.commit()
+
+
 def seed_if_empty(app: FastAPI, db: Session):
     # If there's no user, assumed DB is empty and seed it.
     if db.query(User_DB).count() > 0:
@@ -181,5 +256,7 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_songs_and_song_category(db)
 
     seed_songs_and_song_category(db)
+
+    seed_ads(db)
 
     print("Done seeding!")

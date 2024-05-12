@@ -9,6 +9,8 @@ from .user_model import User_DB
 from .news_model import News_DB
 from .song_model import Song_DB
 from .song_category_model import SongCategory_DB
+from .ad_model import BookAd_DB
+
 
 # Import all models that exist into this file and list them in __all__
 
@@ -24,4 +26,5 @@ __all__ = [
     "News_DB",
     "Song_DB",
     "SongCategory_DB",
+    "BookAd_DB",
 ]
