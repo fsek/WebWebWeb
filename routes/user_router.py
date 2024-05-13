@@ -36,13 +36,12 @@ def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()
     if data.program:
         me.program = data.program
 
-    
     try: 
         db.commit()
     except DataError:
         db.rollback()
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    
+
     return current_user
 
 
