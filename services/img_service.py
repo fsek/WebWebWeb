@@ -1,4 +1,5 @@
 from fastapi import HTTPException, UploadFile, File
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
 from pathlib import Path
 from db_models.album_model import Album_DB
@@ -42,3 +43,12 @@ def remove_img(db: Session, img_id: int):
     db.commit()
 
     return {"message": "File removed successfully"}
+
+
+def get_single_img(db: Session, img_id: int):
+    img = db.query(Img_DB).filter(Img_DB.id == img_id).one_or_none()
+
+    if img == None:
+        raise HTTPException(404, detail="File not found")
+
+    return FileResponse(f"/{img.album.path}/{img.path}")
