@@ -7,6 +7,7 @@ from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from .post_user_model import PostUser_DB
+from sqlalchemy import Enum
 import datetime
 from helpers.types import datetime_utc
 
@@ -32,7 +33,9 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
 
     start_year: Mapped[int] = mapped_column(default=datetime.date.today().year) #start year at the guild 
-    
+
+    program: Mapped[Optional[str]] = mapped_column(Enum("F", "N", "Pi", name="program_enum"), default=None)  # program at the guild
+
     account_created: Mapped[datetime_utc] = mapped_column(default=datetime.datetime.now()) #date and time the account was created
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(

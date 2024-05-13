@@ -23,6 +23,7 @@ def seed_users(db: Session, app: FastAPI):
         last_name="AllaPostersson",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
+        program="F"
     )
     user = UserCreate(
         email="user@fsektionen.se",
@@ -30,6 +31,7 @@ def seed_users(db: Session, app: FastAPI):
         last_name="Userström",
         password="dabdab",
         telephone_number=PhoneNumber("+46706427444"),
+        program="F"
     )
 
     boss_response = client.post("/auth/register", json=boss.model_dump())
