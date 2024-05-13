@@ -30,7 +30,7 @@ class Event_DB(BaseModel_DB):
 
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped["Council_DB"] = relationship(back_populates="events", init=False)
-    
+
     max_event_users: Mapped[int] = mapped_column(default=0)
 
     event_users: Mapped[list["EventUser_DB"]] = relationship(
@@ -40,3 +40,13 @@ class Event_DB(BaseModel_DB):
     users: AssociationProxy[list["User_DB"]] = association_proxy(
         target_collection="event_users", attr="user", init=False
     )
+
+    all_day: Mapped[bool] = mapped_column(default=False)
+    sign_up_not_opened_yet: Mapped[bool] = mapped_column(default=False)
+    recurring: Mapped[bool] = mapped_column(default=False)
+    drink: Mapped[bool] = mapped_column(default=False)
+    food: Mapped[bool] = mapped_column(default=False)
+    cash: Mapped[bool] = mapped_column(default=False)
+    closed: Mapped[bool] = mapped_column(default=False)
+    can_signup: Mapped[bool] = mapped_column(default=False)
+    drink_package: Mapped[bool] = mapped_column(default=False)
