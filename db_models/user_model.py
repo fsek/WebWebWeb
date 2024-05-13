@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users.db import SQLAlchemyBaseUserTable
-from sqlalchemy import String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
+from db_models.mentorgroup_model import MentorGroup_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
@@ -16,7 +17,6 @@ from helpers.types import datetime_utc
 if TYPE_CHECKING:
     from .post_model import Post_DB
     from .event_user_model import EventUser_DB
-    from .event_signup_model import EventSignup_DB
     from .post_user_model import PostUser_DB
     from .event_model import Event_DB
     from .news_model import News_DB
@@ -62,6 +62,12 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     )
 
     is_member: Mapped[bool] = mapped_column(default=False)
+
+    mentee_id: Mapped[int] = mapped_column(ForeignKey("mentorgroup_table.id"), default=None)
+
+    mentee_in_group: Mapped[MentorGroup_DB] = relationship(back_populates="mentees", init=False)
+
+    
 
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"]
