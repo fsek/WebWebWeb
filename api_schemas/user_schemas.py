@@ -24,15 +24,16 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     posts: list[_UserPostRead]
     events: list[_UserEventRead]
     telephone_number: PhoneNumber
-    start_year: int 
+    start_year: int
     account_created: datetime_utc
+
 
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     first_name: Annotated[str, StringConstraints(max_length=MAX_FIRST_NAME_LEN)]
     last_name: Annotated[str, StringConstraints(max_length=MAX_LAST_NAME_LEN)]
     telephone_number: PhoneNumber | None = None
-    start_year: int | None=None
+    start_year: int | None = None
     pass
 
 
@@ -40,6 +41,14 @@ class MeUpdate(BaseSchema):
     first_name: str | None = None
     last_name: str | None = None
     start_year: int | None = None
+
+class GroupUserRead(BaseSchema):
+    first_name: str
+    last_name: str
+    email: str
+    telephone_number: PhoneNumber
+    start_year: int
+    nollning_user_type: str
 
 
 # class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):

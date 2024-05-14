@@ -2,7 +2,8 @@ from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from db_models.mentorgroup_model import MentorGroup_DB
+from db_models.mentor_group_model import MentorGroup_DB
+from db_models.nollning_user_model import NollningUser_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
@@ -11,7 +12,6 @@ from .post_user_model import PostUser_DB
 from .ad_model import BookAd_DB
 import datetime
 from helpers.types import datetime_utc
-
 
 
 if TYPE_CHECKING:
@@ -33,14 +33,14 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     first_name: Mapped[str] = mapped_column(String(MAX_FIRST_NAME_LEN))
     last_name: Mapped[str] = mapped_column(String(MAX_LAST_NAME_LEN))
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
-    
-    book_ads: Mapped[list["BookAd_DB"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan", init=False
-    )
 
-    start_year: Mapped[int] = mapped_column(default=datetime.date.today().year) #start year at the guild 
-    
-    account_created: Mapped[datetime_utc] = mapped_column(default=datetime.datetime.now()) #date and time the account was created
+    book_ads: Mapped[list["BookAd_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan", init=False)
+
+    start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
+
+    account_created: Mapped[datetime_utc] = mapped_column(
+        default=datetime.datetime.now()
+    )  # date and time the account was created
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
@@ -63,11 +63,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     is_member: Mapped[bool] = mapped_column(default=False)
 
-    mentee_id: Mapped[int] = mapped_column(ForeignKey("mentorgroup_table.id"), default=None)
+    nollning_users: Mapped[list["NollningUser_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan", init=False)
 
-    mentee_in_group: Mapped[MentorGroup_DB] = relationship(back_populates="mentees", init=False)
-
-    
+    mentor_groups: AssociationProxy[list["MentorGroup_DB"]] = association_proxy(
+        target_collection="group_users", attr="mentor_group", init=False)
 
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"]
