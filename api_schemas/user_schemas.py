@@ -26,6 +26,8 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     telephone_number: PhoneNumber
     start_year: int 
     account_created: datetime_utc
+    program: str
+
 
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
@@ -33,6 +35,7 @@ class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     last_name: Annotated[str, StringConstraints(max_length=MAX_LAST_NAME_LEN)]
     telephone_number: PhoneNumber | None = None
     start_year: int | None=None
+    program: str | None = None
     pass
 
 
@@ -40,6 +43,8 @@ class MeUpdate(BaseSchema):
     first_name: str | None = None
     last_name: str | None = None
     start_year: int | None = None
+    program: str | None = None
+
 
 
 # class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
