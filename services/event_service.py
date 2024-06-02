@@ -34,7 +34,16 @@ def create_new_event(data: EventCreate, db: Session):
         council_id=data.council_id,
         signup_start=signup_start,
         signup_end=signup_end,
-        max_event_users=data.max_event_users
+        max_event_users=data.max_event_users,
+        all_day=data.all_day,
+        sign_up_not_opened_yet=data.sign_up_not_opened_yet,
+        recurring=data.recurring,
+        drink=data.drink,
+        food=data.food,
+        cash=data.cash,
+        closed=data.closed,
+        can_signup=data.can_signup,
+        drink_package=data.drink_package,
     )
     db.add(event)
     db.commit()
@@ -65,5 +74,23 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
         event.title_sv = data.title_sv
     if data.max_event_users is not None:
         event.max_event_users = data.max_event_users
+    if data.all_day is not None:
+        event.all_day = data.all_day
+    if data.sign_up_not_opened_yet is not None:
+        event.sign_up_not_opened_yet = data.sign_up_not_opened_yet
+    if data.recurring is not None:
+        event.recurring = data.recurring
+    if data.drink is not None:
+        event.drink = data.drink
+    if data.food is not None:
+        event.food = data.food
+    if data.cash is not None:
+        event.cash = data.cash
+    if data.closed is not None:
+        event.closed = data.closed
+    if data.can_signup is not None:
+        event.can_signup = data.can_signup
+    if data.drink_package is not None:
+        event.drink_package = data.drink_package
     db.commit()
     return event

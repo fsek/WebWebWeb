@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Optional
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from helpers.types import datetime_utc
@@ -14,9 +14,18 @@ class EventRead(BaseSchema):
     description_sv: str
     description_en: str
     max_event_users: int
+    all_day: bool
+    sign_up_not_opened_yet: bool
+    recurring: bool
+    drink: bool
+    food: bool
+    cash: bool
+    closed: bool
+    can_signup: bool
+    drink_package: bool
 
 
-# we dont need to be as strict about out data as in data.
+# we dont need to be as strict about out dat[a as in data.
 # str is fine for Read but Create needs max_length, good validation
 
 
@@ -31,6 +40,15 @@ class EventCreate(BaseSchema):
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     max_event_users: int
+    all_day: bool
+    sign_up_not_opened_yet: bool
+    recurring: bool
+    drink: bool
+    food: bool
+    cash: bool
+    closed: bool
+    can_signup: bool
+    drink_package: bool
 
 
 class EventUpdate(BaseSchema):
@@ -39,3 +57,12 @@ class EventUpdate(BaseSchema):
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
     max_event_users: int | None = None
+    all_day: bool | None = None
+    sign_up_not_opened_yet: bool | None = None
+    recurring: bool | None = None
+    drink: bool | None = None
+    food: bool | None = None
+    cash: bool | None = None
+    closed: bool | None = None
+    can_signup: bool | None = None
+    drink_package: bool | None = None
