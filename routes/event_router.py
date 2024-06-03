@@ -57,7 +57,7 @@ def getRandomSignup(event_id: int, db: DB_dependency):
         raise HTTPException(status.HTTP_404_NOT_FOUND,  detail="No event exist")
     peoplesignups = db.query(EventUser_DB).filter_by(event_id = event_id).all()
     if len(peoplesignups)==0:
-        raise HTTPException(status.HTTP_204_NO_CONTENT, detail="No user has signed up to this event")
+        return []
     if len(peoplesignups) <= event.max_event_users:
         users:list[User_DB] = [event_user.user for event_user in peoplesignups]
         return users
