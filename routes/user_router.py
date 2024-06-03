@@ -5,6 +5,7 @@ from database import DB_dependency
 from db_models.user_model import User_DB
 from api_schemas.user_schemas import MeUpdate, UserRead
 from user.permission import Permission
+from sqlalchemy.exc import DataError
 
 user_router = APIRouter()
 
@@ -32,9 +33,15 @@ def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()
         me.last_name = data.last_name
     if data.start_year:
         me.start_year = data.start_year
+    if data.program:
+        me.program = data.program
 
+    try: 
+        db.commit()
+    except DataError:
+        db.rollback()
+        raise HTTPException(status.HTTP_400_BAD_REQUEST)
 
-    db.commit()
     return current_user
 
 

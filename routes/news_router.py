@@ -11,9 +11,15 @@ from user.permission import Permission
 news_router = APIRouter()
 
 
-@news_router.get("/", response_model=list[NewsRead])
+@news_router.get("/all", response_model=list[NewsRead])
 def get_all_news(db: DB_dependency):
     news = db.query(News_DB).order_by(News_DB.created_at.desc()).all()
+    return news
+
+
+@news_router.get("/amount/{amount}", response_model=list[NewsRead])
+def get_amount_of_news(db: DB_dependency, amount: int):
+    news = db.query(News_DB).order_by(News_DB.created_at.desc()).limit(amount)
     return news
 
 
@@ -36,8 +42,6 @@ def create_news(data: NewsCreate, author: Annotated[User_DB, Permission.require(
     dependencies=[Permission.require("manage", "News")],
     status_code=status.HTTP_204_NO_CONTENT,
 )
-
-
 def delete_news(news_id: int, db: DB_dependency):
     news = db.query(News_DB).filter_by(id=news_id).one_or_none()
     if news is None:
@@ -51,6 +55,7 @@ def delete_news(news_id: int, db: DB_dependency):
 def update_news(news_id: int, updated_news: NewsUpdate, db: DB_dependency):
     news = update_existing_news(news_id, updated_news, db)
     return news
+
 
 @news_router.patch("/bump/{news_id}", dependencies=[Permission.require("manage", "News")], response_model=NewsRead)
 def bump_news(news_id: int, db: DB_dependency):

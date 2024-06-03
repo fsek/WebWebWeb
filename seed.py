@@ -24,6 +24,7 @@ def seed_users(db: Session, app: FastAPI):
         last_name="AllaPostersson",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
+        program="F"
     )
     user = UserCreate(
         email="user@fsektionen.se",
@@ -31,6 +32,7 @@ def seed_users(db: Session, app: FastAPI):
         last_name="Userström",
         password="dabdab",
         telephone_number=PhoneNumber("+46706427444"),
+        program="F"
     )
     user2 = UserCreate(
         email="user2@fsektionen.se",
@@ -81,6 +83,7 @@ def seed_users(db: Session, app: FastAPI):
 
     boss.is_verified = True
     user.is_verified = True
+    boss.is_member = True
     user2.is_verified = True
     user3.is_verified = True
     user4.is_verified = True
@@ -128,7 +131,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm4 = Permission_DB(action="manage", target="Post")
     perm5 = Permission_DB(action="manage", target="News")
     perm6 = Permission_DB(action="manage", target="Song")
-    perm7 = Permission_DB(action="manage", target="Ads")
+    perm7 = Permission_DB(action="manage", target="Gallery")
+    perm8 = Permission_DB(action="manage", target="Ads")
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
@@ -136,6 +140,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[1].permissions.append(perm5)
     posts[0].permissions.append(perm6)
     posts[0].permissions.append(perm7)
+    posts[0].permissions.append(perm8)
     db.commit()
 
 
