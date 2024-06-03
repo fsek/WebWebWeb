@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey
+from sqlalchemy import Column, DateTime, ForeignKey
+
+#from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from datetime import datetime
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -18,6 +20,10 @@ class EventUser_DB(BaseModel_DB):
 
     event: Mapped["Event_DB"] = relationship(back_populates="event_users")
     event_id: Mapped[int] = mapped_column(ForeignKey("event_table.id"), primary_key=True)
+    
+    priority: Mapped[str] = mapped_column(default = "Övrigt")
 
     created_at: Mapped[datetime] = created_at_column()
-    latest_modified: Mapped[datetime] = latest_modified_column()
+    latest_modified: Mapped[datetime] =  latest_modified_column()
+
+    

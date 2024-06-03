@@ -87,6 +87,11 @@ def seed_users(db: Session, app: FastAPI):
     user2.is_verified = True
     user3.is_verified = True
     user4.is_verified = True
+    boss.is_member = True
+    user.is_member = True
+    user2.is_member = True
+    user3.is_member = True
+    user4.is_member = True
 
     db.commit()
     return boss, user

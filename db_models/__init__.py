@@ -10,13 +10,16 @@ from .news_model import News_DB
 from .song_model import Song_DB
 from .song_category_model import SongCategory_DB
 from .ad_model import BookAd_DB
+from .priority_model import Priority_DB
 
 
 # Import all models that exist into this file and list them in __all__
 
+
 __all__ = [
     "BaseModel_DB",
     "Council_DB",
+    "Priority_DB",
     "Event_DB",
     "EventUser_DB",
     "Permission_DB",

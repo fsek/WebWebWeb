@@ -30,7 +30,7 @@ def get_ad_by_id(id:int, db: DB_dependency):
 
 @ad_router.get("/username/{username}", response_model=list[AdRead])
 def get_ad_by_user(username:str, db: DB_dependency):
-    user = db.query(User_DB).filter(func.lower(User_DB.firstname) == func.lower(username)).one_or_none() ##func is from sqlalchemy and is used to make it to lower characters. Doesn't work with other functions
+    user = db.query(User_DB).filter(func.lower(User_DB.first_name) == func.lower(username)).one_or_none() ##func is from sqlalchemy and is used to make it to lower characters. Doesn't work with other functions
     if user is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     ads = db.query(BookAd_DB).filter_by(user_id = user.id).all()
