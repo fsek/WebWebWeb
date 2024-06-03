@@ -41,9 +41,7 @@ def update(event_id: int, data: EventUpdate, db: DB_dependency):
 def getAllSignups(event_id: int, db: DB_dependency):
     peoplesignups = db.query(EventUser_DB).filter_by(event_id = event_id).all()
     if len(peoplesignups)==0:
-        raise HTTPException(status.HTTP_204_NO_CONTENT, detail="No user has signed up to this event")
-    
-    # Assuming event_users is your list of EventUser objects
+        return []
     users:list[User_DB] = [event_user.user for event_user in peoplesignups]
     
     return users
