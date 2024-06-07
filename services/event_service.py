@@ -39,6 +39,7 @@ def create_new_event(data: EventCreate, db: Session):
     )
     db.add(event)  # This adds the event itself to the session
     db.flush()  # This is optional but can be helpful to ensure 'event.id' is set if used immediately after
+    
     priorities = [Priority_DB(priority=priority, event_id=event.id) for priority in data.priorities]
 
     # Add each priority to the session individually

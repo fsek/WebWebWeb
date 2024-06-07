@@ -42,4 +42,5 @@ def convert_event_user_to_user_read(event_user: EventUser_DB) -> UserSignupRead:
         telephone_number=PhoneNumber(event_user.user.telephone_number),
         start_year=event_user.user.start_year,
         account_created=event_user.user.account_created,
+        program = event_user.user.program
     )

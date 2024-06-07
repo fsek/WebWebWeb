@@ -20,6 +20,8 @@ if TYPE_CHECKING:
     from .event_model import Event_DB
     from .news_model import News_DB
     from .ad_model import BookAd_DB
+    from db_models.car_model import Car_DB
+
 
 # called by SQLAlchemy when user.posts.append(some_post)
 post_user_creator: Callable[["Post_DB"], "PostUser_DB"] = lambda post: PostUser_DB(post=post)
@@ -34,6 +36,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
     
     book_ads: Mapped[list["BookAd_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
+    
+    car_rentings: Mapped[list["Car_DB"]] = relationship("Car_DB",
         back_populates="user", cascade="all, delete-orphan", init=False
     )
 
@@ -69,4 +75,4 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     is_member: Mapped[bool] = mapped_column(default=False)
 
     # notifications: Mapped[list["Notification_DB"]]
-    # fredmansky: Mapped["Fredmansky_DB"]
+    # fredmansky: Mapped["Fredmansky_DB"] should not be implemented like this I think //Benjamin

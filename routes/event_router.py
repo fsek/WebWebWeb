@@ -41,7 +41,7 @@ def update(event_id: int, data: EventUpdate, db: DB_dependency):
 def getAllSignups(event_id: int, db: DB_dependency):
     peoplesignups = db.query(EventUser_DB).filter_by(event_id = event_id).all()
     if len(peoplesignups)==0:
-        return []
+        return list[User_DB]
     users:list[User_DB] = [event_user.user for event_user in peoplesignups]
     
     return users
@@ -55,7 +55,7 @@ def getRandomSignup(event_id: int, db: DB_dependency):
         raise HTTPException(status.HTTP_404_NOT_FOUND,  detail="No event exist")
     peoplesignups = db.query(EventUser_DB).filter_by(event_id = event_id).all()
     if len(peoplesignups)==0:
-        return []
+        return list[User_DB]
     if len(peoplesignups) <= event.max_event_users:
         users:list[User_DB] = [event_user.user for event_user in peoplesignups]
         return users

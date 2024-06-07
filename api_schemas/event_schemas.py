@@ -35,7 +35,7 @@ class EventCreate(BaseSchema):
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     max_event_users: int
-    priorities: list[MEMBER_ROLES] | None = None
+    priorities: list[MEMBER_ROLES]
 
 
 class EventUpdate(BaseSchema):
