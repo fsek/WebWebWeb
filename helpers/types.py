@@ -9,6 +9,7 @@ def force_utc(date: datetime):
     return date
 
 
+# use this as datetime type in schemas. This way we force frontend to specify their time in UTC
 datetime_utc: TypeAlias = Annotated[datetime, AfterValidator(force_utc)]
 
 
