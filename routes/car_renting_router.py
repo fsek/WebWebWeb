@@ -39,11 +39,11 @@ def create_booking(booking:CarCreate,current_user:Annotated[User_DB, Permission.
     return db_booking
 
 @car_router.delete("/", response_model=CarRead)
-def remove_booking(booking_id:int,current_user:Annotated[User_DB, Permission.member()],manage:Annotated[bool, Permission.check_permission("manage","Car")], db: DB_dependency):
+def remove_booking(booking_id:int,current_user:Annotated[User_DB, Permission.member()],manage_permission:Annotated[bool, Permission.check_permission("manage","Car")], db: DB_dependency):
     car_booking = db.query(Car_DB).filter(Car_DB.booking_id==booking_id).first()
     if car_booking is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    if (car_booking.user == current_user) | manage:
+    if (car_booking.user == current_user) | manage_permission:
         db.delete(car_booking)
         db.commit()
         return car_booking
