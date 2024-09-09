@@ -18,6 +18,6 @@ class CarCreate(BaseSchema):
     end_time: datetime
     
 class CarUpdate(BaseSchema):
-    description: Annotated[str, StringConstraints(max_length=MAX_CAR_DESC)] | None
-    start_time: datetime | None 
-    end_time: datetime | None
+    description: Annotated[str, StringConstraints(max_length=MAX_CAR_DESC)] | None = None
+    start_time: datetime | None = None
+    end_time: datetime | None = None
