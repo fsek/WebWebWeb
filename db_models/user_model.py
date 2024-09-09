@@ -11,6 +11,7 @@ from sqlalchemy import Enum
 import datetime
 from helpers.types import datetime_utc
 from .ad_model import BookAd_DB
+from .car_model import Car_DB
 from helpers.types import datetime_utc
 
 if TYPE_CHECKING:
@@ -20,7 +21,7 @@ if TYPE_CHECKING:
     from .event_model import Event_DB
     from .news_model import News_DB
     from .ad_model import BookAd_DB
-    from db_models.car_model import Car_DB
+    from .car_model import Car_DB
 
 
 # called by SQLAlchemy when user.posts.append(some_post)
@@ -38,10 +39,6 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     book_ads: Mapped[list["BookAd_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
     )
-    
-    car_rentings: Mapped[list["Car_DB"]] = relationship("Car_DB",
-        back_populates="user", cascade="all, delete-orphan", init=False
-    )
 
     start_year: Mapped[int] = mapped_column(default=datetime.date.today().year) #start year at the guild 
     
@@ -52,6 +49,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     program: Mapped[Optional[str]] = mapped_column(Enum("F", "N", "Pi", name="program_enum"), default=None)  # program at the guild
 
     account_created: Mapped[datetime_utc] = mapped_column(default=datetime.datetime.now()) #date and time the account was created
+
+    car_rentings: Mapped[list["Car_DB"]] = relationship(
+        back_populates="user", init=False
+    )
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
