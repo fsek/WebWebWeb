@@ -1,5 +1,6 @@
+from email.policy import HTTP
 from fastapi import APIRouter, HTTPException,status
-from api_schemas.car_booking_schema import CarCreate, CarRead
+from api_schemas.car_booking_schema import CarCreate, CarRead, CarUpdate
 from database import DB_dependency
 from typing import Annotated
 from sqlalchemy import or_, and_
@@ -50,4 +51,39 @@ def remove_booking(booking_id:int,current_user:Annotated[User_DB, Permission.mem
     
     raise HTTPException(status.HTTP_401_UNAUTHORIZED)
     
+@car_router.patch("/",response_model=CarRead)
+def update_booking(booking_id:int,data:CarUpdate,current_user:Annotated[User_DB, Permission.member()],manage_permission:Annotated[bool,Permission.check_permission("manage", "Car")],db:DB_dependency):
+    car_booking = db.query(Car_DB).filter(Car_DB.booking_id==booking_id).first()
+    if car_booking is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    if (car_booking.user != current_user) | (not manage_permission):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
     
+    if (data.start_time is None) | (data.end_time is None):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+    
+    illegal_booking = db.query(Car_DB).filter(
+        and_(
+            Car_DB.user_id == current_user.id,  # Ensure user is booking their own cars
+            or_(
+                and_(data.start_time >= Car_DB.start_time, data.start_time < Car_DB.end_time),
+                and_(data.end_time > Car_DB.start_time, data.end_time <= Car_DB.end_time),
+                and_(data.start_time <= Car_DB.start_time, data.end_time >= Car_DB.end_time)
+            )
+        )
+    ).first()
+    
+    if illegal_booking:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST)    
+    
+    if data.description is not None:
+        car_booking.description = data.description
+    
+    if data.start_time is not None:
+        car_booking.start_time = data.start_time
+        
+    if data.end_time is not None:
+        car_booking.end_time = data.end_time
+    
+    db.commit()
+    return car_booking
