@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 class CafeShift_DB(BaseModel_DB):
     __tablename__ = "cafe_shift_table"
 
-    shift_id: Mapped[int] = mapped_column(primary_key=True, init=False)
+    id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     starts_at: Mapped[datetime_utc] = mapped_column()
     ends_at: Mapped[datetime_utc] = mapped_column()

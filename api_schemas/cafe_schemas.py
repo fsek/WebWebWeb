@@ -6,8 +6,8 @@ from pydantic import StringConstraints
 
 
 class CafeShiftRead(BaseSchema):
-    worker_id: int
-    is_me: bool
+    id: int
+    user_id: int | None
     starts_at: datetime_utc
     ends_at: datetime_utc
 
