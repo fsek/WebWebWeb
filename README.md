@@ -21,7 +21,7 @@ This repo uses VSCode's Dev Containers extension to standardize the development 
  
 1. Open the Command Palette (`Ctrl + Shift + P` / `Cmd + Shift + P`) and select `Dev Containers: Clone Repository in Container Volume...`. Select `GitHub`, then enter `fsek/WebWebWeb.git`.
 
-1. After configuration has finished in the open terminal, it should say `Done. Press any key to close the terminal`. Open `main.py` and make sure VSCode has selected our Python interpreter from `.venv` folder: In the bottom right corner of VSCode it should say approximately `Python 3.11.2 ('.venv': venv)`. Otherwise, open Command Palette -> `Python: Select Interpreter` and choose `./.venv/bin/python`.
+1. After configuration has finished in the open terminal, it should say `Done. Press any key to close the terminal`. Open `main.py` and make sure VSCode has selected our Python interpreter from `.venv` folder: In the bottom right corner of VSCode it should say approximately `Python 3.11.2 ('.venv': venv)`. Otherwise, open Command Palette -> `Python: Select Interpreter` and choose `./.venv/bin/python`. If you are using a Mac type `source .venv/bin/activate`to activate the environment.
 
 1. Open a new Bash terminal (`Ctrl + Shift + Ö`) and run `uvicorn main:app --reload`.
 

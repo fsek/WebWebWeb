@@ -9,10 +9,11 @@ from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from .post_user_model import PostUser_DB
-from .ad_model import BookAd_DB
+from sqlalchemy import Enum
 import datetime
 from helpers.types import datetime_utc
-
+from .ad_model import BookAd_DB
+from helpers.types import datetime_utc
 
 if TYPE_CHECKING:
     from .post_model import Post_DB
@@ -42,6 +43,16 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
         default=datetime.datetime.now()
     )  # date and time the account was created
 
+    start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
+
+    program: Mapped[Optional[str]] = mapped_column(
+        Enum("F", "N", "Pi", name="program_enum"), default=None
+    )  # program at the guild
+
+    account_created: Mapped[datetime_utc] = mapped_column(
+        default=datetime.datetime.now()
+    )  # date and time the account was created
+
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
     )
@@ -63,10 +74,13 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     is_member: Mapped[bool] = mapped_column(default=False)
 
-    nollning_users: Mapped[list["NollningUser_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan", init=False)
+    nollning_users: Mapped[list["NollningUser_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
 
     mentor_groups: AssociationProxy[list["MentorGroup_DB"]] = association_proxy(
-        target_collection="group_users", attr="mentor_group", init=False)
+        target_collection="group_users", attr="mentor_group", init=False
+    )
 
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"]

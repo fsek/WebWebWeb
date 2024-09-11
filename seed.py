@@ -24,6 +24,7 @@ def seed_users(db: Session, app: FastAPI):
         last_name="AllaPostersson",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
+        program="F",
     )
     user = UserCreate(
         email="user@fsektionen.se",
@@ -31,6 +32,7 @@ def seed_users(db: Session, app: FastAPI):
         last_name="Userström",
         password="dabdab",
         telephone_number=PhoneNumber("+46706427444"),
+        program="F",
     )
     user2 = UserCreate(
         email="user2@fsektionen.se",
@@ -85,6 +87,11 @@ def seed_users(db: Session, app: FastAPI):
     user2.is_verified = True
     user3.is_verified = True
     user4.is_verified = True
+    boss.is_member = True
+    user.is_member = True
+    user2.is_member = True
+    user3.is_member = True
+    user4.is_member = True
 
     db.commit()
     return boss, user
@@ -206,34 +213,24 @@ def seed_ads(db: Session):
 
     ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=50, selling=True, user_id=users[0].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Flerdim", course="FMNAF25", author="Jonas", price=190, selling=True, user_id=users[0].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Linalg", course="FMNAF35", author="Jonas", price=920, selling=True, user_id=users[2].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Våglära", course="VAG01", author="Tjalle", price=9430, selling=False, user_id=users[1].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Java", course="JA25", author="Patrik", price=50, selling=True, user_id=users[1].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="EffektivC", course="EC10", author="Skeppstedt", price=90, selling=True, user_id=users[0].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Matstat", course="MATS100", author="Tant", price=670, selling=False, user_id=users[1].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Termo", course="VARM20", author="Thomas", price=90, selling=True, user_id=users[1].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Kemi", course="BOOM12", author="Bengt", price=10, selling=False, user_id=users[3].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=1, selling=True, user_id=users[4].id)
     db.add(ad)
-    db.commit()
     ad = BookAd_DB(title="Endim", course="FMNAF05", author="Jonas", price=10, selling=True, user_id=users[2].id)
     db.add(ad)
     db.commit()
