@@ -11,10 +11,10 @@ if TYPE_CHECKING:
 class CafeShift_DB(BaseModel_DB):
     __tablename__ = "cafe_shift_table"
 
-    id: Mapped[int] = mapped_column(primary_key=True, init=False)
+    shift_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     starts_at: Mapped[datetime_utc] = mapped_column()
     ends_at: Mapped[datetime_utc] = mapped_column()
 
-    cafe_worker_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"), default=None)
-    cafe_worker: Mapped[Optional["User_DB"]] = relationship(back_populates="cafe_shifts", init=False)
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"), default=None)
+    user: Mapped[Optional["User_DB"]] = relationship(back_populates="cafe_shifts", init=False)

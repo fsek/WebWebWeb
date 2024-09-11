@@ -3,7 +3,6 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from db_models.cafe_shift_model import CafeShift_DB
-from db_models.cafe_worker_model import CafeWorker_DB
 from db_models.ad_model import BookAd_DB
 from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
@@ -103,7 +102,8 @@ def seed_cafe_shifts(db: Session, user: User_DB):
     starts_at = datetime.datetime.now(datetime.UTC)
     ends_at = starts_at + datetime.timedelta(hours=1)
     shift = CafeShift_DB(starts_at=starts_at, ends_at=ends_at)
-    shift.cafe_worker = user
+    shift.user = user
+    shift.user_id = user.id
     db.add(shift)
     db.commit()
     return shift

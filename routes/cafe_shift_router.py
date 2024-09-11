@@ -21,7 +21,7 @@ def view_all_shifts(db: DB_dependency):
 
 @cafe_shift_router.get("/{shift_id}", response_model=CafeShiftRead)
 def view_shift(shift_id: int, db: DB_dependency):
-    shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
+    shift = db.query(CafeShift_DB).filter_by(shift_id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return shift
@@ -56,7 +56,7 @@ def create_shift(data: CafeShiftCreate, db: DB_dependency):
     "/{shift_id}", dependencies=[Permission.require("manage", "Cafe")], status_code=status.HTTP_204_NO_CONTENT
 )
 def remove(shift_id: int, db: DB_dependency):
-    shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
+    shift = db.query(CafeShift_DB).filter_by(shift_id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
@@ -69,19 +69,19 @@ def remove(shift_id: int, db: DB_dependency):
     "/{shift_id}", dependencies=[Permission.require("manage", "Cafe")], response_model=CafeShiftRead
 )
 def update(shift_id: int, data: CafeShiftUpdate, db: DB_dependency):
-    shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
+    shift = db.query(CafeShift_DB).filter_by(shift_id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     if data.starts_at is not None:
         shift.starts_at = data.starts_at
     if data.ends_at is not None:
         shift.ends_at = data.ends_at
-    if data.cafe_worker_id is not None:
-        user = db.query(User_DB).filter_by(id=data.cafe_worker_id).one_or_none()
+    if data.user_id is not None:
+        user = db.query(User_DB).filter_by(id=data.user_id).one_or_none()
         if user is None:
             raise HTTPException(status.HTTP_404_NOT_FOUND)
-        shift.cafe_worker_id = data.cafe_worker_id
-        shift.cafe_worker = user
+        shift.user_id = data.user_id
+        shift.user = user
 
     db.commit()
     return shift
@@ -89,28 +89,28 @@ def update(shift_id: int, data: CafeShiftUpdate, db: DB_dependency):
 
 @cafe_shift_router.patch("/{shift_id}", response_model=CafeShiftRead)
 def sign_up(shift_id: int, user: Annotated[User_DB, Permission.member()], db: DB_dependency):
-    shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
+    shift = db.query(CafeShift_DB).filter_by(shift_id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    if shift.cafe_worker is not None:
+    if shift.user is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Another member is already signed up")
 
-    shift.cafe_worker = user
+    shift.user = user
     db.commit()
     return shift
 
 
 @cafe_shift_router.patch("/{shift_id}", response_model=CafeShiftRead)
 def sign_off(shift_id: int, user: Annotated[User_DB, Permission.member()], db: DB_dependency):
-    shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
+    shift = db.query(CafeShift_DB).filter_by(shift_id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    if shift.cafe_worker_id != user.id:
+    if shift.user_id != user.id:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Cannot sign off a nother member")
 
-    shift.cafe_worker = None
-    shift.cafe_worker_id = None
+    shift.user = None
+    shift.user_id = None
     db.commit()
     return shift
 
@@ -119,11 +119,11 @@ def sign_off(shift_id: int, user: Annotated[User_DB, Permission.member()], db: D
     "/{shift_id}", dependencies=[Permission.require("manage", "Cafe")], response_model=CafeShiftRead
 )
 def sign_off_other(shift_id: int, user: Annotated[User_DB, Permission.member()], db: DB_dependency):
-    shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
+    shift = db.query(CafeShift_DB).filter_by(shift_id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    shift.cafe_worker = None
-    shift.cafe_worker_id = None
+    shift.user = None
+    shift.user_id = None
     db.commit()
     return shift

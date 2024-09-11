@@ -76,7 +76,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     )
 
     cafe_shifts: Mapped[list["CafeShift_DB"]] = relationship(
-        back_populates="cafe_worker", cascade="all, delete-orphan", init=False
+        back_populates="user", cascade="all, delete-orphan", init=False
     )
 
     is_member: Mapped[bool] = mapped_column(default=False)

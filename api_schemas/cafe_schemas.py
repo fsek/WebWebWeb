@@ -20,4 +20,4 @@ class CafeShiftCreate(BaseSchema):
 class CafeShiftUpdate(BaseSchema):
     starts_at: datetime_utc | None = None
     ends_at: datetime_utc | None = None
-    cafe_worker_id: int | None = None
+    user_id: int | None = None
