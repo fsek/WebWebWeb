@@ -3,8 +3,6 @@ from api_schemas.car_booking_schema import CarCreate, CarRead, CarUpdate
 from database import DB_dependency
 from typing import Annotated
 from sqlalchemy import or_, and_
-
-
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.car_model import CarBooking_DB
@@ -27,7 +25,6 @@ def get_booking(booking_id:int, db:DB_dependency):
 def create_booking(booking:CarCreate,current_user:Annotated[User_DB, Permission.member()],db: DB_dependency):
     if booking.end_time < booking.start_time:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    #illegal = db.query(Car_DB).filter((booking.start_time < Car_DB.start_time & booking.end_time > Car_DB.start_time) | (booking.start_time < Car_DB.end_time & booking.end_time > Car_DB.end_time) | (booking.start_time > Car_DB.start_time & booking.end_time < Car_DB.end_time))
     illegal_booking = db.query(CarBooking_DB).filter(
         or_(
             and_(booking.start_time >= CarBooking_DB.start_time, booking.start_time < CarBooking_DB.end_time),
