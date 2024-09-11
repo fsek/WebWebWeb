@@ -55,7 +55,7 @@ def update_booking(booking_id:int,data:CarUpdate,current_user:Annotated[User_DB,
     car_booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id==booking_id).first()
     if car_booking is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    if (car_booking.user != current_user) or (not manage_permission):
+    if (car_booking.user != current_user) and (not manage_permission):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
     
     illegal_booking = db.query(CarBooking_DB).filter(
