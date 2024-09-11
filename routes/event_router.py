@@ -40,10 +40,10 @@ def update(event_id: int, data: EventUpdate, db: DB_dependency):
 @event_router.get("/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
 def getAllSignups(event_id: int, db: DB_dependency):
     peoplesignups = db.query(EventUser_DB).filter_by(event_id = event_id).all()
+    users:list[User_DB] = []
     if len(peoplesignups)==0:
-        return []
-    users:list[User_DB] = [event_user.user for event_user in peoplesignups]
-    
+        return users
+    users = [event_user.user for event_user in peoplesignups]
     return users
 
 
@@ -54,10 +54,11 @@ def getRandomSignup(event_id: int, db: DB_dependency):
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND,  detail="No event exist")
     peoplesignups = db.query(EventUser_DB).filter_by(event_id = event_id).all()
+    users:list[User_DB] = []
     if len(peoplesignups)==0:
-        return []
+        return users
     if len(peoplesignups) <= event.max_event_users:
-        users:list[User_DB] = [event_user.user for event_user in peoplesignups]
+        users = [event_user.user for event_user in peoplesignups]
         return users
             
     prioritized_people:List[EventUser_DB] = []
@@ -82,6 +83,6 @@ def getRandomSignup(event_id: int, db: DB_dependency):
     
     unique_prioritized_people.extend(peoplesignups[:places_left])
     
-    users:list[User_DB] = [event_user.user for event_user in unique_prioritized_people]
+    users = [event_user.user for event_user in unique_prioritized_people]
 
     return users

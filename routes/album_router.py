@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from database import DB_dependency
 from api_schemas.album_schema import AlbumCreate, AlbumRead
 from db_models.album_model import Album_DB
