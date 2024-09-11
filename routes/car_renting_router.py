@@ -16,6 +16,13 @@ def get_all_booking(db: DB_dependency):
     bookings = db.query(CarBooking_DB).all()
     return bookings
 
+@car_router.get("/{booking_id}", response_model=CarRead, dependencies=[Permission.require("view","Car"), Permission.member()])
+def get_booking(booking_id:int, db:DB_dependency):
+    booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id==booking_id).first()
+    if booking:
+        return booking
+    raise HTTPException(status.HTTP_400_BAD_REQUEST)
+
 @car_router.post("/", response_model=CarCreate, dependencies=[Permission.require("manage","Car")])
 def create_booking(booking:CarCreate,current_user:Annotated[User_DB, Permission.member()],db: DB_dependency):
     if booking.end_time < booking.start_time:
