@@ -11,7 +11,7 @@ from .song_category_router import song_category_router
 from .img_router import img_router
 from .album_router import album_router
 from .ad_router import ad_router
-from .mentor_group_router import mentor_group_router
+from .group_router import group_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -42,4 +42,4 @@ main_router.include_router(ad_router, prefix="/ad", tags=["ads"])
 
 main_router.include_router(song_category_router, prefix="/songs-category", tags=["songs category"])
 
-main_router.include_router(mentor_group_router, prefix="/mentor-groups", tags=["mentor groups"])
+main_router.include_router(group_router, prefix="/mentor-groups", tags=["mentor groups"])

@@ -2,8 +2,8 @@ from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users.db import SQLAlchemyBaseUserTable
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
-from db_models.mentor_group_model import MentorGroup_DB
-from db_models.nollning_user_model import NollningUser_DB
+from db_models.group_model import Group_DB
+from db_models.group_user_model import GroupUser_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
@@ -74,12 +74,12 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     is_member: Mapped[bool] = mapped_column(default=False)
 
-    nollning_users: Mapped[list["NollningUser_DB"]] = relationship(
+    group_users: Mapped[list["GroupUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
     )
 
-    mentor_groups: AssociationProxy[list["MentorGroup_DB"]] = association_proxy(
-        target_collection="group_users", attr="mentor_group", init=False
+    groups: AssociationProxy[list["Group_DB"]] = association_proxy(
+        target_collection="group_users", attr="group", init=False
     )
 
     # notifications: Mapped[list["Notification_DB"]]

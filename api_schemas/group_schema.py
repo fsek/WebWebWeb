@@ -1,16 +1,22 @@
 from typing import Annotated
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
-from api_schemas.user_schemas import GroupUserRead
+from api_schemas.user_schemas import UserInGroupRead
 from helpers.constants import MAX_GROUP_NAME
+from helpers.types import GROUP_TYPE
 
 
-class MentorGroupCreate(BaseSchema):
+class GroupCreate(BaseSchema):
     name: Annotated[str, StringConstraints(max_length=MAX_GROUP_NAME)]
-    group_type: str
+    group_type: GROUP_TYPE
 
 
-class MentorGroupRead(BaseSchema):
+class GroupUserRead(BaseSchema):
+    user: UserInGroupRead
+    group_user_type: str
+
+
+class GroupRead(BaseSchema):
     id: int
     name: str
     group_type: str
