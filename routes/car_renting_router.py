@@ -22,15 +22,11 @@ def create_booking(booking:CarCreate,current_user:Annotated[User_DB, Permission.
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
     #illegal = db.query(Car_DB).filter((booking.start_time < Car_DB.start_time & booking.end_time > Car_DB.start_time) | (booking.start_time < Car_DB.end_time & booking.end_time > Car_DB.end_time) | (booking.start_time > Car_DB.start_time & booking.end_time < Car_DB.end_time))
     illegal_booking = db.query(CarBooking_DB).filter(
-        and_(
-            CarBooking_DB.user_id == current_user.id,  # Ensure user is booking their own cars
-            or_(
-                and_(booking.start_time >= CarBooking_DB.start_time, booking.start_time < CarBooking_DB.end_time),
-                and_(booking.end_time > CarBooking_DB.start_time, booking.end_time <= CarBooking_DB.end_time),
-                and_(booking.start_time <= CarBooking_DB.start_time, booking.end_time >= CarBooking_DB.end_time)
-            )
-        )
-    ).first()
+        or_(
+            and_(booking.start_time >= CarBooking_DB.start_time, booking.start_time < CarBooking_DB.end_time),
+            and_(booking.end_time > CarBooking_DB.start_time, booking.end_time <= CarBooking_DB.end_time),
+            and_(booking.start_time <= CarBooking_DB.start_time, booking.end_time >= CarBooking_DB.end_time)
+        )).first()
     if illegal_booking:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
     db_booking = CarBooking_DB(start_time = booking.start_time, end_time = booking.end_time, user_id = current_user.id, description = booking.description)
