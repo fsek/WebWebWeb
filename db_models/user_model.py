@@ -21,7 +21,6 @@ if TYPE_CHECKING:
     from .event_model import Event_DB
     from .news_model import News_DB
     from .ad_model import BookAd_DB
-    from .car_model import Car_DB
 
 
 # called by SQLAlchemy when user.posts.append(some_post)
@@ -50,7 +49,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     account_created: Mapped[datetime_utc] = mapped_column(default=datetime.datetime.now()) #date and time the account was created
 
-    car_rentings: Mapped[list["Car_DB"]] = relationship(
+    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(
         back_populates="user", init=False
     )
 

@@ -74,7 +74,7 @@ class Permission:
         return False
     
     @classmethod
-    def check_permission(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
+    def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
         # Use this dependency on routes which require specific permissions
         def dependency(user_and_token: tuple[User_DB, str] = Depends(current_verified_user_token)):
             user, token = user_and_token

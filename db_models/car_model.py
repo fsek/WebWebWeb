@@ -9,8 +9,8 @@ if TYPE_CHECKING:
    from .user_model import User_DB
  
 
-class Car_DB(BaseModel_DB):
-    __tablename__ = "car_renting_table"
+class CarBooking_DB(BaseModel_DB):
+    __tablename__ = "car_booking_table"
 
     booking_id: Mapped[int] = mapped_column(primary_key=True, init=False)
     
@@ -22,5 +22,5 @@ class Car_DB(BaseModel_DB):
     
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
         
-    user: Mapped["User_DB"] = relationship("User_DB", back_populates="car_rentings")
+    user: Mapped["User_DB"] = relationship("User_DB", back_populates="car_bookings",init = False)
     pass
