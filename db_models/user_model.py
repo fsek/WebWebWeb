@@ -11,7 +11,7 @@ from sqlalchemy import Enum
 import datetime
 from helpers.types import datetime_utc
 from .ad_model import BookAd_DB
-from .car_model import Car_DB
+from .car_model import CarBooking_DB
 from helpers.types import datetime_utc
 
 if TYPE_CHECKING:
