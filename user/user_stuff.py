@@ -1,14 +1,14 @@
 from typing import Any
-from fastapi_users.authentication import AuthenticationBackend, BearerTransport
-from fastapi_users.db import SQLAlchemyUserDatabase
+from fastapi_users_pelicanq.authentication import AuthenticationBackend, BearerTransport
+from fastapi_users_pelicanq.db import SQLAlchemyUserDatabase
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from fastapi_users import FastAPIUsers
+from fastapi_users_pelicanq import FastAPIUsers
 from database import get_db
 from db_models.user_model import User_DB
 from user.token_strategy import get_jwt_strategy
 from user.user_manager import UserManager
-from fastapi_users.password import PasswordHelper
+from fastapi_users_pelicanq.password import PasswordHelper
 from passlib.context import CryptContext
 
 bearer_transport = BearerTransport(tokenUrl="auth/login")
