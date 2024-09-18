@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import Request
-from fastapi_users import BaseUserManager, IntegerIDMixin
+from fastapi_users_pelicanq import BaseUserManager, IntegerIDMixin
 
 from db_models.user_model import User_DB
 

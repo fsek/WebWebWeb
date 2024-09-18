@@ -1,15 +1,13 @@
 from typing import Any
-from fastapi_users.authentication import AuthenticationBackend, BearerTransport
-from fastapi_users.db import SQLAlchemyUserDatabase
+from fastapi_users_pelicanq.authentication import AuthenticationBackend, BearerTransport
+from fastapi_users_pelicanq.db import SQLAlchemyUserDatabase
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from fastapi_users import FastAPIUsers
+from fastapi_users_pelicanq import FastAPIUsers
 from database import get_db
 from db_models.user_model import User_DB
 from user.token_strategy import get_jwt_strategy
 from user.user_manager import UserManager
-from fastapi_users.password import PasswordHelper
-from passlib.context import CryptContext
 
 bearer_transport = BearerTransport(tokenUrl="auth/login")
 
@@ -24,12 +22,8 @@ async def get_user_db(session: Session = Depends(get_db)):
     yield SQLAlchemyUserDatabase[User_DB, int](session, User_DB)
 
 
-context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
-password_helper = PasswordHelper(context)
-
-
 async def get_user_manager(user_db: SQLAlchemyUserDatabase[User_DB, int] = Depends(get_user_db)):
-    yield UserManager(user_db, password_helper=password_helper)
+    yield UserManager(user_db)
 
 
 USERS = FastAPIUsers[User_DB, int](get_user_manager, [auth_backend])

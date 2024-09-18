@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Callable, Optional
-from fastapi_users.db import SQLAlchemyBaseUserTable
+from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
@@ -34,24 +34,26 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     first_name: Mapped[str] = mapped_column(String(MAX_FIRST_NAME_LEN))
     last_name: Mapped[str] = mapped_column(String(MAX_LAST_NAME_LEN))
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
-    
-    book_ads: Mapped[list["BookAd_DB"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan", init=False
-    )
 
-    start_year: Mapped[int] = mapped_column(default=datetime.date.today().year) #start year at the guild 
-    
-    account_created: Mapped[datetime_utc] = mapped_column(default=datetime.datetime.now()) #date and time the account was created
+    book_ads: Mapped[list["BookAd_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan", init=False)
 
-    start_year: Mapped[int] = mapped_column(default=datetime.date.today().year) #start year at the guild 
+    start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
 
-    program: Mapped[Optional[str]] = mapped_column(Enum("F", "N", "Pi", name="program_enum"), default=None)  # program at the guild
+    account_created: Mapped[datetime_utc] = mapped_column(
+        default=datetime.datetime.now()
+    )  # date and time the account was created
 
-    account_created: Mapped[datetime_utc] = mapped_column(default=datetime.datetime.now()) #date and time the account was created
+    start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
 
-    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(
-        back_populates="user", init=False
-    )
+    program: Mapped[Optional[str]] = mapped_column(
+        Enum("F", "N", "Pi", name="program_enum"), default=None
+    )  # program at the guild
+
+    account_created: Mapped[datetime_utc] = mapped_column(
+        default=datetime.datetime.now()
+    )  # date and time the account was created
+
+    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="user", init=False)
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False

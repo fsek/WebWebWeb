@@ -1,5 +1,5 @@
 from typing import TypedDict
-from fastapi_users.authentication import JWTStrategy
+from fastapi_users_pelicanq.authentication import JWTStrategy
 from db_models.user_model import User_DB
 
 JWT_SECRET = "MEGA SECRET"

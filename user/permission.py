@@ -1,6 +1,6 @@
 from typing import cast
 from fastapi import Depends, HTTPException, status
-from fastapi_users import jwt
+from fastapi_users_pelicanq import jwt
 from db_models.permission_model import PERMISSION_TYPE, PERMISSION_TARGET
 from db_models.user_model import User_DB
 from user.token_strategy import JWT_SECRET, AccessTokenData, CustomTokenStrategy
@@ -72,7 +72,7 @@ class Permission:
             return True
 
         return False
-    
+
     @classmethod
     def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
         # Use this dependency on routes which require specific permissions
@@ -97,5 +97,5 @@ class Permission:
                     return True
 
             return False
-            
+
         return Depends(dependency)
