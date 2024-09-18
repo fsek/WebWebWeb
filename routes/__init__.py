@@ -14,7 +14,7 @@ from .album_router import album_router
 from .ad_router import ad_router
 from .car_renting_router import car_router
 
-# here comes the big momma router
+# here comes the global router containing all routers
 main_router = APIRouter()
 
 main_router.include_router(user_router, prefix="/users", tags=["users"])
