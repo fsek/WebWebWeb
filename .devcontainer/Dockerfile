@@ -1,5 +1,5 @@
 # the python image is based on Debian
-FROM debian:12.4
+FROM debian:12.7
 
 RUN apt update -y
 
