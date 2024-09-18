@@ -102,26 +102,17 @@ def signup_to_shift(shift_id: int, user: Annotated[User_DB, Permission.member()]
 
 
 @cafe_shift_router.patch("/sign-off/{shift_id}", response_model=CafeShiftRead)
-def signoff_from_shift(shift_id: int, user: Annotated[User_DB, Permission.member()], db: DB_dependency):
+def signoff_from_shift(
+    shift_id: int,
+    user: Annotated[User_DB, Permission.member()],
+    manage_permission: Annotated[bool, Permission.check("manage", "Cafe")],
+    db: DB_dependency,
+):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    if shift.user_id != user.id:
+    if shift.user_id != user.id and manage_permission == False:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Cannot sign off another member")
-
-    shift.user = None
-    shift.user_id = None
-    db.commit()
-    return shift
-
-
-@cafe_shift_router.patch(
-    "/sign-off-other/{shift_id}", dependencies=[Permission.require("manage", "Cafe")], response_model=CafeShiftRead
-)
-def sign_off_other(shift_id: int, user: Annotated[User_DB, Permission.member()], db: DB_dependency):
-    shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
-    if shift is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     shift.user = None
     shift.user_id = None
