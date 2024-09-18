@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import Column, DateTime, ForeignKey
+from sqlalchemy import ForeignKey
 
 # from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
