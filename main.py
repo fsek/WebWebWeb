@@ -1,10 +1,16 @@
 from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
+from fastapi.routing import APIRoute
+from fastapi.middleware.cors import CORSMiddleware
 from database import init_db, session_factory
 from seed import seed_if_empty
 from routes import main_router
 from user.permission import Permission
 from os import environ
+
+
+def generate_unique_id(route: APIRoute):
+    return f"{route.name}"
 
 
 @asynccontextmanager
@@ -22,11 +28,26 @@ async def lifespan(app: FastAPI):
 # No Swagger/OpenAPI page for production
 no_docs = environ.get("ENV") == "production"
 
+dev_origins = [
+    "http://localhost",
+    "http://localhost:5173",
+]
+
 app = FastAPI(
     lifespan=lifespan,
     redoc_url=None if no_docs else "/redoc",
     docs_url=None if no_docs else "/docs",
+    generate_unique_id_function=generate_unique_id,
 )
+
+if environ.get("ENV") == "development":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=dev_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 app.include_router(router=main_router)
 
