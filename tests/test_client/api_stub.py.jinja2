@@ -11,6 +11,8 @@ class AuthTestClient:
 
     {% for route in routes %}
     {% if not route.unique %}@overload{% endif %}
-    def {{route.http_method}}(self, arg: Literal["{{ route.http_route }}"]) -> {{ route.response_model }} : ...
+    def {{route.http_method}}(
+        self, arg: Literal["{{ route.http_route }}"]{% if route.json_body %}, body: {{route.json_body}}{% endif %}
+    ) -> {{ route.response_model }} : ...
 
     {% endfor %}
