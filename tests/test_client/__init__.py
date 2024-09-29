@@ -1,3 +1,4 @@
+from typing import Any
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -17,6 +18,6 @@ class AuthTestClient:
         res = self.client.get(path)
         return res.json()  # TODO: fails if empty response
 
-    def post(self, path: str):
-        res = self.client.post(path)
+    def post(self, path: str, data: dict[str, Any]):
+        res = self.client.post(path, json=data)
         return res.json()

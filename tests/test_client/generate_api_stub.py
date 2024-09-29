@@ -1,4 +1,4 @@
-from typing import Any, TypedDict
+from typing import Any, NotRequired, TypedDict
 import jinja2
 import requests
 
@@ -37,11 +37,29 @@ def extract_successful_response(responses: dict[str, Any]) -> str:
     return model
 
 
+def extract_request_body(body: Any):
+    if body is None:
+        return None
+    content = body["content"]
+    # For now, only make types for the most common request body type, JSON.
+    json = content.get("application/json")
+    # form = content.get("application/x-www-form-urlencoded")
+    # multipart = content.get("multipart/form-data")
+    field = json  # or form or multipart
+    if not field:
+        return None
+
+    ref: str = field["schema"]["$ref"]
+    last_slash = ref.rfind("/")
+    return ref[last_slash + 1 :]
+
+
 class Route(TypedDict):
     response_model: str
     http_route: str
     http_method: str
     unique: bool
+    json_body: NotRequired[str]
 
 
 routes: list[Route] = []
@@ -51,6 +69,7 @@ method_count: dict[str, int] = {}
 for path in all_paths:
     for method in all_paths[path]:
         responses = all_paths[path][method]["responses"]
+
         model = extract_successful_response(responses)
         if model != "None":
             models_to_import.add(model)
@@ -59,7 +78,15 @@ for path in all_paths:
             method_count[method] = 1
         else:
             method_count[method] += 1
-        routes.append({"response_model": model, "http_route": path, "http_method": method, "unique": False})
+
+        route_data: Route = {"response_model": model, "http_route": path, "http_method": method, "unique": False}
+        if method == "post":
+            request_body = extract_request_body(all_paths[path][method].get("requestBody"))
+            if request_body:
+                models_to_import.add(request_body)
+                route_data["json_body"] = request_body
+
+        routes.append(route_data)
 
 for route in routes:
     # If our API, say, has only one PUT route, we would render '@overload' for a unique method definition.
@@ -69,7 +96,7 @@ for route in routes:
 
 # Now let's load Jinja template file and render our stub file
 environment = jinja2.Environment(loader=jinja2.FileSystemLoader("./tests/test_client/"))
-template = environment.get_template("api_stub.jinja")
+template = environment.get_template("api_stub.py.jinja2")
 rendered = template.render(routes=routes, models_to_import=list(models_to_import))
 
 with open("./tests/test_client/__init__.pyi", mode="w", encoding="utf-8") as message:

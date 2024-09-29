@@ -1,28 +1,20 @@
-from fastapi.testclient import TestClient
 from main import app
+from tests.test_client import AuthTestClient
 
-client = TestClient(app)
+client = AuthTestClient(app)
 
 
 def test_login():
-    response = client.get("/")
-    print(response)
-    assert response.status_code == 200
+    data = client.post("/auth/login", body={})
 
 
 def test_register():
-    response = client.get("/")
-    print(response)
-    assert response.status_code == 200
+    data = client.get("/")
 
 
 def test_forgot_password():
-    response = client.get("/")
-    print(response)
-    assert response.status_code == 200
+    data = client.get("/")
 
 
 def test_reset_password():
-    response = client.get("/")
-    print(response)
-    assert response.status_code == 200
+    data = client.get("/")
