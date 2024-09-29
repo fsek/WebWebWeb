@@ -1,0 +1,16 @@
+from typing import overload, Literal
+from generated_types import {% for model in models_to_import %} {{ model }} {% if loop.index < loop.length %},{% endif %}{% endfor %}
+from fastapi import FastAPI
+
+# This file is rendered from a Jinja template.
+# It adds types to our test client's methods get, post, put etc..
+# This way, return type from calling eg.  .get("/user/me") is inferred to be "UserRead" 
+
+class AuthTestClient:
+    def __init__(self, app: FastAPI) -> None: ...
+
+    {% for route in routes %}
+    {% if not route.unique %}@overload{% endif %}
+    def {{route.http_method}}(self, arg: Literal["{{ route.http_route }}"]) -> {{ route.response_model }} : ...
+
+    {% endfor %}

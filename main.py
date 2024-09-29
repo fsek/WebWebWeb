@@ -27,7 +27,6 @@ app = FastAPI(
     redoc_url=None if no_docs else "/redoc",
     docs_url=None if no_docs else "/docs",
 )
-
 app.include_router(router=main_router)
 
 

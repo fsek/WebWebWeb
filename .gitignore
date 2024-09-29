@@ -3,3 +3,6 @@ __pycache__
 *.sqlite
 dev_db/
 .pytest_cache
+
+tests/test_client/generated_types.py
+tests/test_client/__init__.pyi

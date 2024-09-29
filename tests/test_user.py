@@ -1,30 +1,13 @@
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
 from main import app
-
-
-class AuthTestClient:
-    def __init__(self, app: FastAPI):
-        client = TestClient(app)
-        self.client = client
-        res = client.post("/auth/login", data={"username": "boss@fsektionen.se", "password": "dabdab"})
-        resp_data = res.json()
-        token = resp_data["access_token"]
-        # We set the token to always be included in subsequent request.
-        # If testing takes longer than token expiry time requests will start failing. In that case we need to get new token
-        self.client.headers.update([("Authorization", f"Bearer {token}")])
-        self.get = self.client.get
-        self.post = self.client.post
+from tests.test_client import AuthTestClient
 
 
 client = AuthTestClient(app)
 
 
 def test_me():
-    response = client.get("/users/me")
-    data = response.json()
+    data = client.get("/users/me")
     print(data)
-    assert response.status_code == 200
 
 
 # def test_register():
