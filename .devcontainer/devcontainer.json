@@ -9,7 +9,8 @@
         "vscode": {
             "extensions": [
                 "ms-python.python",
-                "ms-python.black-formatter"
+                "ms-python.black-formatter",
+                "samuelcolvin.jinjahtml"
             ],
             "settings": {
                 "python.defaultInterpreterPath": "${containerWorkspaceFolder}/.venv/bin/python3.11",
