@@ -29,18 +29,6 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     want_notifications: bool
 
 
-class UserSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
-    first_name: str
-    last_name: str
-    email: str
-    telephone_number: PhoneNumber
-    start_year: int
-    account_created: datetime_utc
-    program: str | None
-    priority: str | None
-    group_name: str | None
-
-
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     first_name: Annotated[str, StringConstraints(max_length=MAX_FIRST_NAME_LEN)]
