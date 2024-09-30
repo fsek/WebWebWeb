@@ -7,7 +7,8 @@ process_id=$!
 echo "Started server to read OpenAPI schema. Process id: $process_id"
 
 datamodel-codegen --input-file-type openapi --url http://localhost:8000/openapi.json \
-  --output ./tests/test_client/generated_types.py --target-python-version 3.11 --use-annotated --enum-field-as-literal all  --output-model-type typing.TypedDict
+  --output ./tests/test_client/generated_types.py --target-python-version 3.11 --use-annotated \
+   --enum-field-as-literal all  --output-model-type typing.TypedDict
 
 python ./tests/test_client/generate_api_stub.py
 
