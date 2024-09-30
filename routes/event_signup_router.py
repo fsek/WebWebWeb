@@ -1,13 +1,13 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
-from api_schemas.user_schemas import UserRead, UserSignupRead
+from api_schemas.user_schemas import UserRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from services.event_signup_service import signup_to_event, signoff_from_event, update_event_signup
 from user.permission import Permission
-from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
+from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupRead, EventSignupUpdate
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from api_schemas.event_schemas import EventRead
 
@@ -62,18 +62,18 @@ def update_signup(
     return event
 
 
-@event_signup_router.get("/{event_id}", response_model=list[UserSignupRead])
+@event_signup_router.get("/{event_id}", response_model=list[EventSignupRead])
 def get_all_signups(event_id: int, db: DB_dependency):
     signups = db.query(EventUser_DB).filter(EventUser_DB.event_id == event_id).all()
     if not signups:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No signups found for this event")
     # Assuming you have logic to convert EventUser_DB instances to UserRead instances
-    return [convert_event_user_to_user_read(signup) for signup in signups]
+    return [convert_event_user_to_signup_read(signup) for signup in signups]
 
 
-def convert_event_user_to_user_read(event_user: EventUser_DB) -> UserSignupRead:
-    # Convert EventUser_DB instance to UserRead based on your application's logic
-    return UserSignupRead(
+def convert_event_user_to_signup_read(event_user: EventUser_DB) -> EventSignupRead:
+    # Convert EventUser_DB instance to EventSignupRead based on your application's logic
+    return EventSignupRead(
         id=event_user.user_id,
         first_name=event_user.user.first_name,
         last_name=event_user.user.last_name,
