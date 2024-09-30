@@ -37,6 +37,8 @@ class UserSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     start_year: int
     account_created: datetime_utc
     program: str | None
+    priority: str | None
+    group_name: str | None
 
 
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
