@@ -37,21 +37,32 @@ def extract_successful_response(responses: dict[str, Any]) -> str:
     return model
 
 
-def extract_request_body(body: Any):
-    if body is None:
-        return None
-    content = body["content"]
-    # For now, only make types for the most common request body type, JSON.
-    json = content.get("application/json")
-    # form = content.get("application/x-www-form-urlencoded")
-    # multipart = content.get("multipart/form-data")
-    field = json  # or form or multipart
-    if not field:
-        return None
+class BodiesType(TypedDict):
+    json: NotRequired[str]
+    form: NotRequired[str]
 
-    ref: str = field["schema"]["$ref"]
-    last_slash = ref.rfind("/")
-    return ref[last_slash + 1 :]
+
+def extract_request_body(body: dict[str, Any]) -> BodiesType:
+    content = body["content"]
+    json = content.get("application/json")
+    form = content.get("application/x-www-form-urlencoded")
+    # multipart = content.get("multipart/form-data")
+
+    def extract_body_name(field: dict[str, Any]):
+        ref: str = field["schema"]["$ref"]
+        last_slash = ref.rfind("/")
+        return ref[last_slash + 1 :]
+
+    bodies: BodiesType = {}
+
+    if json:
+        # For some reason datamode-codegen will convert snake_case from openapi.json to camelCase name of python classes
+        # So mimick this, otherwise, in stub file, we cannot import generated classes.
+        bodies["json"] = extract_body_name(json)
+    if form:
+        bodies["form"] = extract_body_name(form)
+
+    return bodies
 
 
 class Route(TypedDict):
@@ -60,6 +71,7 @@ class Route(TypedDict):
     http_method: str
     unique: bool
     json_body: NotRequired[str]
+    form_body: NotRequired[str]
 
 
 routes: list[Route] = []
@@ -68,9 +80,9 @@ method_count: dict[str, int] = {}
 
 for path in all_paths:
     for method in all_paths[path]:
-        responses = all_paths[path][method]["responses"]
+        route: dict[str, Any] = all_paths[path][method]  # current route considered
 
-        model = extract_successful_response(responses)
+        model = extract_successful_response(route["responses"])
         if model != "None":
             models_to_import.add(model)
 
@@ -80,19 +92,24 @@ for path in all_paths:
             method_count[method] += 1
 
         route_data: Route = {"response_model": model, "http_route": path, "http_method": method, "unique": False}
-        if method == "post":
-            request_body = extract_request_body(all_paths[path][method].get("requestBody"))
-            if request_body:
-                models_to_import.add(request_body)
-                route_data["json_body"] = request_body
+        # if this is a POST route, we also add type for the request body
+        if method == "post" and "requestBody" in route:
+            request_body = extract_request_body(route["requestBody"])
+            if "json" in request_body:
+                route_data["json_body"] = request_body["json"]
+                models_to_import.add(request_body["json"])
+
+            if "form" in request_body:
+                route_data["form_body"] = request_body["form"]
+                models_to_import.add(request_body["form"])
 
         routes.append(route_data)
 
-for route in routes:
-    # If our API, say, has only one PUT route, we would render '@overload' for a unique method definition.
+for one_route in routes:
+    # If our API, say, has only one PUT route, we would render '@overload' for a unique method definition which is type error.
     # The 'unique' is used in Jinja template to not render '@overload' in that case
-    if method_count[route["http_method"]] == 1:
-        route["unique"] = True
+    if method_count[one_route["http_method"]] == 1:
+        one_route["unique"] = True
 
 # Now let's load Jinja template file and render our stub file
 environment = jinja2.Environment(loader=jinja2.FileSystemLoader("./tests/test_client/"))

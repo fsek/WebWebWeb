@@ -18,6 +18,6 @@ class AuthTestClient:
         res = self.client.get(path)
         return res.json()  # TODO: fails if empty response
 
-    def post(self, path: str, data: dict[str, Any]):
-        res = self.client.post(path, json=data)
+    def post(self, path: str, json: dict[str, Any] | None = None, data: dict[str, Any] | None = None):
+        res = self.client.post(path, json=json, data=data)
         return res.json()
