@@ -6,7 +6,7 @@ from user.permission import Permission
 mail_router = APIRouter()
 
 
-@mail_router.post("/", dependencies=[Permission.check("manage", "Mail")])
+@mail_router.post("/", dependencies=[Permission.require("manage", "Mail")])
 def post_mail(data: MailSend):
     if not send_mail(data):
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
