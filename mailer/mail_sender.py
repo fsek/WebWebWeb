@@ -18,6 +18,7 @@ def send_mail(data: MailSend) -> bool:
     smtp_port = int(os.getenv("SMTP_PORT", 0))
 
     if (smtp_port != 0) | (smtp_server == "failed"):
+        print("You are not running the right enviroment")
         return False
 
     try:
