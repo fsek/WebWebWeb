@@ -6,7 +6,7 @@ from database import init_db, session_factory
 from seed import seed_if_empty
 from routes import main_router
 from user.permission import Permission
-from os import environ
+import os
 
 
 def generate_unique_id(route: APIRoute):
@@ -15,7 +15,7 @@ def generate_unique_id(route: APIRoute):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if environ.get("ENV") == "development":
+    if os.getenv("ENV") == "development":
         # Not needed if you setup a migration system like Alembic
         init_db()
         with session_factory() as db:
@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI):
 
 
 # No Swagger/OpenAPI page for production
-no_docs = environ.get("ENV") == "production"
+no_docs = os.getenv("ENV") == "production"
 
 dev_origins = [
     "http://localhost",
@@ -40,7 +40,7 @@ app = FastAPI(
     generate_unique_id_function=generate_unique_id,
 )
 
-if environ.get("ENV") == "development":
+if os.getenv("ENV") == "development":
     app.add_middleware(
         CORSMiddleware,
         allow_origins=dev_origins,
