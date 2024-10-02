@@ -26,6 +26,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     telephone_number: PhoneNumber
     start_year: int
     account_created: datetime_utc
+    want_notifications: bool
 
 
 class UserSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
@@ -53,6 +54,7 @@ class MeUpdate(BaseSchema):
     last_name: str | None = None
     start_year: int | None = None
     program: str | None = None
+    notifications: bool | None = None
 
 
 # class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):

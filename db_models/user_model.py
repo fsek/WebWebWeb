@@ -76,5 +76,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     is_member: Mapped[bool] = mapped_column(default=False)
 
+    want_notifications: Mapped[bool] = mapped_column(default=True)
+
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"] should not be implemented like this I think //Benjamin
