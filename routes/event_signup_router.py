@@ -27,8 +27,7 @@ def signup_route(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    signup_to_event(event, me, signup, manage_permission, db)
-    return event
+    return signup_to_event(event, me, signup, manage_permission, db)
 
 
 @event_signup_router.delete("/{event_id}", response_model=EventRead)
@@ -42,8 +41,7 @@ def signoff_route(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    signoff_from_event(event, me, manage_permission, db)
-    return event
+    return signoff_from_event(event, me, manage_permission, db)
 
 
 @event_signup_router.patch("/{event_id}", response_model=EventRead)
@@ -58,8 +56,7 @@ def update_signup(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    update_event_signup(event, data, me, manage_permission, db)
-    return event
+    return update_event_signup(event, data, me, manage_permission, db)
 
 
 @event_signup_router.get("/{event_id}", response_model=list[EventSignupRead])

@@ -9,12 +9,12 @@ from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdat
 from user.permission import Permission
 
 
-def signup_to_event(event1: Event_DB, user1: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
+def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
     now = datetime.now(UTC)
-    if event1.signup_end < now and manage_permission == False:
+    if event.signup_end < now and manage_permission == False:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
 
-    signup = EventUser_DB(user=user1, user_id=user1.id, event=event1, event_id=event1.id)
+    signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
 
     if data.priority is not None:
         signup.priority = data.priority
@@ -26,29 +26,28 @@ def signup_to_event(event1: Event_DB, user1: User_DB, data: EventSignupCreate, m
 
 
 def signoff_from_event(
-    event1: Event_DB,
-    user1: User_DB,
+    event: Event_DB,
+    user_id: int,
     manage_permission: bool,
     db: Session,
 ):
     now = datetime.now(UTC)
-    if event1.signup_end < now and manage_permission == False:
+    if event.signup_end < now and manage_permission == False:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
-    signup = db.query(EventUser_DB).filter_by(user_id=user1.id, event_id=event1.id).one_or_none()
+    signup = db.query(EventUser_DB).filter_by(user_id=user_id, event_id=event.id).one_or_none()
     if signup is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     db.delete(signup)
     db.commit()
+    return signup
 
 
-def update_event_signup(
-    event1: Event_DB, data: EventSignupUpdate, user1: User_DB, manage_permission: bool, db: Session
-):
+def update_event_signup(event: Event_DB, data: EventSignupUpdate, user: User_DB, manage_permission: bool, db: Session):
     now = datetime.now(UTC)
-    if event1.signup_end < now and manage_permission == False:
+    if event.signup_end < now and manage_permission == False:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
-    signup = db.query(EventUser_DB).filter_by(user_id=user1.id, event_id=event1.id).one_or_none()
+    signup = db.query(EventUser_DB).filter_by(user_id=user.id, event_id=event.id).one_or_none()
     if signup is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
@@ -58,3 +57,5 @@ def update_event_signup(
         signup.group_name = data.group_name
 
     db.commit()
+    db.refresh(event)
+    return signup
