@@ -23,7 +23,7 @@ def get_booking(booking_id: int, db: DB_dependency):
     booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
     if booking:
         return booking
-    raise HTTPException(status.HTTP_400_BAD_REQUEST)
+    raise HTTPException(status.HTTP_404_NOT_FOUND)
 
 
 @car_router.post("/", response_model=CarCreate, dependencies=[Permission.require("manage", "Car")])
