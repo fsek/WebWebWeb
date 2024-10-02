@@ -3,6 +3,7 @@ from fastapi_users_pelicanq.authentication import JWTStrategy
 from db_models.user_model import User_DB
 
 JWT_SECRET = "MEGA SECRET"
+JWT_EXPIRATION = 3600  # seconds
 
 
 # class to describe data in access token for our chosen JWT strategy
@@ -11,6 +12,7 @@ class AccessTokenData(TypedDict):
     sub: str
     aud: list[str]
     permissions: list[str]  # this is our own field we add for permission system
+    exp: int  # timestamp when tokne expires
 
 
 class CustomTokenStrategy(JWTStrategy[User_DB, int]):
@@ -36,5 +38,5 @@ class CustomTokenStrategy(JWTStrategy[User_DB, int]):
 
 
 def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
-    strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=3600)
+    strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=JWT_EXPIRATION)
     return strat
