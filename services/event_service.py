@@ -44,20 +44,20 @@ def create_new_event(data: EventCreate, db: Session):
         cash=data.cash,
         closed=data.closed,
         can_signup=data.can_signup,
-        drink_package=data.drink_package
+        drink_package=data.drink_package,
     )
     db.add(event)  # This adds the event itself to the session
     db.flush()  # This is optional but can be helpful to ensure 'event.id' is set if used immediately after
-    
+
     priorities = [Priority_DB(priority=priority, event_id=event.id) for priority in data.priorities]
 
     # Add each priority to the session individually
     for priority in priorities:
         db.add(priority)
     db.commit()  # Commit all changes to the database
-    
+
     db.refresh(event)
-    
+
     return event
 
 
@@ -84,5 +84,24 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
         event.title_sv = data.title_sv
     if data.max_event_users is not None:
         event.max_event_users = data.max_event_users
+    if data.all_day is not None:
+        event.all_day = data.all_day
+    if data.signup_not_opened_yet is not None:
+        event.signup_not_opened_yet = data.signup_not_opened_yet
+    if data.recurring is not None:
+        event.recurring = data.recurring
+    if data.drink is not None:
+        event.drink = data.drink
+    if data.food is not None:
+        event.food = data.food
+    if data.cash is not None:
+        event.cash = data.cash
+    if data.closed is not None:
+        event.closed = data.closed
+    if data.can_signup is not None:
+        event.can_signup = data.can_signup
+    if data.drink_package is not None:
+        event.drink_package = data.drink_package
+
     db.commit()
     return event
