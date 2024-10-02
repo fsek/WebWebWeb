@@ -13,13 +13,13 @@ from datetime import UTC, datetime
 cafe_shift_router = APIRouter()
 
 
-@cafe_shift_router.get("/view-shifts", response_model=list[CafeShiftRead])
+@cafe_shift_router.get("/view-shifts", dependencies=[Permission.member()], response_model=list[CafeShiftRead])
 def view_all_shifts(db: DB_dependency):
     shifts = db.query(CafeShift_DB).all()
     return shifts
 
 
-@cafe_shift_router.get("/{shift_id}", response_model=CafeShiftRead)
+@cafe_shift_router.get("/{shift_id}", dependencies=[Permission.member()], response_model=CafeShiftRead)
 def view_shift(shift_id: int, db: DB_dependency):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
@@ -27,7 +27,7 @@ def view_shift(shift_id: int, db: DB_dependency):
     return shift
 
 
-@cafe_shift_router.get("/view-between-dates", response_model=list[CafeShiftRead])
+@cafe_shift_router.get("/view-between-dates", dependencies=[Permission.member()], response_model=list[CafeShiftRead])
 def view_shifts_between_dates(start_date: datetime_utc, end_date: datetime_utc, db: DB_dependency):
     shifts = db.query(CafeShift_DB).filter(CafeShift_DB.starts_at >= start_date, CafeShift_DB.ends_at <= end_date)
     if shifts.count() == 0:
@@ -55,7 +55,7 @@ def create_shift(data: CafeShiftCreate, db: DB_dependency):
 @cafe_shift_router.delete(
     "/{shift_id}", dependencies=[Permission.require("manage", "Cafe")], status_code=status.HTTP_204_NO_CONTENT
 )
-def remove(shift_id: int, db: DB_dependency):
+def delete_shift(shift_id: int, db: DB_dependency):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
@@ -68,7 +68,7 @@ def remove(shift_id: int, db: DB_dependency):
 @cafe_shift_router.patch(
     "/update/{shift_id}", dependencies=[Permission.require("manage", "Cafe")], response_model=CafeShiftRead
 )
-def update(shift_id: int, data: CafeShiftUpdate, db: DB_dependency):
+def update_shift(shift_id: int, data: CafeShiftUpdate, db: DB_dependency):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
