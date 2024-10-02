@@ -18,6 +18,15 @@ class EventRead(BaseSchema):
     description_en: str
     max_event_users: int
     priorities: list[Priority_DB]
+    all_day: bool
+    signup_not_opened_yet: bool
+    recurring: bool
+    drink: bool
+    food: bool
+    cash: bool
+    closed: bool
+    can_signup: bool
+    drink_package: bool
 
 
 # we dont need to be as strict about out data as in data.
