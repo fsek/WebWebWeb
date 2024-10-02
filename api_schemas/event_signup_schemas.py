@@ -5,12 +5,9 @@ from helpers.types import datetime_utc
 
 
 class EventSignupCreate(BaseSchema):
+    user_id: int | None = None
     priority: str | None = None
     group_name: str | None = None
-
-
-class EventSignupDelete(BaseSchema):
-    user_id: int
 
 
 class EventSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
@@ -26,6 +23,10 @@ class EventSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
 
 
 class EventSignupUpdate(BaseSchema):
-    user_id: int
-    priority: str | None
-    group_name: str | None
+    user_id: int | None = None
+    priority: str | None = None
+    group_name: str | None = None
+
+
+class EventSignupDelete(BaseSchema):
+    user_id: int | None = None

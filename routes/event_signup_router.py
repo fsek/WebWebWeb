@@ -7,7 +7,7 @@ from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from services.event_signup_service import signup_to_event, signoff_from_event, update_event_signup
 from user.permission import Permission
-from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupRead, EventSignupUpdate
+from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupRead, EventSignupUpdate, EventSignupDelete
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from api_schemas.event_schemas import EventRead
 
@@ -18,7 +18,7 @@ event_signup_router = APIRouter()
 @event_signup_router.post("/{event_id}", response_model=EventRead)
 def signup_route(
     event_id: int,
-    signup: EventSignupCreate,
+    data: EventSignupCreate,
     me: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Event")],
     db: DB_dependency,
@@ -27,12 +27,23 @@ def signup_route(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    return signup_to_event(event, me, signup, manage_permission, db)
+    if data.user_id is None or data.user_id == me.id:
+        return signup_to_event(event, me, data, manage_permission, db)
+
+    if manage_permission == False:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Check your permissions mate")
+
+    user = db.query(User_DB).filter_by(id=data.user_id).one_or_none()
+    if user is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found")
+
+    return signup_to_event(event, user, data, manage_permission, db)
 
 
 @event_signup_router.delete("/{event_id}", response_model=EventRead)
 def signoff_route(
     event_id: int,
+    data: EventSignupDelete,
     me: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Event")],
     db: DB_dependency,
@@ -41,7 +52,13 @@ def signoff_route(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    return signoff_from_event(event, me, manage_permission, db)
+    if data.user_id is None or data.user_id == me.id:
+        return signoff_from_event(event, me.id, manage_permission, db)
+
+    if manage_permission == False:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Check your permissions mate")
+
+    return signoff_from_event(event, data.user_id, manage_permission, db)
 
 
 @event_signup_router.patch("/{event_id}", response_model=EventRead)
@@ -56,7 +73,13 @@ def update_signup(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    return update_event_signup(event, data, me, manage_permission, db)
+    if data.user_id is None or data.user_id == me.id:
+        return update_event_signup(event, data, me.id, manage_permission, db)
+
+    if manage_permission == False:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Check your permissions mate")
+
+    return update_event_signup(event, data, data.user_id, manage_permission, db)
 
 
 @event_signup_router.get("/{event_id}", response_model=list[EventSignupRead])
