@@ -43,11 +43,11 @@ def signoff_from_event(
     return signup
 
 
-def update_event_signup(event: Event_DB, data: EventSignupUpdate, user: User_DB, manage_permission: bool, db: Session):
+def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, manage_permission: bool, db: Session):
     now = datetime.now(UTC)
     if event.signup_end < now and manage_permission == False:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
-    signup = db.query(EventUser_DB).filter_by(user_id=user.id, event_id=event.id).one_or_none()
+    signup = db.query(EventUser_DB).filter_by(user_id=user_id, event_id=event.id).one_or_none()
     if signup is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
