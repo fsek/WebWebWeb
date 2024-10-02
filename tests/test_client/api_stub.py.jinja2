@@ -1,4 +1,4 @@
-from typing import overload, Literal
+from typing import overload, Literal, Any
 from generated_types import {% for model in models_to_import %} {{ model }} {% if loop.index < loop.length %},{% endif %}{% endfor %}
 from fastapi import FastAPI
 
@@ -12,9 +12,10 @@ class AuthTestClient:
     {% for route in routes %}
     {% if not route.unique %}@overload{% endif %}
     def {{route.http_method}}(
-        self, arg: Literal["{{ route.http_route }}"]
+        self, path: Literal["{{ route.http_route }}"]
         {% if route.json_body %}, json: {{route.json_body}}{% endif %}
         {% if route.form_body %}, data: {{route.form_body}}{% endif %}
+        {% if route.files %}, files: {{route.files}} {% endif %}
     ) -> {{ route.response_model }} : ...
 
     {% endfor %}

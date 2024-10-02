@@ -40,13 +40,14 @@ def extract_successful_response(responses: dict[str, Any]) -> str:
 class BodiesType(TypedDict):
     json: NotRequired[str]
     form: NotRequired[str]
+    multipart: NotRequired[str]
 
 
 def extract_request_body(body: dict[str, Any]) -> BodiesType:
     content = body["content"]
     json = content.get("application/json")
     form = content.get("application/x-www-form-urlencoded")
-    # multipart = content.get("multipart/form-data")
+    multipart = content.get("multipart/form-data")
 
     def extract_body_name(field: dict[str, Any]):
         ref: str = field["schema"]["$ref"]
@@ -56,11 +57,11 @@ def extract_request_body(body: dict[str, Any]) -> BodiesType:
     bodies: BodiesType = {}
 
     if json:
-        # For some reason datamode-codegen will convert snake_case from openapi.json to camelCase name of python classes
-        # So mimick this, otherwise, in stub file, we cannot import generated classes.
         bodies["json"] = extract_body_name(json)
     if form:
         bodies["form"] = extract_body_name(form)
+    if multipart:
+        bodies["multipart"] = extract_body_name(multipart)
 
     return bodies
 
@@ -70,8 +71,10 @@ class Route(TypedDict):
     http_route: str
     http_method: str
     unique: bool
-    json_body: NotRequired[str]
-    form_body: NotRequired[str]
+
+    json_body: NotRequired[str]  # corresponds to 'json' argument of httpx.post()
+    form_body: NotRequired[str]  # corresponds to 'data' argument of httpx.post()
+    files: NotRequired[str]  # corresponds to 'files' argument of httpx.post()
 
 
 routes: list[Route] = []
@@ -100,8 +103,13 @@ for path in all_paths:
                 models_to_import.add(request_body["json"])
 
             if "form" in request_body:
-                route_data["form_body"] = request_body["form"]
-                models_to_import.add(request_body["form"])
+                # datamodel-codegen decides to convert snake_case to camelCase for class names,
+                # but multipart and form get snake_case names so we cannot import these from generated types
+                # For now, Any type for forms and multipart request bodies
+                route_data["form_body"] = "Any"
+
+            if "mutlipart" in request_body:
+                route_data["files"] = "Any"
 
         routes.append(route_data)
 
