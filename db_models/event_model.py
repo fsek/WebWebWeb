@@ -46,3 +46,14 @@ class Event_DB(BaseModel_DB):
     priorities: Mapped[list["Priority_DB"]] = relationship(
         back_populates="event", init=False
     )
+
+    all_day: Mapped[bool] = mapped_column(default=False)
+    signup_not_opened_yet: Mapped[bool] = mapped_column(default=True)
+    recurring: Mapped[bool] = mapped_column(default=False)
+    drink: Mapped[bool] = mapped_column(default=False)
+    food: Mapped[bool] = mapped_column(default=False)
+    cash: Mapped[bool] = mapped_column(default=False)
+    closed: Mapped[bool] = mapped_column(default=True)
+    can_signup: Mapped[bool] = mapped_column(default=False)
+    drink_package: Mapped[bool] = mapped_column(default=False)
+

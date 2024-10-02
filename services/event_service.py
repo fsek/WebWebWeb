@@ -35,7 +35,16 @@ def create_new_event(data: EventCreate, db: Session):
         council_id=data.council_id,
         signup_start=signup_start,
         signup_end=signup_end,
-        max_event_users=data.max_event_users
+        max_event_users=data.max_event_users,
+        all_day=data.all_day,
+        signup_not_opened_yet=data.signup_not_opened_yet,
+        recurring=data.recurring,
+        drink=data.drink,
+        food=data.food,
+        cash=data.cash,
+        closed=data.closed,
+        can_signup=data.can_signup,
+        drink_package=data.drink_package
     )
     db.add(event)  # This adds the event itself to the session
     db.flush()  # This is optional but can be helpful to ensure 'event.id' is set if used immediately after
