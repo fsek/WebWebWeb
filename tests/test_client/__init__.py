@@ -15,9 +15,9 @@ class AuthTestClient:
         self.client.headers.update([("Authorization", f"Bearer {token}")])
 
     def get(self, path: str):
-        res = self.client.get(path)
-        return res.json()  # TODO: fails if empty response
+        response = self.client.get(path)
+        return response, response.json()  # TODO: fails if empty response
 
     def post(self, path: str, json: dict[str, Any] | None = None, data: dict[str, Any] | None = None):
-        res = self.client.post(path, json=json, data=data)
-        return res.json()
+        response = self.client.post(path, json=json, data=data)
+        return response, response.json()
