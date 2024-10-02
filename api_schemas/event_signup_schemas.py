@@ -9,6 +9,10 @@ class EventSignupCreate(BaseSchema):
     group_name: str | None = None
 
 
+class EventSignupDelete(BaseSchema):
+    user_id: int
+
+
 class EventSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     first_name: str
     last_name: str
@@ -22,5 +26,6 @@ class EventSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
 
 
 class EventSignupUpdate(BaseSchema):
+    user_id: int
     priority: str | None
     group_name: str | None
