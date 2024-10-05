@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
+from db_models.candidate_model import Candidate_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
@@ -72,6 +73,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     events: AssociationProxy[list["Event_DB"]] = association_proxy(
         target_collection="event_users", attr="event", init=False
+    )
+
+    candidates: Mapped[list["Candidate_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
     )
 
     is_member: Mapped[bool] = mapped_column(default=False)

@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from db_models.ad_model import BookAd_DB
 from db_models.council_model import Council_DB
+from db_models.election_model import Election_DB
 from db_models.event_model import Event_DB
 from db_models.news_model import News_DB
 from db_models.permission_model import Permission_DB
@@ -134,6 +135,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm7 = Permission_DB(action="manage", target="Gallery")
     perm8 = Permission_DB(action="manage", target="Ads")
     perm9 = Permission_DB(action="manage", target="Car")
+    perm10 = Permission_DB(action="manage", target="Election")
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
@@ -143,6 +145,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm7)
     posts[0].permissions.append(perm8)
     posts[0].permissions.append(perm9)
+    posts[0].permissions.append(perm10)
     db.commit()
 
 
@@ -233,6 +236,18 @@ def seed_ads(db: Session):
     db.commit()
 
 
+def seed_election(db: Session):
+    starts_at = datetime.datetime.now(datetime.UTC)
+    signup_start = starts_at + datetime.timedelta(hours=24)
+    signup_end = signup_start + datetime.timedelta(hours=24)
+    elections = [
+        Election_DB(title="bajsval1928", start_time=signup_start, end_time=signup_end, description="Snälla bajs"),
+        Election_DB(title="360noscope", start_time=signup_start, end_time=signup_end, description="lol get wrekt"),
+    ]
+    db.add_all(elections)  # Use add_all to add multiple instances
+    db.commit()
+
+
 def seed_if_empty(app: FastAPI, db: Session):
     # If there's no user, assumed DB is empty and seed it.
     if db.query(User_DB).count() > 0:
@@ -258,5 +273,7 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_songs_and_song_category(db)
 
     seed_ads(db)
+
+    seed_election(db)
 
     print("Done seeding!")
