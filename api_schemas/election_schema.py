@@ -18,15 +18,17 @@ class ElectionRead(BaseSchema):
     description: str | None
     election_posts: list[_ElectionPostRead]
     candidates: list[CandidateRead]
-    views: int
 
 
 class ElectionCreate(BaseSchema):
     title: str
-    author: str | None
-    melody: str | None
-    content: str
-    category: SongCategoryRead
+    start_time: datetime_utc
+    end_time: datetime_utc
+    description: str
+
+
+class ElectionAddPosts(BaseSchema):
+    posts: list[int]
 
 
 # election_id: Mapped[int] = mapped_column(primary_key=True, init=False)
