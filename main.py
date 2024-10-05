@@ -10,7 +10,10 @@ import os
 
 
 def generate_unique_id(route: APIRoute):
-    return f"{route.name}"
+    if len(route.tags) > 0:
+        return f"{route.tags[0]}-{route.name}"
+    else:
+        return f"{route.path}{route.name}"
 
 
 @asynccontextmanager
