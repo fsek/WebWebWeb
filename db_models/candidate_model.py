@@ -17,13 +17,13 @@ class Candidate_DB(BaseModel_DB):
 
     election_id: Mapped[int] = mapped_column(ForeignKey("election_table.election_id"))
 
-    elections: Mapped["Election_DB"] = relationship("Election_DB", back_populates="candidates", init=False)
+    election: Mapped["Election_DB"] = relationship("Election_DB", back_populates="candidates", init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
 
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="candidates", init=False)
 
     candidate_posts: Mapped[list["CandidatePost_DB"]] = relationship(
-        back_populates="candidates", cascade="all, delete-orphan", init=False
+        back_populates="candidate", cascade="all, delete-orphan", init=False
     )
     pass

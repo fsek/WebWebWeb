@@ -13,10 +13,10 @@ if TYPE_CHECKING:
 class ElectionPost_DB(BaseModel_DB):
     __tablename__ = "election_post_table"
 
-    election_id: Mapped[int] = mapped_column(ForeignKey("election_table.election_id"), primary_key=True, init=False)
-    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"), primary_key=True, init=False)
+    election_id: Mapped[int] = mapped_column(ForeignKey("election_table.election_id"), primary_key=True)
+    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"), primary_key=True)
 
-    posts: Mapped["Post_DB"] = relationship(back_populates="election_posts", default=None)
-    elections: Mapped["Election_DB"] = relationship(back_populates="election_posts", default=None)
+    post: Mapped["Post_DB"] = relationship(back_populates="election_posts", init=False)
+    election: Mapped["Election_DB"] = relationship(back_populates="election_posts", init=False)
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)

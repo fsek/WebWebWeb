@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 class CandidatePost_DB(BaseModel_DB):
     __tablename__ = "candidate_post_table"
 
-    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidate_table.candidate_id"), primary_key=True, init=False)
-    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"), primary_key=True, init=False)
+    candidate_id: Mapped[int] = mapped_column(ForeignKey("candidate_table.candidate_id"), primary_key=True)
+    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"), primary_key=True)
 
-    posts: Mapped["Post_DB"] = relationship(back_populates="candidate_posts", default=None)
-    candidates: Mapped["Candidate_DB"] = relationship(back_populates="candidate_posts", default=None)
+    post: Mapped["Post_DB"] = relationship(back_populates="candidate_posts")
+    candidate: Mapped["Candidate_DB"] = relationship(back_populates="candidate_posts")
