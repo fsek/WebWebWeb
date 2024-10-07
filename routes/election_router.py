@@ -5,7 +5,7 @@ from db_models.election_post_model import ElectionPost_DB
 from db_models.post_model import Post_DB
 from services.election_service import fix_election_read, fix_election_reads
 from user.permission import Permission
-from api_schemas.election_schema import ElectionPostRead, ElectionAddPosts, ElectionRead, ElectionCreate
+from api_schemas.election_schema import ElectionAddPosts, ElectionRead, ElectionCreate
 
 election_router = APIRouter()
 
@@ -59,7 +59,8 @@ def add_post_to_election(election_id: int, data: ElectionAddPosts, db: DB_depend
     if not data.posts:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No posts provided")
 
-    post_ids = set(data.posts)
+    ids = [post.post_id for post in data.posts]
+    post_ids = set(ids)
 
     existing_posts = db.query(Post_DB.id).filter(Post_DB.id.in_(post_ids)).all()
     existing_post_ids = {post.id for post in existing_posts}
@@ -77,7 +78,12 @@ def add_post_to_election(election_id: int, data: ElectionAddPosts, db: DB_depend
 
     new_post_ids = post_ids - existing_election_post_ids
 
-    election_posts = [ElectionPost_DB(election_id=election_id, post_id=post_id) for post_id in new_post_ids]
+    election_posts = [
+        ElectionPost_DB(
+            election_id=election_id, post_id=post_id, description=data.posts[ids.index(post_id)].description
+        )
+        for post_id in new_post_ids
+    ]
     db.add_all(election_posts)
     db.commit()
 

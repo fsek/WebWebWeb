@@ -1,5 +1,4 @@
 from db_models.candidate_post_model import CandidatePost_DB
-from db_models.post_model import Post_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import TYPE_CHECKING

@@ -9,6 +9,11 @@ class _PostRead(BaseSchema):
 
 class CandidateRead(BaseSchema):
     candidate_id: int
-    post: list[_PostRead]
+    # post: list[_PostRead]
     election_id: int
+    user_id: int
+
+
+class CandidateElectionRead(BaseSchema):
+    candidate_id: int
     user_id: int

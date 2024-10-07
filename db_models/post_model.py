@@ -46,10 +46,6 @@ class Post_DB(BaseModel_DB):
         back_populates="post", cascade="all, delete-orphan", init=False
     )
 
-    candidate_posts: Mapped[list["CandidatePost_DB"]] = relationship(
-        back_populates="post", cascade="all, delete-orphan", init=False
-    )
-
     users: AssociationProxy[list["User_DB"]] = association_proxy(
         target_collection="post_users", attr="user", init=False, creator=creator
     )

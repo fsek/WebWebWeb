@@ -7,6 +7,7 @@ class ElectionPostRead(BaseSchema):
     id: int
     name: str
     council_id: int
+    description: str
 
 
 class ElectionRead(BaseSchema):
@@ -26,21 +27,10 @@ class ElectionCreate(BaseSchema):
     description: str
 
 
+class ElectionPostCreate(BaseSchema):
+    post_id: int
+    description: str | None = None
+
+
 class ElectionAddPosts(BaseSchema):
-    posts: list[int]
-
-
-# election_id: Mapped[int] = mapped_column(primary_key=True, init=False)
-
-#     start_time: Mapped[datetime] = mapped_column()
-
-#     end_time: Mapped[datetime] = mapped_column()
-
-#     description: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC))
-
-#     election_posts: Mapped[list["ElectionPost_DB"]] = relationship(
-#         back_populates="elections", cascade="all, delete-orphan", init=False
-#     )
-#     candidates: Mapped[list["Candidate_DB"]] = relationship(
-#         back_populates="elections", cascade="all, delete-orphan", init=False
-#     )
+    posts: list[ElectionPostCreate]
