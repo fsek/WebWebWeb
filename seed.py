@@ -25,7 +25,10 @@ def seed_users(db: Session, app: FastAPI):
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
         program="F",
+        food_preferences=[],  # Set empty list as default value
+        food_custom=None
     )
+    
     user = UserCreate(
         email="user@fsektionen.se",
         first_name="User",
@@ -33,27 +36,38 @@ def seed_users(db: Session, app: FastAPI):
         password="dabdab",
         telephone_number=PhoneNumber("+46706427444"),
         program="F",
+        food_preferences=[],  # Set empty list as default value
+        food_custom=None
     )
+    
     user2 = UserCreate(
         email="user2@fsektionen.se",
         first_name="User2",
         last_name="Userström2",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
+        food_preferences=[],  # Set empty list as default value
+        food_custom=None
     )
+    
     user3 = UserCreate(
         email="user3@fsektionen.se",
         first_name="User3",
         last_name="Userström3",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
+        food_preferences=[],  # Set empty list as default value
+        food_custom=None
     )
+    
     user4 = UserCreate(
         email="user4@fsektionen.se",
         first_name="User4",
         last_name="Userström4",
         password="dabdab",
         telephone_number=PhoneNumber("+46760187158"),
+        food_preferences=[],  # Set empty list as default value
+        food_custom=None
     )
 
     boss_response = client.post("/auth/register", json=boss.model_dump())

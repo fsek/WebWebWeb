@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
+from pickle import NONE
 from typing import Annotated, Literal, TypeAlias
 from pydantic import AfterValidator
+from enum import Enum
 
 
 def force_utc(date: datetime):
@@ -31,3 +33,6 @@ PERMISSION_TARGET = Literal["Event", "User", "Post", "Permission", "News", "Song
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
 # This one is to make one action eg. "be_a_god" mean several actions eg. "view", "manage", "know_everything",
 # PermissionCompoundActions: dict[PermissionAction, list[PermissionAction]] = {"manage": ["view"]}
+
+USER_FOOD_PREFERENCES = Literal["No preference", "Vegetarian", "Vegan", "Gluten", "Halal", "Lactose intolerant", "Allergisk mot allt som simmar och flyger"]
+

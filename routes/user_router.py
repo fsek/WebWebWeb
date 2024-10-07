@@ -21,6 +21,7 @@ def get_me(user: Annotated[User_DB, Permission.base()]):
     return user
 
 
+
 @user_router.patch("/me", response_model=UserRead)
 def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()], db: DB_dependency):
     # Since we edit user, look it up using "db" and not from permission so were are in same session
@@ -35,6 +36,11 @@ def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()
         me.start_year = data.start_year
     if data.program:
         me.program = data.program
+    if data.food_preferences:
+        me.food_preferences = data.food_preferences
+    if data.food_custom:
+        me.food_custom = data.food_custom
+        
 
     try: 
         db.commit()
@@ -59,6 +65,15 @@ def update_user(user_id: int, data: UpdateUserMember, db: DB_dependency):
 
     db.commit()
     return user
+
+
+
+def update_user_fields(user: User_DB, data: MeUpdate):
+    """
+    Helper function to update the user object dynamically based on data provided.
+    """
+    for key, value in data.model_dump(exclude_unset=True).items():
+        setattr(user, key, value)
 
 
 # TODO update your own stuff,

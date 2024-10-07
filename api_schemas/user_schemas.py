@@ -4,7 +4,8 @@ from fastapi_users_pelicanq import schemas as fastapi_users_schemas
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
-from helpers.types import datetime_utc
+from helpers.types import USER_FOOD_PREFERENCES, datetime_utc
+from typing import List 
 
 
 class _UserEventRead(BaseSchema):
@@ -26,6 +27,8 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     telephone_number: PhoneNumber
     start_year: int
     account_created: datetime_utc
+    food_preferences: List[USER_FOOD_PREFERENCES] 
+    food_custom: str | None  
 
 
 class UserSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
@@ -36,15 +39,20 @@ class UserSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     start_year: int
     account_created: datetime_utc
     program: str | None
+    food_preferences: List[USER_FOOD_PREFERENCES] | None = None 
+    food_custom: str | None = None
 
 
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
+
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     first_name: Annotated[str, StringConstraints(max_length=MAX_FIRST_NAME_LEN)]
     last_name: Annotated[str, StringConstraints(max_length=MAX_LAST_NAME_LEN)]
     telephone_number: PhoneNumber | None = None
     start_year: int | None = None
     program: str | None = None
+    food_preferences: List[USER_FOOD_PREFERENCES] | None = None
+    food_custom: str | None = None
     pass
 
 
@@ -53,6 +61,8 @@ class MeUpdate(BaseSchema):
     last_name: str | None = None
     start_year: int | None = None
     program: str | None = None
+    food_preferences: List[USER_FOOD_PREFERENCES]| None = None
+    food_custom: str | None = None
 
 
 # class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
