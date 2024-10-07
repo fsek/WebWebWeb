@@ -22,8 +22,6 @@ class ElectionPost_DB(BaseModel_DB):
     post: Mapped["Post_DB"] = relationship(back_populates="election_posts", init=False)
     election: Mapped["Election_DB"] = relationship(back_populates="election_posts", init=False)
 
-    candidate_posts: Mapped[list["CandidatePost_DB"]] = relationship(
-        back_populates="election_post", init=False
-    )  # Fix here
+    candidate_posts: Mapped[list["CandidatePost_DB"]] = relationship(back_populates="election_post", init=False)
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)

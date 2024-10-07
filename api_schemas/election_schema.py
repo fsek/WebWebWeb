@@ -1,5 +1,5 @@
 from api_schemas.base_schema import BaseSchema
-from api_schemas.candidate_schema import CandidateRead
+from api_schemas.candidate_schema import CandidateElectionRead, CandidateRead
 from helpers.types import datetime_utc
 
 
@@ -17,7 +17,7 @@ class ElectionRead(BaseSchema):
     end_time: datetime_utc
     description: str | None
     election_posts: list[ElectionPostRead]
-    candidates: list[CandidateRead]
+    candidates: list[CandidateElectionRead]
 
 
 class ElectionCreate(BaseSchema):
