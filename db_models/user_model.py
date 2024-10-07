@@ -14,7 +14,6 @@ from .ad_model import BookAd_DB
 from .car_model import CarBooking_DB
 
 
-
 if TYPE_CHECKING:
     from .post_model import Post_DB
     from .event_user_model import EventUser_DB
@@ -37,11 +36,6 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
 
     food_custom: Mapped[str] = mapped_column(String, nullable=True)
-
-    # Use default_factory to avoid mutable default issue with lists
-    # food_preferences: Mapped[list[USER_FOOD_PREFERENCES]] = mapped_column(
-    #     ARRAY(Enum(USER_FOOD_PREFERENCES)), default_factory=list, nullable=True
-    # )
     
     food_preferences: Mapped[List[USER_FOOD_PREFERENCES]] = mapped_column(
     ARRAY(String), default=None, nullable=True
@@ -89,3 +83,4 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     is_member: Mapped[bool] = mapped_column(default=False)
 
+    want_notifications: Mapped[bool] = mapped_column(default=True)

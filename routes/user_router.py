@@ -40,9 +40,10 @@ def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()
         me.food_preferences = data.food_preferences
     if data.food_custom:
         me.food_custom = data.food_custom
-        
+    if data.notifications is not None:
+        me.want_notifications = data.notifications
 
-    try: 
+    try:
         db.commit()
     except DataError:
         db.rollback()
