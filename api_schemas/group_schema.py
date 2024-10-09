@@ -3,7 +3,7 @@ from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from api_schemas.user_schemas import UserInGroupRead
 from helpers.constants import MAX_GROUP_NAME
-from helpers.types import GROUP_TYPE
+from helpers.types import GROUP_TYPE, GROUP_USER_TYPE
 
 
 class GroupCreate(BaseSchema):
@@ -21,3 +21,9 @@ class GroupRead(BaseSchema):
     name: str
     group_type: str
     group_users: list[GroupUserRead]
+
+
+class GroupAddUser(BaseSchema):
+    group_id: int
+    user_id: int
+    group_user_type: GROUP_USER_TYPE

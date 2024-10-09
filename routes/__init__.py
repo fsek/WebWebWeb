@@ -40,6 +40,4 @@ main_router.include_router(album_router, prefix="/albums", tags=["albums"])
 
 main_router.include_router(ad_router, prefix="/ad", tags=["ads"])
 
-main_router.include_router(song_category_router, prefix="/songs-category", tags=["songs category"])
-
-main_router.include_router(group_router, prefix="/mentor-groups", tags=["mentor groups"])
+main_router.include_router(group_router, prefix="/groups", tags=["groups"])

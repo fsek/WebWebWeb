@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from api_schemas.group_schema import GroupCreate, GroupRead
+from api_schemas.group_schema import GroupAddUser, GroupCreate, GroupRead
 from database import DB_dependency
 from helpers.types import GROUP_TYPE, GROUP_USER_TYPE
 from user.permission import Permission
@@ -28,5 +28,5 @@ def get_single_group(db: DB_dependency, id: int):
 
 
 @group_router.post("{id}", dependencies=[Permission.require("manage", "Groups")])
-def add_user_to_mentor_group(db: DB_dependency, id: int, user_id: int, user_type: GROUP_USER_TYPE):
-    return add_to_group(db, id, user_id, user_type)
+def add_user_to_mentor_group(db: DB_dependency, data: GroupAddUser):
+    return add_to_group(db, data)

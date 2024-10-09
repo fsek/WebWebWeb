@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from api_schemas.group_schema import GroupCreate
+from api_schemas.group_schema import GroupAddUser, GroupCreate
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from db_models.user_model import User_DB
@@ -40,18 +40,20 @@ def get_group(db: Session, id: int):
     return group
 
 
-def add_to_group(db: Session, id: int, user_id: int, user_type: GROUP_USER_TYPE):
-    group1 = db.query(Group_DB).filter(Group_DB.id == id).one_or_none()
+def add_to_group(db: Session, data: GroupAddUser):
+    group1 = db.query(Group_DB).filter(Group_DB.id == data.group_id).one_or_none()
 
     if group1 == None:
         raise HTTPException(404, detail="Group not found")
 
-    user1 = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
+    user1 = db.query(User_DB).filter(User_DB.id == data.user_id).one_or_none()
 
     if user1 == None:
         raise HTTPException(404, detail="User not found")
 
-    group_user = GroupUser_DB(user=user1, user_id=user1.id, group=group1, group_id=group1.id, group_user_type=user_type)
+    group_user = GroupUser_DB(
+        user=user1, user_id=user1.id, group=group1, group_id=group1.id, group_user_type=data.group_user_type
+    )
 
     db.add(group_user)
     try:
