@@ -4,7 +4,7 @@ This repo uses VSCode's Dev Containers extension to standardize the development 
 
 ## Installation
 0. Using Windows? First set up WSL 2.
-    - Press Windows `⊞` -> "Turn Windows features on or off". Enable "Windows Subsystem for Linux".
+    - Press Windows `⊞` -> "Turn Windows features on or off". Enable "Windows Subsystem for Linux", might need to enable "Virtual Machine Platform" also.
     - Open Powershell as admin.
     - `wsl --install`  
     - `wsl --set-default-version 2`
