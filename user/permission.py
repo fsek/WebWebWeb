@@ -1,6 +1,6 @@
 from typing import cast
 from fastapi import Depends, HTTPException, status
-from fastapi_users import jwt
+from fastapi_users_pelicanq import jwt
 from db_models.permission_model import PERMISSION_TYPE, PERMISSION_TARGET
 from db_models.user_model import User_DB
 from user.token_strategy import JWT_SECRET, AccessTokenData, CustomTokenStrategy
@@ -72,3 +72,30 @@ class Permission:
             return True
 
         return False
+
+    @classmethod
+    def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
+        # Use this dependency on routes which require specific permissions
+        def dependency(user_and_token: tuple[User_DB, str] = Depends(current_verified_user_token)):
+            user, token = user_and_token
+            permissions: list[str] = []
+            for post in user.posts:
+                for perm in post.permissions:
+                    permissions.append(f"{perm.action}:{perm.target}")
+
+            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, JWT_SECRET, audience=["fastapi-users:auth"]))
+
+            # see if user has a permission matching the required permission
+            for perm in decoded_token["permissions"]:
+                try:
+                    claim_action, claim_target = CustomTokenStrategy.decode_permission(perm)
+                except:
+                    raise HTTPException(status.HTTP_403_FORBIDDEN)
+
+                verified = cls.verify_permission(claim_action, claim_target, action, target)
+                if verified:
+                    return True
+
+            return False
+
+        return Depends(dependency)

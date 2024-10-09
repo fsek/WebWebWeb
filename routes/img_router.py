@@ -8,15 +8,15 @@ img_router = APIRouter()
 
 
 @img_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
-def upload(db: DB_dependency, album_id: int, file: UploadFile = File()):
+def upload_image(db: DB_dependency, album_id: int, file: UploadFile = File()):
     return upload_img(db, album_id, file)
 
 
 @img_router.delete("/{id}", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
-def delete(db: DB_dependency, id: int):
+def delete_image(db: DB_dependency, id: int):
     return remove_img(db, id)
 
 
 @img_router.get("/{id}")
-def get_img(db: DB_dependency, id: int):
+def get_image(db: DB_dependency, id: int):
     return get_single_img(db, id)

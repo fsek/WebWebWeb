@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Callable, Optional
-from fastapi_users.db import SQLAlchemyBaseUserTable
+from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from db_models.group_model import Group_DB
@@ -13,6 +13,7 @@ from sqlalchemy import Enum
 import datetime
 from helpers.types import datetime_utc
 from .ad_model import BookAd_DB
+from .car_model import CarBooking_DB
 from helpers.types import datetime_utc
 
 if TYPE_CHECKING:
@@ -22,6 +23,7 @@ if TYPE_CHECKING:
     from .event_model import Event_DB
     from .news_model import News_DB
     from .ad_model import BookAd_DB
+
 
 # called by SQLAlchemy when user.posts.append(some_post)
 post_user_creator: Callable[["Post_DB"], "PostUser_DB"] = lambda post: PostUser_DB(post=post)
@@ -53,6 +55,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
         default=datetime.datetime.now()
     )  # date and time the account was created
 
+    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="user", init=False)
+
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
     )
@@ -74,6 +78,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     is_member: Mapped[bool] = mapped_column(default=False)
 
+    want_notifications: Mapped[bool] = mapped_column(default=True)
+
     group_users: Mapped[list["GroupUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
     )
@@ -83,4 +89,4 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     )
 
     # notifications: Mapped[list["Notification_DB"]]
-    # fredmansky: Mapped["Fredmansky_DB"]
+    # fredmansky: Mapped["Fredmansky_DB"] should not be implemented like this I think //Benjamin

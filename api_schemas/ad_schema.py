@@ -15,10 +15,10 @@ class AdRead(BaseSchema):
     
     
 class AdCreate(BaseSchema):
-    title: str
-    author: str | None
+    title: Annotated[str, StringConstraints(max_length=MAX_BOOK_TITLE)]
+    author: Annotated[str, StringConstraints(max_length=MAX_BOOK_AUTHOR)] | None
     price: int | None
-    course: str | None
+    course: Annotated[str, StringConstraints(max_length=MAX_BOOK_TITLE)] | None
     user_id: int
     selling: bool
     condition: int

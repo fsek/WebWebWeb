@@ -1,6 +1,6 @@
 from typing import Annotated
 from pydantic import StringConstraints
-from fastapi_users import schemas as fastapi_users_schemas
+from fastapi_users_pelicanq import schemas as fastapi_users_schemas
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
@@ -26,16 +26,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     telephone_number: PhoneNumber
     start_year: int
     account_created: datetime_utc
-
-
-class UserSignupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
-    first_name: str
-    last_name: str
-    email: str
-    telephone_number: PhoneNumber
-    start_year: int
-    account_created: datetime_utc
-    program: str | None
+    want_notifications: bool
 
 
 class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
@@ -59,6 +50,7 @@ class MeUpdate(BaseSchema):
     last_name: str | None = None
     start_year: int | None = None
     program: str | None = None
+    notifications: bool | None = None
 
 
 # class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):

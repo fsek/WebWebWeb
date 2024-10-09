@@ -42,31 +42,32 @@ def update(event_id: int, data: EventUpdate, db: DB_dependency):
 @event_router.get(
     "/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
 )
-def getAllSignups(event_id: int, db: DB_dependency):
-    peoplesignups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
-    if len(peoplesignups) == 0:
-        return []
-    users: list[User_DB] = [event_user.user for event_user in peoplesignups]
-
+def get_all_signups(event_id: int, db: DB_dependency):
+    people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
+    users: list[User_DB] = []
+    if len(people_signups) == 0:
+        return users
+    users = [event_user.user for event_user in people_signups]
     return users
 
 
 @event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
-def getRandomSignup(event_id: int, db: DB_dependency):
+def get_random_signup(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No event exist")
-    peoplesignups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
-    if len(peoplesignups) == 0:
-        return []
-    if len(peoplesignups) <= event.max_event_users:
-        users: list[User_DB] = [event_user.user for event_user in peoplesignups]
+    people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
+    users: list[User_DB] = []
+    if len(people_signups) == 0:
+        return users
+    if len(people_signups) <= event.max_event_users:
+        users = [event_user.user for event_user in people_signups]
         return users
 
     prioritized_people: List[EventUser_DB] = []
     for priority in event.priorities:
         # Assuming 'people' is a list of objects and each object has a 'priority' attribute
-        prioritized_people.extend([person for person in peoplesignups if person.priority == priority])
+        prioritized_people.extend([person for person in people_signups if person.priority == priority])
 
     # Ensure no duplicates, maintain order
     seen: set[EventUser_DB] = set()
@@ -74,17 +75,17 @@ def getRandomSignup(event_id: int, db: DB_dependency):
     for person in prioritized_people:
         if person not in seen:  # Make sure to check person.id since that's what you add to 'seen'
             seen.add(person)  # Adding person.id to the set
-            peoplesignups.remove(person)
+            people_signups.remove(person)
             unique_prioritized_people.append(person)
 
     # Now 'unique_prioritized_people' will have unique persons according to their id, preserving order
 
     places_left = event.max_event_users - len(unique_prioritized_people)
     random.seed(event_id)
-    random.shuffle(peoplesignups)
+    random.shuffle(people_signups)
 
-    unique_prioritized_people.extend(peoplesignups[:places_left])
+    unique_prioritized_people.extend(people_signups[:places_left])
 
-    users: list[User_DB] = [event_user.user for event_user in unique_prioritized_people]
+    users = [event_user.user for event_user in unique_prioritized_people]
 
     return users
