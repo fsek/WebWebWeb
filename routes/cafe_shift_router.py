@@ -72,10 +72,18 @@ def update_shift(shift_id: int, data: CafeShiftUpdate, db: DB_dependency):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+    temp_start = shift.starts_at
+    temp_end = shift.ends_at
     if data.starts_at is not None:
-        shift.starts_at = data.starts_at
+        temp_start = data.starts_at
     if data.ends_at is not None:
-        shift.ends_at = data.ends_at
+        temp_end = data.ends_at
+    if temp_end <= temp_start:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Start time must be before end")
+
+    shift.starts_at = temp_start
+    shift.ends_at = temp_end
+
     if data.user_id is not None:
         user = db.query(User_DB).filter_by(id=data.user_id).one_or_none()
         if user is None:
