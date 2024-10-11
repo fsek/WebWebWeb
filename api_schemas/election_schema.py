@@ -7,7 +7,6 @@ class ElectionPostRead(BaseSchema):
     id: int
     name: str
     council_id: int
-    description: str
 
 
 class ElectionRead(BaseSchema):
@@ -16,7 +15,7 @@ class ElectionRead(BaseSchema):
     start_time: datetime_utc
     end_time: datetime_utc
     description: str | None
-    election_posts: list[ElectionPostRead]
+    posts: list[ElectionPostRead]
     candidates: list[CandidateElectionRead]
 
 

@@ -74,7 +74,7 @@ def create_candidation(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid post IDs provided: {invalid_posts}"
         )
 
-    candidations = [
+    candidations = [  # MUST BE FIXED BEFORE ACCEPTED
         CandidatePost_DB(candidate_id=candidate.candidate_id, election_post_id=post)
         for post in posts
         if post in existing_election_post_ids

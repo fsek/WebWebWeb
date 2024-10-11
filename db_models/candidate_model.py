@@ -1,8 +1,11 @@
 from db_models.candidate_post_model import CandidatePost_DB
+from db_models.election_post_model import ElectionPost_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
+from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
+
 
 if TYPE_CHECKING:
     from .user_model import User_DB
@@ -25,4 +28,9 @@ class Candidate_DB(BaseModel_DB):
     candidate_posts: Mapped[list["CandidatePost_DB"]] = relationship(
         back_populates="candidate", cascade="all, delete-orphan", init=False
     )
+
+    posts: AssociationProxy[list["ElectionPost_DB"]] = association_proxy(
+        target_collection="candidate_posts", attr="election_post", init=False
+    )
+
     pass
