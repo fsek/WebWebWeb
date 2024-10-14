@@ -1,3 +1,4 @@
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, status
 from api_schemas.room_booking_schema import RoomCreate, RoomRead, RoomUpdate
 from api_schemas.room_booking_schema import RoomRead
@@ -7,6 +8,7 @@ from sqlalchemy import or_, and_
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.room_booking_model import RoomBooking_DB
+from helpers.types import datetime
 
 room_router = APIRouter()
 
@@ -18,7 +20,7 @@ def get_all_booking(db: DB_dependency):
 
 
 @room_router.get(
-    "/{booking_id}", response_model=RoomRead, dependencies=[Permission.require("view", "Car"), Permission.member()]
+    "/{booking_id}", response_model=RoomRead, dependencies=[Permission.require("view", "Room"), Permission.member()]
 )
 def get_booking(booking_id: int, db: DB_dependency):
     booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).first()
@@ -27,7 +29,18 @@ def get_booking(booking_id: int, db: DB_dependency):
     raise HTTPException(status.HTTP_400_BAD_REQUEST)
 
 
-@room_router.post("/", response_model=RoomCreate, dependencies=[Permission.require("manage", "Car")])
+@room_router.get("/", response_model=list[RoomRead], dependencies=[Permission.member()])
+def get_upcoming_bookings(db: DB_dependency):
+    a_week_ahead = datetime.today().replace(day=datetime.today().day + 7)
+    bookings = (
+        db.query(RoomBooking_DB)
+        .having(RoomBooking_DB.start_time > datetime.today())
+        .having(RoomBooking_DB.start_time < a_week_ahead)
+    )
+    return bookings
+
+
+@room_router.post("/", response_model=RoomCreate, dependencies=[Permission.require("manage", "Room")])
 def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
     if booking.end_time < booking.start_time:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)

@@ -17,7 +17,7 @@ def get_all_booking(db: DB_dependency):
 
 
 @car_router.get(
-    "/{booking_id}", response_model=CarRead, dependencies=[Permission.require("view", "Room"), Permission.member()]
+    "/{booking_id}", response_model=CarRead, dependencies=[Permission.require("view", "Car"), Permission.member()]
 )
 def get_booking(booking_id: int, db: DB_dependency):
     booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
@@ -26,7 +26,7 @@ def get_booking(booking_id: int, db: DB_dependency):
     raise HTTPException(status.HTTP_400_BAD_REQUEST)
 
 
-@car_router.post("/", response_model=CarCreate, dependencies=[Permission.require("manage", "Room")])
+@car_router.post("/", response_model=CarCreate, dependencies=[Permission.require("manage", "Car")])
 def create_booking(booking: CarCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
     if booking.end_time < booking.start_time:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
@@ -58,7 +58,7 @@ def create_booking(booking: CarCreate, current_user: Annotated[User_DB, Permissi
 def remove_booking(
     booking_id: int,
     current_user: Annotated[User_DB, Permission.member()],
-    manage_permission: Annotated[bool, Permission.check("manage", "Room")],
+    manage_permission: Annotated[bool, Permission.check("manage", "Car")],
     db: DB_dependency,
 ):
     car_booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
@@ -77,7 +77,7 @@ def update_booking(
     booking_id: int,
     data: CarUpdate,
     current_user: Annotated[User_DB, Permission.member()],
-    manage_permission: Annotated[bool, Permission.check("manage", "Room")],
+    manage_permission: Annotated[bool, Permission.check("manage", "Car")],
     db: DB_dependency,
 ):
     car_booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
@@ -106,6 +106,7 @@ def update_booking(
 
     if data.start_time is not None:
         car_booking.start_time = data.start_time
+
     if data.end_time is not None:
         car_booking.end_time = data.end_time
 
