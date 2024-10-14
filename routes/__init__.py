@@ -41,6 +41,3 @@ main_router.include_router(album_router, prefix="/albums", tags=["albums"])
 main_router.include_router(ad_router, prefix="/ad", tags=["ads"])
 
 main_router.include_router(car_router, prefix="/car", tags=["cars"])
-
-main_router.include_router(
-    song_category_router, prefix="/songs-category", tags=["songs category"])
