@@ -1,9 +1,10 @@
+from re import U
 from typing import TYPE_CHECKING, Callable, List, Optional
 from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
-from helpers.types import MEMBER_TYPE, USER_FOOD_PREFERENCES
+from helpers.types import MEMBER_TYPE, USER_FOOD_PREFERENCES, USER_PROGRAMS
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from .post_user_model import PostUser_DB
@@ -52,9 +53,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
 
-    program: Mapped[Optional[str]] = mapped_column(
-        Enum("F", "N", "Pi", name="program_enum"), default=None
-    )  # program at the guild
+
+    program: Mapped[Optional[USER_PROGRAMS]] = mapped_column(String, default=None)  # program at the guild
 
     account_created: Mapped[datetime_utc] = mapped_column(
         default=datetime.datetime.now()

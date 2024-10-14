@@ -27,27 +27,18 @@ def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()
     # Since we edit user, look it up using "db" and not from permission so were are in same session
     me = db.query(User_DB).filter_by(id=current_user.id).one()
 
-    # not elegant, will have to find better wat for future update routes
-    if data.first_name:
-        me.first_name = data.first_name
-    if data.last_name:
-        me.last_name = data.last_name
-    if data.start_year:
-        me.start_year = data.start_year
-    if data.program:
-        me.program = data.program
-    if data.food_preferences:
-        me.food_preferences = data.food_preferences
-    if data.food_custom:
-        me.food_custom = data.food_custom
-    if data.notifications is not None:
-        me.want_notifications = data.notifications
+    # Create a dictionary mapping attribute names to their new values
+    updates = data.dict(exclude_unset=True)
+
+    # Iterate over the dictionary and update the attributes
+    for attr, value in updates.items():
+        setattr(me, attr, value)
 
     try:
         db.commit()
-    except DataError:
+    except DataError as e:
         db.rollback()
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e.orig))
 
     return current_user
 

@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from pickle import NONE
 from typing import Annotated, Literal, TypeAlias
 from pydantic import AfterValidator
-from enum import Enum
 
 
 def force_utc(date: datetime):
@@ -35,4 +34,6 @@ PERMISSION_TARGET = Literal["Event", "User", "Post", "Permission", "News", "Song
 # PermissionCompoundActions: dict[PermissionAction, list[PermissionAction]] = {"manage": ["view"]}
 
 USER_FOOD_PREFERENCES = Literal["No preference", "Vegetarian", "Vegan", "Gluten", "Halal", "Lactose intolerant", "Allergisk mot allt som simmar och flyger"]
+
+USER_PROGRAMS = Literal["F", "N", "Pi"]
 
