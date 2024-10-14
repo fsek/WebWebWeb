@@ -49,6 +49,7 @@ def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permiss
         end_time=booking.end_time,
         user_id=current_user.id,
         description=booking.description,
+        commitiees=booking.commitiees,
     )
     db.add(db_booking)
     db.commit()
@@ -62,13 +63,13 @@ def remove_booking(
     manage_permission: Annotated[bool, Permission.check("manage", "Car")],
     db: DB_dependency,
 ):
-    car_booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).first()
-    if car_booking is None:
+    room_booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).first()
+    if room_booking is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    if (car_booking.user == current_user) or manage_permission:
-        db.delete(car_booking)
+    if (room_booking.user == current_user) or manage_permission:
+        db.delete(room_booking)
         db.commit()
-        return car_booking
+        return room_booking
 
     raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
@@ -76,15 +77,15 @@ def remove_booking(
 @room_router.patch("/{booking_id}", response_model=RoomRead)
 def update_booking(
     booking_id: int,
-    data: CarUpdate,
+    data: RoomUpdate,
     current_user: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Car")],
     db: DB_dependency,
 ):
-    car_booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).first()
-    if car_booking is None:
+    room_booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).first()
+    if room_booking is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    if (car_booking.user != current_user) and (not manage_permission):
+    if (room_booking.user != current_user) and (not manage_permission):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
     illegal_booking = (
@@ -103,12 +104,12 @@ def update_booking(
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
 
     if data.description is not None:
-        car_booking.description = data.description
+        room_booking.description = data.description
 
     if data.start_time is not None:
-        car_booking.start_time = data.start_time
+        room_booking.start_time = data.start_time
     if data.end_time is not None:
-        car_booking.end_time = data.end_time
+        room_booking.end_time = data.end_time
 
     db.commit()
-    return car_booking
+    return room_booking
