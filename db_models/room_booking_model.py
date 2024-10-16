@@ -5,7 +5,6 @@ from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import Optional, TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
-from helpers.types import COMMITIEES
 
 
 if TYPE_CHECKING:

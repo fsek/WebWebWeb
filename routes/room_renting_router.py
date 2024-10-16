@@ -42,7 +42,7 @@ def get_upcoming_bookings(db: DB_dependency):
 
 
 @room_router.post("/", response_model=RoomCreate, dependencies=[Permission.require("manage", "Room")])
-def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
+def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permission.member()], current_council: Annotated[Council_DB, Permission.member()], db: DB_dependency):
     if booking.end_time < booking.start_time:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
     illegal_booking = (
@@ -58,18 +58,17 @@ def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permiss
     )
     if illegal_booking:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-
-    # booking.council_id = 0
-    council = db.query(Council_DB).filter(Council_DB.id == booking.council_id).one_or_none()
-    if council == None:
+    
+    #council = db.query(Council_DB).filter(Council_DB.name.lower() == current_council.lower()).one_or_none()
+    if not current_council:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-
+    
     db_booking = RoomBooking_DB(
         start_time=booking.start_time,
         end_time=booking.end_time,
-        user_id=current_user.id,
         description=booking.description,
-        council_id=booking.council_id,
+        user_id=current_user.id,
+        council_id=current_council.id
     )
     db.add(db_booking)
     db.commit()
@@ -99,7 +98,7 @@ def update_booking(
     booking_id: int,
     data: RoomUpdate,
     current_user: Annotated[User_DB, Permission.member()],
-    manage_permission: Annotated[bool, Permission.check("manage", "Car")],
+    manage_permission: Annotated[bool, Permission.check("manage", "Room")],
     db: DB_dependency,
 ):
     room_booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).first()
@@ -133,8 +132,3 @@ def update_booking(
 
     db.commit()
     return room_booking
-
-@room_router.get("/", response_model=list[Council_DB], dependencies=[Permission.member()])
-def get_all_councils(db: DB_dependency):
-    councils = db.query(Council_DB).all()
-    return councils
