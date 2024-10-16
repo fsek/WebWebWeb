@@ -12,6 +12,7 @@ from api_schemas.user_schemas import UserCreate
 from db_models.song_category_model import SongCategory_DB
 from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
+from db_models.room_booking_model import RoomBooking_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
@@ -134,6 +135,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm7 = Permission_DB(action="manage", target="Gallery")
     perm8 = Permission_DB(action="manage", target="Ads")
     perm9 = Permission_DB(action="manage", target="Car")
+    perm10 = Permission_DB(action="manage", target="Room")
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
@@ -143,6 +145,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm7)
     posts[0].permissions.append(perm8)
     posts[0].permissions.append(perm9)
+    posts[0].permissions.append(perm10)
     db.commit()
 
 
