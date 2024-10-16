@@ -5,6 +5,7 @@ from api_schemas.room_booking_schema import RoomRead
 from database import DB_dependency
 from typing import Annotated
 from sqlalchemy import or_, and_
+from db_models.council_model import Council_DB
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.room_booking_model import RoomBooking_DB
@@ -57,12 +58,18 @@ def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permiss
     )
     if illegal_booking:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
+
+    # booking.council_id = 0
+    council = db.query(Council_DB).filter(Council_DB.id == booking.council_id).one_or_none()
+    if council == None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+
     db_booking = RoomBooking_DB(
         start_time=booking.start_time,
         end_time=booking.end_time,
         user_id=current_user.id,
         description=booking.description,
-        commitiees=booking.commitiees,
+        council_id=booking.council_id,
     )
     db.add(db_booking)
     db.commit()

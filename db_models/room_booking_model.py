@@ -1,4 +1,6 @@
 from datetime import datetime
+
+from db_models.council_model import Council_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import Optional, TYPE_CHECKING
@@ -26,4 +28,7 @@ class RoomBooking_DB(BaseModel_DB):
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="room_bookings", init=False)
     pass
 
-    commitiees: Mapped[COMMITIEES] = mapped_column()
+    council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
+
+    council: Mapped["Council_DB"] = relationship("Council_DB", back_populates="room_bookings", init=False)
+    pass
