@@ -12,6 +12,7 @@ from api_schemas.user_schemas import UserCreate
 from db_models.song_category_model import SongCategory_DB
 from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
+from db_models.room_booking_model import RoomBooking_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
