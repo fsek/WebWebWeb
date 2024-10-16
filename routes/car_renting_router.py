@@ -23,7 +23,7 @@ def get_booking(booking_id: int, db: DB_dependency):
     booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
     if booking:
         return booking
-    raise HTTPException(status.HTTP_400_BAD_REQUEST)
+    raise HTTPException(status.HTTP_404_NOT_FOUND)
 
 
 @car_router.post("/", response_model=CarCreate, dependencies=[Permission.require("manage", "Car")])
@@ -104,11 +104,8 @@ def update_booking(
     if data.description is not None:
         car_booking.description = data.description
 
-    if data.start_time is not None:
-        car_booking.start_time = data.start_time
-
-    if data.end_time is not None:
-        car_booking.end_time = data.end_time
+    car_booking.start_time = data.start_time
+    car_booking.end_time = data.end_time
 
     db.commit()
     return car_booking

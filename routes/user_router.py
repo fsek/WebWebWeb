@@ -35,8 +35,10 @@ def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()
         me.start_year = data.start_year
     if data.program:
         me.program = data.program
+    if data.notifications is not None:
+        me.want_notifications = data.notifications
 
-    try: 
+    try:
         db.commit()
     except DataError:
         db.rollback()
