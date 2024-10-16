@@ -133,3 +133,8 @@ def update_booking(
 
     db.commit()
     return room_booking
+
+@room_router.get("/", response_model=list[Council_DB], dependencies=[Permission.member()])
+def get_all_councils(db: DB_dependency):
+    councils = db.query(Council_DB).all()
+    return councils

@@ -207,6 +207,18 @@ def seed_songs_and_song_category(db: Session):
     db.commit()
     return
 
+def seed_room_bookings(db: Session):
+    room_booking = RoomBooking_DB(
+        start_time= datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=0.5),
+        end_time = datetime.datetime.now(datetime.UTC) + datetime.timedelta(hours=1),
+        description= "Km vs spindel: kcal eating",
+        user_id= 1,
+        council_id= 1,
+    )
+
+    db.add(room_booking)
+    db.commit()
+    return
 
 def seed_ads(db: Session):
     users = db.query(User_DB).all()
@@ -262,4 +274,6 @@ def seed_if_empty(app: FastAPI, db: Session):
 
     seed_ads(db)
 
+    seed_room_bookings(db)
+    
     print("Done seeding!")
