@@ -12,6 +12,7 @@ from .img_router import img_router
 from .album_router import album_router
 from .ad_router import ad_router
 from .car_renting_router import car_router
+from .room_renting_router import room_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -42,5 +43,6 @@ main_router.include_router(ad_router, prefix="/ad", tags=["ads"])
 
 main_router.include_router(car_router, prefix="/car", tags=["cars"])
 
-main_router.include_router(
-    song_category_router, prefix="/songs-category", tags=["songs category"])
+main_router.include_router(car_router, prefix="/room", tags=["rooms"])
+
+main_router.include_router(song_category_router, prefix="/songs-category", tags=["songs category"])
