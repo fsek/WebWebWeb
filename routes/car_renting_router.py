@@ -103,9 +103,10 @@ def update_booking(
 
     if data.description is not None:
         car_booking.description = data.description
-
-    car_booking.start_time = data.start_time
-    car_booking.end_time = data.end_time
+    if data.start_time is not None:
+        car_booking.start_time = data.start_time
+    if data.end_time is not None:
+        car_booking.end_time = data.end_time
 
     db.commit()
     return car_booking
