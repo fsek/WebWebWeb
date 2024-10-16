@@ -5,6 +5,7 @@ from typing import Optional, TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from helpers.types import COMMITIEES
 
+
 if TYPE_CHECKING:
     from .user_model import User_DB
 
@@ -25,4 +26,4 @@ class RoomBooking_DB(BaseModel_DB):
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="room_bookings", init=False)
     pass
 
-    commitiees: Mapped[list[COMMITIEES]] = mapped_column()
+    commitiees: Mapped[COMMITIEES] = mapped_column()
