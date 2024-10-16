@@ -16,7 +16,7 @@ class RoomCreate(BaseSchema):
     description: str | None = None
     start_time: datetime_utc
     end_time: datetime_utc
-    commitiees: list[COMMITIEES]
+    commitiees: COMMITIEES
 
 
 class RoomUpdate(BaseSchema):
