@@ -33,7 +33,7 @@ no_docs = os.getenv("ENV") == "production"
 
 dev_origins = [
     "http://localhost",
-    "http://localhost:5173",
+    "http://localhost:5175",
 ]
 
 app = FastAPI(
