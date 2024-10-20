@@ -2,6 +2,7 @@ import datetime
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
+from db_models.cafe_shift_model import CafeShift_DB
 from db_models.ad_model import BookAd_DB
 from db_models.council_model import Council_DB
 from db_models.event_model import Event_DB
@@ -98,6 +99,17 @@ def seed_users(db: Session, app: FastAPI):
     return boss, user
 
 
+def seed_cafe_shifts(db: Session, user: User_DB):
+    starts_at = datetime.datetime.now(datetime.UTC)
+    ends_at = starts_at + datetime.timedelta(hours=1)
+    shift = CafeShift_DB(starts_at=starts_at, ends_at=ends_at)
+    shift.user = user
+    shift.user_id = user.id
+    db.add(shift)
+    db.commit()
+    return shift
+
+
 def seed_councils(db: Session):
     councils = [Council_DB(name="Kodmästeriet"), Council_DB(name="Sanningsministeriet")]
     db.add_all(councils)
@@ -135,7 +147,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm7 = Permission_DB(action="manage", target="Gallery")
     perm8 = Permission_DB(action="manage", target="Ads")
     perm9 = Permission_DB(action="manage", target="Car")
-    perm10 = Permission_DB(action="manage", target="Room")
+    perm10 = Permission_DB(action="manage", target="Cafe")
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
@@ -145,7 +157,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm7)
     posts[0].permissions.append(perm8)
     posts[0].permissions.append(perm9)
-    posts[0].permissions.append(perm10)
+    posts[1].permissions.append(perm10)
     db.commit()
 
 
@@ -262,6 +274,8 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_permissions(db, posts)
 
     boss, user = seed_users(db, app)
+
+    seed_cafe_shifts(db, user)
 
     seed_post_users(db, boss, user, posts)
 
