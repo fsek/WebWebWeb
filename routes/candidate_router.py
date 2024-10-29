@@ -66,7 +66,7 @@ def create_candidation(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Election does not exist")
 
     election_posts = db.query(ElectionPost_DB).filter(ElectionPost_DB.election_id == election_id).all()
-    existing_election_post_ids = {ep.post_id for ep in election_posts}
+    existing_election_post_ids = {ep.election_post_id for ep in election_posts}
 
     invalid_posts = set(posts) - existing_election_post_ids
     if invalid_posts:

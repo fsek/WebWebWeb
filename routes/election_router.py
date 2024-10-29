@@ -45,6 +45,7 @@ def delete_election(election_id: int, db: DB_dependency):
     if election is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     db.delete(election)
+    db.commit()
     return election
 
 
