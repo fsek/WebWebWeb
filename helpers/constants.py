@@ -2,38 +2,38 @@
 
 # Warning! These are used in db model definitions. Changing these will require db migration
 
-## User
+# User
 MAX_FIRST_NAME_LEN = 100
 MAX_LAST_NAME_LEN = 100
 MAX_TELEPHONE_LEN = 20
 
-## Event
+# Event
 MAX_EVENT_DESC = 3000
 MAX_EVENT_TITLE = 100
 
-## News
+# News
 MAX_NEWS_TITLE = 100
 MAX_NEWS_CONTENT = 3000
 
-## Car renting
+# Car renting
 MAX_CAR_DESC = 1000
 
-## Book ad
+# Book ad
 MAX_BOOK_TITLE = 100
 MAX_BOOK_CONTENT = 300
 MAX_BOOK_AUTHOR = 100
 
-## Song
+# Song
 MAX_SONG_TITLE = 200
 MAX_SONG_AUTHOR = 200
 MAX_SONG_CATEGORY = 100
 MAX_SONG_CONTENT = 3000
 MAX_SONG_MELODY = 200
 
-## Imgs
+# Imgs
 MAX_IMG_NAME = 200
 
-## Groups
+# Groups
 MAX_GROUP_NAME = 200
 MAX_GROUP_TYPE_NAME = 100
 MAX_GROUP_USER_TYPE_NAME = 50
