@@ -18,7 +18,11 @@ def create_adventure_mission(db: Session, data: AdventureMissionCreate):
         raise HTTPException(400, detail="Description too long")
 
     new_adventure_mission = AdventureMission_DB(
-        nollning_week=data.nollning_week, title=data.title, description=data.description, points=data.points
+        nollning_id=data.nollning_id,
+        nollning_week=data.nollning_week,
+        title=data.title,
+        description=data.description,
+        points=data.points,
     )
 
     db.add(new_adventure_mission)
@@ -47,7 +51,7 @@ def remove_adventure_mission(db: Session, id: int):
     db.delete(adventure_mission)
     db.commit()
 
-    return {"message": "File removed successfully"}
+    return {"message": "Mission removed successfully"}
 
 
 def find_all_adventure_missions(db: Session):

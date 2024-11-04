@@ -7,6 +7,7 @@ class AdventureMissionCreate(BaseSchema):
     title: str
     description: str
     points: str
+    nollning_id: int
     nollning_week: int
 
 
@@ -15,5 +16,6 @@ class AdventureMissionRead(BaseSchema):
     title: str
     description: str
     points: str
+    nollning_id: int
     nollning_week: int
     created_at: datetime
