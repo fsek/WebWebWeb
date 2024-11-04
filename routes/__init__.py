@@ -14,6 +14,7 @@ from .img_router import img_router
 from .album_router import album_router
 from .ad_router import ad_router
 from .car_renting_router import car_router
+from .group_router import group_router
 from .adventure_mission_router import adventure_mission_router
 
 # here comes the big momma router
@@ -48,3 +49,5 @@ main_router.include_router(car_router, prefix="/car", tags=["cars"])
 main_router.include_router(song_category_router, prefix="/songs-category", tags=["songs category"])
 
 main_router.include_router(adventure_mission_router, prefix="/adventure-mission", tags=["adventure mission"])
+
+main_router.include_router(group_router, prefix="/groups", tags=["groups"])
