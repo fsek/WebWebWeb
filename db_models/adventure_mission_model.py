@@ -7,7 +7,9 @@ from typing import TYPE_CHECKING
 from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from .nollning_model import Nollning_DB
+
+if TYPE_CHECKING:
+    from .nollning_model import Nollning_DB
 
 
 class AdventureMission_DB(BaseModel_DB):

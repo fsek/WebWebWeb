@@ -1,0 +1,14 @@
+from api_schemas.adventure_mission_schema import AdventureMissionRead
+from api_schemas.base_schema import BaseSchema
+from api_schemas.group_schema import GroupRead
+
+
+class NollningCreate(BaseSchema):
+    name: str
+    description: str
+
+
+class NollningRead(NollningCreate):
+    id: int
+    missions: list[AdventureMissionRead]
+    groups: list[GroupRead]

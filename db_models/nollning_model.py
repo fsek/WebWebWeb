@@ -1,4 +1,3 @@
-from db_models.adventure_mission_model import AdventureMission_DB
 from db_models.base_model import BaseModel_DB
 
 from datetime import datetime
@@ -11,6 +10,10 @@ from helpers.constants import MAX_NOLLNING_DESC, MAX_NOLLNING_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
+if TYPE_CHECKING:
+    from db_models.adventure_mission_model import AdventureMission_DB
+    from db_models.group_model import Group_DB
+
 
 class Nollning_DB(BaseModel_DB):
     __tablename__ = "nollning_table"
@@ -21,4 +24,8 @@ class Nollning_DB(BaseModel_DB):
 
     description: Mapped[str] = mapped_column(String(MAX_NOLLNING_DESC))
 
-    missions: Mapped[list["AdventureMission_DB"]] = relationship(back_populates="nollning", init=False)
+    missions: Mapped[list["AdventureMission_DB"]] = relationship(
+        back_populates="nollning", cascade="all, delete-orphan", init=False
+    )
+
+    groups: Mapped[list["Group_DB"]] = relationship(back_populates="nollning", init=False)

@@ -147,7 +147,6 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm7)
     posts[0].permissions.append(perm8)
     posts[0].permissions.append(perm9)
-    posts[0].permissions.append(perm9)
     posts[0].permissions.append(perm10)
     posts[0].permissions.append(perm23)
     db.commit()

@@ -1,10 +1,13 @@
-from sqlalchemy import Enum, String
+from sqlalchemy import Enum, ForeignKey, String
 from typing import TYPE_CHECKING, Optional
 
 from helpers.constants import MAX_GROUP_NAME, MAX_GROUP_TYPE_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
+
+
+from db_models.nollning_model import Nollning_DB
 
 if TYPE_CHECKING:
     from .user_model import User_DB
@@ -17,6 +20,10 @@ class Group_DB(BaseModel_DB):
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     name: Mapped[str] = mapped_column(String(MAX_GROUP_NAME))
+
+    nollning_id: Mapped[Optional[int]] = mapped_column(ForeignKey("nollning_table.id"), default=None)
+
+    nollning: Mapped[Optional["Nollning_DB"]] = relationship(back_populates="groups", init=False)
 
     group_type: Mapped[Optional[str]] = mapped_column(String(MAX_GROUP_TYPE_NAME), default=None)
 
