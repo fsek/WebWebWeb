@@ -27,7 +27,7 @@ def get_booking(booking_id: int, db: DB_dependency):
     booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).first()
     if booking:
         return booking
-    raise HTTPException(status.HTTP_400_BAD_REQUEST)
+    raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Missing booking id")
 
 
 @room_router.get("/", response_model=list[RoomRead], dependencies=[Permission.member()])
@@ -42,9 +42,14 @@ def get_upcoming_bookings(db: DB_dependency):
 
 
 @room_router.post("/", response_model=RoomCreate, dependencies=[Permission.require("manage", "Room")])
-def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permission.member()], current_council: Annotated[Council_DB, Permission.member()], db: DB_dependency):
+def create_booking(
+    booking: RoomCreate,
+    current_user: Annotated[User_DB, Permission.member()],
+    current_council: Annotated[Council_DB, Permission.member()],
+    db: DB_dependency,
+):
     if booking.end_time < booking.start_time:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="The bookings end time is before the start time")
     illegal_booking = (
         db.query(RoomBooking_DB)
         .filter(
@@ -58,17 +63,17 @@ def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permiss
     )
     if illegal_booking:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    
-    #council = db.query(Council_DB).filter(Council_DB.name.lower() == current_council.lower()).one_or_none()
+
+    # council = db.query(Council_DB).filter(Council_DB.name.lower() == current_council.lower()).one_or_none()
     if not current_council:
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    
+
     db_booking = RoomBooking_DB(
         start_time=booking.start_time,
         end_time=booking.end_time,
         description=booking.description,
         user_id=current_user.id,
-        council_id=current_council.id
+        council_id=current_council.id,
     )
     db.add(db_booking)
     db.commit()
