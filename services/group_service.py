@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from api_schemas.group_schema import GroupAddUser, GroupCreate
+from api_schemas.group_schema import GroupAddUser, GroupCreate, GroupRead
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from db_models.user_model import User_DB
@@ -20,7 +20,7 @@ def post_group(db: Session, data: GroupCreate):
         db.rollback()
         raise HTTPException(400, "Group type not allowed")
 
-    return {"message": "group created successfully"}
+    return group
 
 
 def get_all_groups(db: Session, group_type: str | None):
@@ -40,8 +40,8 @@ def get_group(db: Session, id: int):
     return group
 
 
-def add_to_group(db: Session, data: GroupAddUser):
-    group1 = db.query(Group_DB).filter(Group_DB.id == data.group_id).one_or_none()
+def add_to_group(db: Session, id: int, data: GroupAddUser):
+    group1 = db.query(Group_DB).filter(Group_DB.id == id).one_or_none()
 
     if group1 == None:
         raise HTTPException(404, detail="Group not found")
@@ -50,6 +50,10 @@ def add_to_group(db: Session, data: GroupAddUser):
 
     if user1 == None:
         raise HTTPException(404, detail="User not found")
+
+    for user in group1.group_users:
+        if user.user_id == user1.id:
+            raise HTTPException(400, detail="User already in group")
 
     group_user = GroupUser_DB(
         user=user1, user_id=user1.id, group=group1, group_id=group1.id, group_user_type=data.group_user_type
@@ -62,4 +66,19 @@ def add_to_group(db: Session, data: GroupAddUser):
         db.rollback()
         raise HTTPException(404, detail="Invalid group_user type")
 
-    return {"message": f"{user1.first_name} {user1.last_name} added successfully to group {group1.name}"}
+    return group1
+
+
+def edit_group(db: Session, id: int, data: GroupCreate):
+    group = db.query(Group_DB).filter(Group_DB.id == id).one_or_none()
+
+    if not group:
+        raise HTTPException(404, detail="Mission not found")
+
+    for var, value in vars(data).items():
+        setattr(group, var, value) if value else None
+
+    db.commit()
+    db.refresh(group)
+
+    return group

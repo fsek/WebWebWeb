@@ -8,6 +8,7 @@ from api_schemas.ad_schema import AdRead, AdCreate, AdUpdate
 from db_models.user_model import User_DB
 from services.adventure_mission_service import (
     create_adventure_mission,
+    edit_adventure_mission,
     find_adventure_mission,
     remove_adventure_mission,
     find_all_adventure_missions,
@@ -39,3 +40,12 @@ def get_adventure_mission(db: DB_dependency, id: int):
 )
 def delete_adventure_mission(db: DB_dependency, id: int):
     return remove_adventure_mission(db, id)
+
+
+@adventure_mission_router.patch(
+    "/patch/{id}",
+    dependencies=[Permission.require("manage", "Adventure Missions")],
+    response_model=AdventureMissionRead,
+)
+def patch_adventure_mission(db: DB_dependency, id: int, data: AdventureMissionCreate):
+    return edit_adventure_mission(db, id, data)

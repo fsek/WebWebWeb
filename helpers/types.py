@@ -27,7 +27,18 @@ MEMBER_ROLES = Literal["photographer", "ordförande", "dinmamma"]
 
 PERMISSION_TYPE = Literal["view", "manage"]
 PERMISSION_TARGET = Literal[
-    "Event", "User", "Post", "Permission", "News", "Song", "Ads", "Gallery", "Car", "Groups", "Adventure Missions"
+    "Event",
+    "User",
+    "Post",
+    "Permission",
+    "News",
+    "Song",
+    "Ads",
+    "Gallery",
+    "Car",
+    "Groups",
+    "Adventure Missions",
+    "Nollning",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.

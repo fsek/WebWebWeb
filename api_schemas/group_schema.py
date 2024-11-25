@@ -24,6 +24,5 @@ class GroupRead(BaseSchema):
 
 
 class GroupAddUser(BaseSchema):
-    group_id: int
     user_id: int
     group_user_type: GROUP_USER_TYPE

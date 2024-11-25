@@ -6,6 +6,7 @@ from api_schemas.adventure_mission_schema import AdventureMissionCreate
 from db_models.adventure_mission_model import AdventureMission_DB
 from db_models.album_model import Album_DB
 from db_models.img_model import Img_DB
+from db_models.nollning_model import Nollning_DB
 from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
 
 
@@ -16,6 +17,11 @@ def create_adventure_mission(db: Session, data: AdventureMissionCreate):
 
     if len(data.description) > MAX_ADVENTURE_MISSION_DESC:
         raise HTTPException(400, detail="Description too long")
+
+    nollning = db.query(Nollning_DB).filter(Nollning_DB.id == data.nollning_id).one_or_none()
+
+    if not nollning:
+        raise HTTPException(404, detail="Nollning not found")
 
     new_adventure_mission = AdventureMission_DB(
         nollning_id=data.nollning_id,
@@ -59,3 +65,19 @@ def find_all_adventure_missions(db: Session):
     adventure_missions = db.query(AdventureMission_DB).all()
 
     return adventure_missions
+
+
+def edit_adventure_mission(db: Session, id: int, data: AdventureMissionCreate):
+
+    adventure_mission = db.query(AdventureMission_DB).filter(AdventureMission_DB.id == id).one_or_none()
+
+    if not adventure_mission:
+        raise HTTPException(404, detail="Mission not found")
+
+    for var, value in vars(data).items():
+        setattr(adventure_mission, var, value) if value else None
+
+    db.commit()
+    db.refresh(adventure_mission)
+
+    return adventure_mission
