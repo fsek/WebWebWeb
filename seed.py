@@ -13,6 +13,7 @@ from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
 from db_models.book_model import Book_DB
 from db_models.book_category_model import BookCategory_DB
+from pydantic_extra_types.phone_numbers import PhoneNumber
 
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
@@ -167,7 +168,7 @@ def seed_books_and_book_category(db: Session):
         user="Electric Gigolo",
         transaction="Buy",
         price=6122,
-        category_id=1,
+        category_id=0,
     )
     db.add(book)
     db.commit()
