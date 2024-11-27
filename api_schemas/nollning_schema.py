@@ -8,7 +8,11 @@ class NollningCreate(BaseSchema):
     description: str
 
 
+class NollningGroupRead(BaseSchema):
+    group: GroupRead
+
+
 class NollningRead(NollningCreate):
     id: int
     missions: list[AdventureMissionRead]
-    groups: list[GroupRead]
+    nollning_groups: list[NollningGroupRead]

@@ -1,11 +1,7 @@
-from fastapi import HTTPException, UploadFile, File
-from fastapi.responses import FileResponse
+from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from pathlib import Path
 from api_schemas.adventure_mission_schema import AdventureMissionCreate
 from db_models.adventure_mission_model import AdventureMission_DB
-from db_models.album_model import Album_DB
-from db_models.img_model import Img_DB
 from db_models.nollning_model import Nollning_DB
 from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
 

@@ -1,8 +1,7 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey
 
 from db_models.group_model import Group_DB
-from helpers.constants import MAX_GROUP_USER_TYPE_NAME
 from helpers.types import GROUP_USER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column

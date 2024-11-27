@@ -1,4 +1,3 @@
-from typing import Optional
 from sqlalchemy import ForeignKey
 from .album_model import Album_DB
 from .base_model import BaseModel_DB

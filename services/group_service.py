@@ -6,8 +6,6 @@ from db_models.group_user_model import GroupUser_DB
 from db_models.user_model import User_DB
 from sqlalchemy.exc import DataError
 
-from helpers.types import GROUP_USER_TYPE
-
 
 def post_group(db: Session, data: GroupCreate):
     group = Group_DB(name=data.name, group_type=data.group_type)

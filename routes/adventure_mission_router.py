@@ -1,11 +1,6 @@
-from typing import Annotated
-from fastapi import APIRouter, HTTPException, status
-from sqlalchemy import func
+from fastapi import APIRouter
 from api_schemas.adventure_mission_schema import AdventureMissionCreate, AdventureMissionRead
 from database import DB_dependency
-from db_models.ad_model import BookAd_DB
-from api_schemas.ad_schema import AdRead, AdCreate, AdUpdate
-from db_models.user_model import User_DB
 from services.adventure_mission_service import (
     create_adventure_mission,
     edit_adventure_mission,
