@@ -6,6 +6,7 @@ from db_models.user_model import User_DB
 from api_schemas.user_schemas import MeUpdate, UserRead
 from user.permission import Permission
 from sqlalchemy.exc import DataError
+import re
 
 user_router = APIRouter()
 
@@ -21,10 +22,22 @@ def get_me(user: Annotated[User_DB, Permission.base()]):
     return user
 
 
+def check_stil_id(s: str) -> bool:
+    if not len(s) == 10:
+        return False
+    pattern = r"^[a-z]{2}\d{4}[a-z]{2}-s$"
+    return bool(re.fullmatch(pattern, s))
+
+
 @user_router.patch("/me", response_model=UserRead)
 def update_me(data: MeUpdate, current_user: Annotated[User_DB, Permission.base()], db: DB_dependency):
     # Since we edit user, look it up using "db" and not from permission so were are in same session
     me = db.query(User_DB).filter_by(id=current_user.id).one()
+
+    if data.stil_id:
+        if not check_stil_id(data.stil_id):
+            raise HTTPException(400, detail="Invalid stil-id")
+        me.stil_id = data.stil_id
 
     # not elegant, will have to find better wat for future update routes
     if data.first_name:
