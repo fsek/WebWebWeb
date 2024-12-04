@@ -1,4 +1,6 @@
 from io import StringIO
+import copy
+import datetime
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import StreamingResponse
 from psycopg import IntegrityError
@@ -8,6 +10,7 @@ from db_models.event_model import Event_DB
 from api_schemas.event_schemas import AddEventTag, EventCreate, EventRead, EventUpdate
 from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
+from db_models.priority_model import Priority_DB
 from db_models.user_model import User_DB
 from db_models.event_tag_model import EventTag_DB
 from services.event_service import create_new_event, delete_event, update_event
@@ -15,6 +18,7 @@ from db_models.tag_model import Tag_DB
 from user.permission import Permission
 import random
 from typing import List
+from helpers.types import datetime_utc
 
 import pandas as pd
 
@@ -27,7 +31,7 @@ def get_all_events(db: DB_dependency):
     return events
 
 
-@event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
+@event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=list[EventRead])
 def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
     return event

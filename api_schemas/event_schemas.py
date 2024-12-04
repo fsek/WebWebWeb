@@ -55,6 +55,8 @@ class EventCreate(BaseSchema):
     closed: bool
     can_signup: bool
     drink_package: bool
+    recur_interval_days: int
+    recur_times: int
 
 
 class EventUpdate(BaseSchema):
