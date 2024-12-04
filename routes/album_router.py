@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from database import DB_dependency
 from api_schemas.album_schema import AlbumCreate, AlbumRead
-from db_models.album_model import Album_DB
 from services.album_service import add_album, get_album, get_all_albums, delete_album
 from user.permission import Permission
 
