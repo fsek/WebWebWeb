@@ -83,5 +83,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     want_notifications: Mapped[bool] = mapped_column(default=True)
 
+    stil_id: Mapped[Optional[str]] = mapped_column(default=None)
+
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"] should not be implemented like this I think //Benjamin
