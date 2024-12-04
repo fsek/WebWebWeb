@@ -36,6 +36,7 @@ PERMISSION_TARGET = Literal[
     "Ads",
     "Gallery",
     "Car",
+    "Cafe",
     "Groups",
     "Adventure Missions",
     "Nollning",

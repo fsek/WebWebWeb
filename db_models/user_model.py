@@ -23,6 +23,7 @@ if TYPE_CHECKING:
     from .event_model import Event_DB
     from .news_model import News_DB
     from .ad_model import BookAd_DB
+    from .cafe_shift_model import CafeShift_DB
 
 
 # called by SQLAlchemy when user.posts.append(some_post)
@@ -74,6 +75,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     events: AssociationProxy[list["Event_DB"]] = association_proxy(
         target_collection="event_users", attr="event", init=False
+    )
+
+    cafe_shifts: Mapped[list["CafeShift_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
     )
 
     is_member: Mapped[bool] = mapped_column(default=False)
