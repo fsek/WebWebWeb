@@ -1,14 +1,18 @@
+import copy
+import datetime
 from fastapi import APIRouter, HTTPException, status
 from database import DB_dependency
 from db_models.event_model import Event_DB
 from api_schemas.event_schemas import EventCreate, EventRead, EventUpdate
 from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
+from db_models.priority_model import Priority_DB
 from db_models.user_model import User_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
 from typing import List
+from helpers.types import datetime_utc
 
 event_router = APIRouter()
 
@@ -19,10 +23,43 @@ def get_all_events(db: DB_dependency):
     return events
 
 
-@event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
+@event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=list[EventRead])
 def create_event(data: EventCreate, db: DB_dependency):
-    event = create_new_event(data, db)
-    return event
+    event_list: list["Event_DB"] = []
+    priority_list: list["Priority_DB"] = []
+
+    mutable_event = EventCreate(
+        council_id=data.council_id,
+        starts_at=copy.copy(data.starts_at),
+        ends_at=copy.copy(data.ends_at),
+        signup_start=copy.copy(data.signup_start),
+        signup_end=copy.copy(data.signup_end),
+        title_sv=data.title_sv,
+        title_en=data.title_en,
+        description_sv=data.description_sv,
+        description_en=data.description_en,
+        max_event_users=data.max_event_users,
+        priorities=data.priorities,
+        recur_interval_days=data.recur_interval_days,
+        recur_times=data.recur_times,
+    )
+
+    for i in range(mutable_event.recur_times + 1):
+        event = create_new_event(mutable_event, db)
+        event_list.append(event)
+
+        for priority in mutable_event.priorities:
+            priority_list.append(Priority_DB(priority=priority, event_id=event.id))
+
+        mutable_event.starts_at += datetime.timedelta(days=data.recur_interval_days)
+        mutable_event.ends_at += datetime.timedelta(days=data.recur_interval_days)
+        mutable_event.signup_start += datetime.timedelta(days=data.recur_interval_days)
+        mutable_event.signup_end += datetime.timedelta(days=data.recur_interval_days)
+
+    db.add_all(event_list)
+    db.add_all(priority_list)
+    db.commit()
+    return event_list
 
 
 @event_router.delete(
