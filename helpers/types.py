@@ -46,5 +46,5 @@ PERMISSION_TARGET = Literal[
 # PermissionCompoundActions: dict[PermissionAction, list[PermissionAction]] = {"manage": ["view"]}
 
 
-GROUP_TYPE = Literal["Mentor", "Mission", "Default"]
+GROUP_TYPE = Literal["Mentor", "Mission", "Default", "Committee"]
 GROUP_USER_TYPE = Literal["Mentor", "Mentee", "Default"]

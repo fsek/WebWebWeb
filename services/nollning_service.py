@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from api_schemas.nollning_schema import NollningCreate
+from api_schemas.nollning_schema import NollningAddGroup, NollningCreate
 from db_models.group_model import Group_DB
 from db_models.nollning_group_model import NollningGroup_DB
 from db_models.nollning_model import Nollning_DB
@@ -42,19 +42,19 @@ def remove_nollning(db: Session, id: int):
     return {"message": "Nollning removed successfully"}
 
 
-def add_to_nollning(db: Session, id: int, group_id: int):
+def add_g_to_nollning(db: Session, id: int, data: NollningAddGroup):
     nollning = db.query(Nollning_DB).filter(Nollning_DB.id == id).one_or_none()
 
     if not nollning:
         raise HTTPException(404, detail="Nollning not found")
 
-    group = db.query(Group_DB).filter(Group_DB.id == group_id).one_or_none()
+    group = db.query(Group_DB).filter(Group_DB.id == data.group_id).one_or_none()
 
     if group == None:
         raise HTTPException(404, detail="Group not found")
 
     for nollning_group in nollning.nollning_groups:
-        if nollning_group.group_id == group_id:
+        if nollning_group.group_id == data.group_id:
             raise HTTPException(400, detail="Group already in nollning")
 
     nollning_group = NollningGroup_DB(group=group, group_id=group.id, nollning=nollning, nollning_id=nollning.id)

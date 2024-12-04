@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from api_schemas.group_schema import GroupAddUser, GroupCreate, GroupRead
+from api_schemas.group_schema import GroupAddUser, GroupCreate, GroupRead, GroupRemoveUser
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from db_models.user_model import User_DB
@@ -71,11 +71,48 @@ def edit_group(db: Session, id: int, data: GroupCreate):
     group = db.query(Group_DB).filter(Group_DB.id == id).one_or_none()
 
     if not group:
-        raise HTTPException(404, detail="Mission not found")
+        raise HTTPException(404, detail="Group not found")
 
     for var, value in vars(data).items():
         setattr(group, var, value) if value else None
 
+    db.commit()
+    db.refresh(group)
+
+    return group
+
+
+def delete_group(db: Session, id: int):
+    group = db.query(Group_DB).filter(Group_DB.id == id).one_or_none()
+
+    if not group:
+        raise HTTPException(404, detail="Group not found")
+
+    db.delete(group)
+    db.commit()
+
+    return {"message": "Group removed successfully"}
+
+
+def remove_user_group(db: Session, id: int, data: GroupRemoveUser):
+    group = db.query(Group_DB).filter(Group_DB.id == id).one_or_none()
+
+    if not group:
+        raise HTTPException(404, detail="Group not found")
+
+    user = db.query(User_DB).filter(User_DB.id == data.user_id).one_or_none()
+
+    if not user:
+        raise HTTPException(404, detail="User not found")
+
+    association = (
+        db.query(GroupUser_DB).filter(GroupUser_DB.user_id == user.id, GroupUser_DB.group_id == group.id).one_or_none()
+    )
+
+    if not association:
+        raise HTTPException(400, detail="User already not in group")
+
+    db.delete(association)
     db.commit()
     db.refresh(group)
 

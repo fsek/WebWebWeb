@@ -16,3 +16,7 @@ class NollningRead(NollningCreate):
     id: int
     missions: list[AdventureMissionRead]
     nollning_groups: list[NollningGroupRead]
+
+
+class NollningAddGroup(BaseSchema):
+    group_id: int
