@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from event_user_model import EventUser_DB
     from council_model import Council_DB
     from priority_model import Priority_DB
+    from tag_model import Tag_DB
 
 
 class Event_DB(BaseModel_DB):
@@ -41,6 +42,8 @@ class Event_DB(BaseModel_DB):
     users: AssociationProxy[list["User_DB"]] = association_proxy(
         target_collection="event_users", attr="user", init=False
     )
+
+    tags: AssociationProxy[list["Tag_DB"]] = association_proxy(target_collection="event_tags", attr="tag", init=False)
 
     priorities: Mapped[list["Priority_DB"]] = relationship(back_populates="event", init=False)
 
