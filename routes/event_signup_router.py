@@ -82,26 +82,26 @@ def update_signup(
     return update_event_signup(event, data, data.user_id, manage_permission, db)
 
 
-@event_signup_router.get("/{event_id}", response_model=list[EventSignupRead])
-def get_all_signups(event_id: int, db: DB_dependency):
-    signups = db.query(EventUser_DB).filter(EventUser_DB.event_id == event_id).all()
-    if not signups:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No signups found for this event")
-    # Assuming you have logic to convert EventUser_DB instances to UserRead instances
-    return [convert_event_user_to_signup_read(signup) for signup in signups]
+# @event_signup_router.get("/{event_id}", response_model=list[EventSignupRead])
+# def get_all_signups(event_id: int, db: DB_dependency):
+#     signups = db.query(EventUser_DB).filter(EventUser_DB.event_id == event_id).all()
+#     if not signups:
+#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No signups found for this event")
+#     # Assuming you have logic to convert EventUser_DB instances to UserRead instances
+#     return [convert_event_user_to_signup_read(signup) for signup in signups]
 
 
-def convert_event_user_to_signup_read(event_user: EventUser_DB) -> EventSignupRead:
-    # Convert EventUser_DB instance to EventSignupRead based on your application's logic
-    return EventSignupRead(
-        id=event_user.user_id,
-        first_name=event_user.user.first_name,
-        last_name=event_user.user.last_name,
-        email=event_user.user.email,  # Assuming there is an email field in User_DB
-        telephone_number=PhoneNumber(event_user.user.telephone_number),
-        start_year=event_user.user.start_year,
-        account_created=event_user.user.account_created,
-        program=event_user.user.program,
-        priority=event_user.priority,
-        group_name=event_user.group_name,
-    )
+# def convert_event_user_to_signup_read(event_user: EventUser_DB) -> EventSignupRead:
+#     # Convert EventUser_DB instance to EventSignupRead based on your application's logic
+#     return EventSignupRead(
+#         id=event_user.user_id,
+#         first_name=event_user.user.first_name,
+#         last_name=event_user.user.last_name,
+#         email=event_user.user.email,  # Assuming there is an email field in User_DB
+#         telephone_number=PhoneNumber(event_user.user.telephone_number),
+#         start_year=event_user.user.start_year,
+#         account_created=event_user.user.account_created,
+#         program=event_user.user.program,
+#         priority=event_user.priority,
+#         group_name=event_user.group_name,
+#     )
