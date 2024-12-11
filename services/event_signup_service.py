@@ -1,6 +1,5 @@
 from datetime import UTC, datetime
 from fastapi import HTTPException, status
-from sqlalchemy import false
 from sqlalchemy.orm import Session
 from db_models.event_model import Event_DB
 from db_models.event_user_model import EventUser_DB
