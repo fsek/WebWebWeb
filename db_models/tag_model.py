@@ -1,15 +1,16 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from sqlalchemy import String
 
 from helpers.constants import MAX_TAG_NAME
 from .base_model import BaseModel_DB
-from sqlalchemy.orm import mapped_column, Mapped, relationship
+from sqlalchemy.orm import mapped_column, Mapped
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 
 if TYPE_CHECKING:
     from news_model import News_DB
     from event_model import Event_DB
+    from img_model import Img_DB
 
 
 class Tag_DB(BaseModel_DB):
@@ -24,3 +25,5 @@ class Tag_DB(BaseModel_DB):
     )
 
     news: AssociationProxy[list["News_DB"]] = association_proxy(target_collection="news_tags", attr="tag", init=False)
+
+    images: AssociationProxy[list["Img_DB"]] = association_proxy(target_collection="image_tags", attr="tag", init=False)
