@@ -46,7 +46,7 @@ class MeUpdate(BaseSchema):
     start_year: int | None = None
     program: str | None = None
     notifications: bool | None = None
-    stil_id: str
+    stil_id: str | None = None
 
 
 # class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
