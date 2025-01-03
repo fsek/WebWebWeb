@@ -29,7 +29,7 @@ class Candidate_DB(BaseModel_DB):
         back_populates="candidate", cascade="all, delete-orphan", init=False
     )
 
-    posts: AssociationProxy[list["ElectionPost_DB"]] = association_proxy(
+    election_posts: AssociationProxy[list["ElectionPost_DB"]] = association_proxy(
         target_collection="candidate_posts", attr="election_post", init=False
     )
 

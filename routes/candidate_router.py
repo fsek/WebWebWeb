@@ -16,7 +16,8 @@ candidate_router = APIRouter()
 
 @candidate_router.get("/{election_id}", response_model=list[CandidateRead], dependencies=[Permission.member()])
 def get_all_candidations(election_id: int, db: DB_dependency):
-    candidations = db.query(Candidate_DB).filter(Candidate_DB.election_id == election_id).all()
+    # .join(User_DB)
+    candidations = db.query(Candidate_DB).join(User_DB).filter(Candidate_DB.election_id == election_id).all()
 
     return candidations
 

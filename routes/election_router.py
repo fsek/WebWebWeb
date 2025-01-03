@@ -79,12 +79,7 @@ def add_post_to_election(election_id: int, data: ElectionAddPosts, db: DB_depend
 
     new_post_ids = post_ids - existing_election_post_ids
 
-    election_posts = [
-        ElectionPost_DB(
-            election_id=election_id, post_id=post_id, description=data.posts[ids.index(post_id)].description
-        )
-        for post_id in new_post_ids
-    ]
+    election_posts = [ElectionPost_DB(election_id=election_id, post_id=post_id) for post_id in new_post_ids]
     db.add_all(election_posts)
     db.commit()
 
