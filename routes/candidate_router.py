@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
 
-from api_schemas.candidate_schema import CandidateRead
+from api_schemas.candidate_schema import CandidateElectionCreate, CandidateRead
 from database import DB_dependency
 from db_models.candidate_model import Candidate_DB
 from db_models.candidate_post_model import CandidatePost_DB
@@ -24,7 +24,7 @@ def get_all_candidations(election_id: int, db: DB_dependency):
 
 @candidate_router.post("/{election_id}", response_model=CandidateRead, dependencies=[Permission.member()])
 def create_candidation(
-    election_id: int, posts: list[int], me: Annotated[User_DB, Permission.member()], db: DB_dependency
+    election_id: int, data: CandidateElectionCreate, me: Annotated[User_DB, Permission.member()], db: DB_dependency
 ):
     candidate = (
         db.query(Candidate_DB)
@@ -45,13 +45,13 @@ def create_candidation(
     election_posts = db.query(ElectionPost_DB).filter(ElectionPost_DB.election_id == election_id).all()
     post_id_to_election_post_id = {ep.post_id: ep.election_post_id for ep in election_posts}
 
-    invalid_posts = [post for post in posts if post not in post_id_to_election_post_id]
+    invalid_posts = [post for post in data.post_ids if post not in post_id_to_election_post_id]
     if invalid_posts:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid post IDs provided: {invalid_posts}"
         )
 
-    valid_election_post_ids = [post_id_to_election_post_id[post] for post in posts]
+    valid_election_post_ids = [post_id_to_election_post_id[post] for post in data.post_ids]
 
     existing_candidations = (
         db.query(CandidatePost_DB.election_post_id)

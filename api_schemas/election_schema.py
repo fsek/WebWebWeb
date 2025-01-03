@@ -1,8 +1,6 @@
-from typing import Optional
 from api_schemas.base_schema import BaseSchema
-from api_schemas.candidate_schema import CandidateElectionRead, CandidateRead
+from api_schemas.candidate_schema import CandidateElectionRead
 from helpers.types import datetime_utc
-from api_schemas.post_schemas import PostRead
 
 
 class ElectionPostRead(BaseSchema):

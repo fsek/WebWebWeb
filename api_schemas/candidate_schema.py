@@ -19,3 +19,7 @@ class CandidateElectionRead(BaseSchema):
     user_id: int
     user: UserRead
     election_posts: list[PostRead]
+
+
+class CandidateElectionCreate(BaseSchema):
+    post_ids: list[int]
