@@ -4,6 +4,7 @@ from sqlalchemy import String
 from db_models.base_model import BaseModel_DB
 from typing import TYPE_CHECKING
 
+from db_models.group_mission_model import GroupMission_DB
 from helpers.constants import MAX_NOLLNING_DESC, MAX_NOLLNING_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -28,8 +29,6 @@ class Nollning_DB(BaseModel_DB):
     missions: Mapped[list["AdventureMission_DB"]] = relationship(
         back_populates="nollning", cascade="all, delete-orphan", init=False
     )
-
-    # groups: Mapped[list["Group_DB"]] = relationship(back_populates="nollning", init=False)
 
     nollning_groups: Mapped[list["NollningGroup_DB"]] = relationship(
         back_populates="nollning", cascade="all, delete-orphan", init=False

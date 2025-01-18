@@ -19,12 +19,22 @@ def create_adventure_mission(db: Session, data: AdventureMissionCreate):
     if not nollning:
         raise HTTPException(404, detail="Nollning not found")
 
+    if data.max_points < data.min_points:
+        raise HTTPException(400, detail="Max points cannot be lower than min points")
+
+    if data.max_points < 1:
+        raise HTTPException(400, detail="Max points has to be atleast 1")
+
+    if data.min_points < 1:
+        raise HTTPException(400, detail="Min points has to be atleast 1")
+
     new_adventure_mission = AdventureMission_DB(
         nollning_id=data.nollning_id,
         nollning_week=data.nollning_week,
         title=data.title,
         description=data.description,
-        points=data.points,
+        max_points=data.max_points,
+        min_points=data.min_points,
     )
 
     db.add(new_adventure_mission)
@@ -53,7 +63,7 @@ def remove_adventure_mission(db: Session, id: int):
     db.delete(adventure_mission)
     db.commit()
 
-    return {"message": "Mission removed successfully"}
+    return adventure_mission
 
 
 def find_all_adventure_missions(db: Session):

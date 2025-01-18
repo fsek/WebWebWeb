@@ -32,7 +32,7 @@ def get_all_groups(db: Session, group_type: str | None):
 
 def get_group(db: Session, id: int):
     group = db.query(Group_DB).filter(Group_DB.id == id).one_or_none()
-    if group == None:
+    if not group:
         raise HTTPException(404, detail="Group not found")
 
     return group
@@ -41,7 +41,7 @@ def get_group(db: Session, id: int):
 def add_to_group(db: Session, id: int, data: GroupAddUser):
     group1 = db.query(Group_DB).filter(Group_DB.id == id).one_or_none()
 
-    if group1 == None:
+    if not group1:
         raise HTTPException(404, detail="Group not found")
 
     user1 = db.query(User_DB).filter(User_DB.id == data.user_id).one_or_none()
@@ -91,7 +91,7 @@ def delete_group(db: Session, id: int):
     db.delete(group)
     db.commit()
 
-    return {"message": "Group removed successfully"}
+    return group
 
 
 def remove_user_group(db: Session, id: int, data: GroupRemoveUser):

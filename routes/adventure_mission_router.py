@@ -31,7 +31,9 @@ def get_adventure_mission(db: DB_dependency, id: int):
 
 
 @adventure_mission_router.delete(
-    "/delete/{id}", dependencies=[Permission.require("manage", "Adventure Missions")], response_model=dict[str, str]
+    "/delete/{id}",
+    dependencies=[Permission.require("manage", "Adventure Missions")],
+    response_model=AdventureMissionRead,
 )
 def delete_adventure_mission(db: DB_dependency, id: int):
     return remove_adventure_mission(db, id)

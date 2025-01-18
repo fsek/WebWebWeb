@@ -40,9 +40,7 @@ def patch_group(db: DB_dependency, id: int, data: GroupCreate):
     return edit_group(db, id, data)
 
 
-@group_router.delete(
-    "/delete/{id}", dependencies=[Permission.require("manage", "Groups")], response_model=dict[str, str]
-)
+@group_router.delete("/delete/{id}", dependencies=[Permission.require("manage", "Groups")], response_model=GroupRead)
 def remove_group(db: DB_dependency, id: int):
     return delete_group(db, id)
 

@@ -13,13 +13,13 @@ class GroupCreate(BaseSchema):
 
 class GroupUserRead(BaseSchema):
     user: UserInGroupRead
-    group_user_type: str
+    group_user_type: GROUP_USER_TYPE
 
 
 class GroupRead(BaseSchema):
     id: int
     name: str
-    group_type: str
+    group_type: GROUP_TYPE
     group_users: list[GroupUserRead]
 
 

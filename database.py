@@ -15,7 +15,6 @@ session_factory = sessionmaker(engine, expire_on_commit=False)
 
 # A route accesses DB by "Depends()"ing on this:
 def get_db():
-    print("works")
     with session_factory() as session:
         yield session
 

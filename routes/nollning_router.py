@@ -39,12 +39,3 @@ def delete_nollning(db: DB_dependency, id: int):
 )
 def add_group_to_nollning(db: DB_dependency, id: int, data: NollningAddGroup):
     return add_g_to_nollning(db, id, data)
-
-
-"""
-@nollning_router.post(
-    "/add_group/{id}", dependencies=[Permission.require("manage", "Nollning")], response_model=NollningRead
-)
-def add_group_to_nollning(db: DB_dependency, id: int, group_id: int):
-    return add_to_nollning(db, id, group_id)
-"""

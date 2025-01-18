@@ -9,6 +9,7 @@ class NollningCreate(BaseSchema):
 
 
 class NollningGroupRead(BaseSchema):
+    id: int
     group: GroupRead
 
 

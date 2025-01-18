@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
+from .group_mission_model import GroupMission_DB
 
 if TYPE_CHECKING:
     from .nollning_model import Nollning_DB
@@ -26,6 +27,12 @@ class AdventureMission_DB(BaseModel_DB):
 
     description: Mapped[str] = mapped_column(String(MAX_ADVENTURE_MISSION_DESC))
 
-    points: Mapped[str] = mapped_column()
+    max_points: Mapped[int] = mapped_column()
+
+    min_points: Mapped[int] = mapped_column()
+
+    group_missions: Mapped[list["GroupMission_DB"]] = relationship(
+        back_populates="adventure_mission", cascade="all, delete-orphan", init=False
+    )
 
     created_at: Mapped[datetime] = mapped_column(default=datetime.now())
