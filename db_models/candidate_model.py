@@ -1,4 +1,4 @@
-from db_models.candidate_post_model import CandidatePost_DB
+from db_models.candidate_post_model import Candidation_DB
 from db_models.election_post_model import ElectionPost_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -25,12 +25,12 @@ class Candidate_DB(BaseModel_DB):
 
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="candidates", init=False)
 
-    candidate_posts: Mapped[list["CandidatePost_DB"]] = relationship(
+    candidations: Mapped[list["Candidation_DB"]] = relationship(
         back_populates="candidate", cascade="all, delete-orphan", init=False
     )
 
     election_posts: AssociationProxy[list["ElectionPost_DB"]] = association_proxy(
-        target_collection="candidate_posts", attr="election_post", init=False
+        target_collection="candidations", attr="election_post", init=False
     )
 
     pass

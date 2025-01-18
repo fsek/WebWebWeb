@@ -9,11 +9,11 @@ if TYPE_CHECKING:
     from db_models.candidate_model import Candidate_DB
 
 
-class CandidatePost_DB(BaseModel_DB):
-    __tablename__ = "candidate_post_table"
+class Candidation_DB(BaseModel_DB):
+    __tablename__ = "candidations_table"
 
     candidate_id: Mapped[int] = mapped_column(ForeignKey("candidate_table.candidate_id"), primary_key=True)
     election_post_id: Mapped[int] = mapped_column(ForeignKey("election_post_table.election_post_id"), primary_key=True)
 
-    candidate: Mapped["Candidate_DB"] = relationship(back_populates="candidate_posts", init=False)
-    election_post: Mapped["ElectionPost_DB"] = relationship(back_populates="candidate_posts", init=False)
+    candidate: Mapped["Candidate_DB"] = relationship(back_populates="candidations", init=False)
+    election_post: Mapped["ElectionPost_DB"] = relationship(back_populates="candidations", init=False)

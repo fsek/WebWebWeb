@@ -1,7 +1,6 @@
-from typing import TYPE_CHECKING, Optional
-from sqlalchemy import ForeignKey, String
-from db_models.candidate_post_model import CandidatePost_DB
-from helpers.constants import MAX_ELECTION_DESC
+from typing import TYPE_CHECKING
+from sqlalchemy import ForeignKey
+from db_models.candidate_post_model import Candidation_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -22,4 +21,4 @@ class ElectionPost_DB(BaseModel_DB):
     post: Mapped["Post_DB"] = relationship(back_populates="election_posts", init=False)
     election: Mapped["Election_DB"] = relationship(back_populates="election_posts", init=False)
 
-    candidate_posts: Mapped[list["CandidatePost_DB"]] = relationship(back_populates="election_post", init=False)
+    candidations: Mapped[list["Candidation_DB"]] = relationship(back_populates="election_post", init=False)

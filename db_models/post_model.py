@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Callable
 from sqlalchemy import ForeignKey, String
 
-from db_models.candidate_post_model import CandidatePost_DB
 from db_models.election_post_model import ElectionPost_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy

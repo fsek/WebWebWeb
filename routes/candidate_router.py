@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, status
 from api_schemas.candidate_schema import CandidateElectionCreate, CandidateRead
 from database import DB_dependency
 from db_models.candidate_model import Candidate_DB
-from db_models.candidate_post_model import CandidatePost_DB
+from db_models.candidate_post_model import Candidation_DB
 from db_models.election_model import Election_DB
 from db_models.election_post_model import ElectionPost_DB
 from db_models.user_model import User_DB
@@ -54,9 +54,9 @@ def create_candidation(
     valid_election_post_ids = [post_id_to_election_post_id[post] for post in data.post_ids]
 
     existing_candidations = (
-        db.query(CandidatePost_DB.election_post_id)
-        .filter(CandidatePost_DB.candidate_id == candidate.candidate_id)
-        .filter(CandidatePost_DB.election_post_id.in_(valid_election_post_ids))
+        db.query(Candidation_DB.election_post_id)
+        .filter(Candidation_DB.candidate_id == candidate.candidate_id)
+        .filter(Candidation_DB.election_post_id.in_(valid_election_post_ids))
         .all()
     )
     existing_election_post_ids = {cp.election_post_id for cp in existing_candidations}
@@ -70,7 +70,7 @@ def create_candidation(
         )
 
     candidations = [
-        CandidatePost_DB(candidate_id=candidate.candidate_id, election_post_id=ep_id) for ep_id in new_election_post_ids
+        Candidation_DB(candidate_id=candidate.candidate_id, election_post_id=ep_id) for ep_id in new_election_post_ids
     ]
 
     db.add_all(candidations)
