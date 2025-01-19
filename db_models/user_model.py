@@ -1,8 +1,10 @@
 from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
-from sqlalchemy import String
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from db_models.candidate_model import Candidate_DB
+from db_models.group_model import Group_DB
+from db_models.group_user_model import GroupUser_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
@@ -89,6 +91,14 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     want_notifications: Mapped[bool] = mapped_column(default=True)
 
     stil_id: Mapped[Optional[str]] = mapped_column(default=None)
+
+    group_users: Mapped[list["GroupUser_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
+
+    groups: AssociationProxy[list["Group_DB"]] = association_proxy(
+        target_collection="group_users", attr="group", init=False
+    )
 
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"] should not be implemented like this I think //Benjamin

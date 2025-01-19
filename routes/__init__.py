@@ -1,5 +1,8 @@
 from fastapi import APIRouter
 
+
+from routes import group_mission_router
+
 from .user_router import user_router
 from .post_router import post_router
 from .permission_router import permission_router
@@ -16,6 +19,10 @@ from .ad_router import ad_router
 from .car_renting_router import car_router
 from .candidate_router import candidate_router
 from .election_router import election_router
+from .group_router import group_router
+from .adventure_mission_router import adventure_mission_router
+from .nollning_router import nollning_router
+from .group_mission_router import group_mission_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -51,3 +58,11 @@ main_router.include_router(car_router, prefix="/car", tags=["cars"])
 main_router.include_router(election_router, prefix="/election", tags=["elections"])
 
 main_router.include_router(candidate_router, prefix="/candidate", tags=["candidates"])
+
+main_router.include_router(adventure_mission_router, prefix="/adventure-mission", tags=["adventure mission"])
+
+main_router.include_router(group_router, prefix="/groups", tags=["groups"])
+
+main_router.include_router(nollning_router, prefix="/nollning", tags=["nollning"])
+
+main_router.include_router(group_mission_router, prefix="/group_mission", tags=["nollning"])
