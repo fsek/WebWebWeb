@@ -22,8 +22,8 @@ def get_all_candidations(election_id: int, db: DB_dependency):
     return candidations
 
 
-@candidate_router.post("/{election_id}", response_model=CandidateRead, dependencies=[Permission.member()])
-def create_candidation(
+@candidate_router.post("/many/{election_id}", response_model=CandidateRead, dependencies=[Permission.member()])
+def create_candidations(
     election_id: int, data: CandidateElectionCreate, me: Annotated[User_DB, Permission.member()], db: DB_dependency
 ):
     candidate = (
@@ -74,6 +74,61 @@ def create_candidation(
     ]
 
     db.add_all(candidations)
+    db.commit()
+
+    return candidate
+
+
+@candidate_router.post("/{election_id}", response_model=CandidateRead, dependencies=[Permission.member()])
+def create_candidation(election_id: int, post_id: int, me: Annotated[User_DB, Permission.member()], db: DB_dependency):
+
+    election = db.query(Election_DB).filter(Election_DB.election_id == election_id).one_or_none()
+    if election is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Election does not exist",
+        )
+
+    candidate = (
+        db.query(Candidate_DB)
+        .filter(Candidate_DB.election_id == election_id, Candidate_DB.user_id == me.id)
+        .one_or_none()
+    )
+    if candidate is None:
+        candidate = Candidate_DB(election_id=election_id, user_id=me.id)
+        db.add(candidate)
+        db.commit()
+        db.refresh(candidate)
+
+    election_post = (
+        db.query(ElectionPost_DB)
+        .filter(ElectionPost_DB.election_id == election_id, ElectionPost_DB.post_id == post_id)
+        .one_or_none()
+    )
+    if election_post is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid post_id ({post_id}) for this election.",
+        )
+
+    existing_candidation = (
+        db.query(Candidation_DB)
+        .filter(
+            Candidation_DB.candidate_id == candidate.candidate_id,
+            Candidation_DB.election_post_id == election_post.election_post_id,
+        )
+        .one_or_none()
+    )
+    if existing_candidation:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This candidate is already associated with the specified post.",
+        )
+
+    new_candidation = Candidation_DB(
+        candidate_id=candidate.candidate_id, election_post_id=election_post.election_post_id
+    )
+    db.add(new_candidation)
     db.commit()
 
     return candidate

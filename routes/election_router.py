@@ -11,7 +11,6 @@ election_router = APIRouter()
 
 @election_router.get("/", response_model=list[ElectionRead], dependencies=[Permission.require("manage", "Election")])
 def get_all_elections(db: DB_dependency):
-    # return fix_election_reads(db.query(Election_DB).all())
     return db.query(Election_DB).all()
 
 
@@ -28,7 +27,7 @@ def get_election(election_id: int, db: DB_dependency):
 @election_router.post("/", response_model=ElectionRead, dependencies=[Permission.require("manage", "Election")])
 def create_election(data: ElectionCreate, db: DB_dependency):
     if data.end_time < data.start_time:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
     election = Election_DB(
         title=data.title, start_time=data.start_time, end_time=data.end_time, description=data.description
     )
