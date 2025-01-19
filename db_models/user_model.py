@@ -85,6 +85,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     want_notifications: Mapped[bool] = mapped_column(default=True)
 
+    stil_id: Mapped[Optional[str]] = mapped_column(default=None)
+
     group_users: Mapped[list["GroupUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
     )

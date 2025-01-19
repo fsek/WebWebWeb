@@ -27,6 +27,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     start_year: int
     account_created: datetime_utc
     want_notifications: bool
+    stil_id: str | None = None
 
 
 class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
@@ -51,6 +52,7 @@ class MeUpdate(BaseSchema):
     start_year: int | None = None
     program: str | None = None
     notifications: bool | None = None
+    stil_id: str | None = None
 
 
 # class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
