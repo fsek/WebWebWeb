@@ -1,5 +1,7 @@
 from typing import TYPE_CHECKING, Callable
 from sqlalchemy import ForeignKey, String
+
+from db_models.election_post_model import ElectionPost_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -38,6 +40,11 @@ class Post_DB(BaseModel_DB):
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="post", cascade="all, delete-orphan", init=False
     )
+
+    election_posts: Mapped[list["ElectionPost_DB"]] = relationship(
+        back_populates="post", cascade="all, delete-orphan", init=False
+    )
+
     users: AssociationProxy[list["User_DB"]] = association_proxy(
         target_collection="post_users", attr="user", init=False, creator=creator
     )

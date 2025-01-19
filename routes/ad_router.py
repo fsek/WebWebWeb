@@ -4,7 +4,6 @@ from sqlalchemy import func
 from database import DB_dependency
 from db_models.ad_model import BookAd_DB
 from api_schemas.ad_schema import AdRead, AdCreate, AdUpdate
-from db_models.council_model import Council_DB
 from db_models.user_model import User_DB
 from user.permission import Permission
 
@@ -77,6 +76,7 @@ def remove_ad(id: int, current_user: Annotated[User_DB, Permission.base()], db: 
         raise HTTPException(status.HTTP_403_FORBIDDEN)
     db.delete(ad)
     db.commit()
+
     return ad
 
 

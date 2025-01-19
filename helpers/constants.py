@@ -32,3 +32,9 @@ MAX_SONG_MELODY = 200
 
 # Imgs
 MAX_IMG_NAME = 200
+
+# Candidation
+MAX_CANDIDATE_DESC = 1000
+
+# Election
+MAX_ELECTION_DESC = 2000
