@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from .event_model import Event_DB
     from .news_model import News_DB
     from .ad_model import BookAd_DB
+    from .cafe_shift_model import CafeShift_DB
 
 
 # called by SQLAlchemy when user.posts.append(some_post)
@@ -79,9 +80,15 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
         back_populates="user", cascade="all, delete-orphan", init=False
     )
 
+    cafe_shifts: Mapped[list["CafeShift_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
+
     is_member: Mapped[bool] = mapped_column(default=False)
 
     want_notifications: Mapped[bool] = mapped_column(default=True)
+
+    stil_id: Mapped[Optional[str]] = mapped_column(default=None)
 
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"] should not be implemented like this I think //Benjamin

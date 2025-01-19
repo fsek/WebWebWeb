@@ -17,7 +17,7 @@ class Permission:
         return Depends(current_verified_user)
 
     @classmethod
-    def member(cls):
+    def member(cls): 
         # Use this dependency for routes that any member should access
         def dependency(user: User_DB = Depends(current_verified_user)):
             if not user.is_member:
