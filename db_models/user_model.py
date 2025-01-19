@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, relationship, mapped_column
+from db_models.candidate_model import Candidate_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
@@ -75,6 +76,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     events: AssociationProxy[list["Event_DB"]] = association_proxy(
         target_collection="event_users", attr="event", init=False
+    )
+
+    candidates: Mapped[list["Candidate_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
     )
 
     cafe_shifts: Mapped[list["CafeShift_DB"]] = relationship(
