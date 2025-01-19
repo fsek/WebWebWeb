@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+
 from .user_router import user_router
 from .post_router import post_router
 from .permission_router import permission_router
@@ -14,6 +15,7 @@ from .album_router import album_router
 from .ad_router import ad_router
 from .car_renting_router import car_router
 from .candidate_router import candidate_router
+from .election_router import election_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -46,4 +48,6 @@ main_router.include_router(ad_router, prefix="/ad", tags=["ads"])
 
 main_router.include_router(car_router, prefix="/car", tags=["cars"])
 
-main_router.include_router(song_category_router, prefix="/songs-category", tags=["songs category"])
+main_router.include_router(election_router, prefix="/election", tags=["elections"])
+
+main_router.include_router(candidate_router, prefix="/candidate", tags=["candidates"])
