@@ -11,6 +11,7 @@ class NollningCreate(BaseSchema):
 class NollningGroupRead(BaseSchema):
     id: int
     group: GroupRead
+    nollning_id: int
 
 
 class NollningRead(NollningCreate):
