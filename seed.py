@@ -13,6 +13,7 @@ from db_models.post_model import Post_DB
 from api_schemas.user_schemas import UserCreate
 from db_models.song_category_model import SongCategory_DB
 from db_models.song_model import Song_DB
+from db_models.tag_model import Tag_DB
 from db_models.user_model import User_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
@@ -273,6 +274,21 @@ def seed_election(db: Session):
     db.commit()
 
 
+def seed_tags(db: Session):
+    tag = Tag_DB(tag_type="Café")
+    db.add(tag)
+    tag = Tag_DB(tag_type="Event")
+    db.add(tag)
+    tag = Tag_DB(tag_type="Album")
+    db.add(tag)
+    tag = Tag_DB(tag_type="News")
+    db.add(tag)
+    tag = Tag_DB(tag_type="Nollning")
+    db.add(tag)
+
+    db.commit()
+
+
 def seed_if_empty(app: FastAPI, db: Session):
     # If there's no user, assumed DB is empty and seed it.
     if db.query(User_DB).count() > 0:
@@ -302,5 +318,7 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_ads(db)
 
     seed_election(db)
+
+    seed_tags(db)
 
     print("Done seeding!")

@@ -50,3 +50,6 @@ PERMISSION_TARGET = Literal[
 
 GROUP_TYPE = Literal["Mentor", "Mission", "Default", "Committee"]
 GROUP_USER_TYPE = Literal["Mentor", "Mentee", "Default"]
+
+
+TAG_TYPE = Literal["Nollning", "News", "Café", "Event", "Album"]

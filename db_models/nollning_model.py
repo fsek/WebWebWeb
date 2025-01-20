@@ -5,6 +5,7 @@ from db_models.base_model import BaseModel_DB
 from typing import TYPE_CHECKING
 
 from db_models.group_mission_model import GroupMission_DB
+from db_models.nollning_tag_model import NollningTag_DB
 from helpers.constants import MAX_NOLLNING_DESC, MAX_NOLLNING_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -36,4 +37,8 @@ class Nollning_DB(BaseModel_DB):
 
     groups: AssociationProxy[list["Group_DB"]] = association_proxy(
         target_collection="nollning_groups", attr="group", init=False
+    )
+
+    nollning_tags: Mapped[list["NollningTag_DB"]] = relationship(
+        back_populates="nollning", cascade="all, delete-orphan", init=False
     )

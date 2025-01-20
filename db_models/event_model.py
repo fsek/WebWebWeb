@@ -11,6 +11,7 @@ if TYPE_CHECKING:
     from event_user_model import EventUser_DB
     from council_model import Council_DB
     from priority_model import Priority_DB
+    from db_models.event_tag_DB import EventTag_DB
 
 
 class Event_DB(BaseModel_DB):
@@ -53,3 +54,5 @@ class Event_DB(BaseModel_DB):
     closed: Mapped[bool] = mapped_column(default=False)
     can_signup: Mapped[bool] = mapped_column(default=False)
     drink_package: Mapped[bool] = mapped_column(default=False)
+
+    event_tags: Mapped["EventTag_DB"] = relationship(back_populates="event", cascade="all, delete-orphan", init=False)
