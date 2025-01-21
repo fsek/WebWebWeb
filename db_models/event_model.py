@@ -5,6 +5,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
+from db_models.event_tag_model import EventTag_DB
 
 if TYPE_CHECKING:
     from .user_model import User_DB
@@ -53,3 +54,7 @@ class Event_DB(BaseModel_DB):
     closed: Mapped[bool] = mapped_column(default=False)
     can_signup: Mapped[bool] = mapped_column(default=False)
     drink_package: Mapped[bool] = mapped_column(default=False)
+
+    event_tags: Mapped[list["EventTag_DB"]] = relationship(
+        back_populates="event", cascade="all, delete-orphan", init=False
+    )

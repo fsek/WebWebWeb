@@ -7,6 +7,8 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_NEWS_CONTENT, MAX_NEWS_TITLE
 from helpers.db_util import created_at_column
 
+from db_models.news_tag_model import NewsTag_DB
+
 if TYPE_CHECKING:
     from .user_model import User_DB
 
@@ -35,6 +37,10 @@ class News_DB(BaseModel_DB):
     pinned_from: Mapped[Optional[datetime]] = mapped_column(default=None)
 
     pinned_to: Mapped[Optional[datetime]] = mapped_column(default=None)
+
+    news_tags: Mapped[list["NewsTag_DB"]] = relationship(
+        back_populates="news", cascade="all, delete-orphan", init=False
+    )
 
     # categories: Mapped[list["Category_DB"]]
     # image: Mapped["Image_DB"]
