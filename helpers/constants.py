@@ -55,3 +55,7 @@ MAX_NOLLNING_DESC = 2000
 
 # Tags
 MAX_TAG_NAME = 25
+
+
+# Pagination
+NEWS_AMOUNT_PER_PAGE = 20

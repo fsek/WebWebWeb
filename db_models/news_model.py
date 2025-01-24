@@ -32,7 +32,7 @@ class News_DB(BaseModel_DB):
 
     created_at: Mapped[datetime] = created_at_column()
 
-    bumped_at: Mapped[Optional[datetime]] = mapped_column(default=None)
+    bumped_at: Mapped[datetime] = created_at_column()
 
     pinned_from: Mapped[Optional[datetime]] = mapped_column(default=None)
 
