@@ -4,7 +4,7 @@ from api_schemas.news_schemas import NewsCreate, NewsRead, NewsUpdate
 from database import DB_dependency
 from db_models.news_model import News_DB
 from db_models.user_model import User_DB
-from helpers.constants import NEWS_AMOUNT_PER_PAGE
+from helpers.constants import NEWS_PER_PAGE
 from services.news_service import create_new_news, update_existing_news, bump_existing_news
 from user.permission import Permission
 
@@ -64,10 +64,8 @@ def get_paginated_news(page_nbr: int, db: DB_dependency):
     if page_nbr < 0:
         raise HTTPException(400, detail="Invalid page number")
 
-    offset = page_nbr * NEWS_AMOUNT_PER_PAGE
+    offset = page_nbr * NEWS_PER_PAGE
 
-    paginated_news = (
-        db.query(News_DB).order_by(News_DB.bumped_at.desc()).offset(offset).limit(NEWS_AMOUNT_PER_PAGE).all()
-    )
+    paginated_news = db.query(News_DB).order_by(News_DB.bumped_at.desc()).offset(offset).limit(NEWS_PER_PAGE).all()
 
     return paginated_news
