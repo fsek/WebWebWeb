@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from api_schemas.car_booking_schema import CarCreate, CarRead, CarUpdate
 from database import DB_dependency
 from typing import Annotated
-from sqlalchemy import or_, and_
+from sqlalchemy import or_, and_, literal
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.car_model import CarBooking_DB
@@ -89,11 +89,13 @@ def update_booking(
     illegal_booking = (
         db.query(CarBooking_DB)
         .filter(
-            or_(
-                and_(data.start_time >= CarBooking_DB.start_time, data.start_time < CarBooking_DB.end_time),
-                and_(data.end_time > CarBooking_DB.start_time, data.end_time <= CarBooking_DB.end_time),
-                and_(data.start_time <= CarBooking_DB.start_time, data.end_time >= CarBooking_DB.end_time),
-            )  # This checks so that there is no overlap with other bookings before being added to the table
+            and_(
+                or_(
+                    and_(data.start_time >= CarBooking_DB.start_time, data.start_time < CarBooking_DB.end_time),
+                    and_(data.end_time > CarBooking_DB.start_time, data.end_time <= CarBooking_DB.end_time),
+                    and_(data.start_time <= CarBooking_DB.start_time, data.end_time >= CarBooking_DB.end_time),
+                ),  # This checks so that there is no overlap with other bookings before being added to the table
+            literal(booking_id) != CarBooking_DB.booking_id), # filters out the booking we are editing
         )
         .first()
     )
