@@ -213,6 +213,17 @@ def seed_news(db: Session, user: User_DB):
         ),
     ]
 
+    for i in range(1, 100):
+        news.append(
+            News_DB(
+                title_sv="test",
+                title_en="Another news",
+                content_sv="Lite mer content",
+                content_en="A bit more content",
+                author_id=user.id,
+            )
+        )
+
     db.add_all(news)
     db.commit()
 
