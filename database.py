@@ -4,10 +4,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from db_models import base_model
 from db_models import *
+import os
 
 
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
-SQLALCHEMY_DATABASE_URL = "postgresql+psycopg://postgres:password@localhost:5432/postgres"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 session_factory = sessionmaker(engine, expire_on_commit=False)
