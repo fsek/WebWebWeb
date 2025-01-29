@@ -18,7 +18,7 @@ def generate_unique_id(route: APIRoute):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    if os.getenv("ENV") == "development":
+    if os.getenv("ENVIRONMENT") == "development":
         # Not needed if you setup a migration system like Alembic
         init_db()
         with session_factory() as db:
@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
 
 
 # No Swagger/OpenAPI page for production
-no_docs = os.getenv("ENV") == "production"
+no_docs = os.getenv("ENVIRONMENT") == "production"
 
 dev_origins = [
     "http://localhost",
@@ -43,7 +43,7 @@ app = FastAPI(
     generate_unique_id_function=generate_unique_id,
 )
 
-if os.getenv("ENV") == "development":
+if os.getenv("ENVIRONMENT") == "development":
     app.add_middleware(
         CORSMiddleware,
         allow_origins=dev_origins,
