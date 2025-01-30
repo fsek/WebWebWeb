@@ -3,7 +3,38 @@ import os
 
 from db_models.base_model import BaseModel_DB
 
-from db_models import candidate_model, election_model, group_mission_model, adventure_mission_model, nollning_model
+from db_models import (
+    ad_model,
+    adventure_mission_model,
+    album_model,
+    cafe_shift_model,
+    candidate_model,
+    candidate_post_model,
+    car_model,
+    council_model,
+    election_model,
+    election_post_model,
+    event_model,
+    event_tag_model,
+    event_user_model,
+    group_mission_model,
+    group_model,
+    group_user_model,
+    img_model,
+    news_model,
+    news_tag_model,
+    nollning_group_model,
+    nollning_model,
+    permission_model,
+    post_model,
+    post_permission_model,
+    post_user_model,
+    priority_model,
+    song_category_model,
+    song_model,
+    tag_model,
+    user_model,
+)
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
