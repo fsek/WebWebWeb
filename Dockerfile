@@ -21,7 +21,7 @@ RUN python3 -m venv venv
 
 COPY . .
 
-RUN . venv/bin/activate && pip install --no-cache-dir -r requirements.txt && pip install psycopg2-binary
+RUN . venv/bin/activate && pip install --no-cache-dir -r requirements.txt && pip install psycopg2-binary && alembic revision --autogenerate
 
 EXPOSE 8000
 
