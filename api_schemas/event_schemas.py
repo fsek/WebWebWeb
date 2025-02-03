@@ -8,6 +8,7 @@ from pydantic import StringConstraints
 
 class EventRead(BaseSchema):
     id: int
+    council_id: int
     starts_at: datetime_utc
     ends_at: datetime_utc
     signup_start: datetime_utc

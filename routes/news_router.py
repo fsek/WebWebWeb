@@ -4,6 +4,7 @@ from api_schemas.news_schemas import NewsCreate, NewsRead, NewsUpdate
 from database import DB_dependency
 from db_models.news_model import News_DB
 from db_models.user_model import User_DB
+from helpers.constants import NEWS_PER_PAGE
 from services.news_service import create_new_news, update_existing_news, bump_existing_news
 from user.permission import Permission
 
@@ -13,13 +14,7 @@ news_router = APIRouter()
 
 @news_router.get("/all", response_model=list[NewsRead])
 def get_all_news(db: DB_dependency):
-    news = db.query(News_DB).order_by(News_DB.created_at.desc()).all()
-    return news
-
-
-@news_router.get("/amount/{amount}", response_model=list[NewsRead])
-def get_amount_of_news(db: DB_dependency, amount: int):
-    news = db.query(News_DB).order_by(News_DB.created_at.desc()).limit(amount)
+    news = db.query(News_DB).order_by(News_DB.bumped_at.desc()).all()
     return news
 
 
@@ -61,3 +56,16 @@ def update_news(news_id: int, updated_news: NewsUpdate, db: DB_dependency):
 def bump_news(news_id: int, db: DB_dependency):
     news = bump_existing_news(news_id, db)
     return news
+
+
+@news_router.get("/page/{page_nbr}", response_model=list[NewsRead])
+def get_paginated_news(page_nbr: int, db: DB_dependency):
+
+    if page_nbr < 0:
+        raise HTTPException(400, detail="Invalid page number")
+
+    offset = page_nbr * NEWS_PER_PAGE
+
+    paginated_news = db.query(News_DB).order_by(News_DB.bumped_at.desc()).offset(offset).limit(NEWS_PER_PAGE).all()
+
+    return paginated_news

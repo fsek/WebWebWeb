@@ -1,5 +1,4 @@
 from fastapi import APIRouter, UploadFile, File
-from fastapi.responses import FileResponse
 from database import DB_dependency
 from services.img_service import upload_img, remove_img, get_single_img
 from user.permission import Permission

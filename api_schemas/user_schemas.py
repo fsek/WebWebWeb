@@ -27,6 +27,13 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     start_year: int
     account_created: datetime_utc
     want_notifications: bool
+    stil_id: str | None = None
+
+
+class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
+    first_name: str
+    last_name: str
+    program: str | None
 
 
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
@@ -45,6 +52,7 @@ class MeUpdate(BaseSchema):
     start_year: int | None = None
     program: str | None = None
     notifications: bool | None = None
+    stil_id: str | None = None
 
 
 # class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):

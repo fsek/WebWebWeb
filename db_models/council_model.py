@@ -16,7 +16,7 @@ class Council_DB(BaseModel_DB):
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    name: Mapped[str] = mapped_column(String(160))
+    name: Mapped[str] = mapped_column(String(160), unique=True)
 
     posts: Mapped[list["Post_DB"]] = relationship(back_populates="council", init=False)
 
