@@ -5,9 +5,15 @@ from db_models.post_model import Post_DB
 from helpers.constants import MAX_ELECTION_DESC
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from sqlalchemy import String
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
+
+
+if TYPE_CHECKING:
+    from .candidate_model import Candidate_DB
+    from db_models.election_post_model import ElectionPost_DB
+    from db_models.post_model import Post_DB
 
 
 class Election_DB(BaseModel_DB):
