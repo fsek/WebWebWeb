@@ -1,9 +1,11 @@
 from fastapi import APIRouter, HTTPException, status
+from h11 import Event
 from api_schemas.song_schemas import SongCreate, SongRead
-from api_schemas.tag_schema import TagCreate, TagRead, TagEdit
+from api_schemas.tag_schema import TagCreate, TagRead
 from database import DB_dependency
 from db_models.song_model import Song_DB
 from db_models.tag_model import Tag_DB
+from event_tag_model import EventTag_DB
 from user.permission import Permission
 from sqlalchemy.exc import IntegrityError
 
@@ -47,6 +49,6 @@ def get_tags(db: DB_dependency):
 
 @tag_router.get("/{event_id}", response_model=list[TagRead])
 def get_event_tags(db: DB_dependency, event_id: int):
-    tags = db.query(Tag_DB).filter(Tag_DB.event_tags.id == event_id).all()
+    tags = db.query(Tag_DB).filter(Tag_DB.event_tags.event.id == event_id).all()
 
     return tags
