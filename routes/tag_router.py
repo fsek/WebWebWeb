@@ -5,6 +5,7 @@ from api_schemas.tag_schema import TagCreate, TagRead
 from database import DB_dependency
 from db_models.song_model import Song_DB
 from db_models.tag_model import Tag_DB
+from event_model import Event_DB
 from user.permission import Permission
 from sqlalchemy.exc import IntegrityError
 
@@ -48,6 +49,8 @@ def get_tags(db: DB_dependency):
 
 @tag_router.get("/{event_id}", response_model=list[TagRead])
 def get_event_tags(db: DB_dependency, event_id: int):
-    tags = db.query(Tag_DB).filter(Tag_DB.event_tags.id == event_id).all()
+    tags = db.query(Tag_DB).join(Event_DB).filter(Event_DB.id == event_id).all()
+    if len(tags) == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
     return tags
