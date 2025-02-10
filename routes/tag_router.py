@@ -43,3 +43,13 @@ def get_tags(db: DB_dependency):
     tags = db.query(Tag_DB).all()
 
     return tags
+
+
+@tag_router.delete("/{tag_id}", response_model=TagRead)
+def delete_tag(db: DB_dependency, tag_id: int):
+    tag = db.query(Tag_DB).filter(Tag_DB.id == tag_id).one_or_none()
+    if tag is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    db.delete(tag)
+    db.commit()
+    return tag
