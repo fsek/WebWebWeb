@@ -43,3 +43,10 @@ def get_tags(db: DB_dependency):
     tags = db.query(Tag_DB).all()
 
     return tags
+
+
+@tag_router.get("/{event_id}", response_model=list[TagRead])
+def get_event_tags(db: DB_dependency, event_id: int):
+    tags = db.query(Tag_DB).filter(Tag_DB.event_tags.id == event_id).all()
+
+    return tags
