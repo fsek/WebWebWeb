@@ -5,7 +5,6 @@ from api_schemas.tag_schema import TagCreate, TagRead
 from database import DB_dependency
 from db_models.song_model import Song_DB
 from db_models.tag_model import Tag_DB
-from event_tag_model import EventTag_DB
 from user.permission import Permission
 from sqlalchemy.exc import IntegrityError
 
