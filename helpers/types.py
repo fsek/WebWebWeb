@@ -41,6 +41,7 @@ PERMISSION_TARGET = Literal[
     "Groups",
     "Adventure Missions",
     "Nollning",
+    "Council",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.

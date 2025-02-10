@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 
-from routes import group_mission_router
+from routes import council_router, group_mission_router
 
 from .user_router import user_router
 from .post_router import post_router
@@ -24,6 +24,7 @@ from .adventure_mission_router import adventure_mission_router
 from .nollning_router import nollning_router
 from .group_mission_router import group_mission_router
 from .tag_router import tag_router
+from .council_router import council_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -69,3 +70,5 @@ main_router.include_router(nollning_router, prefix="/nollning", tags=["nollning"
 main_router.include_router(group_mission_router, prefix="/group_mission", tags=["nollning"])
 
 main_router.include_router(tag_router, prefix="/tags", tags=["tags"])
+
+main_router.include_router(council_router, prefix="/councils", tags=["council"])

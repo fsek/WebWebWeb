@@ -155,6 +155,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm23 = Permission_DB(action="manage", target="Adventure Missions")
     perm34 = Permission_DB(action="manage", target="Nollning")
     perm36 = Permission_DB(action="view", target="Nollning")
+    perm40 = Permission_DB(action="manage", target="Council")
+    perm41 = Permission_DB(action="view", target="Council")
 
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
@@ -171,6 +173,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm23)
     posts[0].permissions.append(perm34)
     posts[0].permissions.append(perm36)
+    posts[0].permissions.append(perm40)
+    posts[0].permissions.append(perm41)
     db.commit()
 
 
