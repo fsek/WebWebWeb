@@ -13,7 +13,7 @@ class CandidateUserRead(BaseSchema):
     want_notifications: bool
 
 
-class PostRead(BaseSchema):
+class CandidatePostRead(BaseSchema):
     post_id: int
     election_post_id: int
 
@@ -23,14 +23,14 @@ class CandidateRead(BaseSchema):
     election_id: int
     user_id: int
     user: CandidateUserRead
-    election_posts: list[PostRead]
+    election_posts: list[CandidatePostRead]
 
 
 class CandidateElectionRead(BaseSchema):
     candidate_id: int
     user_id: int
     user: CandidateUserRead
-    election_posts: list[PostRead]
+    election_posts: list[CandidatePostRead]
 
 
 class CandidateElectionCreate(BaseSchema):
