@@ -1,11 +1,14 @@
 from fastapi import APIRouter, HTTPException, status
+from psycopg import IntegrityError
 from database import DB_dependency
 from db_models.event_model import Event_DB
-from api_schemas.event_schemas import EventCreate, EventRead, EventUpdate
+from api_schemas.event_schemas import AddEventTag, EventCreate, EventRead, EventUpdate
 from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
+from event_tag_model import EventTag_DB
 from services.event_service import create_new_event, delete_event, update_event
+from tag_model import Tag_DB
 from user.permission import Permission
 import random
 from typing import List
@@ -89,3 +92,18 @@ def get_random_signup(event_id: int, db: DB_dependency):
     users = [event_user.user for event_user in unique_prioritized_people]
 
     return users
+
+
+@event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=AddEventTag)
+def add_tag_to_event(data: AddEventTag, db: DB_dependency):
+
+    newEventTag = EventTag_DB(tag_id=data.tag_id, event_id=data.event_id)
+
+    try:
+        db.add(newEventTag)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(400, detail="Invalid tag id or event id")
+
+    return newEventTag
