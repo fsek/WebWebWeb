@@ -20,3 +20,8 @@ class TagRead(BaseSchema):
     name: str
     news_tags: list[NewsTagRead]
     event_tags: list[EventTagRead]
+
+
+class TagEdit(BaseSchema):
+    id: int
+    name: str
