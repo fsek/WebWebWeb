@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from api_schemas.group_schema import GroupAddUser, GroupCreate, GroupRead, GroupRemoveUser
-from api_schemas.group_mission_schema import GroupMissionCreate, GroupMissionRead
+from api_schemas.group_mission_schema import GroupMissionCreate, GroupMissionRead, GroupMissionEdit
 from database import DB_dependency
 from db_models.adventure_mission_model import AdventureMission_DB
 from db_models.group_mission_model import GroupMission_DB
@@ -55,7 +55,7 @@ def add_completed_mission(db: DB_dependency, data: GroupMissionCreate, id: int):
 @group_mission_router.patch(
     "/{id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
 )
-def edit_completed_mission(db: DB_dependency, data: GroupMissionCreate, id: int):
+def edit_completed_mission(db: DB_dependency, data: GroupMissionEdit, id: int):
     nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == id).one_or_none()
 
     if not nollning_group:
