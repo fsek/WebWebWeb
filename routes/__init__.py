@@ -3,6 +3,7 @@ from fastapi import APIRouter
 
 from routes import group_mission_router
 
+from .council_router import council_router
 from .user_router import user_router
 from .post_router import post_router
 from .permission_router import permission_router
@@ -69,3 +70,5 @@ main_router.include_router(nollning_router, prefix="/nollning", tags=["nollning"
 main_router.include_router(group_mission_router, prefix="/group_mission", tags=["nollning"])
 
 main_router.include_router(tag_router, prefix="/tags", tags=["tags"])
+
+main_router.include_router(council_router, prefix="/councils", tags=["council"])
