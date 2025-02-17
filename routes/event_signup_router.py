@@ -16,7 +16,7 @@ event_signup_router = APIRouter()
 
 # Sing current user up to an event
 @event_signup_router.post("/{event_id}", response_model=EventRead)
-def signup_route(
+def event_signup_route(
     event_id: int,
     data: EventSignupCreate,
     me: Annotated[User_DB, Permission.member()],
@@ -41,7 +41,7 @@ def signup_route(
 
 
 @event_signup_router.delete("/{event_id}", response_model=EventRead)
-def signoff_route(
+def event_signoff_route(
     event_id: int,
     data: EventSignupDelete,
     me: Annotated[User_DB, Permission.member()],
@@ -62,7 +62,7 @@ def signoff_route(
 
 
 @event_signup_router.patch("/{event_id}", response_model=EventRead)
-def update_signup(
+def update_event_signup_route(
     event_id: int,
     data: EventSignupUpdate,
     me: Annotated[User_DB, Permission.member()],
