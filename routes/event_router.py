@@ -28,13 +28,13 @@ def create_event(data: EventCreate, db: DB_dependency):
 @event_router.delete(
     "/{event_id}", dependencies=[Permission.require("manage", "Event")], status_code=status.HTTP_204_NO_CONTENT
 )
-def remove(event_id: int, db: DB_dependency):
+def event_remove(event_id: int, db: DB_dependency):
     delete_event(event_id, db)
     return
 
 
 @event_router.patch("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
-def update(event_id: int, data: EventUpdate, db: DB_dependency):
+def event_update(event_id: int, data: EventUpdate, db: DB_dependency):
     event = update_event(event_id, data, db)
     return event
 
@@ -42,7 +42,7 @@ def update(event_id: int, data: EventUpdate, db: DB_dependency):
 @event_router.get(
     "/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
 )
-def get_all_signups(event_id: int, db: DB_dependency):
+def get_all_event_signups(event_id: int, db: DB_dependency):
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
     users: list[User_DB] = []
     if len(people_signups) == 0:
@@ -52,7 +52,7 @@ def get_all_signups(event_id: int, db: DB_dependency):
 
 
 @event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
-def get_random_signup(event_id: int, db: DB_dependency):
+def get_random_event_signup(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No event exist")
