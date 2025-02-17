@@ -43,7 +43,9 @@ class Event_DB(BaseModel_DB):
         target_collection="event_users", attr="user", init=False
     )
 
-    priorities: Mapped[list["Priority_DB"]] = relationship(back_populates="event", init=False)
+    priorities: Mapped[list["Priority_DB"]] = relationship(
+        back_populates="event", cascade="all, delete-orphan", init=False
+    )
 
     all_day: Mapped[bool] = mapped_column(default=False)
     signup_not_opened_yet: Mapped[bool] = mapped_column(default=True)
