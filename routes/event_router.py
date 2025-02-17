@@ -25,36 +25,34 @@ def get_all_events(db: DB_dependency):
 
 @event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=list[EventRead])
 def create_event(data: EventCreate, db: DB_dependency):
-    event_list: list["Event_DB"] = []
+    event = create_new_event(data, db)
+    event_list: list["Event_DB"] = [event]
     priority_list: list["Priority_DB"] = []
 
-    mutable_event = EventCreate(
-        council_id=data.council_id,
-        starts_at=copy.copy(data.starts_at),
-        ends_at=copy.copy(data.ends_at),
-        signup_start=copy.copy(data.signup_start),
-        signup_end=copy.copy(data.signup_end),
-        title_sv=data.title_sv,
-        title_en=data.title_en,
-        description_sv=data.description_sv,
-        description_en=data.description_en,
-        max_event_users=data.max_event_users,
-        priorities=data.priorities,
-        recur_interval_days=data.recur_interval_days,
-        recur_times=data.recur_times,
-    )
+    for priority in data.priorities:
+        priority_list.append(Priority_DB(priority=priority, event_id=event.id))
 
-    for i in range(mutable_event.recur_times + 1):
-        event = create_new_event(mutable_event, db)
-        event_list.append(event)
+    if not data.recur_interval_days is None:
+        if data.recur_interval_days < 1:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid argument for recurring interval days")
 
-        for priority in mutable_event.priorities:
-            priority_list.append(Priority_DB(priority=priority, event_id=event.id))
+        delta = datetime.timedelta(days=data.recur_interval_days)
+        current_start = data.starts_at + delta
 
-        mutable_event.starts_at += datetime.timedelta(days=data.recur_interval_days)
-        mutable_event.ends_at += datetime.timedelta(days=data.recur_interval_days)
-        mutable_event.signup_start += datetime.timedelta(days=data.recur_interval_days)
-        mutable_event.signup_end += datetime.timedelta(days=data.recur_interval_days)
+        while current_start <= data.recur_until:
+            event_clone = data.model_copy(
+                update={
+                    "starts_at": current_start,
+                    "ends_at": data.ends_at + delta,
+                    "signup_start": data.signup_start + delta,
+                    "signup_end": data.signup_end + delta,
+                }
+            )
+            event = create_new_event(event_clone, db)
+            event_list.append(event)
+
+            delta += datetime.timedelta(days=data.recur_interval_days)
+            current_start = data.starts_at + delta
 
     db.add_all(event_list)
     db.add_all(priority_list)
