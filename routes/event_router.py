@@ -35,10 +35,6 @@ def get_all_events(db: DB_dependency):
 def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
     event_list: list["Event_DB"] = [event]
-    priority_list: list["Priority_DB"] = []
-
-    for priority in data.priorities:
-        priority_list.append(Priority_DB(priority=priority, event_id=event.id))
 
     if not data.recur_interval_days is None:
         if data.recur_interval_days < 1:
@@ -63,7 +59,6 @@ def create_event(data: EventCreate, db: DB_dependency):
             current_start = data.starts_at + delta
 
     db.add_all(event_list)
-    db.add_all(priority_list)
     db.commit()
     return event_list
 
