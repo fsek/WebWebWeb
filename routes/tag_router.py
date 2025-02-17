@@ -45,7 +45,7 @@ def get_tags(db: DB_dependency):
     return tags
 
 
-@tag_router.delete("/{tag_id}", response_model=TagRead)
+@tag_router.delete("/{tag_id}", response_model=TagRead, dependencies=[Permission.require("manage", "Tags")])
 def delete_tag(db: DB_dependency, tag_id: int):
     tag = db.query(Tag_DB).filter(Tag_DB.id == tag_id).one_or_none()
     if tag is None:
