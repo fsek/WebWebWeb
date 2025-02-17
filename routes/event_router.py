@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from psycopg import IntegrityError
+from api_schemas.tag_schema import EventTagRead, TagRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
 from api_schemas.event_schemas import AddEventTag, EventCreate, EventRead, EventUpdate
@@ -94,7 +95,7 @@ def get_random_signup(event_id: int, db: DB_dependency):
     return users
 
 
-@event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=AddEventTag)
+@event_router.post("/add-tag", dependencies=[Permission.require("manage", "Event")], response_model=AddEventTag)
 def add_tag_to_event(data: AddEventTag, db: DB_dependency):
 
     newEventTag = EventTag_DB(tag_id=data.tag_id, event_id=data.event_id)
@@ -107,3 +108,15 @@ def add_tag_to_event(data: AddEventTag, db: DB_dependency):
         raise HTTPException(400, detail="Invalid tag id or event id")
 
     return newEventTag
+
+
+@event_router.get("/get-event-tags/{event_id}", response_model=list[EventTagRead])
+def get_event_tags(db: DB_dependency, event_id: int):
+    event = db.query(Event_DB).filter(Event_DB.id == event_id).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    event_tags = event.event_tags
+
+    return event_tags
