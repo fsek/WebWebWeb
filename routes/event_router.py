@@ -6,9 +6,9 @@ from api_schemas.event_schemas import AddEventTag, EventCreate, EventRead, Event
 from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
-from event_tag_model import EventTag_DB
+from db_models.event_tag_model import EventTag_DB
 from services.event_service import create_new_event, delete_event, update_event
-from tag_model import Tag_DB
+from db_models.tag_model import Tag_DB
 from user.permission import Permission
 import random
 from typing import List

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
-from h11 import Event
 from api_schemas.song_schemas import SongCreate, SongRead
-from api_schemas.tag_schema import TagCreate, TagRead
+from api_schemas.tag_schema import TagCreate, TagEdit, TagRead
 from database import DB_dependency
 from db_models.song_model import Song_DB
 from db_models.tag_model import Tag_DB
