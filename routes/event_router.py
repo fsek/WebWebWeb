@@ -34,7 +34,38 @@ def get_all_events(db: DB_dependency):
 @event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=list[EventRead])
 def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
-    return event
+    event_list: list["Event_DB"] = [event]
+    priority_list: list["Priority_DB"] = []
+
+    for priority in data.priorities:
+        priority_list.append(Priority_DB(priority=priority, event_id=event.id))
+
+    if not data.recur_interval_days is None:
+        if data.recur_interval_days < 1:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid argument for recurring interval days")
+
+        delta = datetime.timedelta(days=data.recur_interval_days)
+        current_start = data.starts_at + delta
+
+        while current_start <= data.recur_until:
+            event_clone = data.model_copy(
+                update={
+                    "starts_at": current_start,
+                    "ends_at": data.ends_at + delta,
+                    "signup_start": data.signup_start + delta,
+                    "signup_end": data.signup_end + delta,
+                }
+            )
+            event = create_new_event(event_clone, db)
+            event_list.append(event)
+
+            delta += datetime.timedelta(days=data.recur_interval_days)
+            current_start = data.starts_at + delta
+
+    db.add_all(event_list)
+    db.add_all(priority_list)
+    db.commit()
+    return event_list
 
 
 @event_router.delete("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
