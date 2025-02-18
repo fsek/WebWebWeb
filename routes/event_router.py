@@ -1,14 +1,18 @@
+import copy
+import datetime
 from fastapi import APIRouter, HTTPException, status
 from database import DB_dependency
 from db_models.event_model import Event_DB
 from api_schemas.event_schemas import EventCreate, EventRead, EventUpdate
 from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
+from db_models.priority_model import Priority_DB
 from db_models.user_model import User_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
 from typing import List
+from helpers.types import datetime_utc
 
 event_router = APIRouter()
 
@@ -19,10 +23,36 @@ def get_all_events(db: DB_dependency):
     return events
 
 
-@event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
+@event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=list[EventRead])
 def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
-    return event
+    event_list: list["Event_DB"] = [event]
+
+    if not data.recur_interval_days is None:
+        if data.recur_interval_days < 1:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid argument for recurring interval days")
+
+        delta = datetime.timedelta(days=data.recur_interval_days)
+        current_start = data.starts_at + delta
+
+        while current_start <= data.recur_until:
+            event_clone = data.model_copy(
+                update={
+                    "starts_at": current_start,
+                    "ends_at": data.ends_at + delta,
+                    "signup_start": data.signup_start + delta,
+                    "signup_end": data.signup_end + delta,
+                }
+            )
+            event = create_new_event(event_clone, db)
+            event_list.append(event)
+
+            delta += datetime.timedelta(days=data.recur_interval_days)
+            current_start = data.starts_at + delta
+
+    db.add_all(event_list)
+    db.commit()
+    return event_list
 
 
 @event_router.delete(
