@@ -72,3 +72,8 @@ class EventUpdate(BaseSchema):
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
+
+
+class AddEventTag(BaseSchema):
+    event_id: int
+    tag_id: int
