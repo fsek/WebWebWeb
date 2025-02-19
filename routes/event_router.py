@@ -29,12 +29,9 @@ def create_event(data: EventCreate, db: DB_dependency):
     return event
 
 
-@event_router.delete(
-    "/{event_id}", dependencies=[Permission.require("manage", "Event")], status_code=status.HTTP_204_NO_CONTENT
-)
+@event_router.delete("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
 def event_remove(event_id: int, db: DB_dependency):
-    delete_event(event_id, db)
-    return
+    return delete_event(event_id, db)
 
 
 @event_router.patch("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)

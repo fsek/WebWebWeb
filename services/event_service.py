@@ -69,6 +69,8 @@ def delete_event(event_id: int, db: Session):
     db.delete(event)
     db.commit()
 
+    return event
+
 
 def update_event(event_id: int, data: EventUpdate, db: Session):
     
