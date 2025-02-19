@@ -2,7 +2,7 @@ from fastapi import APIRouter
 from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB
-from api_schemas.post_schemas import PostRead, PostCreate
+from api_schemas.post_schemas import PostRead, PostCreate, PostUserRead
 from user.permission import Permission
 from fastapi import status, HTTPException
 
@@ -39,3 +39,15 @@ def delete_post(post_id: int, db: DB_dependency):
 
 
 # TODO PATCH
+
+
+@post_router.get("/{post_id}", response_model=list[PostUserRead])
+def users_with_post(db: DB_dependency, post_id: int):
+    post = db.query(Post_DB).filter(Post_DB.id == post_id).one_or_none()
+
+    if post == None:
+        raise HTTPException(400, detail="Invalid post id")
+
+    users = post.post_users
+
+    return users
