@@ -2,7 +2,9 @@ from fastapi import APIRouter
 from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB
-from api_schemas.post_schemas import PostRead, PostCreate, PostUserRead, PostUpdate
+from db_models.user_model import User_DB
+from db_models.post_user_model import PostUser_DB
+from api_schemas.post_schemas import PostRead, PostCreate, PostUpdate, PostUserRead
 from user.permission import Permission
 from fastapi import status, HTTPException
 
@@ -57,6 +59,6 @@ def users_with_post(db: DB_dependency, post_id: int):
     if post == None:
         raise HTTPException(400, detail="Invalid post id")
 
-    users = post.post_users
+    users = db.query(User_DB).join(PostUser_DB).join(Post_DB).filter(Post_DB.id == post_id).all()
 
     return users
