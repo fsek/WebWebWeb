@@ -1,4 +1,5 @@
 from api_schemas.base_schema import BaseSchema
+from api_schemas.user_schemas import UserRead
 
 
 class _PostPermissionRead(BaseSchema):
@@ -17,3 +18,7 @@ class PostRead(BaseSchema):
 class PostCreate(BaseSchema):
     name: str
     council_id: int
+
+
+class PostUserRead(BaseSchema):
+    user: UserRead
