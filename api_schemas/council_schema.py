@@ -3,8 +3,8 @@ from api_schemas.event_schemas import EventRead
 from api_schemas.post_schemas import PostRead
 
 
-class CouncilExempel(BaseSchema):
-    exemple_value: int
+class CouncilCreate(BaseSchema):
+    name: str
 
 
 class CouncilRead(BaseSchema):
