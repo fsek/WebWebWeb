@@ -2,7 +2,7 @@ from api_schemas.base_schema import BaseSchema
 
 
 class SongCategoryRead(BaseSchema):
-    id: int | None
+    id: int
     name: str
 
 
