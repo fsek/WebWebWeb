@@ -5,7 +5,7 @@ from db_models.council_model import Council_DB
 from user.permission import Permission
 from database import DB_dependency
 from db_models.council_model import Council_DB
-from user_model import User_DB
+from db_models.user_model import User_DB
 
 
 council_router = APIRouter()
