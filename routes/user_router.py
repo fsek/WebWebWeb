@@ -11,7 +11,7 @@ import re
 user_router = APIRouter()
 
 
-@user_router.get("/", response_model=list[UserRead])
+@user_router.get("/", response_model=list[UserRead], dependencies=[Permission.require("view", "User")])
 def get_all_users(db: DB_dependency):
     all_users = db.query(User_DB).all()
     return all_users
