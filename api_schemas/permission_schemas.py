@@ -16,6 +16,11 @@ class PermissionCreate(BaseSchema):
     target: PERMISSION_TARGET
 
 
+class PermissionRemove(BaseSchema):
+    action: PERMISSION_TYPE
+    target: PERMISSION_TARGET
+
+
 class UpdatePermission(BaseSchema):
     post_id: int
     change: Literal["add", "remove"]

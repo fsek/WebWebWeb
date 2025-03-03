@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from database import DB_dependency, get_db
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
-from api_schemas.permission_schemas import PermissionCreate, PermissionRead, UpdatePermission
+from api_schemas.permission_schemas import PermissionCreate, PermissionRead, UpdatePermission, PermissionRemove
 from services.permission_service import assign_permission, unassign_permission
 from user.permission import Permission
 
@@ -29,7 +29,7 @@ def create_permission(perm_data: PermissionCreate, db: Annotated[Session, Depend
     )
     # if there already is this exact permission, dont create
     if num_existing > 0:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Ths permission already exists")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This permission already exists")
 
     perm = Permission_DB(action=perm_data.action, target=perm_data.target)
     db.add(perm)
@@ -52,4 +52,18 @@ def change_post_permission(perm_data: UpdatePermission, db: DB_dependency):
     return post
 
 
-# TODO make the delete permission route.
+# Remove a permission completely
+@permission_router.delete("/", response_model=PermissionRead, dependencies=[Permission.require("manage", "Permission")])
+def remove_permission(perm_data: PermissionRemove, db: Annotated[Session, Depends(get_db)]):
+    perm = (
+        db.query(Permission_DB)
+        .filter(Permission_DB.action == perm_data.action, Permission_DB.target == perm_data.target)
+        .one_or_none()
+    )
+
+    if perm == None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="No such permission exists")
+
+    db.delete(perm)
+    db.commit()
+    return perm
