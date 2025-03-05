@@ -131,6 +131,7 @@ def get_event_csv(db: DB_dependency, event_id: int):
         raise HTTPException(404, detail="Event not found")
 
     event_users = event.event_users
+    event_users.sort(key=lambda e_user: e_user.user.last_name)
 
     # Down the line, this should also include email address, food preference and other important information about event signups.
     names: list[str] = []
@@ -139,7 +140,7 @@ def get_event_csv(db: DB_dependency, event_id: int):
 
     for event_user in event_users:
         user = event_user.user
-        names.append(f"{user.last_name}, {user.first_name}")
+        names.append(f"{user.first_name} {user.last_name}")
         if user.stil_id is None:
             stil_ids.append("")
         else:
