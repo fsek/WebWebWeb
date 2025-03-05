@@ -123,7 +123,9 @@ def get_event_tags(db: DB_dependency, event_id: int):
     return event_tags
 
 
-@event_router.get("/get-event-csv/{event_id}", response_model=None)
+@event_router.get(
+    "/get-event-csv/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=None
+)
 def get_event_csv(db: DB_dependency, event_id: int):
     event = db.query(Event_DB).filter(Event_DB.id == event_id).one_or_none()
 
