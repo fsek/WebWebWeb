@@ -15,7 +15,7 @@ event_signup_router = APIRouter()
 
 
 # Sing current user up to an event
-@event_signup_router.post("/{event_id}", response_model=EventRead)
+@event_signup_router.post("/{event_id}", response_model=EventSignupRead)
 def event_signup_route(
     event_id: int,
     data: EventSignupCreate,
@@ -26,6 +26,11 @@ def event_signup_route(
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+    existing_signup = db.query(EventUser_DB).filter_by(event_id=event_id, user_id=data.user_id).one_or_none()
+
+    if not existing_signup is None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "You're already signed up")
 
     if data.user_id is None or data.user_id == me.id:
         return signup_to_event(event, me, data, manage_permission, db)
@@ -40,7 +45,7 @@ def event_signup_route(
     return signup_to_event(event, user, data, manage_permission, db)
 
 
-@event_signup_router.delete("/{event_id}", response_model=EventRead)
+@event_signup_router.delete("/{event_id}", response_model=EventSignupRead)
 def event_signoff_route(
     event_id: int,
     data: EventSignupDelete,
@@ -52,6 +57,11 @@ def event_signoff_route(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
+    existing_signup = db.query(EventUser_DB).filter_by(event_id=event_id, user_id=data.user_id).one_or_none()
+
+    if existing_signup is None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "You're not even signed up")
+
     if data.user_id is None or data.user_id == me.id:
         return signoff_from_event(event, me.id, manage_permission, db)
 
@@ -61,7 +71,7 @@ def event_signoff_route(
     return signoff_from_event(event, data.user_id, manage_permission, db)
 
 
-@event_signup_router.patch("/{event_id}", response_model=EventRead)
+@event_signup_router.patch("/{event_id}", response_model=EventSignupRead)
 def update_event_signup_route(
     event_id: int,
     data: EventSignupUpdate,
@@ -72,6 +82,11 @@ def update_event_signup_route(
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+    existing_signup = db.query(EventUser_DB).filter_by(event_id=event_id, user_id=data.user_id).one_or_none()
+
+    if existing_signup is None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "You're not even signed up")
 
     if data.user_id is None or data.user_id == me.id:
         return update_event_signup(event, data, me.id, manage_permission, db)
