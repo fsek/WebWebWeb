@@ -16,7 +16,7 @@ def create_council(data: CouncilCreate, db: DB_dependency):
     council = db.query(Council_DB).filter_by(name=data.name).one_or_none()
     if council is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Council already exists")
-    council = Council_DB(name=data.name)
+    council = Council_DB(name=data.name, description=data.description)
     db.add(council)
     db.commit()
     return council
