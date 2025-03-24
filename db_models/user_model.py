@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, relationship, mapped_column
 from db_models.candidate_model import Candidate_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
-from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
+from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN, STIL_ID_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
@@ -38,6 +38,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     first_name: Mapped[str] = mapped_column(String(MAX_FIRST_NAME_LEN))
     last_name: Mapped[str] = mapped_column(String(MAX_LAST_NAME_LEN))
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
+    stil_id: Mapped[Optional[str]] = mapped_column(String(STIL_ID_LEN))
 
     book_ads: Mapped[list["BookAd_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan", init=False)
 
@@ -89,8 +90,6 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     is_member: Mapped[bool] = mapped_column(default=False)
 
     want_notifications: Mapped[bool] = mapped_column(default=True)
-
-    stil_id: Mapped[Optional[str]] = mapped_column(default=None)
 
     group_users: Mapped[list["GroupUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
