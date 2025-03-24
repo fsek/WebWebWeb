@@ -35,7 +35,9 @@ def get_council(current_user: Annotated[User_DB, Permission.member()], council_i
     return council
 
 
-@council_router.patch("/update_council", response_model=CouncilRead)
+@council_router.patch(
+    "/update_council", response_model=CouncilRead, dependencies=[Permission.require("manage", "Council")]
+)
 def update_council(council_id: int, data: CouncilUpdate, db: DB_dependency):
 
     council = db.query(Council_DB).filter_by(id=council_id).one_or_none()
