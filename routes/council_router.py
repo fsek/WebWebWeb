@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
-from api_schemas.council_schema import CouncilCreate, CouncilRead
+from api_schemas.council_schema import CouncilCreate, CouncilRead, CouncilUpdate
 from db_models.council_model import Council_DB
 from user.permission import Permission
 from database import DB_dependency
@@ -32,4 +32,19 @@ def get_council(current_user: Annotated[User_DB, Permission.member()], council_i
     council = db.query(Council_DB).filter_by(id=council_id).one_or_none()
     if council is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+    return council
+
+
+@council_router.patch("/update_council", response_model=CouncilRead)
+def update_council(council_id: int, data: CouncilUpdate, db: DB_dependency):
+
+    council = db.query(Council_DB).filter_by(id=council_id).one_or_none()
+    if council is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+    for var, value in vars(data).items():
+        setattr(council, var, value) if value is not None else None
+
+    db.commit()
+
     return council
