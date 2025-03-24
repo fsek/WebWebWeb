@@ -5,6 +5,7 @@ from api_schemas.post_schemas import PostRead
 
 class CouncilCreate(BaseSchema):
     name: str
+    description: str | None = None
 
 
 class CouncilRead(BaseSchema):
@@ -12,3 +13,4 @@ class CouncilRead(BaseSchema):
     name: str
     posts: list[PostRead]
     events: list[EventRead]
+    description: str | None = None
