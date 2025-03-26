@@ -36,13 +36,13 @@ def get_council(current_user: Annotated[User_DB, Permission.member()], council_i
 
 
 @council_router.patch(
-    "/update_council", response_model=CouncilRead, dependencies=[Permission.require("manage", "Council")]
+    "/update_council/{council_id}", response_model=CouncilRead, dependencies=[Permission.require("manage", "Council")]
 )
 def update_council(council_id: int, data: CouncilUpdate, db: DB_dependency):
 
     council = db.query(Council_DB).filter_by(id=council_id).one_or_none()
     if council is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise HTTPException(404, detail="Council not found")
 
     for var, value in vars(data).items():
         setattr(council, var, value) if value is not None else None
