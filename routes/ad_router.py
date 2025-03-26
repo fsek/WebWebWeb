@@ -90,22 +90,16 @@ def remove_ad_super_user(id: int, db: DB_dependency):
     return ad
 
 
-@ad_router.put("/updateAd/{id}", response_model=AdRead)
-def update_ad(id: int, data: AdUpdate, current_user: Annotated[User_DB, Permission.base()], db: DB_dependency):
-    ad = db.query(BookAd_DB).filter_by(ad_id=id).one_or_none()
+@ad_router.patch("/updateAd/{ad_id}", response_model=AdRead, dependencies=[Permission.require("manage", "Ads")])
+def update_ad(ad_id: int, data: AdUpdate, db: DB_dependency):
+
+    ad = db.query(BookAd_DB).filter_by(ad_id=ad_id).one_or_none()
     if ad is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
-    if data.title is not None:
-        ad.title = data.title
-    if data.author is not None:
-        ad.author = data.author
-    if data.price is not None:
-        ad.price = data.price
-    if data.course is not None:
-        ad.course = data.course
-    if data.selling is not None:
-        ad.selling = data.selling
-    if data.condition is not None:
-        ad.condition = data.condition
+        raise HTTPException(404, detail="Ad not found")
+
+    for var, value in vars(data).items():
+        setattr(ad, var, value) if value is not None else None
+
     db.commit()
+
     return ad
