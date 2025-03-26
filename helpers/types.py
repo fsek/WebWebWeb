@@ -41,6 +41,7 @@ PERMISSION_TARGET = Literal[
     "Groups",
     "Adventure Missions",
     "Nollning",
+    "UserDoorAccess",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
@@ -50,3 +51,9 @@ PERMISSION_TARGET = Literal[
 
 GROUP_TYPE = Literal["Mentor", "Mission", "Default", "Committee"]
 GROUP_USER_TYPE = Literal["Mentor", "Mentee", "Default"]
+
+# All doors the guild manages access to.
+
+DOOR_ACCESSES = Literal[
+    "LC", "Bunkern", "Syster Kents", "Cafét", "Caféförrådet", "Pubförrådet", "Containern", "Arkivet"
+]
