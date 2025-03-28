@@ -1,11 +1,14 @@
 from fastapi import APIRouter, HTTPException, status
 from api_schemas.document_schema import DocumentOverview, DocumentUpload, DocumentUpdate, DocumentLoad
 from database import DB_dependency
+from typing import Annotated
 from db_models.documents_model import Documents_DB
 from user.permission import Permission
+from db_models.user_model import User_DB
 from sqlalchemy.exc import IntegrityError, StatementError, SQLAlchemyError
 from fastapi import APIRouter, UploadFile, File
 from services.img_service import upload_img, remove_img, get_single_img
+from services.document_service import upload_doc, remove_doc, get_single_doc
 
 # test
 document_router = APIRouter()
@@ -17,8 +20,10 @@ document_router = APIRouter()
 
 
 @document_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
-def upload_document(db: DB_dependency, name: str, file: UploadFile = File()):
-    return upload_img(db, name, file)
+def upload_document(
+    db: DB_dependency, name: str, current_user: Annotated[User_DB, Permission.member()], file: UploadFile = File()
+):
+    return upload_doc(db, name, current_user.id, file)
 
 
 """ @document_router.post(
