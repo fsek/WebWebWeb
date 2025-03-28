@@ -7,10 +7,13 @@ from sqlalchemy.exc import IntegrityError, StatementError, SQLAlchemyError
 from fastapi import APIRouter, UploadFile, File
 from services.img_service import upload_img, remove_img, get_single_img
 
+# test
 document_router = APIRouter()
 
 
-@document_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
+@document_router.post(
+    "/", dependencies=[Permission.require("manage", "DocumentArchive")], response_model=dict[str, str]
+)
 def upload_image(db: DB_dependency, album_id: int, file: UploadFile = File()):
     return upload_img(db, album_id, file)
 
