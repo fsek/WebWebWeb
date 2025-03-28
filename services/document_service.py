@@ -16,7 +16,7 @@ def upload_doc(db: Session, name: str, user_id: int, file: UploadFile = File()):
         raise HTTPException(400, detail="The file name is too long")
 
     salt = random.getrandbits(24)
-    file_path = Path(f"/{salt}{file.filename.replace(' ', '-')}")
+    file_path = Path(f"/{salt}{name.replace(' ', '-')}")
     if file_path.is_file():
         raise HTTPException(400, detail="Filename is equal to already existing file")
     if file.size == None or file.size > MAX_DOCUMENT_BYTES:
