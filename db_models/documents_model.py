@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class Documents_DB(BaseModel_DB):
     __tablename__ = "documents_table"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     name: Mapped[str] = mapped_column(String(MAX_DOCUMENT_TITLE), nullable=False)
 

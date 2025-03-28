@@ -16,13 +16,13 @@ def upload_doc(db: Session, name: str, file: UploadFile = File()):
         raise HTTPException(400, detail="The file name is too long")
 
     salt = random.getrandbits(24)
-    file_path = Path(f"/{salt}{file.filename.replace(' ', '')}")
+    file_path = Path(f"/{salt}{file.filename.replace(' ', '-')}")
     if file_path.is_file():
         raise HTTPException(409, detail="Filename is equal to already existing file")
 
     file_path.write_bytes(file.file.read())
     doc = Documents_DB(file_path=file_path.name, name=name)
-    db.add(img)
+    db.add(doc)
     db.commit()
     return {"message": "File saved successfully"}
 
