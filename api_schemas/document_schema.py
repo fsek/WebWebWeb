@@ -7,7 +7,6 @@ from api_schemas.base_schema import BaseSchema
 class DocumentUpload(BaseSchema):
     name: str
     uploader_id: int
-    document: None
 
 
 class DocumentLoad(BaseSchema):
@@ -16,7 +15,7 @@ class DocumentLoad(BaseSchema):
 
 class DocumentOverview(BaseSchema):
     name: str
-    upload_date: datetime_utc
+    date_uploaded: datetime_utc
     upload_user: SimpleUserRead
 
 
@@ -30,4 +29,4 @@ class DocumentView(BaseSchema):
 class DocumentUpdate(BaseSchema):
     id: int
     name: str | None
-    document: None | None
+    document: str | None

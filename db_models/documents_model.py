@@ -14,7 +14,7 @@ class Documents_DB(BaseModel_DB):
 
     name: Mapped[str] = mapped_column(String(MAX_EVENT_TITLE), nullable=False)
 
-    uploader_id: Mapped[int] = mapped_column(ForeignKey("users_table.id"), nullable=False)
+    uploader_id: Mapped[int] = mapped_column(ForeignKey("users_table.id", ondelete="SET NULL"), nullable=True)
 
     file_path: Mapped[str] = mapped_column(String, nullable=False)  # Path or URL to the document file
     file_type: Mapped[str] = mapped_column(String(50))  # PDF, DOCX, etc.
