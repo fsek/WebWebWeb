@@ -13,15 +13,15 @@ if TYPE_CHECKING:
 
 class Documents_DB(BaseModel_DB):
     __tablename__ = "documents_table"
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
 
     name: Mapped[str] = mapped_column(String(MAX_DOCUMENT_TITLE), nullable=False)
 
-    uploader_id: Mapped[int] = mapped_column(ForeignKey("user_table.id", ondelete="SET NULL"), nullable=True)
+    # uploader_id: Mapped[int] = mapped_column(ForeignKey("user_table.id", ondelete="SET NULL"), nullable=True)
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="documents", init=False)
 
     file_path: Mapped[str] = mapped_column(String, nullable=False)  # Path or URL to the document file
-    file_type: Mapped[str] = mapped_column(String(50))  # PDF, DOCX, etc.
+    # file_type: Mapped[str] = mapped_column(String(50))  # PDF, DOCX, etc.
     date_uploaded: Mapped[datetime] = mapped_column(default=datetime_utc)
 
     def __repr__(self):
