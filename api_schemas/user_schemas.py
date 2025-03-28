@@ -17,6 +17,13 @@ class _UserPostRead(BaseSchema):
     council_id: int
 
 
+class SimpleUserRead(BaseSchema):
+    id: int
+    stil_id: str
+    first_name: str
+    last_name: str
+
+
 class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     first_name: str
     last_name: str
