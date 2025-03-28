@@ -35,7 +35,7 @@ def upload_document(db: DB_dependency, data: DocumentUpload):
 
 
 # TODO only users should be able to use this
-@document_router.get("/", response_model=list[DocumentOverview])
+@document_router.get("/", response_model=DocumentOverview)
 def get_all_documents(db: DB_dependency):
     documents = db.query(Documents_DB).all()
 
