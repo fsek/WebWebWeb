@@ -3,17 +3,17 @@ from helpers.types import datetime_utc
 from api_schemas.base_schema import BaseSchema
 
 
-class DocumentCreate(BaseSchema):
+class DocumentUpload(BaseSchema):
     name: str
     uploader_user_id: int
     document: None
 
 
-class DocumentGet(BaseSchema):
+class DocumentLoad(BaseSchema):
     id: int
 
 
-class DocumentRead(BaseSchema):
+class DocumentOverview(BaseSchema):
     name: str
     upload_date: datetime_utc
     upload_user: SimpleUserRead
