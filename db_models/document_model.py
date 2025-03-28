@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Optional
-from helpers.constants import MAX_DOC_AUTHOR, MAX_BOOK_TITLE, MAX_DOC_TITLE
+from helpers.constants import MAX_DOC_AUTHOR, MAX_DOC_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import  ForeignKey, String
@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class Document_DB(BaseModel_DB):
-    __tablename__ = "bookad_table"
+    __tablename__ = "document_table"
 
     document_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 

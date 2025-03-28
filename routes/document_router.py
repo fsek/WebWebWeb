@@ -1,21 +1,23 @@
+from pydoc import doc
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import func
+from api_schemas import document_router
 from database import DB_dependency
-from db_models.ad_model import BookAd_DB
-from api_schemas.ad_schema import AdRead, AdCreate, AdUpdate
+from db_models.document_model import Document_DB
+from api_schemas.document_schema import DocumentRead, DocumentCreate, DocumentUpdate
 from db_models.user_model import User_DB
+from routes import ad_router
 from user.permission import Permission
 
-ad_router = APIRouter()
+document_router = APIRouter()
 
+@document_router.get("/", response_model=list[DocumentRead])
+def get_all_documents(db: DB_dependency):
+    documents = db.query(Document_DB).all()
+    return documents
 
-@ad_router.get("/", response_model=list[AdRead])
-def get_all_ads(db: DB_dependency):
-    adds = db.query(BookAd_DB).all()
-    return adds
-
-
+"""
 @ad_router.post("/", response_model=AdRead)
 def create_ad(data: AdCreate, db: DB_dependency):
     ad = BookAd_DB(
@@ -30,16 +32,16 @@ def create_ad(data: AdCreate, db: DB_dependency):
     db.add(ad)
     db.commit()
     return ad
+"""
 
-
-@ad_router.get("/{id}", response_model=AdRead)
-def get_ad_by_id(id: int, db: DB_dependency):
-    ad = db.query(BookAd_DB).filter_by(ad_id=id).one_or_none()
-    if ad is None:
+@document_router.get("/{id}", response_model=DocumentRead)
+def get_document_by_id(id: int, db: DB_dependency):
+    document = db.query(Document_DB).filter_by(document_id_id=id).one_or_none()
+    if document is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    return ad
+    return document
 
-
+"""
 @ad_router.get("/username/{username}", response_model=list[AdRead])
 def get_ad_by_user(username: str, db: DB_dependency):
     user = (
@@ -57,16 +59,16 @@ def get_book_ad_by_author(authorname: str, db: DB_dependency):
     if len(ads) == 0:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return ads
+"""
 
-
-@ad_router.get("/title/{stitle}", response_model=list[AdRead])
-def get_book_ad_by_title(stitle: str, db: DB_dependency):
-    ads = db.query(BookAd_DB).filter(func.lower(BookAd_DB.title) == func.lower(stitle)).all()
-    if len(ads) == 0:
+@document_router.get("/title/{stitle}", response_model=list[DocumentRead])
+def get_document_by_title(stitle: str, db: DB_dependency):
+    documents = db.query(Document_DB).filter(func.lower(Document_DB.title) == func.lower(stitle)).all()
+    if len(documents) == 0:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    return ads
+    return documents
 
-
+"""
 @ad_router.delete("/{id}", response_model=AdRead)
 def remove_ad(id: int, current_user: Annotated[User_DB, Permission.base()], db: DB_dependency):
     ad = db.query(BookAd_DB).filter_by(ad_id=id).one_or_none()
@@ -103,3 +105,4 @@ def update_ad(ad_id: int, data: AdUpdate, db: DB_dependency):
     db.commit()
 
     return ad
+"""
