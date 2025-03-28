@@ -14,6 +14,7 @@ document_router = APIRouter()
 @document_router.post(
     "/", dependencies=[Permission.require("manage", "DocumentArchive")], response_model=dict[str, str]
 )
+@document_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
 def upload_image(db: DB_dependency, album_id: int, file: UploadFile = File()):
     return upload_img(db, album_id, file)
 
@@ -29,9 +30,9 @@ def upload_document(db: DB_dependency, data: DocumentUpload):
 # TODO only users should be able to use this
 @document_router.get("/", response_model=list[DocumentOverview])
 def get_all_documents(db: DB_dependency):
-    accesses = db.query(Documents_DB).all()
+    documents = db.query(Documents_DB).all()
 
-    return accesses
+    return documents
 
 
 @document_router.patch(
