@@ -5,7 +5,7 @@ from api_schemas.base_schema import BaseSchema
 
 class DocumentUpload(BaseSchema):
     name: str
-    uploader_user_id: int
+    uploader_id: int
     document: None
 
 
