@@ -8,7 +8,7 @@ from db_models.user_model import User_DB
 from sqlalchemy.exc import IntegrityError, StatementError, SQLAlchemyError
 from fastapi import APIRouter, UploadFile, File
 from services.img_service import upload_img, remove_img, get_single_img
-from services.document_service import upload_doc, remove_doc, get_single_doc
+from services.document_service import upload_doc#, remove_doc, get_single_doc
 
 # test
 document_router = APIRouter()
