@@ -17,7 +17,7 @@ class Documents_DB(BaseModel_DB):
 
     name: Mapped[str] = mapped_column(String(MAX_DOCUMENT_TITLE), nullable=False)
 
-    uploader_id: Mapped[int] = mapped_column(ForeignKey("users_table.id"), nullable=False)
+    uploader_id: Mapped[int] = mapped_column(ForeignKey("users_table.id", ondelete="SET NULL"), nullable=True)
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="documents", init=False)
 
     file_path: Mapped[str] = mapped_column(String, nullable=False)  # Path or URL to the document file

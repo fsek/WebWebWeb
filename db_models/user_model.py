@@ -92,6 +92,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     stil_id: Mapped[Optional[str]] = mapped_column(default=None)
 
+    documents: Mapped[list["Documents_DB"]] = relationship(back_populates="uploader_id")
+
     group_users: Mapped[list["GroupUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
     )
