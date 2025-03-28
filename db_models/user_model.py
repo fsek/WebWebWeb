@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, relationship, mapped_column
 from db_models.candidate_model import Candidate_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
+from db_models.documents_model import Documents_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
@@ -92,7 +93,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     stil_id: Mapped[Optional[str]] = mapped_column(default=None)
 
-    documents: Mapped[list["Documents_DB"]] = relationship(back_populates="uploader_id")
+    documents: Mapped[list["Documents_DB"]] = relationship(back_populates="user", init=False)
 
     group_users: Mapped[list["GroupUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
