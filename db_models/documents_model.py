@@ -1,20 +1,24 @@
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TYPE_CHECKING
 from sqlalchemy import ForeignKey, String, Integer, Boolean
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
+from helpers.constants import MAX_DOCUMENT_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from helpers.types import datetime_utc
+
+if TYPE_CHECKING:
+    from .user_model import User_DB
 
 
 class Documents_DB(BaseModel_DB):
     __tablename__ = "documents_table"
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
 
-    name: Mapped[str] = mapped_column(String(MAX_EVENT_TITLE), nullable=False)
+    name: Mapped[str] = mapped_column(String(MAX_DOCUMENT_TITLE), nullable=False)
 
     uploader_id: Mapped[int] = mapped_column(ForeignKey("users_table.id"), nullable=False)
+    user: Mapped["User_DB"] = relationship("User_DB", back_populates="documents", init=False)
 
     file_path: Mapped[str] = mapped_column(String, nullable=False)  # Path or URL to the document file
     file_type: Mapped[str] = mapped_column(String(50))  # PDF, DOCX, etc.

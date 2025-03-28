@@ -30,4 +30,4 @@ class DocumentView(BaseSchema):
 class DocumentUpdate(BaseSchema):
     id: int
     name: str | None
-    document: None | None
+    document: str | None
