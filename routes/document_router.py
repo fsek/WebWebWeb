@@ -19,7 +19,7 @@ document_router = APIRouter()
 ) """
 
 
-@document_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
+@document_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=DocumentOverview)
 def upload_document(
     db: DB_dependency, name: str, current_user: Annotated[User_DB, Permission.member()], file: UploadFile = File()
 ):

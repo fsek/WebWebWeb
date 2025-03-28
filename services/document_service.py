@@ -9,6 +9,7 @@ import os
 from datetime import datetime, timezone
 
 
+# TODO check to make sure it is a pdf
 def upload_doc(db: Session, name: str, user_id: int, file: UploadFile = File()):
     if file.filename is None:
         raise HTTPException(400, detail="The file has no name")
@@ -16,7 +17,7 @@ def upload_doc(db: Session, name: str, user_id: int, file: UploadFile = File()):
     if len(name) > MAX_DOCUMENT_TITLE:
         raise HTTPException(400, detail="The file name is too long")
 
-    file_path = Path(f"documents/{datetime.date}-{name.replace(' ', '-')}.pdf")
+    file_path = Path(f"documents/{datetime.date(datetime.now(timezone.utc))}-{name.replace(' ', '-')}.pdf")
     if file_path.is_file():
         raise HTTPException(400, detail="Filename is equal to already existing file")
     if file.size == None or file.size > MAX_DOCUMENT_BYTES:
@@ -26,6 +27,7 @@ def upload_doc(db: Session, name: str, user_id: int, file: UploadFile = File()):
     doc = Documents_DB(file_path=file_path.name, name=name, file_type="pdf", uploader_id=user_id)
     db.add(doc)
     db.commit()
+    print(doc)
     return doc
 
 
