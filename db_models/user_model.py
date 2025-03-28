@@ -25,6 +25,7 @@ if TYPE_CHECKING:
     from .news_model import News_DB
     from .ad_model import BookAd_DB
     from .cafe_shift_model import CafeShift_DB
+    from .document_model import Document_DB
 
 
 # called by SQLAlchemy when user.posts.append(some_post)
@@ -40,6 +41,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     telephone_number: Mapped[str] = mapped_column(String(MAX_TELEPHONE_LEN))
 
     book_ads: Mapped[list["BookAd_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan", init=False)
+
+    documents: Mapped[list["Document_DB"]] = relationship(back_populates="user", cascade="all, delete-orphan", init=False)
 
     start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
 
