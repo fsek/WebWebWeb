@@ -2,7 +2,6 @@ from pydoc import doc
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import func
-from api_schemas import document_router
 from database import DB_dependency
 from db_models.document_model import Document_DB
 from api_schemas.document_schema import DocumentRead, DocumentCreate, DocumentUpdate
@@ -12,10 +11,12 @@ from user.permission import Permission
 
 document_router = APIRouter()
 
+
 @document_router.get("/", response_model=list[DocumentRead])
 def get_all_documents(db: DB_dependency):
     documents = db.query(Document_DB).all()
     return documents
+
 
 """
 @ad_router.post("/", response_model=AdRead)
@@ -34,12 +35,14 @@ def create_ad(data: AdCreate, db: DB_dependency):
     return ad
 """
 
+
 @document_router.get("/{id}", response_model=DocumentRead)
 def get_document_by_id(id: int, db: DB_dependency):
     document = db.query(Document_DB).filter_by(document_id_id=id).one_or_none()
     if document is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return document
+
 
 """
 @ad_router.get("/username/{username}", response_model=list[AdRead])
@@ -61,12 +64,14 @@ def get_book_ad_by_author(authorname: str, db: DB_dependency):
     return ads
 """
 
+
 @document_router.get("/title/{stitle}", response_model=list[DocumentRead])
 def get_document_by_title(stitle: str, db: DB_dependency):
     documents = db.query(Document_DB).filter(func.lower(Document_DB.title) == func.lower(stitle)).all()
     if len(documents) == 0:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return documents
+
 
 """
 @ad_router.delete("/{id}", response_model=AdRead)
