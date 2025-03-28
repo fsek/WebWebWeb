@@ -4,9 +4,15 @@ from database import DB_dependency
 from db_models.documents_model import Documents_DB
 from user.permission import Permission
 from sqlalchemy.exc import IntegrityError, StatementError, SQLAlchemyError
-
+from fastapi import APIRouter, UploadFile, File
+from services.img_service import upload_img, remove_img, get_single_img
 
 document_router = APIRouter()
+
+
+@document_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
+def upload_image(db: DB_dependency, album_id: int, file: UploadFile = File()):
+    return upload_img(db, album_id, file)
 
 
 @document_router.post(

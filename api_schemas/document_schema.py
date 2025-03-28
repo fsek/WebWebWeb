@@ -2,6 +2,16 @@ from types import NoneType
 from api_schemas.user_schemas import SimpleUserRead
 from helpers.types import datetime_utc
 from api_schemas.base_schema import BaseSchema
+from typing import Annotated
+from fastapi import FastAPI, File, UploadFile
+
+
+class DocCreate(BaseSchema):
+    File: UploadFile
+
+
+class DocInAlbum(BaseSchema):
+    id: int
 
 
 class DocumentUpload(BaseSchema):
