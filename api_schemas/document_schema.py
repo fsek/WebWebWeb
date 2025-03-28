@@ -9,12 +9,15 @@ class DocumentRead(BaseSchema):
     title: str
     date: datetime
     user_id: int
-    
+    is_private: bool
+     
 class DocumentCreate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_DOC_TITLE)]
     date: datetime
     user_id: int
+    is_private: bool
     
 class DocumentUpdate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_DOC_TITLE)] | None = None
     date: datetime | None = None
+    is_private: bool
