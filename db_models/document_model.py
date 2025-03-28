@@ -12,9 +12,8 @@ if TYPE_CHECKING:
 class Document_DB(BaseModel_DB):
     __tablename__ = "document_table"
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"))
-    file: Mapped[bytes] = mapped_column(LargeBinary)  # For storing the actual file
     user: Mapped[Optional["User_DB"]] = relationship(back_populates="documents", init=False)
     document_id: Mapped[int] = mapped_column(primary_key=True, init=False)
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    date: Mapped[datetime] = mapped_column(default=lambda: datetime.now(timezone.utc))
+    date: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc))
     is_private: Mapped[bool] = mapped_column(default=False)

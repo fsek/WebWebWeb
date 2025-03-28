@@ -14,6 +14,7 @@ from api_schemas.user_schemas import UserCreate
 from db_models.song_category_model import SongCategory_DB
 from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
+from db_models.document_model import Document_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
@@ -152,6 +153,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm21 = Permission_DB(action="manage", target="Groups")
     perm17 = Permission_DB(action="view", target="Groups")
     perm69 = Permission_DB(action="manage", target="Tags")
+    perm90 = Permission_DB(action="manage", target="Document")
+    perm91 = Permission_DB(action="view", target="Document")
 
     perm23 = Permission_DB(action="manage", target="Adventure Missions")
     perm34 = Permission_DB(action="manage", target="Nollning")
@@ -176,6 +179,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm40)
     posts[0].permissions.append(perm41)
     posts[0].permissions.append(perm69)
+    posts[0].permissions.append(perm90)
+    posts[0].permissions.append(perm91)
 
     db.commit()
 
