@@ -44,7 +44,7 @@ def remove_doc(db: Session, img_id: int):
     pass
 
 
-def get_single_doc(db: Session, img_id: int):
+def get_single_doc(db: Session, doc_id: int):
     doc = db.query(Documents_DB).filter(Documents_DB.id == doc_id).one_or_none()
 
     if doc == None:
