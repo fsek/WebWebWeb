@@ -50,5 +50,5 @@ def get_single_doc(db: Session, img_id: int):
     if doc == None:
         raise HTTPException(404, detail="File not found")
 
-    return FileResponse(f"/{doc.path_name}")
+    return FileResponse(f"/{doc.file_path}")
     pass

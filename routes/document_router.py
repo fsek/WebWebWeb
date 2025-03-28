@@ -8,7 +8,7 @@ from db_models.user_model import User_DB
 from sqlalchemy.exc import IntegrityError, StatementError, SQLAlchemyError
 from fastapi import APIRouter, UploadFile, File
 from services.img_service import upload_img, remove_img, get_single_img
-from services.document_service import upload_doc#, remove_doc, get_single_doc
+from services.document_service import upload_doc, get_single_doc  # , remove_doc
 
 # test
 document_router = APIRouter()
@@ -35,11 +35,18 @@ def upload_document(db: DB_dependency, data: DocumentUpload):
 
 
 # TODO only users should be able to use this
-@document_router.get("/", response_model=list[DocumentOverview])
+
+
+@document_router.get("/{id}")
+def get_document(db: DB_dependency, id: int):
+    return get_single_doc(db, id)
+
+
+""" @document_router.get("/", response_model=list[DocumentOverview])
 def get_all_documents(db: DB_dependency):
     documents = db.query(Documents_DB).all()
 
-    return documents
+    return documents """
 
 
 @document_router.patch(
