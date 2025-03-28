@@ -43,7 +43,7 @@ PERMISSION_TARGET = Literal[
     "Nollning",
     "Tags",
     "Council",
-    "Document"
+    "Document",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
