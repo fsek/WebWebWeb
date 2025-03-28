@@ -3,7 +3,7 @@ from api_schemas.user_schemas import SimpleUserRead
 from helpers.types import datetime_utc
 from api_schemas.base_schema import BaseSchema
 from typing import Annotated
-from fastapi import FastAPI, File, UploadFile
+from fastapi import UploadFile
 
 
 class DocCreate(BaseSchema):

@@ -11,20 +11,22 @@ from services.img_service import upload_img, remove_img, get_single_img
 document_router = APIRouter()
 
 
-@document_router.post(
+""" @document_router.post(
     "/", dependencies=[Permission.require("manage", "DocumentArchive")], response_model=dict[str, str]
-)
+) """
+
+
 @document_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
-def upload_image(db: DB_dependency, album_id: int, file: UploadFile = File()):
-    return upload_img(db, album_id, file)
+def upload_document(db: DB_dependency, name: str, file: UploadFile = File()):
+    return upload_img(db, name, file)
 
 
-@document_router.post(
+""" @document_router.post(
     "/", dependencies=[Permission.require("manage", "DocumentArchive")], response_model=DocumentOverview
 )
 def upload_document(db: DB_dependency, data: DocumentUpload):
 
-    return None
+    return None """
 
 
 # TODO only users should be able to use this
