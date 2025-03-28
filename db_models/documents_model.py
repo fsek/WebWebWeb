@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String, Integer, Boolean
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -22,7 +22,7 @@ class Documents_DB(BaseModel_DB):
 
     file_path: Mapped[str] = mapped_column(String, nullable=False)  # Path or URL to the document file
     file_type: Mapped[str] = mapped_column(String(50))  # PDF, DOCX, etc.
-    date_uploaded: Mapped[datetime] = mapped_column(default=datetime_utc)
+    date_uploaded: Mapped[datetime] = mapped_column(default=datetime.now(timezone.utc))
 
     # def __repr__(self):
     #     return f"<Document(id={self.id}, name={self.name}, uploader={self.uploader_id})>"
