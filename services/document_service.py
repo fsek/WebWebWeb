@@ -16,8 +16,7 @@ def upload_doc(db: Session, name: str, user_id: int, file: UploadFile = File()):
     if len(name) > MAX_DOCUMENT_TITLE:
         raise HTTPException(400, detail="The file name is too long")
 
-    salt = random.getrandbits(24)
-    file_path = Path(f"{salt}{name.replace(' ', '-')}")
+    file_path = Path(f"documents/{datetime.date}-{name.replace(' ', '-')}.pdf")
     if file_path.is_file():
         raise HTTPException(400, detail="Filename is equal to already existing file")
     if file.size == None or file.size > MAX_DOCUMENT_BYTES:
@@ -27,7 +26,7 @@ def upload_doc(db: Session, name: str, user_id: int, file: UploadFile = File()):
     doc = Documents_DB(file_path=file_path.name, name=name, file_type="pdf", uploader_id=user_id)
     db.add(doc)
     db.commit()
-    return {"message": "File saved successfully"}
+    return doc
 
 
 def remove_doc(db: Session, img_id: int):
