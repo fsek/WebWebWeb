@@ -54,3 +54,7 @@ def update_document(db: DB_dependency, data: DocumentUpdate):
 )
 def delete_user_access(db: DB_dependency, access_id: int):
     return
+
+@document_router.get("/{id}")
+def get_doc(db: DB_dependency, id: int):
+    return get_single_doc(db, id)

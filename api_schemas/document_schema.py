@@ -24,9 +24,12 @@ class DocumentLoad(BaseSchema):
 
 
 class DocumentOverview(BaseSchema):
+    id: int
     name: str
+    file_path: str
+    file_type: str
     date_uploaded: datetime_utc
-    upload_user: SimpleUserRead
+    uploader_id: int
 
 
 class DocumentView(BaseSchema):

@@ -27,7 +27,6 @@ def upload_doc(db: Session, name: str, user_id: int, file: UploadFile = File()):
     doc = Documents_DB(file_path=file_path.name, name=name, file_type="pdf", uploader_id=user_id)
     db.add(doc)
     db.commit()
-    print(doc)
     return doc
 
 
