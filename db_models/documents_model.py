@@ -24,5 +24,5 @@ class Documents_DB(BaseModel_DB):
     # file_type: Mapped[str] = mapped_column(String(50))  # PDF, DOCX, etc.
     date_uploaded: Mapped[datetime] = mapped_column(default=datetime_utc)
 
-    def __repr__(self):
-        return f"<Document(id={self.id}, name={self.name}, uploader={self.uploader_id})>"
+    # def __repr__(self):
+    #     return f"<Document(id={self.id}, name={self.name}, uploader={self.uploader_id})>"
