@@ -59,3 +59,6 @@ MAX_TAG_NAME = 25
 
 # Pagination
 NEWS_PER_PAGE = 20
+
+# Council
+MAX_COUNCIL_DESC = 2500
