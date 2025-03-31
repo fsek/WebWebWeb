@@ -34,6 +34,7 @@ from db_models import (
     song_model,
     tag_model,
     user_model,
+    document_model
 )
 
 from sqlalchemy import engine_from_config
