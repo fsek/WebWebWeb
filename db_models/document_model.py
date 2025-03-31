@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 
 class Document_DB(BaseModel_DB):
     __tablename__ = "document_table"
+    path: Mapped[str] = mapped_column()
     user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"))
     user: Mapped[Optional["User_DB"]] = relationship(back_populates="documents", init=False)
     document_id: Mapped[int] = mapped_column(primary_key=True, init=False)
