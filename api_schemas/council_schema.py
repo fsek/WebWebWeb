@@ -18,3 +18,4 @@ class CouncilRead(BaseSchema):
 
 class CouncilUpdate(BaseSchema):
     name: str | None = None
+    description: str | None = None
