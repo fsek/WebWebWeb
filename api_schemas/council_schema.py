@@ -14,3 +14,7 @@ class CouncilRead(BaseSchema):
     posts: list[PostRead]
     events: list[EventRead]
     description: str | None
+
+
+class CouncilUpdate(BaseSchema):
+    name: str | None = None

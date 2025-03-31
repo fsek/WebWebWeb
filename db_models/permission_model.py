@@ -16,6 +16,8 @@ class Permission_DB(BaseModel_DB):
 
     action: Mapped[PERMISSION_TYPE] = mapped_column(String(160))
 
-    post_permissions: Mapped[list["PostPermission_DB"]] = relationship(back_populates="permission", init=False)
+    post_permissions: Mapped[list["PostPermission_DB"]] = relationship(
+        back_populates="permission", init=False, cascade="all, delete-orphan"
+    )
 
     target: Mapped[PERMISSION_TARGET] = mapped_column(String(160))
