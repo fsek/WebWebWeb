@@ -36,6 +36,12 @@ class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     program: str | None
 
 
+class UserInNewsRead(BaseSchema):
+    id: int
+    first_name: str
+    last_name: str
+
+
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     first_name: Annotated[str, StringConstraints(max_length=MAX_FIRST_NAME_LEN)]
