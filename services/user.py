@@ -17,7 +17,6 @@ def condition(model, asset):
 
 def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
     user = db.query(User_DB).filter_by(id=user_id).one()
-    print(f"Found user {user.first_name}")
 
     if not user:
         raise HTTPException(404, detail="User not found")
