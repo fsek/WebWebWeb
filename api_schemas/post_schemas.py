@@ -14,6 +14,11 @@ class PostRead(BaseSchema):
     permissions: list[_PostPermissionRead]
 
 
+class PostUpdate(BaseSchema):
+    name: str
+    council_id: int
+
+
 class PostCreate(BaseSchema):
     name: str
     council_id: int

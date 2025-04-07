@@ -1,5 +1,21 @@
 from api_schemas.base_schema import BaseSchema
+from api_schemas.event_schemas import EventRead
+from api_schemas.post_schemas import PostRead
 
 
-class CouncilExempel(BaseSchema):
-    exemple_value: int
+class CouncilCreate(BaseSchema):
+    name: str
+    description: str | None = None
+
+
+class CouncilRead(BaseSchema):
+    id: int
+    name: str
+    posts: list[PostRead]
+    events: list[EventRead]
+    description: str | None
+
+
+class CouncilUpdate(BaseSchema):
+    name: str | None = None
+    description: str | None = None

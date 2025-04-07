@@ -111,7 +111,10 @@ def seed_cafe_shifts(db: Session, user: User_DB):
 
 
 def seed_councils(db: Session):
-    councils = [Council_DB(name="Kodmästeriet"), Council_DB(name="Sanningsministeriet")]
+    councils = [
+        Council_DB(name="Kodmästeriet", description="bra beskrivning"),
+        Council_DB(name="Sanningsministeriet", description="bättre beskrivning"),
+    ]
     db.add_all(councils)
     db.commit()
 
@@ -164,6 +167,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="Adventure Missions", posts=["Buggmästare"]),
         Permission(action="manage", target="Nollning", posts=["Buggmästare"]),
         Permission(action="view", target="Nollning", posts=["Buggmästare"]),
+        Permission(action="manage", target="Council", posts=["Buggmästare"]),
+        Permission(action="view", target="Council", posts=["Buggmästare"]),
     ]
 
     [[post.permissions.append(perm.degenerate()) for perm in permissions if post.name in perm.posts] for post in posts]

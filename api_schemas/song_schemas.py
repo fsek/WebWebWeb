@@ -17,4 +17,4 @@ class SongCreate(BaseSchema):
     author: str | None
     melody: str | None
     content: str
-    category: SongCategoryRead
+    category_id: int
