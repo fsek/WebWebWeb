@@ -36,7 +36,7 @@ def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
     event_list: list["Event_DB"] = [event]
 
-    if not data.recur_interval_days is None:
+    if not (data.recur_interval_days is None or data.recur_until is None):
         if data.recur_interval_days < 1:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid argument for recurring interval days")
 

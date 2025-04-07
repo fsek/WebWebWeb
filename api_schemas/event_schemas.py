@@ -56,7 +56,7 @@ class EventCreate(BaseSchema):
     can_signup: bool
     drink_package: bool
     recur_interval_days: int | None  # Set this to None if you don't want a recurring event
-    recur_until: datetime_utc
+    recur_until: datetime_utc | None
 
 
 class EventUpdate(BaseSchema):
