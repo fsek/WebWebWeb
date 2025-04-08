@@ -24,8 +24,8 @@ def get_all_albums(db: Session):
     return albums
 
 
-def get_album(db: Session, id: int):
-    album = db.query(Album_DB).filter(Album_DB.id == id).one_or_none()
+def get_album(db: Session, album_id: int):
+    album = db.query(Album_DB).filter(Album_DB.id == album_id).one_or_none()
     if album is None:
         raise HTTPException(404, detail="Album not found")
 
