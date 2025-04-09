@@ -7,6 +7,7 @@ from seed import seed_if_empty
 from routes import main_router
 from user.permission import Permission
 import os
+from fastapi.openapi.utils import get_openapi
 
 
 def generate_unique_id(route: APIRoute):
@@ -53,6 +54,30 @@ if os.getenv("ENVIRONMENT") == "development":
     )
 
 app.include_router(router=main_router)
+
+
+def custom_openapi():  # type: ignore
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    # Generate the default OpenAPI schema
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description=app.description,
+        routes=app.routes,
+    )
+
+    # Override the servers list to include only http://localhost:8000
+    openapi_schema["servers"] = [{"url": "http://10.0.2.2:8000"}]
+
+    # Cache the schema for future calls
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+# Override FastAPI's default OpenAPI generation with our custom function
+app.openapi = custom_openapi
 
 
 @app.get("/")
