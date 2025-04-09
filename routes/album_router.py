@@ -22,13 +22,8 @@ def get_one_album(db: DB_dependency, album_id: int):
     return get_album(db, album_id)
 
 
-@album_router.delete("/{album_id}", dependencies=[Permission.require("manage", "Gallery")], response_model=AlbumRead)
-def delete_one_album(db: DB_dependency, album_id: int):
-    return delete_album(db, album_id)
-
-
 @album_router.delete(
     "/year/{year}", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str]
 )
-def delete_album_year(db: DB_dependency, year: int):
-    return delete_year(db, year)
+def delete_one_album(db: DB_dependency, album_id: int):
+    return delete_album(db, album_id)
