@@ -1,4 +1,6 @@
+from io import StringIO
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import StreamingResponse
 from psycopg import IntegrityError
 from api_schemas.tag_schema import EventTagRead, TagRead
 from database import DB_dependency
@@ -13,6 +15,8 @@ from db_models.tag_model import Tag_DB
 from user.permission import Permission
 import random
 from typing import List
+
+import pandas as pd
 
 event_router = APIRouter()
 
@@ -117,3 +121,37 @@ def get_event_tags(db: DB_dependency, event_id: int):
     event_tags = event.event_tags
 
     return event_tags
+
+
+@event_router.get("/get-event-csv/{event_id}", dependencies=[Permission.require("manage", "Event")])
+def get_event_csv(db: DB_dependency, event_id: int):
+    event = db.query(Event_DB).filter(Event_DB.id == event_id).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    event_users = event.event_users
+    event_users.sort(key=lambda e_user: e_user.user.last_name)
+
+    # Down the line, this should also include email address, food preference and other important information about event signups.
+    names: list[str] = []
+    stil_ids: list[str] = []
+    telephone_numbers: list[str] = []
+
+    for event_user in event_users:
+        user = event_user.user
+        names.append(f"{user.first_name} {user.last_name}")
+        if user.stil_id is None:
+            stil_ids.append("")
+        else:
+            stil_ids.append(user.stil_id)
+        telephone_numbers.append(user.telephone_number)
+
+    d = {"Name": names, "Stil-id": stil_ids, "Telephone number": telephone_numbers}
+
+    df = pd.DataFrame(data=d)
+    csv_file = StringIO()
+    df.to_csv(csv_file, index=False)
+    response = StreamingResponse(iter([csv_file.getvalue()]), media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=event.csv"
+    return response
