@@ -1,5 +1,5 @@
 from datetime import datetime
-from helpers.constants import MAX_ROOM_DESC, MAX_ROOM_TITLE
+from helpers.constants import MAX_ROOM_DESC
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import Optional, TYPE_CHECKING
@@ -13,12 +13,12 @@ if TYPE_CHECKING:
 class RoomBooking_DB(BaseModel_DB):
     __tablename__ = "room_booking_table"
     booking_id: Mapped[int] = mapped_column(primary_key=True, init=False)
+    room_id: Mapped[int] = mapped_column()
 
     start_time: Mapped[datetime] = mapped_column()
     end_time: Mapped[datetime] = mapped_column()
 
-    title: Mapped[str] = mapped_column(String(MAX_ROOM_TITLE))
-    description: Mapped[Optional[str]] = mapped_column(String(MAX_ROOM_DESC))
+    description: Mapped[str] = mapped_column(String(MAX_ROOM_DESC))
 
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="room_bookings", init=False)

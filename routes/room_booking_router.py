@@ -6,110 +6,110 @@ from sqlalchemy import or_, and_, literal
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.room_model import RoomBooking_DB
+from helpers.types import datetime_utc
 
 room_router = APIRouter()
 
 
-@car_router.post("/", response_model=CarCreate, dependencies=[Permission.require("manage", "Car")])
-def create_booking(booking: CarCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
-    if booking.end_time < booking.start_time:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+@room_router.post("/", response_model=RoomCreate, dependencies=[Permission.require("manage", "Rooms")])
+def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
+    if booking.end_time <= booking.start_time:
+        raise HTTPException(400, "End time must be after start time")
     illegal_booking = (
-        db.query(CarBooking_DB)
+        db.query(RoomBooking_DB)
         .filter(
-            or_(
-                and_(booking.start_time >= CarBooking_DB.start_time, booking.start_time < CarBooking_DB.end_time),
-                and_(booking.end_time > CarBooking_DB.start_time, booking.end_time <= CarBooking_DB.end_time),
-                and_(booking.start_time <= CarBooking_DB.start_time, booking.end_time >= CarBooking_DB.end_time),
+            and_(
+                RoomBooking_DB.room_id == literal(booking.room_id),  # This makes sure we only check the same room
+                or_(
+                    (RoomBooking_DB.start_time <= booking.start_time < RoomBooking_DB.end_time),
+                    and_(booking.start_time <= RoomBooking_DB.start_time, booking.end_time > RoomBooking_DB.start_time),
+                ),  # This makes sure there is no overlap with other bookings
             )
         )
         .first()
     )
     if illegal_booking:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    db_booking = CarBooking_DB(
-        start_time=booking.start_time,
-        end_time=booking.end_time,
-        user_id=current_user.id,
-        description=booking.description,
-    )
+        raise HTTPException(400, "The booking clashes with another booking")
+
+    dictionary = {key: getattr(booking, key) for key in vars(booking)}
+    db_booking = RoomBooking_DB(**dictionary, user_id=current_user.id)
     db.add(db_booking)
     db.commit()
+
     return db_booking
 
 
-@car_router.get("/", response_model=list[RoomRead], dependencies=[Permission.member()])
-def get_all_booking(db: DB_dependency):
-    bookings = db.query(CarBooking_DB).all()
+@room_router.get("/", response_model=list[RoomRead], dependencies=[Permission.require("view", "Rooms")])
+def get_bookings(db: DB_dependency, start_time: datetime_utc | None = None, end_time: datetime_utc | None = None):
+    if start_time is None and end_time is None:
+        bookings = db.query(RoomBooking_DB).all()
+    elif start_time is None:
+        bookings = db.query(RoomBooking_DB).filter(RoomBooking_DB.end_time <= end_time)
+    elif end_time is None:
+        bookings = db.query(RoomBooking_DB).filter(start_time <= RoomBooking_DB.start_time)
+    else:
+        bookings = db.query(RoomBooking_DB).filter(
+            and_(RoomBooking_DB.start_time <= start_time, end_time <= RoomBooking_DB.end_time)
+        )
+
     return bookings
 
 
-@car_router.get(
-    "/{booking_id}", response_model=CarRead, dependencies=[Permission.require("view", "Car"), Permission.member()]
-)
+@room_router.get("/{booking_id}", response_model=RoomRead, dependencies=[Permission.require("view", "Rooms")])
 def get_booking(booking_id: int, db: DB_dependency):
-    booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
-    if booking:
-        return booking
-    raise HTTPException(status.HTTP_404_NOT_FOUND)
+    booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).one_or_none()
+    if booking is None:
+        raise HTTPException(404, detail="Bad booking id")
+    return booking
 
 
-@car_router.delete("/{booking_id}", response_model=CarRead)
+@room_router.delete("/{booking_id}", response_model=RoomRead, dependencies=[Permission.require("manage", "Rooms")])
 def remove_booking(
     booking_id: int,
     current_user: Annotated[User_DB, Permission.member()],
-    manage_permission: Annotated[bool, Permission.check("manage", "Car")],
     db: DB_dependency,
 ):
-    car_booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
-    if car_booking is None:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
-    if (car_booking.user == current_user) or manage_permission:
-        db.delete(car_booking)
+    booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).one_or_none()
+    if booking is None:
+        raise HTTPException(404, "Bad booking id")
+    else:
+        db.delete(booking)
         db.commit()
-        return car_booking
-
-    raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+        return booking
 
 
-@car_router.patch("/{booking_id}", response_model=CarRead)
+@room_router.patch("/{booking_id}", response_model=RoomRead, dependencies=[Permission.require("manage", "Rooms")])
 def update_booking(
-    booking_id: int,
-    data: CarUpdate,
-    current_user: Annotated[User_DB, Permission.member()],
-    manage_permission: Annotated[bool, Permission.check("manage", "Car")],
-    db: DB_dependency,
+    booking_id: int, data: RoomUpdate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency
 ):
-    car_booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
-    if car_booking is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
-    if (car_booking.user != current_user) and (not manage_permission):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+    booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).one_or_none()
+    if booking is None:
+        raise HTTPException(404, "Bad booking id")
+
+    for var, value in vars(data).items():
+        setattr(booking, var, value) if value is not None else None
+    booking.user_id = current_user.id
+
+    if booking.end_time <= booking.start_time:
+        raise HTTPException(400, "End time must be after start time")
 
     illegal_booking = (
-        db.query(CarBooking_DB)
+        db.query(RoomBooking_DB)
         .filter(
             and_(
+                RoomBooking_DB.room_id == booking.room_id,  # This makes sure we only check the same room
+                literal(booking_id) != RoomBooking_DB.booking_id,  # Filters out the booking we are editing
                 or_(
-                    and_(data.start_time >= CarBooking_DB.start_time, data.start_time < CarBooking_DB.end_time),
-                    and_(data.end_time > CarBooking_DB.start_time, data.end_time <= CarBooking_DB.end_time),
-                    and_(data.start_time <= CarBooking_DB.start_time, data.end_time >= CarBooking_DB.end_time),
+                    (RoomBooking_DB.start_time <= booking.start_time < RoomBooking_DB.end_time),
+                    and_(booking.start_time <= RoomBooking_DB.start_time, booking.end_time > RoomBooking_DB.start_time),
                 ),  # This checks so that there is no overlap with other bookings before being added to the table
-                literal(booking_id) != CarBooking_DB.booking_id,
-            ),  # filters out the booking we are editing
+            )
         )
         .first()
     )
 
     if illegal_booking:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
-
-    if data.description is not None:
-        car_booking.description = data.description
-    if data.start_time is not None:
-        car_booking.start_time = data.start_time
-    if data.end_time is not None:
-        car_booking.end_time = data.end_time
+        raise HTTPException(400, "The booking clashes with another booking")
 
     db.commit()
-    return car_booking
+    return booking
