@@ -52,7 +52,7 @@ class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     pass
 
 
-class MeUpdate(BaseSchema):
+class UserUpdate(BaseSchema):
     first_name: str | None = None
     last_name: str | None = None
     start_year: int | None = None
@@ -60,8 +60,5 @@ class MeUpdate(BaseSchema):
     notifications: bool | None = None
     stil_id: str | None = None
 
-
-# class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
-#     first_name: str
-#     last_name: str
-#     pass
+class UpdateUserMember(BaseSchema):
+    is_member: bool
