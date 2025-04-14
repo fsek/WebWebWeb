@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException
 from api_schemas.room_booking_schema import RoomCreate, RoomRead, RoomUpdate
 from database import DB_dependency
 from typing import Annotated
