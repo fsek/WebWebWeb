@@ -17,8 +17,13 @@ def get_all_songs(db: DB_dependency):
 @song_router.get("/{song_id}", response_model=SongRead)
 def get_song(song_id: int, db: DB_dependency):
     song = db.query(Song_DB).filter_by(id=song_id).one_or_none()
+
     if song is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+    song.views += 1
+    db.commit()
+
     return song
 
 
