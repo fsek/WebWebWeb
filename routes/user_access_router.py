@@ -24,15 +24,9 @@ def post_user_access(db: DB_dependency, data: UserAccessCreate):
     try:
         db.add(newAccess)
         db.commit()
-    except IntegrityError:
+    except Exception:
         db.rollback()
-        raise HTTPException(400, detail="Invalid data provided")
-    except StatementError:
-        db.rollback()
-        raise HTTPException(400, detail="Invalid data type provided")
-    except SQLAlchemyError:
-        db.rollback()
-        raise HTTPException(500, detail="A database error occurred")
+        raise HTTPException(400, detail="A database error occured")
 
     return newAccess
 

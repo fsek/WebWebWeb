@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 class UserDoorAccess_DB(BaseModel_DB):
     __tablename__ = "user_door_access_table"
 
-    user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
     user: Mapped["User_DB"] = relationship(back_populates="accesses", init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
 
     door: Mapped[Literal[DOOR_ACCESSES]] = mapped_column()
 

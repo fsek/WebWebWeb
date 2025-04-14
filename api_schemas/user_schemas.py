@@ -41,6 +41,12 @@ class UserAccessRead(BaseSchema):
     stoptime: datetime_utc
 
 
+class SimpleUserAccessRead(BaseSchema):
+    door: str
+    starttime: datetime_utc
+    stoptime: datetime_utc
+
+
 class UserAccessUpdate(BaseSchema):
     access_id: int
     door: Literal[DOOR_ACCESSES] | None = None
@@ -62,7 +68,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     account_created: datetime_utc
     want_notifications: bool
     stil_id: str | None = None
-    accesses: list[UserAccessRead]
+    accesses: list[SimpleUserAccessRead]
 
 
 class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
