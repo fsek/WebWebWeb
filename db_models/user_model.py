@@ -5,6 +5,7 @@ from sqlalchemy.orm import Mapped, relationship, mapped_column
 from db_models.candidate_model import Candidate_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
+from .user_door_access_model import UserDoorAccess_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
@@ -100,6 +101,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     groups: AssociationProxy[list["Group_DB"]] = association_proxy(
         target_collection="group_users", attr="group", init=False
+    )
+
+    accesses: Mapped[list["UserDoorAccess_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
     )
 
     # notifications: Mapped[list["Notification_DB"]]
