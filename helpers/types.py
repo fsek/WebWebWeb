@@ -44,7 +44,6 @@ PERMISSION_TARGET = Literal[
     "UserDoorAccess",
     "Tags",
     "Council"
-    "Rooms",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
