@@ -69,7 +69,8 @@ def custom_openapi():  # type: ignore
     )
 
     # Override the servers list to include only http://localhost:8000
-    openapi_schema["servers"] = [{"url": "http://10.0.2.2:8000"}]
+    # Uncomment the line below when generating with openapi-generator in flutter app
+    # openapi_schema["servers"] = [{"url": "http://10.0.2.2:8000"}]
 
     # Cache the schema for future calls
     app.openapi_schema = openapi_schema
