@@ -68,14 +68,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     account_created: datetime_utc
     want_notifications: bool
     stil_id: str | None = None
-    standard_food_preferences: list[str] | None
-    other_food_preferences: str | None
     accesses: list[SimpleUserAccessRead]
-
-
-class UserInEventRead(SimpleUserRead):
-    standard_food_preferences: list[str] | None
-    other_food_preferences: str | None
 
 
 class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):

@@ -150,6 +150,45 @@ class Permission(Permission_DB):
         return Permission_DB(action=self.action, target=self.target)
 
 def seed_permissions(db: Session, posts: list[Post_DB]):
+
+    perm1 = Permission_DB(action="manage", target="Permission")
+    perm2 = Permission_DB(action="view", target="User")
+    perm3 = Permission_DB(action="manage", target="Event")
+    perm4 = Permission_DB(action="manage", target="Post")
+    perm5 = Permission_DB(action="manage", target="News")
+    perm6 = Permission_DB(action="manage", target="Song")
+    perm7 = Permission_DB(action="manage", target="Gallery")
+    perm8 = Permission_DB(action="manage", target="Ads")
+    perm9 = Permission_DB(action="manage", target="Car")
+    perm10 = Permission_DB(action="manage", target="Election")
+    perm11 = Permission_DB(action="manage", target="Cafe")
+    perm21 = Permission_DB(action="manage", target="Groups")
+    perm17 = Permission_DB(action="view", target="Groups")
+    perm69 = Permission_DB(action="manage", target="UserDoorAccess")
+    perm1337 = Permission_DB(action="view", target="UserDoorAccess")
+
+    perm23 = Permission_DB(action="manage", target="Adventure Missions")
+    perm34 = Permission_DB(action="manage", target="Nollning")
+    perm36 = Permission_DB(action="view", target="Nollning")
+
+    posts[0].permissions.append(perm1)
+    posts[0].permissions.append(perm2)
+    posts[1].permissions.append(perm3)
+    posts[0].permissions.append(perm4)
+    posts[1].permissions.append(perm5)
+    posts[0].permissions.append(perm6)
+    posts[0].permissions.append(perm7)
+    posts[0].permissions.append(perm8)
+    posts[0].permissions.append(perm9)
+    posts[0].permissions.append(perm10)
+    posts[1].permissions.append(perm11)
+    posts[0].permissions.append(perm21)
+    posts[0].permissions.append(perm23)
+    posts[0].permissions.append(perm34)
+    posts[0].permissions.append(perm36)
+    posts[0].permissions.append(perm69)
+    posts[0].permissions.append(perm1337)
+
     permissions = [
         Permission(action="manage", target="Permission", posts=["Buggmästare"]),
         Permission(action="view", target="User", posts=["Buggmästare"]),
@@ -168,7 +207,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="Nollning", posts=["Buggmästare"]),
         Permission(action="view", target="Nollning", posts=["Buggmästare"]),
         Permission(action="manage", target="Council", posts=["Buggmästare"]),
-        Permission(action="view", target="Council", posts=["Buggmästare"]),
+        Permission(action="view", target="Council", posts=["Buggmästare"])
     ]
 
     [[post.permissions.append(perm.degenerate()) for perm in permissions if post.name in perm.posts] for post in posts]
