@@ -40,16 +40,29 @@ def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permiss
 
 
 @room_router.get("/", response_model=list[RoomRead], dependencies=[Permission.require("view", "Rooms")])
-def get_bookings(db: DB_dependency, start_time: datetime_utc | None = None, end_time: datetime_utc | None = None):
+def get_bookings(
+    db: DB_dependency,
+    start_time: tuple[datetime_utc, datetime_utc] | None = None,
+    end_time: tuple[datetime_utc, datetime_utc] | None = None,
+):
     if start_time is None and end_time is None:
         bookings = db.query(RoomBooking_DB).all()
     elif start_time is None:
-        bookings = db.query(RoomBooking_DB).filter(RoomBooking_DB.end_time <= end_time)
+        bookings = db.query(RoomBooking_DB).filter(
+            and_(RoomBooking_DB.end_time >= end_time[0], RoomBooking_DB.end_time <= end_time[1])
+        )
     elif end_time is None:
-        bookings = db.query(RoomBooking_DB).filter(start_time <= RoomBooking_DB.start_time)
+        bookings = db.query(RoomBooking_DB).filter(
+            and_(RoomBooking_DB.start_time >= end_time[0], RoomBooking_DB.end_time <= start_time[1])
+        )
     else:
         bookings = db.query(RoomBooking_DB).filter(
-            and_(RoomBooking_DB.start_time <= start_time, end_time <= RoomBooking_DB.end_time)
+            and_(
+                RoomBooking_DB.end_time >= end_time[0],
+                RoomBooking_DB.end_time <= end_time[1],
+                RoomBooking_DB.start_time >= end_time[0],
+                RoomBooking_DB.end_time <= start_time[1],
+            )
         )
 
     return bookings
@@ -66,7 +79,6 @@ def get_booking(booking_id: int, db: DB_dependency):
 @room_router.delete("/{booking_id}", response_model=RoomRead, dependencies=[Permission.require("manage", "Rooms")])
 def remove_booking(
     booking_id: int,
-    current_user: Annotated[User_DB, Permission.member()],
     db: DB_dependency,
 ):
     booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.booking_id == booking_id).one_or_none()
