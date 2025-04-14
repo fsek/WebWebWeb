@@ -44,7 +44,7 @@ PERMISSION_TARGET = Literal[
     "Nollning",
     "UserDoorAccess",
     "Tags",
-    "Council",
+    "Council"
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
@@ -60,7 +60,3 @@ GROUP_USER_TYPE = Literal["Mentor", "Mentee", "Default"]
 DOOR_ACCESSES = Literal[
     "LC", "Bunkern", "Syster Kents", "Cafét", "Caféförrådet", "Pubförrådet", "Containern", "Arkivet"
 ]
-
-# Standard food preferences the user can put on their account
-
-FOOD_PREFERENCES = Literal["Vegetarian", "Vegan", "Pescetarian", "Mjölkallergi", "Gluten"]
