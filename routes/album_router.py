@@ -17,13 +17,13 @@ def get_albums(db: DB_dependency):
     return get_all_albums(db)
 
 
-@album_router.get("/", dependencies=[Permission.member()], response_model=AlbumRead)
-def get_one_album(db: DB_dependency, id: int):
-    return get_album(db, id)
+@album_router.get("/{album_id}", dependencies=[Permission.member()], response_model=AlbumRead)
+def get_one_album(db: DB_dependency, album_id: int):
+    return get_album(db, album_id)
 
 
 @album_router.delete(
     "/{album_id}", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str]
 )
-def delete_one_album(db: DB_dependency, id: int):
-    return delete_album(db, id)
+def delete_one_album(db: DB_dependency, album_id: int):
+    return delete_album(db, album_id)

@@ -12,6 +12,11 @@ class GroupMissionCreate(BaseSchema):
     adventure_mission_id: int
 
 
+class GroupMissionEdit(BaseSchema):
+    points: int
+    adventure_mission_id: int
+
+
 class GroupMissionRead(BaseSchema):
     points: int
     adventure_mission: AdventureMissionRead

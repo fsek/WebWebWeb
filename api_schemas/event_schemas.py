@@ -58,6 +58,10 @@ class EventCreate(BaseSchema):
 
 
 class EventUpdate(BaseSchema):
+    starts_at: datetime_utc | None = None
+    ends_at: datetime_utc | None = None
+    signup_start: datetime_utc | None = None
+    signup_end: datetime_utc | None = None
     title_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
@@ -72,3 +76,8 @@ class EventUpdate(BaseSchema):
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
+
+
+class AddEventTag(BaseSchema):
+    event_id: int
+    tag_id: int
