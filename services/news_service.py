@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import UTC, datetime
+from helpers.types import datetime_utc
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from api_schemas.news_schemas import NewsCreate, NewsUpdate
@@ -6,7 +7,7 @@ from db_models.news_model import News_DB
 from helpers.date_util import round_whole_minute
 
 
-def validate_pinned_times(pinned_from: datetime | None, pinned_to: datetime | None):
+def validate_pinned_times(pinned_from: datetime_utc | None, pinned_to: datetime_utc | None):
     if (pinned_from is None and pinned_to is not None) or (pinned_from is not None and pinned_to is None):
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST, detail="Either both or none of pinned_from and pinned_to must be None"
@@ -60,7 +61,7 @@ def bump_existing_news(news_id: int, db: Session):
     if news is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    setattr(news, "bumped_at", datetime.now())
+    setattr(news, "bumped_at", datetime.now(UTC))
 
     db.commit()
     db.refresh(news)

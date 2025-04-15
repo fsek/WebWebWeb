@@ -45,7 +45,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
 
     account_created: Mapped[datetime_utc] = mapped_column(
-        default=datetime.datetime.now()
+        default=datetime.datetime.now(datetime.UTC)
     )  # date and time the account was created
 
     start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
@@ -55,7 +55,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     )  # program at the guild
 
     account_created: Mapped[datetime_utc] = mapped_column(
-        default=datetime.datetime.now()
+        default=datetime.datetime.now(datetime.UTC)
     )  # date and time the account was created
 
     car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="user", init=False)
