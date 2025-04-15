@@ -49,6 +49,7 @@ class EventCreate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)]
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
+    location: str
     max_event_users: int
     priorities: list[MEMBER_ROLES]
     all_day: bool
@@ -71,6 +72,7 @@ class EventUpdate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
+    location: str
     max_event_users: int | None = None
     all_day: bool | None = None
     signup_not_opened_yet: bool | None = None
