@@ -1,9 +1,12 @@
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 from api_schemas.base_schema import BaseSchema
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from helpers.types import MEMBER_ROLES, datetime_utc
 from pydantic import StringConstraints
+
+if TYPE_CHECKING:
+    from api_schemas.council_schema import CouncilInEventRead
 
 
 class EventRead(BaseSchema):
@@ -17,6 +20,8 @@ class EventRead(BaseSchema):
     title_en: str
     description_sv: str
     description_en: str
+    council: "CouncilInEventRead"
+    location: str
     max_event_users: int
     priorities: list[Priority_DB]
     all_day: bool
