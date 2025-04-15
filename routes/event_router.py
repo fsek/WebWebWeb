@@ -27,6 +27,16 @@ def get_all_events(db: DB_dependency):
     return events
 
 
+@event_router.get("/{eventId}", response_model=EventRead)
+def get_single_event(db: DB_dependency, eventId: int):
+    event = db.query(Event_DB).filter(Event_DB.id == eventId).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    return event
+
+
 @event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
 def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
