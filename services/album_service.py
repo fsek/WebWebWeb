@@ -6,8 +6,13 @@ from pathlib import Path
 import os
 
 
+def normalize_swedish(text: str) -> str:
+    replacements = {"å": "a", "ä": "a", "ö": "o", "Å": "A", "Ä": "A", "Ö": "O"}
+    return "".join(replacements.get(c, c) for c in text)
+
+
 def add_album(db: Session, album: AlbumCreate):
-    file_path = Path(f"/albums/{album.year}/{album.name}")
+    file_path = Path(f"/albums/{album.year}/{normalize_swedish(album.name).lower()}")
 
     if not Path(f"/albums/{album.year}").exists():
         os.mkdir(f"/albums/{album.year}")
