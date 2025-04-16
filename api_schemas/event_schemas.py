@@ -1,5 +1,6 @@
 from typing import Annotated
 from api_schemas.base_schema import BaseSchema
+from api_schemas.event_signup_schemas import EventSignupRead
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from helpers.types import MEMBER_ROLES, datetime_utc
@@ -19,6 +20,7 @@ class EventRead(BaseSchema):
     description_en: str
     max_event_users: int
     priorities: list[Priority_DB]
+    event_users: list[EventSignupRead]
     all_day: bool
     signup_not_opened_yet: bool
     recurring: bool

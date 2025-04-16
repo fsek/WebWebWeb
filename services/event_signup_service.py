@@ -13,6 +13,13 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     if event.signup_end < now and manage_permission == False:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
 
+    if (
+        db.query(EventUser_DB)
+        .filter(EventUser_DB.user_id == data.user_id and EventUser_DB.event_id == event.id)
+        .one_or_none()
+    ):
+        raise HTTPException(400, detail="User already signed up to chosen event")
+
     signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
 
     if data.priority is not None:
