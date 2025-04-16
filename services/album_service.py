@@ -7,16 +7,20 @@ import os
 
 
 def add_album(db: Session, album: AlbumCreate):
-    file_path = Path(f"/{album.name}")
+    file_path = Path(f"/albums/{album.year}/{album.name}")
+
+    if not Path(f"/albums/{album.year}").exists():
+        os.mkdir(f"/albums/{album.year}")
+
     if file_path.is_dir() or file_path.is_file():
-        raise HTTPException(409, detail="album or file with this name already exists")
+        raise HTTPException(409, detail="album or file already exists")
 
     file_path.mkdir()
-    new_album = Album_DB(name=album.name, path=file_path.name)
+    new_album = Album_DB(name=album.name, path=str(file_path.resolve()), year=album.year)
     db.add(new_album)
     db.commit()
 
-    return {"message": "Album successfully created"}
+    return new_album
 
 
 def get_all_albums(db: Session):
@@ -40,8 +44,21 @@ def delete_album(db: Session, id: int):
     if len(album.imgs) != 0:
         raise HTTPException(404, detail="Album isn't empty")
 
-    os.rmdir(f"/{album.path}")
+    os.rmdir(f"{album.path}")
     db.delete(album)
     db.commit()
 
-    return {"message": "Album removed successfully"}
+    return album
+
+
+def delete_year(db: Session, year: int):
+    path = Path(f"/albums/{year}")
+    if not path.exists():
+        raise HTTPException(404, detail="Year not in database")
+
+    if any(path.iterdir()):
+        raise HTTPException(409, detail="Year directory has other files/directories")
+
+    os.rmdir(path)
+
+    return {"message": "Year successfully deleted"}

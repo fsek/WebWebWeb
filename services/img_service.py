@@ -21,7 +21,7 @@ def upload_img(db: Session, album_id: int, file: UploadFile = File()):
         raise HTTPException(404, detail="Album not found")
 
     salt = random.getrandbits(24)
-    file_path = Path(f"/{album.name}/{salt}{file.filename.replace(' ', '')}")
+    file_path = Path(f"/{album.path}/{salt}{file.filename.replace(' ', '')}")
     if file_path.is_file():
         raise HTTPException(409, detail="Filename is equal to already existing file")
 
