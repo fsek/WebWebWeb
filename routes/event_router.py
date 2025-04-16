@@ -55,7 +55,7 @@ def event_update(event_id: int, data: EventUpdate, db: DB_dependency):
 
 
 @event_router.get(
-    "/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
+    "/event-signups/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
 )
 def get_all_event_signups(event_id: int, db: DB_dependency):
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
@@ -66,7 +66,11 @@ def get_all_event_signups(event_id: int, db: DB_dependency):
     return users
 
 
-@event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
+@event_router.get(
+    "/event-signups/random/{event_id}",
+    dependencies=[Permission.require("manage", "Event")],
+    response_model=list[UserRead],
+)
 def get_random_event_signup(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
