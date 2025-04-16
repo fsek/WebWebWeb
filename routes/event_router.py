@@ -27,6 +27,16 @@ def get_all_events(db: DB_dependency):
     return events
 
 
+@event_router.get("/{eventId}", response_model=EventRead)
+def get_single_event(db: DB_dependency, eventId: int):
+    event = db.query(Event_DB).filter(Event_DB.id == eventId).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    return event
+
+
 @event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
 def create_event(data: EventCreate, db: DB_dependency):
     event = create_new_event(data, db)
@@ -45,7 +55,7 @@ def event_update(event_id: int, data: EventUpdate, db: DB_dependency):
 
 
 @event_router.get(
-    "/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
+    "/event-signups/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
 )
 def get_all_event_signups(event_id: int, db: DB_dependency):
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
@@ -56,7 +66,11 @@ def get_all_event_signups(event_id: int, db: DB_dependency):
     return users
 
 
-@event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
+@event_router.get(
+    "/event-signups/random/{event_id}",
+    dependencies=[Permission.require("manage", "Event")],
+    response_model=list[UserRead],
+)
 def get_random_event_signup(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
