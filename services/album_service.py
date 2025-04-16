@@ -12,7 +12,7 @@ def normalize_swedish(text: str) -> str:
 
 
 def add_album(db: Session, album: AlbumCreate):
-    file_path = Path(f"/albums/{album.year}/{normalize_swedish(album.name).lower()}")
+    file_path = Path(f"/albums/{album.year}/{normalize_swedish(album.name).lower().replace(' ', '')}")
 
     if not Path(f"/albums/{album.year}").exists():
         os.mkdir(f"/albums/{album.year}")
