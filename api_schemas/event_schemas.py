@@ -20,7 +20,6 @@ class EventRead(BaseSchema):
     description_en: str
     max_event_users: int
     priorities: list[Priority_DB]
-    event_users: list[EventSignupRead]
     all_day: bool
     signup_not_opened_yet: bool
     recurring: bool
