@@ -97,5 +97,6 @@ class UserUpdate(BaseSchema):
     standard_food_preferences: list[str] | None
     other_food_preferences: str | None
 
+
 class UpdateUserMember(BaseSchema):
     is_member: bool
