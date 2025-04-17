@@ -14,8 +14,10 @@ class Album_DB(BaseModel_DB):
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
+    year: Mapped[int] = mapped_column()
+
     path: Mapped[str] = mapped_column()
-    
+
     name: Mapped[str] = mapped_column()
 
     imgs: Mapped[list["Img_DB"]] = relationship(back_populates="album", init=False)
