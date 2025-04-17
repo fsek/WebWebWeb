@@ -19,10 +19,6 @@ class Album_DB(BaseModel_DB):
 
     path: Mapped[str] = mapped_column()
 
-    location: Mapped[str] = mapped_column()
-
-    date: Mapped[datetime_utc] = mapped_column()
-
     name: Mapped[str] = mapped_column()
 
     imgs: Mapped[list["Img_DB"]] = relationship(back_populates="album", init=False)
