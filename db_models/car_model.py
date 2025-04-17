@@ -1,4 +1,4 @@
-from datetime import datetime
+from helpers.types import datetime_utc
 from helpers.constants import MAX_CAR_DESC
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -14,9 +14,9 @@ class CarBooking_DB(BaseModel_DB):
 
     booking_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    start_time: Mapped[datetime] = mapped_column()
+    start_time: Mapped[datetime_utc] = mapped_column()
 
-    end_time: Mapped[datetime] = mapped_column()
+    end_time: Mapped[datetime_utc] = mapped_column()
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_CAR_DESC))
 
