@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
-from datetime import datetime
+import datetime
 
 from sqlalchemy import and_
 from api_schemas.news_schemas import NewsCreate, NewsRead, NewsUpdate
@@ -76,6 +76,6 @@ def get_paginated_news(page_nbr: int, db: DB_dependency):
 
 @news_router.get("/pinned/", response_model=list[NewsRead])
 def get_pinned_news(db: DB_dependency):
-    now = datetime.now()
+    now = datetime.datetime.now(datetime.UTC)
     pinned_news = db.query(News_DB).filter(and_(News_DB.pinned_from < now, News_DB.pinned_to > now)).all()
     return pinned_news

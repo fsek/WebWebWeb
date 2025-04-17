@@ -1,4 +1,4 @@
-from datetime import datetime
+from helpers.types import datetime_utc
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -18,11 +18,11 @@ class Event_DB(BaseModel_DB):
     __tablename__ = "event_table"
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    starts_at: Mapped[datetime] = mapped_column()
-    ends_at: Mapped[datetime] = mapped_column()
+    starts_at: Mapped[datetime_utc] = mapped_column()
+    ends_at: Mapped[datetime_utc] = mapped_column()
 
-    signup_start: Mapped[datetime] = mapped_column()
-    signup_end: Mapped[datetime] = mapped_column()
+    signup_start: Mapped[datetime_utc] = mapped_column()
+    signup_end: Mapped[datetime_utc] = mapped_column()
 
     title_sv: Mapped[str] = mapped_column(String(MAX_EVENT_TITLE))
     title_en: Mapped[str] = mapped_column(String(MAX_EVENT_TITLE))
