@@ -37,8 +37,6 @@ def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
             if item not in VALID_FOOD_PREFS:
                 raise HTTPException(400, detail=f"{item} not a valid standard food preference")
 
-    print(data.standard_food_preferences)
-
     for var, val in vars(data).items():
         setattr(user, var, val) if val else None
 

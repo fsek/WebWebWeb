@@ -89,7 +89,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     standard_food_preferences: Mapped[list[str]] = mapped_column(JSON, init=False, default=list)
 
-    other_food_preferences: Mapped[Optional[str]] = mapped_column(init=False, default=None)
+    other_food_preferences: Mapped[Optional[str]] = mapped_column(init=False, default="")
 
     is_member: Mapped[bool] = mapped_column(default=False)
 
