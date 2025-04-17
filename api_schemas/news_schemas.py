@@ -1,7 +1,7 @@
 from typing import Annotated
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
-from api_schemas.user_schemas import UserInNewsRead
+from api_schemas.user_schemas import SimpleUserRead
 from helpers.constants import MAX_NEWS_CONTENT, MAX_NEWS_TITLE
 from helpers.types import datetime_utc
 
@@ -13,7 +13,7 @@ class NewsRead(BaseSchema):
     content_sv: str
     content_en: str
     author_id: int
-    author: UserInNewsRead
+    author: SimpleUserRead
     created_at: datetime_utc
     bumped_at: datetime_utc | None
     pinned_from: datetime_utc | None
