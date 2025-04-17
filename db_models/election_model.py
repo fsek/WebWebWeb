@@ -1,4 +1,4 @@
-from datetime import datetime
+from helpers.types import datetime_utc
 from db_models.candidate_model import Candidate_DB
 from db_models.election_post_model import ElectionPost_DB
 from db_models.post_model import Post_DB
@@ -23,9 +23,9 @@ class Election_DB(BaseModel_DB):
 
     title: Mapped[str] = mapped_column()
 
-    start_time: Mapped[datetime] = mapped_column()
+    start_time: Mapped[datetime_utc] = mapped_column()
 
-    end_time: Mapped[datetime] = mapped_column()
+    end_time: Mapped[datetime_utc] = mapped_column()
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)
 

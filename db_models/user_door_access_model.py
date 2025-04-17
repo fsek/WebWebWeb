@@ -5,6 +5,7 @@ from sqlalchemy import ForeignKey, String, DateTime
 from helpers.types import datetime_utc, DOOR_ACCESSES
 from datetime import datetime
 
+
 # from user_model import User_DB
 
 if TYPE_CHECKING:
@@ -21,5 +22,5 @@ class UserDoorAccess_DB(BaseModel_DB):
 
     door: Mapped[Literal[DOOR_ACCESSES]] = mapped_column()
 
-    starttime: Mapped[datetime] = mapped_column()
-    stoptime: Mapped[datetime] = mapped_column()
+    starttime: Mapped[datetime_utc] = mapped_column()
+    stoptime: Mapped[datetime_utc] = mapped_column()

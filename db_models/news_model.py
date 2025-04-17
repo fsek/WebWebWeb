@@ -1,4 +1,5 @@
 from datetime import datetime
+from helpers.types import datetime_utc
 from typing import TYPE_CHECKING, Optional
 from db_models.base_model import BaseModel_DB
 from sqlalchemy import ForeignKey, String
@@ -30,13 +31,13 @@ class News_DB(BaseModel_DB):
 
     author: Mapped["User_DB"] = relationship(back_populates="news", init=False)
 
-    created_at: Mapped[datetime] = created_at_column()
+    created_at: Mapped[datetime_utc] = created_at_column()
 
-    bumped_at: Mapped[datetime] = created_at_column()
+    bumped_at: Mapped[datetime_utc] = created_at_column()
 
-    pinned_from: Mapped[Optional[datetime]] = mapped_column(default=None)
+    pinned_from: Mapped[Optional[datetime_utc]] = mapped_column(default=None)
 
-    pinned_to: Mapped[Optional[datetime]] = mapped_column(default=None)
+    pinned_to: Mapped[Optional[datetime_utc]] = mapped_column(default=None)
 
     news_tags: Mapped[list["NewsTag_DB"]] = relationship(
         back_populates="news", cascade="all, delete-orphan", init=False
