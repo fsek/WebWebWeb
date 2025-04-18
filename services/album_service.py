@@ -21,7 +21,9 @@ def add_album(db: Session, album: AlbumCreate):
         raise HTTPException(409, detail="album or file already exists")
 
     file_path.mkdir()
-    new_album = Album_DB(name=album.name, path=str(file_path.resolve()), year=album.year)
+    new_album = Album_DB(
+        name=album.name, path=str(file_path.resolve()), year=album.year, location=album.location, date=album.date
+    )
     db.add(new_album)
     db.commit()
 
