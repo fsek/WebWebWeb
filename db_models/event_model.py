@@ -2,7 +2,7 @@ from helpers.types import datetime_utc
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
+from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_LOCATION, MAX_EVENT_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from db_models.event_tag_model import EventTag_DB
@@ -32,6 +32,8 @@ class Event_DB(BaseModel_DB):
 
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped["Council_DB"] = relationship(back_populates="events", init=False)
+
+    location: Mapped[str] = mapped_column(String(MAX_EVENT_LOCATION))
 
     max_event_users: Mapped[int] = mapped_column(default=0)
 
