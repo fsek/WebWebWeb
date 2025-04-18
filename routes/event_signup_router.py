@@ -15,7 +15,7 @@ event_signup_router = APIRouter()
 
 
 # Sing current user up to an event
-@event_signup_router.post("/{event_id}", response_model=EventRead)
+@event_signup_router.post("/{event_id}", response_model=EventSignupRead)
 def event_signup_route(
     event_id: int,
     data: EventSignupCreate,
@@ -25,7 +25,7 @@ def event_signup_route(
 ):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Event not found")
 
     if data.user_id is None or data.user_id == me.id:
         return signup_to_event(event, me, data, manage_permission, db)
@@ -40,7 +40,7 @@ def event_signup_route(
     return signup_to_event(event, user, data, manage_permission, db)
 
 
-@event_signup_router.delete("/{event_id}", response_model=EventRead)
+@event_signup_router.delete("/{event_id}", response_model=EventSignupRead)
 def event_signoff_route(
     event_id: int,
     data: EventSignupDelete,
@@ -61,7 +61,7 @@ def event_signoff_route(
     return signoff_from_event(event, data.user_id, manage_permission, db)
 
 
-@event_signup_router.patch("/{event_id}", response_model=EventRead)
+@event_signup_router.patch("/{event_id}", response_model=EventSignupRead)
 def update_event_signup_route(
     event_id: int,
     data: EventSignupUpdate,
