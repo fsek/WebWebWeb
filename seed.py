@@ -142,12 +142,13 @@ def seed_post_users(db: Session, boss: User_DB, user: User_DB, posts: list[Post_
 
 # Wrapper class for Permission_DB that includes the target posts
 class Permission(Permission_DB):
-    def __init__(self, action=None, target=None, posts: list[str]=[]):
+    def __init__(self, action=None, target=None, posts: list[str] = []):
         super().__init__(action=action, target=target)
         self.posts = posts
 
     def degenerate(self) -> super:
         return Permission_DB(action=self.action, target=self.target)
+
 
 def seed_permissions(db: Session, posts: list[Post_DB]):
 
@@ -207,7 +208,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="Nollning", posts=["Buggmästare"]),
         Permission(action="view", target="Nollning", posts=["Buggmästare"]),
         Permission(action="manage", target="Council", posts=["Buggmästare"]),
-        Permission(action="view", target="Council", posts=["Buggmästare"])
+        Permission(action="view", target="Council", posts=["Buggmästare"]),
     ]
 
     [[post.permissions.append(perm.degenerate()) for perm in permissions if post.name in perm.posts] for post in posts]
@@ -230,6 +231,7 @@ def seed_events(db: Session, one_council: Council_DB):
         title_sv="Loyde gähdda",
         signup_start=signup_start,
         signup_end=signup_end,
+        location="Mattehuset",
     )
     db.add(event)
     db.commit()

@@ -45,6 +45,7 @@ def create_new_event(data: EventCreate, db: Session):
         closed=data.closed,
         can_signup=data.can_signup,
         drink_package=data.drink_package,
+        location=data.location,
     )
     db.add(event)  # This adds the event itself to the session
     db.flush()  # This is optional but can be helpful to ensure 'event.id' is set if used immediately after
@@ -73,7 +74,7 @@ def delete_event(event_id: int, db: Session):
 
 
 def update_event(event_id: int, data: EventUpdate, db: Session):
-    
+
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
 
     if not event:
