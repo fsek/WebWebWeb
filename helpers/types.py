@@ -28,6 +28,7 @@ MEMBER_ROLES = Literal["photographer", "ordförande", "dinmamma"]
 PERMISSION_TYPE = Literal["view", "manage"]
 PERMISSION_TARGET = Literal[
     "Event",
+    "Document",
     "User",
     "Post",
     "Permission",
