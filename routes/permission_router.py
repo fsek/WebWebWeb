@@ -1,6 +1,7 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from api_schemas.post_schemas import PostRead
 from database import DB_dependency, get_db
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
@@ -38,7 +39,9 @@ def create_permission(perm_data: PermissionCreate, db: Annotated[Session, Depend
 
 
 # Assign or unassign a permission on a post
-@permission_router.post("/update-permission", dependencies=[Permission.require("manage", "Permission")])
+@permission_router.post(
+    "/update-permission", dependencies=[Permission.require("manage", "Permission")], response_model=PostRead
+)
 def change_post_permission(perm_data: UpdatePermission, db: DB_dependency):
     post = db.query(Post_DB).filter(Post_DB.id == perm_data.post_id).one_or_none()
     if post is None:
