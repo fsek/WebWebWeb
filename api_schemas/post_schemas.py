@@ -13,6 +13,9 @@ class PostRead(BaseSchema):
     council_id: int
     permissions: list[_PostPermissionRead]
 
+    class Config:
+        from_attributes = True
+
 
 class PostUpdate(BaseSchema):
     name: str

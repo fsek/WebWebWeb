@@ -1,11 +1,23 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from api_schemas.post_schemas import PostRead
 from database import DB_dependency, get_db
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
-from api_schemas.permission_schemas import PermissionCreate, PermissionRead, UpdatePermission, PermissionRemove
-from services.permission_service import assign_permission, unassign_permission
+from api_schemas.permission_schemas import (
+    PermissionCreate,
+    PermissionRead,
+    UpdatePermission,
+    PermissionRemove,
+    UpdatePermissions,
+)
+from services.permission_service import (
+    assign_permission,
+    assign_permission_mult,
+    unassign_permission,
+    unassign_permission_mult,
+)
 from user.permission import Permission
 
 permission_router = APIRouter()
@@ -48,6 +60,26 @@ def change_post_permission(perm_data: UpdatePermission, db: DB_dependency):
         assign_permission(post, perm_data.permission_id, db)
     elif perm_data.change == "remove":
         unassign_permission(post, perm_data.permission_id, db)
+
+    return post
+
+
+# Assign or unassign a permission on a post
+@permission_router.post(
+    "/update-permissions", response_model=PostRead, dependencies=[Permission.require("manage", "Permission")]
+)
+def change_post_permissions(perm_data: UpdatePermissions, db: DB_dependency):
+    post = db.query(Post_DB).filter(Post_DB.id == perm_data.post_id).one_or_none()
+    if post is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+    for perm in perm_data.permissions:
+        if perm.change == "add":
+            assign_permission_mult(post, perm.permission_id, db)
+        elif perm.change == "remove":
+            unassign_permission_mult(post, perm.permission_id, db)
+
+    db.commit()
 
     return post
 
