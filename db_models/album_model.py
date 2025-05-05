@@ -1,7 +1,10 @@
 from typing import TYPE_CHECKING
+
+from helpers.constants import MAX_ALBUM_DESC, MAX_ALBUM_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from helpers.types import datetime_utc
+from sqlalchemy import String
 
 if TYPE_CHECKING:
     from .img_model import Img_DB
@@ -23,6 +26,14 @@ class Album_DB(BaseModel_DB):
 
     date: Mapped[datetime_utc] = mapped_column()
 
-    name: Mapped[str] = mapped_column()
+    title_sv: Mapped[str] = mapped_column(String(MAX_ALBUM_TITLE))
+
+    title_en: Mapped[str] = mapped_column(String(MAX_ALBUM_TITLE))
+
+    desc_sv: Mapped[str] = mapped_column(String(MAX_ALBUM_DESC))
+
+    desc_en: Mapped[str] = mapped_column(String(MAX_ALBUM_DESC))
+
+    photographer: Mapped[str] = mapped_column(String(MAX_ALBUM_TITLE))
 
     imgs: Mapped[list["Img_DB"]] = relationship(back_populates="album", init=False)

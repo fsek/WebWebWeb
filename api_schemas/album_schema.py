@@ -4,16 +4,24 @@ from helpers.types import datetime_utc
 
 
 class AlbumCreate(BaseSchema):
-    name: str
+    title_sv: str
+    title_en: str
+    desc_sv: str
+    desc_en: str
     year: int
     location: str
     date: datetime_utc
+    photographer: str
 
 
 class AlbumRead(BaseSchema):
     id: int
-    name: str
+    title_sv: str
+    title_en: str
+    desc_sv: str
+    desc_en: str
     year: int
     date: datetime_utc
     location: str
+    photographer: str
     imgs: list[ImgInAlbum]

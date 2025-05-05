@@ -12,7 +12,7 @@ def normalize_swedish(text: str) -> str:
 
 
 def add_album(db: Session, album: AlbumCreate):
-    file_path = Path(f"/albums/{album.year}/{normalize_swedish(album.name).lower().replace(' ', '')}")
+    file_path = Path(f"/albums/{album.year}/{normalize_swedish(album.title_sv).lower().replace(' ', '')}")
 
     if not Path(f"/albums/{album.year}").exists():
         os.mkdir(f"/albums/{album.year}")
@@ -22,7 +22,15 @@ def add_album(db: Session, album: AlbumCreate):
 
     file_path.mkdir()
     new_album = Album_DB(
-        name=album.name, path=str(file_path.resolve()), year=album.year, location=album.location, date=album.date
+        title_en=album.title_en,
+        title_sv=album.title_sv,
+        desc_en=album.desc_en,
+        desc_sv=album.desc_sv,
+        path=str(file_path.resolve()),
+        year=album.year,
+        location=album.location,
+        date=album.date,
+        photographer=album.photographer,
     )
     db.add(new_album)
     db.commit()
