@@ -65,3 +65,6 @@ NEWS_PER_PAGE = 20
 
 # Council
 MAX_COUNCIL_DESC = 2500
+
+# Room booking
+MAX_ROOM_DESC = 1000

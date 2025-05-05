@@ -17,6 +17,7 @@ from helpers.types import datetime_utc
 from .ad_model import BookAd_DB
 from .car_model import CarBooking_DB
 from helpers.types import datetime_utc
+from .room_booking_model import RoomBooking_DB
 
 if TYPE_CHECKING:
     from .post_model import Post_DB
@@ -59,6 +60,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     )  # date and time the account was created
 
     car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="user", init=False)
+    room_bookings: Mapped[list["RoomBooking_DB"]] = relationship(back_populates="user", init=False)
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
