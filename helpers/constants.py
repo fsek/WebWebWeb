@@ -63,5 +63,8 @@ MAX_TAG_NAME = 25
 # Pagination
 NEWS_PER_PAGE = 20
 
+# Room Booking
+MAX_ROOM_DESC = 1000
+
 # Council
 MAX_COUNCIL_DESC = 2500
