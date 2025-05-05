@@ -1,9 +1,23 @@
 from fastapi import APIRouter
 from sqlalchemy import desc
-from api_schemas.nollning_schema import NollningCreate, NollningRead, NollningAddGroup, NollningDeleteMission
+from api_schemas.nollning_schema import (
+    NollningCreate,
+    NollningRead,
+    NollningAddGroup,
+    NollningDeleteMission,
+    NollningGroupRead,
+)
+
 from database import DB_dependency
 from db_models.nollning_model import Nollning_DB
-from services.nollning_service import add_g_to_nollning, create_nollning, edit_nollning, remove_nollning, delete_group_m
+from services.nollning_service import (
+    add_g_to_nollning,
+    create_nollning,
+    edit_nollning,
+    remove_nollning,
+    delete_group_m,
+    get_all_groups_in_nollning,
+)
 from user.permission import Permission
 
 nollning_router = APIRouter()
@@ -39,6 +53,15 @@ def delete_nollning(db: DB_dependency, id: int):
 )
 def add_group_to_nollning(db: DB_dependency, id: int, data: NollningAddGroup):
     return add_g_to_nollning(db, id, data)
+
+
+@nollning_router.get(
+    "/",
+    dependencies=[Permission.require("view", "Nollning")],
+    response_model=list[NollningGroupRead],
+)
+def get_all_nollning_groups(db: DB_dependency, id: int):
+    return get_all_groups_in_nollning(db, id)
 
 
 @nollning_router.delete(
