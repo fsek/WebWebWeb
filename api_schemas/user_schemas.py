@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import StringConstraints
 from fastapi_users_pelicanq import schemas as fastapi_users_schemas
+from db_models.group_model import Group_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
@@ -71,6 +72,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     standard_food_preferences: list[str] | None
     other_food_preferences: str | None
     accesses: list[SimpleUserAccessRead]
+    groups: list[Group_DB]
 
 
 class UserInEventRead(SimpleUserRead):
@@ -103,7 +105,6 @@ class UserUpdate(BaseSchema):
     stil_id: str | None = None
     standard_food_preferences: list[str] | None
     other_food_preferences: str | None
-
 
 
 class UpdateUserMember(BaseSchema):
