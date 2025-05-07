@@ -4,6 +4,7 @@ from api_schemas.album_schema import AlbumCreate
 from db_models.album_model import Album_DB
 from pathlib import Path
 import os
+import re
 
 
 def normalize_swedish(text: str) -> str:
@@ -11,8 +12,16 @@ def normalize_swedish(text: str) -> str:
     return "".join(replacements.get(c, c) for c in text)
 
 
+def sanitize_title(text: str) -> str:
+    title = normalize_swedish(text)
+    title = re.sub(r"[^a-z0-9]", "", title)
+
+    return title
+
+
 def add_album(db: Session, album: AlbumCreate):
-    file_path = Path(f"/albums/{album.year}/{normalize_swedish(album.title_sv).lower().replace(' ', '')}")
+
+    file_path = Path(f"/albums/{album.year}/{sanitize_title(album.title_sv)}")
 
     if not Path(f"/albums/{album.year}").exists():
         os.mkdir(f"/albums/{album.year}")
