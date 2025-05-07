@@ -6,6 +6,9 @@ from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from helpers.types import DOOR_ACCESSES, datetime_utc
 
+if TYPE_CHECKING:
+    from api_schemas.group_schema import GroupRead
+
 
 class _UserEventRead(BaseSchema):
     id: int
@@ -71,6 +74,7 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     standard_food_preferences: list[str] | None
     other_food_preferences: str | None
     accesses: list[SimpleUserAccessRead]
+    groups: list["GroupRead"]
 
 
 class UserInEventRead(SimpleUserRead):
@@ -78,7 +82,9 @@ class UserInEventRead(SimpleUserRead):
     other_food_preferences: str | None
 
 
-class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
+class UserInGroupRead(BaseSchema):
+    id: int
+    email: str
     first_name: str
     last_name: str
     program: str | None
@@ -105,6 +111,10 @@ class UserUpdate(BaseSchema):
     other_food_preferences: str | None
 
 
-
 class UpdateUserMember(BaseSchema):
     is_member: bool
+
+
+from api_schemas.group_schema import GroupRead
+
+UserRead.model_rebuild()
