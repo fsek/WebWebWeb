@@ -6,6 +6,8 @@ from pathlib import Path
 import os
 import re
 
+from db_models.user_model import User_DB
+
 
 def normalize_swedish(text: str) -> str:
     replacements = {"å": "a", "ä": "a", "ö": "o", "Å": "A", "Ä": "A", "Ö": "O"}
@@ -39,12 +41,29 @@ def add_album(db: Session, album: AlbumCreate):
         year=album.year,
         location=album.location,
         date=album.date,
-        photographer=album.photographer,
     )
     db.add(new_album)
     db.commit()
 
     return new_album
+
+
+def add_photographer(db: Session, album_id: int, user_id: int):
+    album = db.query(Album_DB).filter(Album_DB.id == album_id).one_or_none()
+
+    if not album:
+        raise HTTPException(404, detail="Album not found")
+
+    user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
+
+    if not user:
+        raise HTTPException(404, detail="User not found")
+
+    album.photographer_id = user_id
+
+    db.commit()
+
+    return album
 
 
 def get_all_albums(db: Session):

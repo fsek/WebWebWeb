@@ -1,5 +1,6 @@
 from api_schemas.base_schema import BaseSchema
 from api_schemas.img_schema import ImgInAlbum
+from api_schemas.user_schemas import SimpleUserRead
 from helpers.types import datetime_utc
 
 
@@ -11,7 +12,6 @@ class AlbumCreate(BaseSchema):
     year: int
     location: str
     date: datetime_utc
-    photographer: str
 
 
 class AlbumRead(BaseSchema):
@@ -23,5 +23,10 @@ class AlbumRead(BaseSchema):
     year: int
     date: datetime_utc
     location: str
-    photographer: str
+    photographer: SimpleUserRead | None
     imgs: list[ImgInAlbum]
+
+
+class AlbumPhotographerAdd(BaseSchema):
+    user_id: int
+    album_id: int
