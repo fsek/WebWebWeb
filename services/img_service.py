@@ -7,9 +7,23 @@ from db_models.img_model import Img_DB
 from helpers.constants import MAX_IMG_NAME
 import random
 import os
+import re
+
+
+def normalize_swedish(text: str) -> str:
+    replacements = {"å": "a", "ä": "a", "ö": "o", "Å": "A", "Ä": "A", "Ö": "O"}
+    return "".join(replacements.get(c, c) for c in text)
+
+
+def sanitize_title(text: str) -> str:
+    title = normalize_swedish(text)
+    title = re.sub(r"[^a-z0-9]", "", title)
+
+    return title
 
 
 def upload_img(db: Session, album_id: int, file: UploadFile = File()):
+
     if file.filename is None:
         raise HTTPException(400, detail="The file has no name")
 
@@ -21,7 +35,19 @@ def upload_img(db: Session, album_id: int, file: UploadFile = File()):
         raise HTTPException(404, detail="Album not found")
 
     salt = random.getrandbits(24)
-    file_path = Path(f"/{album.path}/{salt}{file.filename.replace(' ', '')}")
+
+    name, ext = os.path.splitext(file.filename)
+
+    sanitized_filename = sanitize_title(name)
+
+    allowed_exts = {".png", ".jpg", ".jpeg", ".gif"}
+
+    ext = ext.lower()
+
+    if ext not in allowed_exts:
+        raise HTTPException(400, "file extension not allowed")
+
+    file_path = Path(f"/{album.path}/{salt}{sanitized_filename}{ext}")
     if file_path.is_file():
         raise HTTPException(409, detail="Filename is equal to already existing file")
 
