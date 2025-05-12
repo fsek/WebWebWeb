@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from db_models.candidate_post_model import Candidation_DB
+from db_models.nomination_post_model import Nomination_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -22,3 +23,4 @@ class ElectionPost_DB(BaseModel_DB):
     election: Mapped["Election_DB"] = relationship(back_populates="election_posts", init=False)
 
     candidations: Mapped[list["Candidation_DB"]] = relationship(back_populates="election_post", init=False)
+    nominations: Mapped[list["Nomination_DB"]] = relationship(back_populates="election_post", init=False)

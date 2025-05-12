@@ -1,5 +1,6 @@
 from datetime import datetime
 from db_models.candidate_model import Candidate_DB
+from db_models.nomination_model import Nominee_DB
 from db_models.election_post_model import ElectionPost_DB
 from db_models.post_model import Post_DB
 from helpers.constants import MAX_ELECTION_DESC
@@ -12,6 +13,7 @@ from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 
 if TYPE_CHECKING:
     from .candidate_model import Candidate_DB
+    from db_models.nomination_model import Nominee_DB
     from db_models.election_post_model import ElectionPost_DB
     from db_models.post_model import Post_DB
 
@@ -35,6 +37,10 @@ class Election_DB(BaseModel_DB):
 
     candidates: Mapped[list["Candidate_DB"]] = relationship(
         "Candidate_DB", back_populates="election", cascade="all, delete-orphan", init=False
+    )
+
+    nominations: Mapped[list["Nominee_DB"]] = relationship(
+        "Nominee_DB", back_populates="election", cascade="all, delete-orphan", init=False
     )
 
     posts: AssociationProxy[list["Post_DB"]] = association_proxy(

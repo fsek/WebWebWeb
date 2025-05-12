@@ -38,5 +38,3 @@ class Candidate_DB(BaseModel_DB):
     election_posts: AssociationProxy[list["ElectionPost_DB"]] = association_proxy(
         target_collection="candidations", attr="election_post", init=False
     )
-
-    pass
