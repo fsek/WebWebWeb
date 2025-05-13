@@ -47,6 +47,13 @@ def upload_img(db: Session, album_id: int, file: UploadFile = File()):
     if ext not in allowed_exts:
         raise HTTPException(400, "file extension not allowed")
 
+    BASE_UPLOAD_DIR = Path("/albums")
+
+    album_dir = (BASE_UPLOAD_DIR / album.path).resolve()
+
+    if not str(album_dir).startswith(str(BASE_UPLOAD_DIR)):
+        raise HTTPException(400, "Invalid album path")
+
     file_path = Path(f"/{album.path}/{salt}{sanitized_filename}{ext}")
     if file_path.is_file():
         raise HTTPException(409, detail="Filename is equal to already existing file")
