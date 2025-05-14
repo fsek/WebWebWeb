@@ -14,6 +14,7 @@ class RoomBooking_DB(BaseModel_DB):
     __tablename__ = "room_booking_table"
     booking_id: Mapped[int] = mapped_column(primary_key=True, init=False)
     room_id: Mapped[int] = mapped_column()
+    room: Mapped[str] = mapped_column()
 
     start_time: Mapped[datetime] = mapped_column()
     end_time: Mapped[datetime] = mapped_column()
