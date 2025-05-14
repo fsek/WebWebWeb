@@ -77,7 +77,6 @@ class AdminUserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     other_food_preferences: str | None
     accesses: list[SimpleUserAccessRead]
     is_member: bool
-    photographed_albums: list[AlbumRead]
 
 
 class UserRead(BaseSchema):
