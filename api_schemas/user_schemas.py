@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import StringConstraints
 from fastapi_users_pelicanq import schemas as fastapi_users_schemas
-from api_schemas.album_schema import AlbumRead
 from api_schemas.permission_schemas import PermissionRead
 from api_schemas.post_schemas import PostRead
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
