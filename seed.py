@@ -234,6 +234,7 @@ def seed_events(db: Session, one_council: Council_DB):
         signup_end=signup_end,
         location="Mattehuset",
         dress_code="vad du vill",
+        price="gratis bror",
     )
     db.add(event)
     db.commit()
