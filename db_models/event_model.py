@@ -35,6 +35,10 @@ class Event_DB(BaseModel_DB):
 
     location: Mapped[str] = mapped_column(String(MAX_EVENT_LOCATION))
 
+    dress_code: Mapped[str] = mapped_column(String(MAX_EVENT_TITLE))
+
+    price: Mapped[int] = mapped_column()
+
     max_event_users: Mapped[int] = mapped_column(default=0)
 
     event_users: Mapped[list["EventUser_DB"]] = relationship(
