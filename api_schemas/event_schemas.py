@@ -36,7 +36,7 @@ class EventRead(BaseSchema):
     drink_package: bool
     is_nollning_event: bool
     dress_code: str
-    price: str
+    price: int
 
 
 # we dont need to be as strict about out data as in data.
@@ -67,7 +67,7 @@ class EventCreate(BaseSchema):
     drink_package: bool
     is_nollning_event: bool
     dress_code: str
-    price: str
+    price: int
 
 
 class EventUpdate(BaseSchema):
@@ -92,7 +92,7 @@ class EventUpdate(BaseSchema):
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
     dresscode: str | None
-    price: str | None
+    price: int | None
 
 
 class AddEventTag(BaseSchema):
