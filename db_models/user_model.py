@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING, Callable, Optional, Literal
 from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
 from sqlalchemy import ForeignKey, String, JSON
 from sqlalchemy.orm import Mapped, relationship, mapped_column
+from db_models.album_model import Album_DB
 from db_models.candidate_model import Candidate_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
@@ -110,6 +111,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     accesses: Mapped[list["UserDoorAccess_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
     )
+
+    photographed_albums: Mapped[list[Album_DB]] = relationship(back_populates="photographer", init=False)
 
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"] should not be implemented like this I think //Benjamin
