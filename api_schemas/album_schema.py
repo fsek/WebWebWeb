@@ -4,8 +4,7 @@ from api_schemas.img_schema import ImgInAlbum
 from helpers.types import datetime_utc
 
 
-if TYPE_CHECKING:
-    from api_schemas.user_schemas import SimpleUserRead
+from api_schemas.user_schemas import SimpleUserRead
 
 
 class AlbumCreate(BaseSchema):
@@ -27,7 +26,7 @@ class AlbumRead(BaseSchema):
     year: int
     date: datetime_utc
     location: str
-    photographer: "SimpleUserRead | None"
+    photographer: SimpleUserRead | None
     imgs: list[ImgInAlbum]
 
 
