@@ -46,6 +46,7 @@ def create_new_event(data: EventCreate, db: Session):
         can_signup=data.can_signup,
         drink_package=data.drink_package,
         location=data.location,
+        is_nollning_event=data.is_nollning_event,
     )
     db.add(event)  # This adds the event itself to the session
     db.flush()  # This is optional but can be helpful to ensure 'event.id' is set if used immediately after
