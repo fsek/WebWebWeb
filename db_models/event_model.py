@@ -62,3 +62,5 @@ class Event_DB(BaseModel_DB):
     event_tags: Mapped[list["EventTag_DB"]] = relationship(
         back_populates="event", cascade="all, delete-orphan", init=False
     )
+
+    is_nollning_event: Mapped[bool] = mapped_column(default=False)
