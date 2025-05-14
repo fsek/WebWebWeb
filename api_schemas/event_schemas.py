@@ -86,7 +86,7 @@ class EventUpdate(BaseSchema):
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
-    is_nollning_event: bool | None
+    is_nollning_event: bool | None = None
 
 
 class AddEventTag(BaseSchema):
