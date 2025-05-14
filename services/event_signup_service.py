@@ -22,10 +22,9 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
 
     signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
 
-    if data.priority is not None:
-        signup.priority = data.priority
-    if data.group_name is not None:
-        signup.group_name = data.group_name
+    for var, value in vars(data).items():
+        setattr(signup, var, value) if value else None
+
     db.add(signup)
     db.commit()
     return signup
@@ -57,10 +56,8 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     if signup is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    if data.priority is not None:
-        signup.priority = data.priority
-    if data.group_name is not None:
-        signup.group_name = data.group_name
+    for var, value in vars(data).items():
+        setattr(signup, var, value) if value else None
 
     db.commit()
     db.refresh(event)
