@@ -1,9 +1,13 @@
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 from api_schemas.base_schema import BaseSchema
+from api_schemas.event_signup_schemas import EventSignupRead
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from helpers.types import MEMBER_ROLES, datetime_utc
 from pydantic import StringConstraints
+
+if TYPE_CHECKING:
+    from api_schemas.council_schema import CouncilInEventRead
 
 
 class EventRead(BaseSchema):
@@ -17,6 +21,8 @@ class EventRead(BaseSchema):
     title_en: str
     description_sv: str
     description_en: str
+    council: "CouncilInEventRead"
+    location: str
     max_event_users: int
     priorities: list[Priority_DB]
     all_day: bool
@@ -28,6 +34,7 @@ class EventRead(BaseSchema):
     closed: bool
     can_signup: bool
     drink_package: bool
+    is_nollning_event: bool
 
 
 # we dont need to be as strict about out data as in data.
@@ -44,6 +51,7 @@ class EventCreate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)]
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
+    location: str
     max_event_users: int
     priorities: list[MEMBER_ROLES]
     all_day: bool
@@ -55,6 +63,7 @@ class EventCreate(BaseSchema):
     closed: bool
     can_signup: bool
     drink_package: bool
+    is_nollning_event: bool
 
 
 class EventUpdate(BaseSchema):
@@ -66,6 +75,7 @@ class EventUpdate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
+    location: str
     max_event_users: int | None = None
     all_day: bool | None = None
     signup_not_opened_yet: bool | None = None
@@ -76,6 +86,7 @@ class EventUpdate(BaseSchema):
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
+    is_nollning_event: bool | None = None
 
 
 class AddEventTag(BaseSchema):

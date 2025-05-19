@@ -67,6 +67,18 @@ def add_g_to_nollning(db: Session, id: int, data: NollningAddGroup):
     return nollning
 
 
+def get_all_groups_in_nollning(db: Session, id: int):
+    nollning = db.query(Nollning_DB).filter(Nollning_DB.id == id).one_or_none()
+
+    if not nollning:
+        raise HTTPException(404, detail=f"No nollning found")
+
+    if not nollning.nollning_groups:
+        raise HTTPException(404, detail=f"No groups found")
+
+    return nollning.nollning_groups
+
+
 def delete_group_m(db: Session, id: int, data: NollningDeleteMission):
     adventure_mission = (
         db.query(GroupMission_DB)

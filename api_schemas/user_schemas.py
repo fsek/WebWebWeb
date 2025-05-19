@@ -1,10 +1,19 @@
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import StringConstraints
 from fastapi_users_pelicanq import schemas as fastapi_users_schemas
+from api_schemas.permission_schemas import PermissionRead
+from api_schemas.post_schemas import PostRead
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
-from helpers.types import datetime_utc
+from helpers.types import DOOR_ACCESSES, datetime_utc
+from sqlalchemy import Enum
+
+if TYPE_CHECKING:
+    from api_schemas.group_schema import GroupRead
+
+if TYPE_CHECKING:
+    from api_schemas.group_schema import GroupRead
 
 
 class _UserEventRead(BaseSchema):
@@ -17,20 +26,82 @@ class _UserPostRead(BaseSchema):
     council_id: int
 
 
-class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
+class SimpleUserRead(BaseSchema):
+    id: int
     first_name: str
     last_name: str
+
+
+####   USER ACCESS   ####
+
+
+class UserAccessCreate(BaseSchema):
+    user_id: int
+    door: Literal[DOOR_ACCESSES]
+    starttime: datetime_utc
+    stoptime: datetime_utc
+
+
+class UserAccessRead(BaseSchema):
+    user_access_id: int
+    user: SimpleUserRead
+    door: str
+    starttime: datetime_utc
+    stoptime: datetime_utc
+
+
+class SimpleUserAccessRead(BaseSchema):
+    door: str
+    starttime: datetime_utc
+    stoptime: datetime_utc
+
+
+class UserAccessUpdate(BaseSchema):
+    access_id: int
+    door: Literal[DOOR_ACCESSES] | None = None
+    starttime: datetime_utc | None = None
+    stoptime: datetime_utc | None = None
+
+
+#################################
+
+
+class AdminUserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
+    first_name: str
+    last_name: str
+    program: Literal["F", "Pi", "N"] | None
     email: str
-    posts: list[_UserPostRead]
+    posts: list[PostRead]
     events: list[_UserEventRead]
     telephone_number: PhoneNumber
     start_year: int
     account_created: datetime_utc
     want_notifications: bool
     stil_id: str | None = None
+    standard_food_preferences: list[str] | None
+    other_food_preferences: str | None
+    accesses: list[SimpleUserAccessRead]
+    is_member: bool
+    groups: list["GroupRead"]
 
 
-class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
+class UserRead(BaseSchema):
+    id: int
+    first_name: str
+    last_name: str
+    program: Literal["F", "Pi", "N"] | None
+    posts: list[_UserPostRead]
+    start_year: int
+
+
+class UserInEventRead(SimpleUserRead):
+    standard_food_preferences: list[str] | None
+    other_food_preferences: str | None
+
+
+class UserInGroupRead(BaseSchema):
+    id: int
+    email: str
     first_name: str
     last_name: str
     program: str | None
@@ -46,16 +117,21 @@ class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     pass
 
 
-class MeUpdate(BaseSchema):
+class UserUpdate(BaseSchema):
     first_name: str | None = None
     last_name: str | None = None
     start_year: int | None = None
     program: str | None = None
     notifications: bool | None = None
     stil_id: str | None = None
+    standard_food_preferences: list[str] | None
+    other_food_preferences: str | None
 
 
-# class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
-#     first_name: str
-#     last_name: str
-#     pass
+class UpdateUserMember(BaseSchema):
+    is_member: bool
+
+
+from api_schemas.group_schema import GroupRead
+
+UserRead.model_rebuild()

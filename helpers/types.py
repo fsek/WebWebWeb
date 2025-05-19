@@ -28,6 +28,7 @@ MEMBER_ROLES = Literal["photographer", "ordförande", "dinmamma"]
 PERMISSION_TYPE = Literal["view", "manage"]
 PERMISSION_TARGET = Literal[
     "Event",
+    "Document",
     "User",
     "Post",
     "Permission",
@@ -41,6 +42,7 @@ PERMISSION_TARGET = Literal[
     "Groups",
     "Adventure Missions",
     "Nollning",
+    "UserDoorAccess",
     "Tags",
     "Council",
 ]
@@ -52,3 +54,15 @@ PERMISSION_TARGET = Literal[
 
 GROUP_TYPE = Literal["Mentor", "Mission", "Default", "Committee"]
 GROUP_USER_TYPE = Literal["Mentor", "Mentee", "Default"]
+
+# All doors the guild manages access to.
+
+DOOR_ACCESSES = Literal[
+    "LC", "Bunkern", "Syster Kents", "Cafét", "Caféförrådet", "Pubförrådet", "Containern", "Arkivet"
+]
+
+# Standard food preferences the user can put on their account
+
+FOOD_PREFERENCES = Literal["Vegetarian", "Vegan", "Pescetarian", "Mjölkallergi", "Gluten"]
+
+DRINK_PACKAGES = Literal["None", "AlcoholFree", "Alcohol"]

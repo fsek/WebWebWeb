@@ -4,6 +4,7 @@ from sqlalchemy import Column, DateTime, ForeignKey
 # from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from datetime import datetime
+from helpers.types import datetime_utc
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from helpers.db_util import created_at_column, latest_modified_column
 
@@ -23,6 +24,7 @@ class EventUser_DB(BaseModel_DB):
 
     group_name: Mapped[Optional[str]] = mapped_column(default=None)
     priority: Mapped[str] = mapped_column(default="Övrigt")
+    drinkPackage: Mapped[str] = mapped_column(default="None")
 
-    created_at: Mapped[datetime] = created_at_column()
-    latest_modified: Mapped[datetime] = latest_modified_column()
+    created_at: Mapped[datetime_utc] = created_at_column()
+    latest_modified: Mapped[datetime_utc] = latest_modified_column()

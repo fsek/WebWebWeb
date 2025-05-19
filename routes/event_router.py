@@ -1,4 +1,6 @@
+from io import StringIO
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import StreamingResponse
 from psycopg import IntegrityError
 from api_schemas.tag_schema import EventTagRead, TagRead
 from database import DB_dependency
@@ -14,6 +16,8 @@ from user.permission import Permission
 import random
 from typing import List
 
+import pandas as pd
+
 event_router = APIRouter()
 
 
@@ -21,6 +25,16 @@ event_router = APIRouter()
 def get_all_events(db: DB_dependency):
     events = db.query(Event_DB).all()
     return events
+
+
+@event_router.get("/{eventId}", response_model=EventRead)
+def get_single_event(db: DB_dependency, eventId: int):
+    event = db.query(Event_DB).filter(Event_DB.id == eventId).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    return event
 
 
 @event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
@@ -41,7 +55,7 @@ def event_update(event_id: int, data: EventUpdate, db: DB_dependency):
 
 
 @event_router.get(
-    "/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
+    "/event-signups/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
 )
 def get_all_event_signups(event_id: int, db: DB_dependency):
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
@@ -52,7 +66,11 @@ def get_all_event_signups(event_id: int, db: DB_dependency):
     return users
 
 
-@event_router.get("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead])
+@event_router.get(
+    "/event-signups/random/{event_id}",
+    dependencies=[Permission.require("manage", "Event")],
+    response_model=list[UserRead],
+)
 def get_random_event_signup(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
@@ -117,3 +135,37 @@ def get_event_tags(db: DB_dependency, event_id: int):
     event_tags = event.event_tags
 
     return event_tags
+
+
+@event_router.get("/get-event-csv/{event_id}", dependencies=[Permission.require("manage", "Event")])
+def get_event_csv(db: DB_dependency, event_id: int):
+    event = db.query(Event_DB).filter(Event_DB.id == event_id).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    event_users = event.event_users
+    event_users.sort(key=lambda e_user: e_user.user.last_name)
+
+    # Down the line, this should also include email address, food preference and other important information about event signups.
+    names: list[str] = []
+    stil_ids: list[str] = []
+    telephone_numbers: list[str] = []
+
+    for event_user in event_users:
+        user = event_user.user
+        names.append(f"{user.first_name} {user.last_name}")
+        if user.stil_id is None:
+            stil_ids.append("")
+        else:
+            stil_ids.append(user.stil_id)
+        telephone_numbers.append(user.telephone_number)
+
+    d = {"Name": names, "Stil-id": stil_ids, "Telephone number": telephone_numbers}
+
+    df = pd.DataFrame(data=d)
+    csv_file = StringIO()
+    df.to_csv(csv_file, index=False)
+    response = StreamingResponse(iter([csv_file.getvalue()]), media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=event.csv"
+    return response
