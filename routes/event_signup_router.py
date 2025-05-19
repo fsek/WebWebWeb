@@ -5,7 +5,7 @@ from database import DB_dependency
 from db_models.event_model import Event_DB
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
-from services.event_signup_service import signup_to_event, signoff_from_event, update_event_signup
+from services.event_signup_service import signup_to_event, signoff_from_event, update_event_signup, check_me_signup
 from user.permission import Permission
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupRead, EventSignupUpdate, EventSignupDelete
 from pydantic_extra_types.phone_numbers import PhoneNumber
@@ -80,6 +80,15 @@ def update_event_signup_route(
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Check your permissions mate")
 
     return update_event_signup(event, data, data.user_id, manage_permission, db)
+
+
+@event_signup_router.get("/me-signup/{event_id}", response_model=EventSignupRead)
+def get_me_event_signup(event_id: int, me: Annotated[User_DB, Permission.member()], db: DB_dependency):
+    event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
+    if event is None:
+        raise HTTPException(404, detail="Event not found")
+
+    return check_me_signup(event_id, me, db)
 
 
 # @event_signup_router.get("/{event_id}", response_model=list[EventSignupRead])
