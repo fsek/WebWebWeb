@@ -67,6 +67,7 @@ class EventCreate(BaseSchema):
 
 
 class EventUpdate(BaseSchema):
+    council_id: int | None = None
     starts_at: datetime_utc | None = None
     ends_at: datetime_utc | None = None
     signup_start: datetime_utc | None = None
