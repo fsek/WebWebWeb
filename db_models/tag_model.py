@@ -1,12 +1,10 @@
 from typing import TYPE_CHECKING
 
-
-from db_models.song_category_model import SongCategory_DB
-from helpers.constants import MAX_SONG_AUTHOR, MAX_SONG_CONTENT, MAX_SONG_TITLE, MAX_SONG_MELODY, MAX_TAG_NAME
+from helpers.constants import MAX_TAG_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import Optional
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import String
 
 if TYPE_CHECKING:
     from db_models.event_tag_model import EventTag_DB

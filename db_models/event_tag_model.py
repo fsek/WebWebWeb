@@ -2,7 +2,6 @@ from typing import TYPE_CHECKING
 from db_models.base_model import BaseModel_DB
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from db_models.news_model import News_DB
 from db_models.tag_model import Tag_DB
 
 if TYPE_CHECKING:

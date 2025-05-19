@@ -1,10 +1,10 @@
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import StringConstraints
 from fastapi_users_pelicanq import schemas as fastapi_users_schemas
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
-from helpers.types import datetime_utc
+from helpers.types import DOOR_ACCESSES, datetime_utc
 
 
 class _UserEventRead(BaseSchema):
@@ -15,6 +15,46 @@ class _UserPostRead(BaseSchema):
     id: int
     name: str
     council_id: int
+
+
+class SimpleUserRead(BaseSchema):
+    id: int
+    first_name: str
+    last_name: str
+
+
+####   USER ACCESS   ####
+
+
+class UserAccessCreate(BaseSchema):
+    user_id: int
+    door: Literal[DOOR_ACCESSES]
+    starttime: datetime_utc
+    stoptime: datetime_utc
+
+
+class UserAccessRead(BaseSchema):
+    user_access_id: int
+    user: SimpleUserRead
+    door: str
+    starttime: datetime_utc
+    stoptime: datetime_utc
+
+
+class SimpleUserAccessRead(BaseSchema):
+    door: str
+    starttime: datetime_utc
+    stoptime: datetime_utc
+
+
+class UserAccessUpdate(BaseSchema):
+    access_id: int
+    door: Literal[DOOR_ACCESSES] | None = None
+    starttime: datetime_utc | None = None
+    stoptime: datetime_utc | None = None
+
+
+#################################
 
 
 class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
@@ -28,6 +68,14 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     account_created: datetime_utc
     want_notifications: bool
     stil_id: str | None = None
+    standard_food_preferences: list[str] | None
+    other_food_preferences: str | None
+    accesses: list[SimpleUserAccessRead]
+
+
+class UserInEventRead(SimpleUserRead):
+    standard_food_preferences: list[str] | None
+    other_food_preferences: str | None
 
 
 class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
@@ -46,16 +94,17 @@ class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     pass
 
 
-class MeUpdate(BaseSchema):
+class UserUpdate(BaseSchema):
     first_name: str | None = None
     last_name: str | None = None
     start_year: int | None = None
     program: str | None = None
     notifications: bool | None = None
     stil_id: str | None = None
+    standard_food_preferences: list[str] | None
+    other_food_preferences: str | None
 
 
-# class UserUpdate(fastapi_users_schemas.BaseUserUpdate, BaseSchema):
-#     first_name: str
-#     last_name: str
-#     pass
+
+class UpdateUserMember(BaseSchema):
+    is_member: bool

@@ -111,7 +111,10 @@ def seed_cafe_shifts(db: Session, user: User_DB):
 
 
 def seed_councils(db: Session):
-    councils = [Council_DB(name="Kodmästeriet"), Council_DB(name="Sanningsministeriet")]
+    councils = [
+        Council_DB(name="Kodmästeriet", description="bra beskrivning"),
+        Council_DB(name="Sanningsministeriet", description="bättre beskrivning"),
+    ]
     db.add_all(councils)
     db.commit()
 
@@ -137,7 +140,18 @@ def seed_post_users(db: Session, boss: User_DB, user: User_DB, posts: list[Post_
     db.commit()
 
 
+# Wrapper class for Permission_DB that includes the target posts
+class Permission(Permission_DB):
+    def __init__(self, action=None, target=None, posts: list[str] = []):
+        super().__init__(action=action, target=target)
+        self.posts = posts
+
+    def degenerate(self) -> super:
+        return Permission_DB(action=self.action, target=self.target)
+
+
 def seed_permissions(db: Session, posts: list[Post_DB]):
+
     perm1 = Permission_DB(action="manage", target="Permission")
     perm2 = Permission_DB(action="view", target="User")
     perm3 = Permission_DB(action="manage", target="Event")
@@ -151,13 +165,13 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm11 = Permission_DB(action="manage", target="Cafe")
     perm21 = Permission_DB(action="manage", target="Groups")
     perm17 = Permission_DB(action="view", target="Groups")
-    perm69 = Permission_DB(action="manage", target="Tags")
+    perm69 = Permission_DB(action="manage", target="UserDoorAccess")
+    perm1337 = Permission_DB(action="view", target="UserDoorAccess")
 
     perm23 = Permission_DB(action="manage", target="Adventure Missions")
     perm34 = Permission_DB(action="manage", target="Nollning")
     perm36 = Permission_DB(action="view", target="Nollning")
-    perm40 = Permission_DB(action="manage", target="Council")
-    perm41 = Permission_DB(action="view", target="Council")
+
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
@@ -173,9 +187,31 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm23)
     posts[0].permissions.append(perm34)
     posts[0].permissions.append(perm36)
-    posts[0].permissions.append(perm40)
-    posts[0].permissions.append(perm41)
     posts[0].permissions.append(perm69)
+    posts[0].permissions.append(perm1337)
+
+    permissions = [
+        Permission(action="manage", target="Permission", posts=["Buggmästare"]),
+        Permission(action="view", target="User", posts=["Buggmästare"]),
+        Permission(action="manage", target="Event", posts=["Lallare"]),
+        Permission(action="manage", target="Post", posts=["Buggmästare"]),
+        Permission(action="manage", target="News", posts=["Lallare"]),
+        Permission(action="manage", target="Song", posts=["Buggmästare"]),
+        Permission(action="manage", target="Gallery", posts=["Buggmästare"]),
+        Permission(action="manage", target="Ads", posts=["Buggmästare"]),
+        Permission(action="manage", target="Car", posts=["Buggmästare"]),
+        Permission(action="manage", target="Election", posts=["Buggmästare"]),
+        Permission(action="manage", target="Cafe", posts=["Lallare"]),
+        Permission(action="manage", target="Groups", posts=["Buggmästare"]),
+        Permission(action="manage", target="Tags", posts=["Buggmästare"]),
+        Permission(action="manage", target="Adventure Missions", posts=["Buggmästare"]),
+        Permission(action="manage", target="Nollning", posts=["Buggmästare"]),
+        Permission(action="view", target="Nollning", posts=["Buggmästare"]),
+        Permission(action="manage", target="Council", posts=["Buggmästare"]),
+        Permission(action="view", target="Council", posts=["Buggmästare"]),
+    ]
+
+    [[post.permissions.append(perm.degenerate()) for perm in permissions if post.name in perm.posts] for post in posts]
 
     db.commit()
 
@@ -195,6 +231,7 @@ def seed_events(db: Session, one_council: Council_DB):
         title_sv="Loyde gähdda",
         signup_start=signup_start,
         signup_end=signup_end,
+        location="Mattehuset",
     )
     db.add(event)
     db.commit()
