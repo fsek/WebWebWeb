@@ -30,11 +30,12 @@ class EventRead(BaseSchema):
     recurring: bool
     drink: bool
     food: bool
-    cash: bool
     closed: bool
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
+    dress_code: str
+    price: int
 
 
 # we dont need to be as strict about out data as in data.
@@ -59,11 +60,12 @@ class EventCreate(BaseSchema):
     recurring: bool
     drink: bool
     food: bool
-    cash: bool
     closed: bool
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
+    dress_code: str
+    price: int
 
 
 class EventUpdate(BaseSchema):
@@ -83,11 +85,12 @@ class EventUpdate(BaseSchema):
     recurring: bool | None = None
     drink: bool | None = None
     food: bool | None = None
-    cash: bool | None = None
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
+    dresscode: str | None
+    price: int | None
 
 
 class AddEventTag(BaseSchema):
