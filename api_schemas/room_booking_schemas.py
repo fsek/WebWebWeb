@@ -10,7 +10,7 @@ class RoomCreate(BaseSchema):
     start_time: datetime_utc
     end_time: datetime_utc
     description: Annotated[str, StringConstraints(max_length=MAX_ROOM_DESC)]
-    council_id: int
+    council_id: int | None
 
 
 class RoomRead(BaseSchema):
