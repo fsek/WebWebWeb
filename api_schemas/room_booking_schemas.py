@@ -16,6 +16,7 @@ class RoomCreate(BaseSchema):
 class RoomRead(BaseSchema):
     booking_id: int
     room_id: int
+    room: str
     start_time: datetime_utc
     end_time: datetime_utc
     description: str

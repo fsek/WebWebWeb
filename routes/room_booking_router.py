@@ -13,7 +13,7 @@ from helpers.constants import ROOMS
 room_router = APIRouter()
 
 
-@room_router.post("/", response_model=RoomCreate, dependencies=[Permission.require("manage", "Rooms")])
+@room_router.post("/", response_model=RoomRead, dependencies=[Permission.require("manage", "Rooms")])
 def create_booking(booking: RoomCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
     if booking.end_time <= booking.start_time:
         raise HTTPException(400, "End time must be after start time")

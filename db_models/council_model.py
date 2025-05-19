@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import String
 
-from room_booking_model import RoomBooking_DB
+from db_models.room_booking_model import RoomBooking_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_COUNCIL_DESC

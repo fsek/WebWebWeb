@@ -6,7 +6,7 @@ from db_models.album_model import Album_DB
 from db_models.candidate_model import Candidate_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
-from room_booking_model import RoomBooking_DB
+from db_models.room_booking_model import RoomBooking_DB
 from .user_door_access_model import UserDoorAccess_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import FOOD_PREFERENCES, MEMBER_TYPE
