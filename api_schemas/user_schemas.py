@@ -1,10 +1,19 @@
 from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import StringConstraints
 from fastapi_users_pelicanq import schemas as fastapi_users_schemas
+from api_schemas.permission_schemas import PermissionRead
+from api_schemas.post_schemas import PostRead
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from helpers.types import DOOR_ACCESSES, datetime_utc
+from sqlalchemy import Enum
+
+if TYPE_CHECKING:
+    from api_schemas.group_schema import GroupRead
+
+if TYPE_CHECKING:
+    from api_schemas.group_schema import GroupRead
 
 
 class _UserEventRead(BaseSchema):
@@ -57,11 +66,12 @@ class UserAccessUpdate(BaseSchema):
 #################################
 
 
-class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
+class AdminUserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     first_name: str
     last_name: str
+    program: Literal["F", "Pi", "N"] | None
     email: str
-    posts: list[_UserPostRead]
+    posts: list[PostRead]
     events: list[_UserEventRead]
     telephone_number: PhoneNumber
     start_year: int
@@ -71,6 +81,17 @@ class UserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     standard_food_preferences: list[str] | None
     other_food_preferences: str | None
     accesses: list[SimpleUserAccessRead]
+    is_member: bool
+    groups: list["GroupRead"]
+
+
+class UserRead(BaseSchema):
+    id: int
+    first_name: str
+    last_name: str
+    program: Literal["F", "Pi", "N"] | None
+    posts: list[_UserPostRead]
+    start_year: int
 
 
 class UserInEventRead(SimpleUserRead):
@@ -78,7 +99,9 @@ class UserInEventRead(SimpleUserRead):
     other_food_preferences: str | None
 
 
-class UserInGroupRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
+class UserInGroupRead(BaseSchema):
+    id: int
+    email: str
     first_name: str
     last_name: str
     program: str | None
@@ -105,6 +128,10 @@ class UserUpdate(BaseSchema):
     other_food_preferences: str | None
 
 
-
 class UpdateUserMember(BaseSchema):
     is_member: bool
+
+
+from api_schemas.group_schema import GroupRead
+
+UserRead.model_rebuild()

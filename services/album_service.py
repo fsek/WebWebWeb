@@ -4,6 +4,9 @@ from api_schemas.album_schema import AlbumCreate
 from db_models.album_model import Album_DB
 from pathlib import Path
 import os
+import re
+
+from db_models.user_model import User_DB
 
 
 def normalize_swedish(text: str) -> str:
@@ -11,8 +14,16 @@ def normalize_swedish(text: str) -> str:
     return "".join(replacements.get(c, c) for c in text)
 
 
+def sanitize_title(text: str) -> str:
+    title = normalize_swedish(text)
+    title = re.sub(r"[^a-z0-9]", "", title)
+
+    return title
+
+
 def add_album(db: Session, album: AlbumCreate):
-    file_path = Path(f"/albums/{album.year}/{normalize_swedish(album.name).lower().replace(' ', '')}")
+
+    file_path = Path(f"/albums/{album.year}/{sanitize_title(album.title_sv)}")
 
     if not Path(f"/albums/{album.year}").exists():
         os.mkdir(f"/albums/{album.year}")
@@ -22,12 +33,37 @@ def add_album(db: Session, album: AlbumCreate):
 
     file_path.mkdir()
     new_album = Album_DB(
-        name=album.name, path=str(file_path.resolve()), year=album.year, location=album.location, date=album.date
+        title_en=album.title_en,
+        title_sv=album.title_sv,
+        desc_en=album.desc_en,
+        desc_sv=album.desc_sv,
+        path=str(file_path.resolve()),
+        year=album.year,
+        location=album.location,
+        date=album.date,
     )
     db.add(new_album)
     db.commit()
 
     return new_album
+
+
+def add_photographer(db: Session, album_id: int, user_id: int):
+    album = db.query(Album_DB).filter(Album_DB.id == album_id).one_or_none()
+
+    if not album:
+        raise HTTPException(404, detail="Album not found")
+
+    user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
+
+    if not user:
+        raise HTTPException(404, detail="User not found")
+
+    album.photographer_id = user_id
+
+    db.commit()
+
+    return album
 
 
 def get_all_albums(db: Session):
