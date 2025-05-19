@@ -58,7 +58,6 @@ class Event_DB(BaseModel_DB):
     recurring: Mapped[bool] = mapped_column(default=False)
     drink: Mapped[bool] = mapped_column(default=False)
     food: Mapped[bool] = mapped_column(default=False)
-    cash: Mapped[bool] = mapped_column(default=False)
     closed: Mapped[bool] = mapped_column(default=False)
     can_signup: Mapped[bool] = mapped_column(default=False)
     drink_package: Mapped[bool] = mapped_column(default=False)

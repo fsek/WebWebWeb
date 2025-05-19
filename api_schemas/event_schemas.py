@@ -30,7 +30,6 @@ class EventRead(BaseSchema):
     recurring: bool
     drink: bool
     food: bool
-    cash: bool
     closed: bool
     can_signup: bool
     drink_package: bool
@@ -61,7 +60,6 @@ class EventCreate(BaseSchema):
     recurring: bool
     drink: bool
     food: bool
-    cash: bool
     closed: bool
     can_signup: bool
     drink_package: bool
@@ -86,7 +84,6 @@ class EventUpdate(BaseSchema):
     recurring: bool | None = None
     drink: bool | None = None
     food: bool | None = None
-    cash: bool | None = None
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
