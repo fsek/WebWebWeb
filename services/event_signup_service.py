@@ -62,3 +62,12 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     db.commit()
     db.refresh(event)
     return signup
+
+
+def check_me_signup(event_id: int, me: User_DB, db: Session):
+    signup = db.query(EventUser_DB).filter_by(user_id=me.id, event_id=event_id).one_or_none()
+
+    if not signup:
+        raise HTTPException(404, detail="Signup not found")
+
+    return signup
