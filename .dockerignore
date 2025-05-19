@@ -1,1 +1,4 @@
 Dockerfile
+**/__pycache__
+.venv
+.git
