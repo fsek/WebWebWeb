@@ -58,11 +58,9 @@ def get_post(post_id: int, db: DB_dependency):
     return post
 
 
-@post_router.get(
-    "/users/{post_id}", dependencies=[Permission.require("view", "Post")], response_model=list[SimpleUserRead]
-)
+@post_router.get("/users/{post_id}", response_model=list[SimpleUserRead])
 def get_all_users_with_post(post_id: int, db: DB_dependency):
     posts = db.query(Post_DB).filter_by(id=post_id).one_or_none()
     if posts is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise HTTPException(404, detail="Post not found")
     return posts.users
