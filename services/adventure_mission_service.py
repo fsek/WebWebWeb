@@ -25,8 +25,8 @@ def create_adventure_mission(db: Session, data: AdventureMissionCreate):
     if data.max_points < 1:
         raise HTTPException(400, detail="Max points has to be atleast 1")
 
-    if data.min_points < 1:
-        raise HTTPException(400, detail="Min points has to be atleast 1")
+    if data.min_points < 0:
+        raise HTTPException(400, detail="Min points has to be atleast 0")
 
     new_adventure_mission = AdventureMission_DB(
         nollning_id=data.nollning_id,
