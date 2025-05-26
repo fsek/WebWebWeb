@@ -30,3 +30,5 @@ class GroupMission_DB(BaseModel_DB):
 
     nollning_group: Mapped["NollningGroup_DB"] = relationship(back_populates="group_missions")
     nollning_group_id: Mapped[int] = mapped_column(ForeignKey("nollning_group_table.id"), primary_key=True)
+
+    is_accepted: Mapped[bool] = mapped_column(default=False, init=False)

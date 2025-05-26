@@ -1,5 +1,6 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import desc
+from api_schemas.group_schema import GroupRead
 from api_schemas.nollning_schema import (
     NollningCreate,
     NollningRead,
@@ -9,6 +10,7 @@ from api_schemas.nollning_schema import (
 )
 from database import DB_dependency
 from db_models.nollning_model import Nollning_DB
+from db_models.nollning_group_model import NollningGroup_DB
 from services.nollning_service import (
     add_g_to_nollning,
     create_nollning,
@@ -70,3 +72,18 @@ def get_all_nollning_groups(db: DB_dependency, id: int):
 )
 def delete_group_mission(db: DB_dependency, id: int, data: NollningDeleteMission):
     return delete_group_m(db, id, data)
+
+
+@nollning_router.delete(
+    "/remove_group/{group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupRead
+)
+def remove_group_from_nollning(db: DB_dependency, group_id: int):
+    nollning_group = db.query(NollningGroup_DB).filter_by(id=group_id).one_or_none()
+
+    if not nollning_group:
+        raise HTTPException(404, detail="Group not in nollning")
+
+    db.delete(nollning_group)
+    db.commit()
+
+    return nollning_group
