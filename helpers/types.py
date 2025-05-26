@@ -66,3 +66,5 @@ DOOR_ACCESSES = Literal[
 FOOD_PREFERENCES = Literal["Vegetarian", "Vegan", "Pescetarian", "Mjölkallergi", "Gluten"]
 
 DRINK_PACKAGES = Literal["None", "AlcoholFree", "Alcohol"]
+
+ALCOHOL_EVENT_TYPES = Literal["Alcohol", "Alcohol-Served", "None"]

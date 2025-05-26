@@ -39,7 +39,6 @@ def create_new_event(data: EventCreate, db: Session):
         all_day=data.all_day,
         signup_not_opened_yet=data.signup_not_opened_yet,
         recurring=data.recurring,
-        drink=data.drink,
         food=data.food,
         cash=data.cash,
         closed=data.closed,
@@ -47,6 +46,7 @@ def create_new_event(data: EventCreate, db: Session):
         drink_package=data.drink_package,
         location=data.location,
         is_nollning_event=data.is_nollning_event,
+        alcohol_event_type=data.alcohol_event_type,
     )
     db.add(event)  # This adds the event itself to the session
     db.flush()  # This is optional but can be helpful to ensure 'event.id' is set if used immediately after
@@ -79,7 +79,7 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
 
     if not event:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Event not found")
 
     for var, value in vars(data).items():
         setattr(event, var, value) if value is not None else None

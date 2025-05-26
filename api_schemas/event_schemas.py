@@ -3,7 +3,7 @@ from api_schemas.base_schema import BaseSchema
 from api_schemas.event_signup_schemas import EventSignupRead
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
-from helpers.types import MEMBER_ROLES, datetime_utc
+from helpers.types import ALCOHOL_EVENT_TYPES, MEMBER_ROLES, datetime_utc
 from pydantic import StringConstraints
 
 if TYPE_CHECKING:
@@ -28,13 +28,13 @@ class EventRead(BaseSchema):
     all_day: bool
     signup_not_opened_yet: bool
     recurring: bool
-    drink: bool
     food: bool
     cash: bool
     closed: bool
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
+    alcohol_event_type: str
 
 
 # we dont need to be as strict about out data as in data.
@@ -57,13 +57,13 @@ class EventCreate(BaseSchema):
     all_day: bool
     signup_not_opened_yet: bool
     recurring: bool
-    drink: bool
     food: bool
     cash: bool
     closed: bool
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
+    alcohol_event_type: ALCOHOL_EVENT_TYPES
 
 
 class EventUpdate(BaseSchema):
@@ -81,13 +81,13 @@ class EventUpdate(BaseSchema):
     all_day: bool | None = None
     signup_not_opened_yet: bool | None = None
     recurring: bool | None = None
-    drink: bool | None = None
     food: bool | None = None
     cash: bool | None = None
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
+    alcohol_event_type: ALCOHOL_EVENT_TYPES | None = None
 
 
 class AddEventTag(BaseSchema):
