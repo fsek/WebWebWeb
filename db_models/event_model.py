@@ -1,4 +1,4 @@
-from helpers.types import datetime_utc
+from helpers.types import ALCOHOL_EVENT_TYPES, datetime_utc
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -52,7 +52,7 @@ class Event_DB(BaseModel_DB):
     all_day: Mapped[bool] = mapped_column(default=False)
     signup_not_opened_yet: Mapped[bool] = mapped_column(default=True)
     recurring: Mapped[bool] = mapped_column(default=False)
-    drink: Mapped[bool] = mapped_column(default=False)
+    alcohol_event_type: Mapped[ALCOHOL_EVENT_TYPES] = mapped_column(default=False)
     food: Mapped[bool] = mapped_column(default=False)
     cash: Mapped[bool] = mapped_column(default=False)
     closed: Mapped[bool] = mapped_column(default=False)
