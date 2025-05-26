@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import desc
+from sqlalchemy import and_, desc
 from api_schemas.group_schema import GroupRead
 from api_schemas.nollning_schema import (
     NollningCreate,
@@ -11,6 +11,7 @@ from api_schemas.nollning_schema import (
 from database import DB_dependency
 from db_models.nollning_model import Nollning_DB
 from db_models.nollning_group_model import NollningGroup_DB
+from group_mission_model import GroupMission_DB
 from services.nollning_service import (
     add_g_to_nollning,
     create_nollning,
@@ -75,13 +76,20 @@ def delete_group_mission(db: DB_dependency, id: int, data: NollningDeleteMission
 
 
 @nollning_router.delete(
-    "/remove_group/{group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupRead
+    "/remove_group/{nollning_group_id}",
+    dependencies=[Permission.require("manage", "Nollning")],
+    response_model=NollningGroupRead,
 )
-def remove_group_from_nollning(db: DB_dependency, group_id: int):
-    nollning_group = db.query(NollningGroup_DB).filter_by(id=group_id).one_or_none()
+def remove_group_from_nollning(db: DB_dependency, nollning_group_id: int):
+    nollning_group = db.query(NollningGroup_DB).filter_by(id=nollning_group_id).one_or_none()
 
     if not nollning_group:
         raise HTTPException(404, detail="Group not in nollning")
+
+    completed_missions = db.query(GroupMission_DB).filter_by(nollning_group_id=nollning_group.id).all()
+
+    if completed_missions:
+        raise HTTPException(409, detail="Group has missions in nollning and therefore cannot be unlinked")
 
     db.delete(nollning_group)
     db.commit()
