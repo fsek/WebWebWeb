@@ -64,3 +64,7 @@ class Event_DB(BaseModel_DB):
     )
 
     is_nollning_event: Mapped[bool] = mapped_column(default=False)
+
+    confirmed_event_users: Mapped[list["EventUser_DB"]] = relationship(init=False, back_populates="event")
+
+    reserve_event_users: Mapped[list["EventUser_DB"]] = relationship(init=False, back_populates="event")
