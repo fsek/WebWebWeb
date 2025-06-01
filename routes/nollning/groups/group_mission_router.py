@@ -93,10 +93,10 @@ def edit_completed_mission_in_group(db: DB_dependency, data: GroupMissionEdit, g
 @group_mission_router.delete(
     "/{mission_id}",
     dependencies=[Permission.require("manage", "Nollning")],
-    response_model=NollningDeleteMission,
+    status_code=204,
 )
 def remove_completed_mission_from_group(db: DB_dependency, nollning_id: int, data: NollningDeleteMission):
-    return delete_group_m(db, nollning_id, data)
+    delete_group_m(db, nollning_id, data)
 
 
 @group_mission_router.get(
