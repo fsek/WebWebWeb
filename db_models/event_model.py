@@ -39,6 +39,8 @@ class Event_DB(BaseModel_DB):
 
     price: Mapped[int] = mapped_column()
 
+    alcohol_event_type: Mapped[ALCOHOL_EVENT_TYPES] = mapped_column()
+
     max_event_users: Mapped[int] = mapped_column(default=0)
 
     event_users: Mapped[list["EventUser_DB"]] = relationship(
@@ -56,7 +58,6 @@ class Event_DB(BaseModel_DB):
     all_day: Mapped[bool] = mapped_column(default=False)
     signup_not_opened_yet: Mapped[bool] = mapped_column(default=True)
     recurring: Mapped[bool] = mapped_column(default=False)
-    alcohol_event_type: Mapped[ALCOHOL_EVENT_TYPES] = mapped_column(default=False)
     food: Mapped[bool] = mapped_column(default=False)
     closed: Mapped[bool] = mapped_column(default=False)
     can_signup: Mapped[bool] = mapped_column(default=False)
