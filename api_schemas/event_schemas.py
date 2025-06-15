@@ -36,6 +36,7 @@ class EventRead(BaseSchema):
     alcohol_event_type: str
     dress_code: str
     price: int
+    signup_count: int
 
 
 # we dont need to be as strict about out data as in data.

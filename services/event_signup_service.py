@@ -26,7 +26,11 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
         setattr(signup, var, value) if value else None
 
     db.add(signup)
+
+    event.signup_count += 1
+
     db.commit()
+
     return signup
 
 
@@ -44,6 +48,9 @@ def signoff_from_event(
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     db.delete(signup)
+
+    event.signup_count -= 1
+
     db.commit()
     return signup
 

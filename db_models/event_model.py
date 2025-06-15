@@ -39,6 +39,8 @@ class Event_DB(BaseModel_DB):
 
     price: Mapped[int] = mapped_column()
 
+    signup_count: Mapped[int] = mapped_column(init=False, default=0)
+
     alcohol_event_type: Mapped[ALCOHOL_EVENT_TYPES] = mapped_column()
 
     max_event_users: Mapped[int] = mapped_column(default=0)
