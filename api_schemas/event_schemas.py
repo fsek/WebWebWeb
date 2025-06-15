@@ -35,6 +35,8 @@ class EventRead(BaseSchema):
     drink_package: bool
     is_nollning_event: bool
     alcohol_event_type: str
+    confirmed_event_users: list[EventSignupRead] | None
+    reserve_event_users: list[EventSignupRead] | None
 
 
 # we dont need to be as strict about out data as in data.
@@ -88,6 +90,8 @@ class EventUpdate(BaseSchema):
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
     alcohol_event_type: ALCOHOL_EVENT_TYPES | None = None
+    confirmed_event_users: list[EventSignupRead] | None = None
+    reserve_event_users: list[EventSignupRead] | None = None
 
 
 class AddEventTag(BaseSchema):
