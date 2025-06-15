@@ -29,14 +29,13 @@ class EventRead(BaseSchema):
     signup_not_opened_yet: bool
     recurring: bool
     food: bool
-    price: int
     closed: bool
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
     alcohol_event_type: str
-    confirmed_event_users: list[EventSignupRead] | None
-    reserve_event_users: list[EventSignupRead] | None
+    dress_code: str
+    price: int
 
 
 # we dont need to be as strict about out data as in data.
@@ -60,12 +59,13 @@ class EventCreate(BaseSchema):
     signup_not_opened_yet: bool
     recurring: bool
     food: bool
-    price: int
     closed: bool
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
     alcohol_event_type: ALCOHOL_EVENT_TYPES
+    dress_code: str
+    price: int
 
 
 class EventUpdate(BaseSchema):
@@ -84,14 +84,13 @@ class EventUpdate(BaseSchema):
     signup_not_opened_yet: bool | None = None
     recurring: bool | None = None
     food: bool | None = None
-    price: int | None = None
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
     alcohol_event_type: ALCOHOL_EVENT_TYPES | None = None
-    confirmed_event_users: list[EventSignupRead] | None = None
-    reserve_event_users: list[EventSignupRead] | None = None
+    dresscode: str | None
+    price: int | None
 
 
 class AddEventTag(BaseSchema):
