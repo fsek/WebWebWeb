@@ -20,6 +20,9 @@ def create_new_event(data: EventCreate, db: Session):
     if start < datetime.now(UTC):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event start cannot be in the past, silly.")
 
+    if data.price < 0:
+        raise HTTPException(400, detail="price cannot be lower than 0")
+
     # Check if council exists. It's just some extra validation
     council = db.query(Council_DB).filter_by(id=data.council_id).one_or_none()
     if council is None:
@@ -40,7 +43,7 @@ def create_new_event(data: EventCreate, db: Session):
         signup_not_opened_yet=data.signup_not_opened_yet,
         recurring=data.recurring,
         food=data.food,
-        cash=data.cash,
+        price=data.price,
         closed=data.closed,
         can_signup=data.can_signup,
         drink_package=data.drink_package,
