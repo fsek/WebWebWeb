@@ -11,7 +11,7 @@ from api_schemas.nollning_schema import (
 from database import DB_dependency
 from db_models.nollning_model import Nollning_DB
 from db_models.nollning_group_model import NollningGroup_DB
-from group_mission_model import GroupMission_DB
+from db_models.group_mission_model import GroupMission_DB
 from services.nollning_service import (
     add_g_to_nollning,
     create_nollning,
