@@ -13,11 +13,13 @@ class GroupMissionCreate(BaseSchema):
 
 
 class GroupMissionEdit(BaseSchema):
-    points: int
-    adventure_mission_id: int
+    points: int | None = None
+    adventure_mission_id: int | None = None
+    is_accepted: bool | None = None
 
 
 class GroupMissionRead(BaseSchema):
     points: int
     adventure_mission: AdventureMissionRead
     nollning_group: NollningGroupRead
+    is_accepted: bool
