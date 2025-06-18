@@ -82,7 +82,7 @@ def edit_completed_mission_in_group(db: DB_dependency, data: GroupMissionEdit, g
         raise HTTPException(404, detail="Group mission not found")
 
     for var, value in vars(data).items():
-        setattr(mission, var, value) if value else None
+        setattr(mission, var, value) if value is not None else None
 
     db.commit()
     db.refresh(mission)
