@@ -82,7 +82,17 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     for var, value in vars(data).items():
-        setattr(event, var, value) if value is not None else None
+        if value is not None:
+            if var == "priorities":
+                # Handle priorities separately
+                # First, remove existing priorities
+                db.query(Priority_DB).filter_by(event_id=event.id).delete()
+                # Then create new ones
+                priorities = [Priority_DB(priority=priority, event_id=event.id) for priority in value]
+                for priority in priorities:
+                    db.add(priority)
+            else:
+                setattr(event, var, value)
 
     db.commit()
     return event
