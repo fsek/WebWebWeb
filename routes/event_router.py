@@ -14,9 +14,8 @@ from services.event_service import create_new_event, delete_event, update_event
 from db_models.tag_model import Tag_DB
 from user.permission import Permission
 import random
-from typing import List
+from typing import List, get_args
 from helpers.types import MEMBER_ROLES
-import typing
 
 import pandas as pd
 
@@ -32,7 +31,7 @@ def get_all_events(db: DB_dependency):
 @event_router.get("/priorities", response_model=list[str])
 def get_event_priorities():
     # Extract literal values using typing
-    member_roles = typing.get_args(MEMBER_ROLES)
+    member_roles = get_args(MEMBER_ROLES)
     return list(member_roles)
 
 

@@ -85,9 +85,9 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
         if value is not None:
             if var == "priorities":
                 # Handle priorities separately
-                # First, remove existing priorities
+                # First, remove all existing priorities
                 db.query(Priority_DB).filter_by(event_id=event.id).delete()
-                # Then create new ones
+                # Then create new ones (or none if empty)
                 priorities = [Priority_DB(priority=priority, event_id=event.id) for priority in value]
                 for priority in priorities:
                     db.add(priority)
