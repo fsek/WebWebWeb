@@ -23,4 +23,6 @@ class CarBooking_DB(BaseModel_DB):
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
 
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="car_bookings", init=False)
+
+    confirmed: Mapped[bool] = mapped_column(default=False)
     pass
