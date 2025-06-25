@@ -53,6 +53,8 @@ def create_new_event(data: EventCreate, db: Session):
         dress_code=data.dress_code,
         price=data.price,
         alcohol_event_type=data.alcohol_event_type,
+        dot=data.dot,
+        lottery=data.lottery,
     )
     db.add(event)  # This adds the event itself to the session
     db.flush()  # This is optional but can be helpful to ensure 'event.id' is set if used immediately after
