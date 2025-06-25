@@ -26,7 +26,6 @@ class EventRead(BaseSchema):
     max_event_users: int
     priorities: list[Priority_DB]
     all_day: bool
-    signup_not_opened_yet: bool
     recurring: bool
     food: bool
     closed: bool
@@ -57,7 +56,6 @@ class EventCreate(BaseSchema):
     max_event_users: int
     priorities: list[MEMBER_ROLES]
     all_day: bool
-    signup_not_opened_yet: bool
     recurring: bool
     food: bool
     closed: bool
@@ -82,7 +80,6 @@ class EventUpdate(BaseSchema):
     location: str
     max_event_users: int | None = None
     all_day: bool | None = None
-    signup_not_opened_yet: bool | None = None
     recurring: bool | None = None
     food: bool | None = None
     closed: bool | None = None

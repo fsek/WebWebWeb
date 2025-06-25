@@ -43,7 +43,6 @@ def create_new_event(data: EventCreate, db: Session):
         signup_end=signup_end,
         max_event_users=data.max_event_users,
         all_day=data.all_day,
-        signup_not_opened_yet=data.signup_not_opened_yet,
         recurring=data.recurring,
         food=data.food,
         closed=data.closed,

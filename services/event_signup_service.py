@@ -10,7 +10,14 @@ from user.permission import Permission
 
 def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
     now = datetime.now(UTC)
-    if event.signup_end < now and manage_permission == False:
+
+    if (event.closed) and (manage_permission == False):
+        raise HTTPException(400, detail="Event is closed")
+
+    if (event.signup_start > now) and (manage_permission == False):
+        raise HTTPException(400, detail="Event signup has not opened yet")
+
+    if (event.signup_end < now) and (manage_permission == False):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
 
     if (

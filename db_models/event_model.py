@@ -58,7 +58,6 @@ class Event_DB(BaseModel_DB):
     )
 
     all_day: Mapped[bool] = mapped_column(default=False)
-    signup_not_opened_yet: Mapped[bool] = mapped_column(default=True)
     recurring: Mapped[bool] = mapped_column(default=False)
     food: Mapped[bool] = mapped_column(default=False)
     closed: Mapped[bool] = mapped_column(default=False)
