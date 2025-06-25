@@ -1,6 +1,6 @@
-from helpers.types import ALCOHOL_EVENT_TYPES, datetime_utc
+from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, datetime_utc
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Enum
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_LOCATION, MAX_EVENT_TITLE
 from .base_model import BaseModel_DB
@@ -69,3 +69,7 @@ class Event_DB(BaseModel_DB):
     )
 
     is_nollning_event: Mapped[bool] = mapped_column(default=False)
+
+    dot: Mapped[EVENT_DOT_TYPES] = mapped_column(default="None")
+
+    lottery: Mapped[bool] = mapped_column(default=False)
