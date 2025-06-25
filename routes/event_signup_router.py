@@ -43,7 +43,7 @@ def event_signup_route(
 @event_signup_router.delete("/{event_id}", response_model=EventSignupRead)
 def event_signoff_route(
     event_id: int,
-    data: EventSignupDelete,
+    user_id: int,
     me: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Event")],
     db: DB_dependency,
@@ -52,13 +52,13 @@ def event_signoff_route(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    if data.user_id is None or data.user_id == me.id:
+    if user_id == me.id:
         return signoff_from_event(event, me.id, manage_permission, db)
 
     if manage_permission == False:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Check your permissions mate")
 
-    return signoff_from_event(event, data.user_id, manage_permission, db)
+    return signoff_from_event(event, user_id, manage_permission, db)
 
 
 @event_signup_router.patch("/{event_id}", response_model=EventSignupRead)

@@ -28,4 +28,4 @@ class EventSignupUpdate(BaseSchema):
 
 
 class EventSignupDelete(BaseSchema):
-    user_id: int | None = None
+    user_id: int
