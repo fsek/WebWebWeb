@@ -18,6 +18,7 @@ class EventSignupRead(BaseSchema):
     priority: str
     group_name: str
     drinkPackage: DRINK_PACKAGES
+    confirmed_status: bool
 
 
 class EventSignupUpdate(BaseSchema):
@@ -27,5 +28,5 @@ class EventSignupUpdate(BaseSchema):
     drinkPackage: DRINK_PACKAGES | None = None
 
 
-class EventSignupDelete(BaseSchema):
-    user_id: int
+# class EventSignupDelete(BaseSchema):
+#     user_id: int
