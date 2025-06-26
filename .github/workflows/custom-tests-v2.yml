@@ -2,7 +2,7 @@
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 # This is a somewhat modified version
 
-name: Tests v.1
+name: Tests v.2
 
 on:
   push:
@@ -20,11 +20,11 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
-          POSTGRES_DB: test_db
+          POSTGRES_DB: postgres_test
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -47,7 +47,7 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
         
-    - name: Lint with flake8
+    - name: Lint with flake8 (might not be needed)
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
@@ -56,6 +56,6 @@ jobs:
         
     - name: Run tests with pytest
       env:
-        TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+        TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres_test
         ENVIRONMENT: "testing"
       run: pytest -v
