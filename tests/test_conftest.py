@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 import os
 
-# tests which are already tested elsewhere
+# tests which are already tested elsewhere TODO: Remove, fix or merge into other files
 TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 
 
