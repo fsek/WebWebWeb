@@ -89,6 +89,8 @@ def create_booking(
         user_id=current_user.id,
         description=booking.description,
         confirmed=booking_confirmed,
+        personal=booking.personal,
+        council_id=booking.council_id,
     )
     db.add(db_booking)
     db.commit()
@@ -204,6 +206,10 @@ def update_booking(
         car_booking.start_time = data.start_time
     if data.end_time is not None:
         car_booking.end_time = data.end_time
+    if data.personal is not None:
+        car_booking.personal = data.personal
+    if data.council_id is not None:
+        car_booking.council_id = data.council_id
 
     db.commit()
     return car_booking

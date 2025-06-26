@@ -12,12 +12,16 @@ class CarRead(BaseSchema):
     start_time: datetime_utc
     end_time: datetime_utc
     confirmed: bool
+    personal: bool
+    council_id: int
 
 
 class CarCreate(BaseSchema):
     description: Annotated[str, StringConstraints(max_length=MAX_CAR_DESC)] | None = None
     start_time: datetime_utc
     end_time: datetime_utc
+    personal: bool
+    council_id: int
 
 
 class CarUpdate(BaseSchema):
@@ -25,3 +29,5 @@ class CarUpdate(BaseSchema):
     start_time: datetime_utc | None = None
     end_time: datetime_utc | None = None
     confirmed: bool | None = None
+    personal: bool | None = None
+    council_id: int | None = None
