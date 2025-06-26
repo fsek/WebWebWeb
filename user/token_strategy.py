@@ -2,7 +2,9 @@ from typing import TypedDict
 from fastapi_users_pelicanq.authentication import JWTStrategy
 from db_models.user_model import User_DB
 
+# TODO: Use environment variables or a secure vault for secrets in production
 JWT_SECRET = "MEGA SECRET"
+REFRESH_SECRET = "OTHER MEGA SECRET THAT IS VERY LONGGGGGGG"
 
 
 # class to describe data in access token for our chosen JWT strategy
@@ -37,4 +39,9 @@ class CustomTokenStrategy(JWTStrategy[User_DB, int]):
 
 def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
     strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=3600)
+    return strat
+
+
+def get_refresh_jwt_strategy() -> JWTStrategy[User_DB, int]:
+    strat = JWTStrategy[User_DB, int](secret=REFRESH_SECRET, lifetime_seconds=3600 * 24 * 30)
     return strat
