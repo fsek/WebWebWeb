@@ -18,6 +18,8 @@ RUN apt install -y python3.11 python3.11-venv sudo git
 
 ENV ENVIRONMENT=development
 ENV DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres"
+ENV TEST_DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres_test"
+
 
 # In prod we must NOT run our container with root user, security risk. 
 # In the future I think we should use non-root user event in dev to make environment similar to prod
