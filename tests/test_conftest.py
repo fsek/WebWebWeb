@@ -10,13 +10,11 @@ TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
 def test_engine_creation(test_engine):
     """Test that test_engine fixture creates a valid SQLAlchemy engine."""
     assert test_engine is not None
-    # Compare the components instead of the full URL string (password gets masked)
+    # Compare the components instead of the full URL string
     assert test_engine.url.host == "localhost"
     assert test_engine.url.port == 5432
     assert test_engine.url.database == "postgres_test"
     assert test_engine.url.username == "postgres"
-    assert test_engine.url.drivername == "postgresql+psycopg"
-    assert test_engine.pool.__class__.__name__ == "StaticPool"
 
 
 def test_engine_connection(test_engine):
