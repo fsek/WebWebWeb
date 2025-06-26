@@ -94,7 +94,7 @@ def get_auth_router(
         name=f"auth:{backend.name}.refresh",
         responses={
             status.HTTP_401_UNAUTHORIZED: {"description": "Missing or invalid refresh token."},
-            **backend.transport.get_openapi_login_responses_success(),
+            **access_backend.transport.get_openapi_login_responses_success(),
         },
     )
     async def refresh(
