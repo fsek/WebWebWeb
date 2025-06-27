@@ -14,7 +14,7 @@ bearer_transport = BearerTransport(tokenUrl="auth/login")
 
 # Refresh token is sent in a cookie.
 # The cookie is set to expire in 30 days.
-cookie_transport = CookieTransport(cookie_name="refresh_token", cookie_max_age=3600 * 24 * 30)
+cookie_transport = CookieTransport(cookie_name="_fsek_refresh_token", cookie_max_age=3600 * 24 * 30)
 
 auth_backend = AuthenticationBackend[User_DB, int](
     name="jwt",
