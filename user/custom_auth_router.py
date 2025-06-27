@@ -109,8 +109,9 @@ def get_auth_router(
     ):
         user, token = refresh_token
         cookie = None
-        response = await access_backend.login(access_strategy, user)
         try:
+            # Not critical that we validate the token here as it is done by get_current_refresh_user_token
+            # We just want to see if it needs to be refreshed and unfortunately this seems to be the easiest method
             payload = jwt.decode(
                 token,
                 key=REFRESH_SECRET,
@@ -123,13 +124,19 @@ def get_auth_router(
             expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
             now = datetime.now(timezone.utc)
             # If less than 7 days left, rotate the refresh token
+            # Again, the token should already be valid at this point
             if expires_at - now < timedelta(days=7):
                 cookie = (await backend.login(strategy, user)).headers.get("set-cookie")
-        except Exception as e:
-            return response
-        if not cookie:
-            return response
-        response.headers.append("set-cookie", cookie)
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+            )
+        response = await access_backend.login(access_strategy, user)
+        # Cookie needs to be refreshed
+        if cookie is not None:
+            # Append the refresh token cookie to the access token response headers
+            response.headers.append("set-cookie", cookie)
         await user_manager.on_after_login(user, request, response)
         return response
 
