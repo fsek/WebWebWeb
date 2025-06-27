@@ -1,6 +1,5 @@
 # type: ignore
 import pytest
-import pytest_dependency
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 from fastapi import status
