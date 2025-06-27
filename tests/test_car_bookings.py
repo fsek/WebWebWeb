@@ -1,3 +1,4 @@
+# type: ignore
 import pytest
 from fastapi.testclient import TestClient
 from main import app
@@ -59,15 +60,50 @@ def user_token():
     return resp.json()["access_token"]
 
 
+# New fixtures for councils
+@pytest.fixture(scope="module")
+def councils():
+    # Get councils from the test database
+    resp = client.get("/council/")
+    assert resp.status_code == 200
+    return resp.json()
+
+
+@pytest.fixture(scope="module")
+def user_council_id(councils, user_token):
+    # Create a council or get an existing one and assign the user to it
+    council_id = councils[0]["id"]
+    # Add the user to the council
+    resp = client.post(
+        f"/council/{council_id}/user", json={"user_id": get_user_id(user_token)}, headers=auth_headers(user_token)
+    )
+    return council_id
+
+
+@pytest.fixture(scope="module")
+def non_user_council_id(councils):
+    # Return a council ID that the regular user is not part of
+    # Assuming there are at least 2 councils
+    return councils[1]["id"]
+
+
 def auth_headers(token):
     return {"Authorization": f"Bearer {token}"}
 
 
-def create_booking(token, start, end, description="desc"):
+def get_user_id(token):
+    resp = client.get("/auth/me", headers=auth_headers(token))
+    assert resp.status_code == 200
+    return resp.json()["id"]
+
+
+def create_booking(token, start, end, description="desc", council_id=1, personal=False):
     body = {
         "description": description,
         "start_time": start.isoformat(),
         "end_time": end.isoformat(),
+        "personal": personal,
+        "council_id": council_id,
     }
     print("REQUEST BODY:", body)
     return client.post("/car/", json=body, headers=auth_headers(token))
@@ -84,7 +120,7 @@ def get_booking(token, booking_id):
 def test_admin_autoconfirm(boss_token):
     start = stockholm_dt(2030, 1, 8, 10)
     end = stockholm_dt(2030, 1, 8, 12)
-    resp = create_booking(boss_token, start, end, "admin booking")
+    resp = create_booking(boss_token, start, end, "admin booking", council_id=1, personal=True)
     assert resp.status_code == 200
     data = resp.json()
     assert "confirmed" in data
@@ -267,3 +303,112 @@ def test_end_before_start_not_allowed(boss_token):
     booking_id = resp2.json()["booking_id"]
     patch_resp = patch_booking(boss_token, booking_id, start_time=start.isoformat(), end_time=end.isoformat())
     assert patch_resp.status_code in (400, 422)
+
+
+# New tests for council_id and personal bookings
+def test_admin_can_select_any_council(boss_token, councils, non_user_council_id):
+    start = stockholm_dt(2030, 3, 1, 10)
+    end = stockholm_dt(2030, 3, 1, 12)
+
+    # Admin should be able to book with any council
+    resp = create_booking(boss_token, start, end, "admin council booking", council_id=non_user_council_id)
+    assert resp.status_code == 200
+    assert resp.json()["council_id"] == non_user_council_id
+
+
+def test_user_can_select_own_council(user_token, user_council_id):
+    start = stockholm_dt(2030, 3, 2, 10)
+    end = stockholm_dt(2030, 3, 2, 12)
+
+    # User should be able to book with their own council
+    resp = create_booking(user_token, start, end, "user council booking", council_id=user_council_id)
+    assert resp.status_code == 200
+    assert resp.json()["council_id"] == user_council_id
+
+
+def test_user_cannot_select_other_council(user_token, non_user_council_id):
+    start = stockholm_dt(2030, 3, 3, 10)
+    end = stockholm_dt(2030, 3, 3, 12)
+
+    # User should not be able to book with a council they're not part of
+    resp = create_booking(user_token, start, end, "unauthorized council booking", council_id=non_user_council_id)
+    assert resp.status_code in (400, 403, 422)
+
+
+def test_admin_edit_council(boss_token, councils):
+    start = stockholm_dt(2030, 3, 4, 10)
+    end = stockholm_dt(2030, 3, 4, 12)
+
+    # Create booking with one council
+    resp = create_booking(boss_token, start, end, "admin edit council", council_id=councils[0]["id"])
+    booking_id = resp.json()["booking_id"]
+
+    # Admin should be able to change the council
+    resp2 = patch_booking(boss_token, booking_id, council_id=councils[1]["id"])
+    assert resp2.status_code == 200
+    assert resp2.json()["council_id"] == councils[1]["id"]
+
+
+def test_user_cannot_edit_to_unauthorized_council(user_token, user_council_id, non_user_council_id):
+    start = stockholm_dt(2030, 3, 5, 10)
+    end = stockholm_dt(2030, 3, 5, 12)
+
+    # Create booking with authorized council
+    resp = create_booking(user_token, start, end, "user edit council", council_id=user_council_id)
+    booking_id = resp.json()["booking_id"]
+
+    # User should not be able to change to unauthorized council
+    resp2 = patch_booking(user_token, booking_id, council_id=non_user_council_id)
+    assert resp2.status_code in (400, 403, 422)
+
+
+def test_personal_booking_creation_admin(boss_token):
+    start = stockholm_dt(2030, 3, 6, 10)
+    end = stockholm_dt(2030, 3, 6, 12)
+
+    # Admin creates personal booking
+    resp = create_booking(boss_token, start, end, "admin personal booking", personal=True, council_id=1)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["personal"] is True
+    assert "council_id" in data
+
+
+def test_personal_booking_creation_user(user_token, user_council_id):
+    start = stockholm_dt(2030, 3, 7, 10)
+    end = stockholm_dt(2030, 3, 7, 12)
+
+    # User creates personal booking
+    resp = create_booking(user_token, start, end, "user personal booking", personal=True, council_id=user_council_id)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["personal"] is True
+    assert data["council_id"] == user_council_id
+
+
+def test_edit_personal_flag(boss_token):
+    start = stockholm_dt(2030, 3, 8, 10)
+    end = stockholm_dt(2030, 3, 8, 12)
+
+    # Create non-personal booking
+    resp = create_booking(boss_token, start, end, "edit personal flag", personal=False, council_id=1)
+    booking_id = resp.json()["booking_id"]
+
+    # Edit to make it personal
+    resp2 = patch_booking(boss_token, booking_id, personal=True)
+    assert resp2.status_code == 200
+    assert resp2.json()["personal"] is True
+
+    # Edit back to non-personal
+    resp3 = patch_booking(boss_token, booking_id, personal=False)
+    assert resp3.status_code == 200
+    assert resp3.json()["personal"] is False
+
+
+def test_personal_booking_council_required(user_token):
+    start = stockholm_dt(2030, 3, 9, 10)
+    end = stockholm_dt(2030, 3, 9, 12)
+
+    # Personal booking still requires valid council
+    resp = create_booking(user_token, start, end, "personal without council", personal=True)
+    assert resp.status_code in (400, 422)  # Either bad request or validation error
