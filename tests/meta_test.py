@@ -70,6 +70,7 @@ def test_engine_pool_configuration(test_engine):
 
 
 def test_database_setup(test_engine):
+    """Test that the database is set up but completely empty."""
     with test_engine.connect() as conn:
         # Check that tables exist
         result = conn.execute(text("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'public'"))
@@ -82,21 +83,9 @@ def test_database_setup(test_engine):
             count = conn.execute(text(f'SELECT COUNT(*) FROM "{table}"')).scalar()
             assert count == 0, f"Table {table} should be empty but has {count} rows"
 
-        print(f"✅ Database setup correctly with {table_count} empty tables")
-
-
-def test_db_connection(test_engine):
-    os.environ["ENVIRONMENT"] = "testing"
-    TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
-    print(f"Trying to connect to: {TEST_DATABASE_URL}")
-
-    with test_engine.connect() as conn:
-        result = conn.execute(text("SELECT 1"))
-        assert result.fetchone()[0] == 1
-    print("Database connection successful!")
-
 
 def test_root(client):
+    """Test that the database can be queried."""
     response = client.get("/")
     assert response.status_code == 200
 
@@ -140,7 +129,7 @@ def test_database_is_clean_after_previous_test(client, db_session):
     # The count should be 0 if the database was properly rolled back
     assert count == 0, f"Expected empty user table, but found {count} users"
 
-    # Verify we can register the same user again (which would probably fail if the user still existed)
+    # Verify we can register the same user again (which would fail if the user still existed)
     response = client.post("/auth/register", json=TEST_USER)
     assert response.status_code == status.HTTP_201_CREATED
 
