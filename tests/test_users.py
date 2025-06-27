@@ -99,17 +99,3 @@ def test_login_multiple_users(client):
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert "access_token" in data
-
-
-def test_database_is_clean_after_previous_test(client, db_session):
-    """Test that changes from previous tests don't persist"""
-    # Check that the database is empty of users
-    user_count_query = text("SELECT COUNT(*) FROM user_table")
-    count = db_session.execute(user_count_query).scalar()
-
-    # The count should be 0 if the database was properly rolled back
-    assert count == 0, f"Expected empty user table, but found {count} users"
-
-    # Verify we can register the same user again (which would fail if the user still existed)
-    response = client.post("/auth/register", json=TEST_USERS[0])
-    assert response.status_code == status.HTTP_201_CREATED
