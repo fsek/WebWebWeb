@@ -1,3 +1,4 @@
+import os
 from typing import Any
 from fastapi_users_pelicanq.authentication import AuthenticationBackend, BearerTransport, CookieTransport
 from fastapi_users_pelicanq.db import SQLAlchemyUserDatabase
@@ -14,7 +15,37 @@ bearer_transport = BearerTransport(tokenUrl="auth/login")
 
 # Refresh token is sent in a cookie.
 # The cookie is set to expire in 30 days.
-cookie_transport = CookieTransport(cookie_name="_fsek_refresh_token", cookie_max_age=3600 * 24 * 30)
+if os.getenv("ENVIRONMENT") == "production":
+    cookie_transport = CookieTransport(
+        # Secure cookie for production, with __Secure- prefix to ensure it is only sent over HTTPS
+        cookie_name="__Secure-fsek_refresh_token",
+        cookie_max_age=3600 * 24 * 30,
+        cookie_samesite="strict",
+        cookie_domain="fsektionen.se",
+        cookie_path="/auth",  # Server path where the cookie is sent
+        cookie_secure=True,  # Secure cookie for production
+        cookie_httponly=True,  # HttpOnly to prevent JavaScript access
+    )
+elif os.getenv("ENVIRONMENT") == "staging":
+    cookie_transport = CookieTransport(
+        cookie_name="_fsek_refresh_token",
+        cookie_max_age=3600 * 24 * 30,
+        cookie_samesite="lax",
+        cookie_domain=None,  # Use default domain for local development
+        cookie_path="/auth",
+        cookie_secure=True,
+        cookie_httponly=True,  # HttpOnly to prevent JavaScript access
+    )
+else:
+    cookie_transport = CookieTransport(
+        cookie_name="_fsek_refresh_token",
+        cookie_max_age=3600 * 24 * 30,
+        cookie_samesite="lax",
+        cookie_domain=None,  # Use default domain for local development
+        cookie_path="/auth",
+        cookie_secure=False,  # Insecure cookie for local development
+        cookie_httponly=True,  # HttpOnly to prevent JavaScript access
+    )
 
 auth_backend = AuthenticationBackend[User_DB, int](
     name="jwt",
