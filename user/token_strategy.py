@@ -43,5 +43,6 @@ def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
 
 
 def get_refresh_jwt_strategy() -> JWTStrategy[User_DB, int]:
+    # The refresh tokens do not need to contain permissions
     strat = JWTStrategy[User_DB, int](secret=REFRESH_SECRET, lifetime_seconds=3600 * 24 * 30)
     return strat
