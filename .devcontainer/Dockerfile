@@ -16,9 +16,6 @@ RUN sed -i '1s;^;host all postgres samenet trust\n;' /etc/postgresql/16/main/pg_
 # python venv must be installed through apt
 RUN apt-get install -y python3.11 python3.11-venv sudo git
 
-# We need this to build psycopg2
-RUN apt-get install -y python3-dev build-essential libpq-dev
-
 ENV ENVIRONMENT=development
 ENV DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres"
 ENV TEST_DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres_test"

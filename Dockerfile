@@ -24,7 +24,7 @@ RUN python3 -m venv venv
 
 COPY . .
 
-# installing psycopg2-binary is probably not needed since we have the regular psycopg2 in requirements.txt
+# installing psycopg2-binary is perhaps not needed since we try to use psycopg3 (called "psycopg")
 RUN . venv/bin/activate && pip install --no-cache-dir -r requirements.txt && pip install psycopg2-binary
 
 EXPOSE 8000
