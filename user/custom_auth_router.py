@@ -105,10 +105,11 @@ def get_auth_router(
         refresh_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
         user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
+        access_strategy: Strategy[models.UP, models.ID] = Depends(access_backend.get_strategy),
     ):
         user, token = refresh_token
         cookie = None
-        response = await access_backend.login(strategy, user)
+        response = await access_backend.login(access_strategy, user)
         try:
             payload = jwt.decode(
                 token,
