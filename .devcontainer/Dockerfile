@@ -1,20 +1,23 @@
 # Our image starts with Debian
 FROM debian:12.7
 
-RUN apt update -y
+RUN apt-get update -y
 
 # This adds the PostgreSQL APT repository so postgres can be apt installed
-RUN apt install -y postgresql-common
+RUN apt-get install -y postgresql-common
 RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
 
 # With the APT repository added we may apt install postgres, sed is for editing text later
-RUN apt install -y postgresql-16 sed
+RUN apt-get install -y postgresql-16 sed
 
 # Preliminary way to add postgres authentication. Prepend a line in postgres conf using sed  
 RUN sed -i '1s;^;host all postgres samenet trust\n;' /etc/postgresql/16/main/pg_hba.conf
 
 # python venv must be installed through apt
-RUN apt install -y python3.11 python3.11-venv sudo git
+RUN apt-get install -y python3.11 python3.11-venv sudo git
+
+# We need this to build psycopg2
+RUN apt-get install -y python3-dev build-essential libpq-dev
 
 ENV ENVIRONMENT=development
 ENV DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres"
