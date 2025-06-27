@@ -116,16 +116,25 @@ TEST_USER = {
 }
 
 
-@pytest.mark.dependency(name="test_register_user")
+register_user_failed = False
+
+
 def test_register_user(client):
     """Test user registration with valid data"""
-    response = client.post("/auth/register", json=TEST_USER)
-    assert response.status_code == status.HTTP_201_CREATED
+    global register_user_failed
+    try:
+        response = client.post("/auth/register", json=TEST_USER)
+        assert response.status_code == status.HTTP_201_CREATED
+    except AssertionError:
+        register_user_failed = True
+        raise
 
 
-@pytest.mark.dependency(depends=["test_register_user"])
 def test_database_is_clean_after_previous_test(client, db_session):
     """Test that changes from previous tests don't persist"""
+    if register_user_failed:
+        pytest.skip("Skipping because test_register_user failed")
+
     # Check that the database is empty of users
     user_count_query = text("SELECT COUNT(*) FROM user_table")
     count = db_session.execute(user_count_query).scalar()

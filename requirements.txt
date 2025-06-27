@@ -33,7 +33,6 @@ pydantic-extra-types==2.5.0
 pydantic_core==2.23.4
 PyJWT==2.8.0
 pytest==7.4.4
-pytest-dependency==0.6.0
 python-dotenv==1.0.1
 python-multipart==0.0.9
 PyYAML==6.0.1
