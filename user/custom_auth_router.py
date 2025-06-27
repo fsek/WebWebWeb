@@ -10,6 +10,7 @@ from fastapi_users_pelicanq.manager import BaseUserManager, UserManagerDependenc
 from fastapi_users_pelicanq.openapi import OpenAPIResponseType
 from fastapi_users_pelicanq.router.common import ErrorCode, ErrorModel
 import jwt
+from user.token_strategy import REFRESH_SECRET
 
 
 def get_auth_router(
@@ -21,7 +22,9 @@ def get_auth_router(
 ) -> APIRouter:
     """Generate a router with login/logout routes for an authentication backend."""
     router = APIRouter()
-    get_current_user_token = authenticator.current_user_token(active=True, verified=requires_verification)
+    get_current_refresh_user_token = authenticator.current_user_token(
+        active=True, verified=requires_verification, get_enabled_backends=lambda: [backend]
+    )
 
     login_responses: OpenAPIResponseType = {
         status.HTTP_400_BAD_REQUEST: {
@@ -83,7 +86,7 @@ def get_auth_router(
 
     @router.post("/logout", name=f"auth:{backend.name}.logout", responses=logout_responses)
     async def logout(
-        user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
+        user_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
         user, token = user_token
@@ -99,18 +102,19 @@ def get_auth_router(
     )
     async def refresh(
         request: Request,
-        user_token: Tuple[models.UP, str] = Depends(get_current_user_token),
+        refresh_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
         user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
-        user, token = user_token
+        user, token = refresh_token
         cookie = None
         response = await access_backend.login(strategy, user)
         try:
             payload = jwt.decode(
                 token,
+                key=REFRESH_SECRET,
                 algorithms=["HS256"],
-                options={"verify_signature": False, "verify_exp": False, "verify_aud": False},
+                options={"verify_signature": True, "verify_exp": True, "verify_aud": False},
             )
             exp = payload.get("exp")
             if not exp:
