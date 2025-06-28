@@ -2,54 +2,7 @@
 import pytest
 from sqlalchemy import text
 from fastapi import status
-
-
-def user_data_factory(
-    email="test@example.com",
-    password="Password123!",
-    first_name="Test",
-    last_name="User",
-    start_year=2023,
-    program="F",
-    telephone_number="+46701234567",
-):
-    """Factory function to generate user data dicts."""
-    return {
-        "email": email,
-        "password": password,
-        "first_name": first_name,
-        "last_name": last_name,
-        "start_year": start_year,
-        "program": program,
-        "telephone_number": telephone_number,
-    }
-
-
-@pytest.fixture
-def user1_data():
-    return user_data_factory(email="test1@example.com", last_name="User1", program="F", telephone_number="+46701234567")
-
-
-@pytest.fixture
-def user2_data():
-    return user_data_factory(
-        email="test2@example.com", last_name="User2", program="Pi", telephone_number="+46707654321"
-    )
-
-
-@pytest.fixture
-def registered_user(client, user1_data):
-    """Registers and returns user1_data."""
-    client.post("/auth/register", json=user1_data)
-    return user1_data
-
-
-@pytest.fixture
-def registered_users(client, user1_data, user2_data):
-    """Registers multiple users and returns their data."""
-    client.post("/auth/register", json=user1_data)
-    client.post("/auth/register", json=user2_data)
-    return [user1_data, user2_data]
+from .basic_factories import user_data_factory, create_membered_user
 
 
 def test_register_user(client, user1_data):
@@ -115,3 +68,33 @@ def test_login_multiple_users(client, registered_users):
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
         assert "access_token" in data
+
+
+def test_admin_post_fixture(admin_post, db_session):
+    """Test that the admin_post fixture creates a post with correct attributes."""
+    from db_models.post_model import Post_DB
+
+    post = db_session.query(Post_DB).filter_by(id=admin_post.id).one()
+    assert post.name == "AdminPost"
+    assert post.council.name == "AdminCouncil"
+
+
+def test_admin_user_fixture(admin_user, db_session):
+    """Test that the admin_user fixture creates a user with admin post and is_member True."""
+    from db_models.user_model import User_DB
+
+    user = db_session.query(User_DB).filter_by(email="admin@example.com").one()
+    assert user.is_member is True
+    assert user.is_verified is True
+    assert any(post.name == "AdminPost" for post in user.posts)
+
+
+def test_membered_user_factory(client, db_session):
+    """Test that the membered_user factory creates a user with is_member True."""
+    from db_models.user_model import User_DB
+
+    create_membered_user(client, db_session, **user_data_factory(email="member@example.com"))
+
+    user = db_session.query(User_DB).filter_by(email="member@example.com").one()
+    assert user.is_member is True
+    assert user.is_verified is True
