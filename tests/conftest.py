@@ -9,6 +9,9 @@ from fastapi.testclient import TestClient
 from db_models.base_model import BaseModel_DB
 from main import app
 from database import get_db
+from .basic_fixtures import *
+
+# You can add an empty __init__.py if the error above is annoying
 
 # Ensure we're in testing mode
 os.environ["ENVIRONMENT"] = "testing"
