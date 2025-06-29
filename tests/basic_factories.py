@@ -42,3 +42,7 @@ def create_membered_user(client, db_session, **kwargs):
     user_in_db.is_verified = True
     db_session.commit()
     return user_in_db
+
+
+def auth_headers(token):
+    return {"Authorization": f"Bearer {token}"}
