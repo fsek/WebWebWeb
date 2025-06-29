@@ -14,14 +14,15 @@ def stockholm_dt(year, month, day, hour, minute=0):
     return local.astimezone(timezone.utc)
 
 
-def create_booking(client, token, start, end, description="desc", council_id=0, personal=False):
+def create_booking(client, token, start, end, description, council_id=None, personal=False):
     body = {
-        "description": description,
+        "description": description if description else "example description",
         "start_time": start.isoformat(),
         "end_time": end.isoformat(),
         "personal": personal,
-        "council_id": council_id,
     }
+    if council_id is not None:
+        body["council_id"] = council_id
     return client.post("/car/", json=body, headers=auth_headers(token))
 
 
@@ -359,3 +360,110 @@ def test_edit_personal_flag(client, admin_token, admin_council_id):
     resp4 = patch_booking(client, admin_token, booking_id, personal=False, council_id=admin_council_id)
     assert resp4.status_code == 200
     assert resp4.json()["personal"] is False
+
+
+# Test council_id not required for personal bookings
+def test_personal_booking_no_council(client, member_token, member_council_id):
+    start = stockholm_dt(2030, 3, 14, 10)
+    end = stockholm_dt(2030, 3, 14, 12)
+
+    # User creates a personal booking without council_id
+    resp = create_booking(client, member_token, start, end, "personal no council", personal=True)
+    assert resp.status_code in (200, 201)
+    data = resp.json()
+    assert data["personal"] is True
+    assert data["council_id"] is None
+
+
+# Test non-members cannot CRUD bookings
+def test_non_member_booking_access(client, non_member_token, member_token):
+    start = stockholm_dt(2030, 3, 9, 10)
+    end = stockholm_dt(2030, 3, 9, 12)
+
+    # Non-member should not be able to create a booking
+    resp = create_booking(client, non_member_token, start, end, "non-member booking", personal=True)
+    assert resp.status_code >= 400 and resp.status_code < 500
+
+    # Non-member should not be able to read bookings
+    resp2 = client.get("/car/", headers=auth_headers(non_member_token))
+    assert resp2.status_code >= 400 and resp2.status_code < 500
+
+    # Non-member should not be able to edit bookings
+    resp3 = create_booking(client, member_token, start, end, "member booking", personal=True)
+    assert resp3.status_code in (200, 201)
+    booking_id = resp3.json()["booking_id"]
+    resp4 = patch_booking(client, non_member_token, booking_id, description="non-member edit", personal=True)
+    assert resp4.status_code >= 400 and resp4.status_code < 500
+
+    # Non-member should not be able to delete bookings
+    resp5 = client.delete(f"/car/{booking_id}", headers=auth_headers(non_member_token))
+    assert resp5.status_code >= 400 and resp5.status_code < 500
+
+
+# Test members can delete their own bookings
+def test_member_delete_own_booking(client, member_token, member_council_id):
+    start = stockholm_dt(2030, 3, 10, 10)
+    end = stockholm_dt(2030, 3, 10, 12)
+
+    # Member creates a booking
+    resp = create_booking(client, member_token, start, end, "member booking", council_id=member_council_id)
+    assert resp.status_code in (200, 201)
+    booking_id = resp.json()["booking_id"]
+
+    # Member should be able to delete their own booking
+    resp2 = client.delete(f"/car/{booking_id}", headers=auth_headers(member_token))
+    assert resp2.status_code in (200, 204)
+
+
+# Test members cannot delete other members' bookings
+def test_member_delete_other_booking(client, member_token, admin_token, admin_council_id):
+    start = stockholm_dt(2030, 3, 11, 10)
+    end = stockholm_dt(2030, 3, 11, 12)
+
+    # Admin creates a booking
+    resp = create_booking(client, admin_token, start, end, "admin booking", council_id=admin_council_id)
+    assert resp.status_code in (200, 201)
+    booking_id = resp.json()["booking_id"]
+
+    # Member should not be able to delete admin's booking
+    resp2 = client.delete(f"/car/{booking_id}", headers=auth_headers(member_token))
+    assert resp2.status_code >= 400 and resp2.status_code < 500
+
+
+# Test admin can delete any booking
+def test_admin_delete_any_booking(client, admin_token, member_token, member_council_id):
+    start = stockholm_dt(2030, 3, 12, 10)
+    end = stockholm_dt(2030, 3, 12, 12)
+
+    # Member creates a booking
+    resp = create_booking(client, member_token, start, end, "member booking", council_id=member_council_id)
+    assert resp.status_code in (200, 201)
+    booking_id = resp.json()["booking_id"]
+
+    # Admin should be able to delete the member's booking
+    resp2 = client.delete(f"/car/{booking_id}", headers=auth_headers(admin_token))
+    assert resp2.status_code in (200, 204)
+
+
+# Test members cannot read too much information about other members' bookings
+def test_member_read_other_booking(client, member_token, admin_token, admin_council_id):
+    start = stockholm_dt(2030, 3, 13, 10)
+    end = stockholm_dt(2030, 3, 13, 12)
+
+    # Admin creates a booking
+    resp = create_booking(client, admin_token, start, end, "admin booking", council_id=admin_council_id)
+    assert resp.status_code in (200, 201)
+    booking_id = resp.json()["booking_id"]
+
+    # Member should not be able to read admin's booking details
+    resp2 = client.get(f"/car/{booking_id}", headers=auth_headers(member_token))
+    assert resp2.status_code == 200
+    assert "start_time" in resp2.json()
+    assert "end_time" in resp2.json()
+    assert "personal" in resp2.json()
+    if "user" in resp2.json():
+        assert "posts" not in resp2.user.json()  # Should not see posts or other sensitive info
+        assert "cafe_shifts" not in resp2.user.json()
+        assert "stil_id" not in resp2.user.json()
+    else:
+        assert "user_id" in resp2.json()

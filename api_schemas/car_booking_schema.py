@@ -13,7 +13,7 @@ class CarRead(BaseSchema):
     end_time: datetime_utc
     confirmed: bool
     personal: bool
-    council_id: int
+    council_id: int | None = None
 
 
 class CarCreate(BaseSchema):
@@ -21,7 +21,7 @@ class CarCreate(BaseSchema):
     start_time: datetime_utc
     end_time: datetime_utc
     personal: bool
-    council_id: int
+    council_id: int | None = None
 
 
 class CarUpdate(BaseSchema):

@@ -83,6 +83,19 @@ def create_booking(
         if booking.start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
             booking_confirmed = False
 
+    # Require council_id if not personal booking
+    if not booking.personal and booking.council_id is None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Council ID is required for non-personal bookings.")
+
+    # Disallow regular users from booking cars for other councils
+    if (
+        not manage_permission and booking.council_id is not None
+    ):  # For safety, we don't care if it is a personal booking
+        if booking.council_id not in [post.council_id for post in current_user.posts]:
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN, detail="You do not have permission to book cars for this council."
+            )
+
     db_booking = CarBooking_DB(
         start_time=booking.start_time,
         end_time=booking.end_time,
@@ -197,6 +210,24 @@ def update_booking(
                 booking_confirmed = False
             if data.end_time.weekday() >= 5:
                 booking_confirmed = False
+
+    # Disallow regular users from booking cars for other councils
+    if not manage_permission and data.council_id is not None:
+        if data.council_id not in [post.council_id for post in current_user.posts]:
+            raise HTTPException(
+                status.HTTP_403_FORBIDDEN, detail="You do not have permission to book cars for this council."
+            )
+
+    # Require a council_id if the booking changes from personal to council
+    if (
+        data.personal is not None
+        and data.personal is False
+        and car_booking.personal is True
+        and data.council_id is None
+    ):
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, detail="Council ID is required when making non-personal booking."
+        )
 
     car_booking.confirmed = booking_confirmed
 

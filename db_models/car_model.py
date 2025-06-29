@@ -25,8 +25,8 @@ class CarBooking_DB(BaseModel_DB):
 
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="car_bookings", init=False)
 
-    council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
-    council: Mapped["Council_DB"] = relationship(back_populates="car_bookings", init=False)
+    council_id: Mapped[Optional[int]] = mapped_column(ForeignKey("council_table.id"))
+    council: Mapped[Optional["Council_DB"]] = relationship(back_populates="car_bookings", init=False)
 
     confirmed: Mapped[bool] = mapped_column(default=False)
 
