@@ -80,12 +80,70 @@ def admin_user(client, db_session, admin_post):
     """Create and return a full admin user with the admin post and permissions."""
     from db_models.user_model import User_DB
 
-    user_data = user_data_factory(email="admin@example.com", first_name="Admin", last_name="User")
+    user_data = user_data_factory(
+        email="admin@example.com", first_name="Admin", last_name="User", password="Password123"
+    )
     user_in_db = create_membered_user(client, db_session, **user_data)
 
     # Assign admin post
     user_in_db.posts.append(admin_post)
     db_session.commit()
 
-    user_in_db = db_session.query(User_DB).filter_by(id=user_in_db.id).one()
     return user_in_db
+
+
+@pytest.fixture
+def membered_user(client, db_session):
+    """Create and return a user who is a member and verified."""
+    user_data = user_data_factory(
+        email="member@example.com", first_name="Member", last_name="User", password="Password123"
+    )
+    user = create_membered_user(client, db_session, **user_data)
+
+    return user
+
+
+@pytest.fixture()
+def admin_token(client, admin_user):
+    """Create an admin user and return its access token."""
+
+    resp = client.post("/auth/login", data={"username": "admin@example.com", "password": "Password123"})
+    return resp.json()["access_token"]
+
+
+@pytest.fixture()
+def member_token(client, membered_user):
+    """Create a member user and return its access token."""
+
+    resp = client.post("/auth/login", data={"username": "member@example.com", "password": "Password123"})
+    return resp.json()["access_token"]
+
+
+@pytest.fixture()
+def member_council_id(client, db_session, membered_user):
+    """Create a useless council with a member user and return its ID."""
+    from db_models.council_model import Council_DB
+    from db_models.post_model import Post_DB
+
+    council = Council_DB(name="MemberCouncil", description="Council for members")
+    db_session.add(council)
+    db_session.commit()
+
+    post = Post_DB(name="MemberPost", council_id=council.id)
+    db_session.add(post)
+    db_session.commit()
+
+    membered_user.posts.append(post)
+    db_session.commit()
+
+    return council.id
+
+
+@pytest.fixture()
+def admin_council_id(db_session, admin_user):
+    """Create a council with an admin user and return its ID."""
+
+    # Extract the admin council ID from the admin user, everything created via admin_user fixture
+    council_id = admin_user.posts[0].council_id
+
+    return council_id
