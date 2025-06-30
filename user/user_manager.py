@@ -4,6 +4,7 @@ from fastapi_users_pelicanq import BaseUserManager, IntegerIDMixin
 
 from db_models.user_model import User_DB
 
+# TODO This is bad.
 SECRET = "SECRET!"
 
 

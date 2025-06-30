@@ -9,12 +9,12 @@ from fastapi_users_pelicanq.authentication import AuthenticationBackend, Authent
 from fastapi_users_pelicanq.manager import BaseUserManager, UserManagerDependency
 from fastapi_users_pelicanq.openapi import OpenAPIResponseType
 from fastapi_users_pelicanq.router.common import ErrorCode, ErrorModel
-import jwt
-from user.token_strategy import REFRESH_SECRET
+from user.refresh_auth_backend import RefreshAuthenticationBackend
+from user.token_strategy import RefreshStrategy
 
 
 def get_auth_router(
-    backend: AuthenticationBackend[models.UP, models.ID],
+    backend: RefreshAuthenticationBackend[models.UP, models.ID],
     access_backend: AuthenticationBackend[models.UP, models.ID],
     get_user_manager: UserManagerDependency[models.UP, models.ID],
     authenticator: Authenticator[models.UP, models.ID],
@@ -104,34 +104,13 @@ def get_auth_router(
         request: Request,
         refresh_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
         user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
-        strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
+        strategy: RefreshStrategy[models.UP, models.ID] = Depends(backend.get_strategy),
         access_strategy: Strategy[models.UP, models.ID] = Depends(access_backend.get_strategy),
     ):
-        user, token = refresh_token
         cookie = None
-        try:
-            # Not critical that we validate the token here as it is done by get_current_refresh_user_token
-            # We just want to see if it needs to be refreshed and unfortunately this seems to be the easiest method
-            payload = jwt.decode(
-                token,
-                key=REFRESH_SECRET,
-                algorithms=["HS256"],
-                options={"verify_signature": True, "verify_exp": True, "verify_aud": False},
-            )
-            exp = payload.get("exp")
-            if not exp:
-                raise Exception("No exp in token")
-            expires_at = datetime.fromtimestamp(exp, tz=timezone.utc)
-            now = datetime.now(timezone.utc)
-            # If less than 7 days left, rotate the refresh token
-            # Again, the token should already be valid at this point
-            if expires_at - now < timedelta(days=7):
-                cookie = (await backend.login(strategy, user)).headers.get("set-cookie")
-        except Exception:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
-            )
+        user, token = refresh_token
+        if await strategy.needs_refresh(token, user_manager):
+            cookie = (await backend.refresh(strategy, user, token)).headers.get("set-cookie")
         response = await access_backend.login(access_strategy, user)
         # Cookie needs to be refreshed
         if cookie is not None:

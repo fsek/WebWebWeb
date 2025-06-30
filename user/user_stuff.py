@@ -7,7 +7,8 @@ from fastapi import Depends
 from fastapi_users_pelicanq import FastAPIUsers
 from database import get_db
 from db_models.user_model import User_DB
-from user.token_strategy import get_jwt_strategy, get_refresh_jwt_strategy
+from user.refresh_auth_backend import RefreshAuthenticationBackend
+from user.token_strategy import get_jwt_strategy, get_refresh_redis_strategy
 from user.user_manager import UserManager
 
 # Access token is sent in the Authorization header as a Bearer token.
@@ -53,10 +54,10 @@ auth_backend = AuthenticationBackend[User_DB, int](
     get_strategy=get_jwt_strategy,
 )
 
-refresh_backend = AuthenticationBackend[User_DB, int](
+refresh_backend = RefreshAuthenticationBackend[User_DB, int](
     name="cookie",
     transport=cookie_transport,
-    get_strategy=get_refresh_jwt_strategy,
+    get_strategy=get_refresh_redis_strategy,
 )
 
 

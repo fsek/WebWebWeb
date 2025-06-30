@@ -1,10 +1,15 @@
-from typing import TypedDict
+from typing import Optional, TypedDict, Generic
+from fastapi_users_pelicanq import BaseUserManager
 from fastapi_users_pelicanq.authentication import JWTStrategy
 from db_models.user_model import User_DB
+import redis.asyncio
+from fastapi_users_pelicanq.authentication import RedisStrategy, Strategy
+from fastapi_users_pelicanq import models
+
+redis_db = redis.asyncio.from_url("redis://localhost:6379", decode_responses=True)
 
 # TODO: Use environment variables or a secure vault for secrets in production
 JWT_SECRET = "MEGA SECRET"
-REFRESH_SECRET = "OTHER MEGA SECRET THAT IS VERY LONGGGGGGG"
 
 
 # class to describe data in access token for our chosen JWT strategy
@@ -37,12 +42,44 @@ class CustomTokenStrategy(JWTStrategy[User_DB, int]):
         return f"{action}:{target}"
 
 
+class RefreshStrategy(Strategy[models.UP, models.ID]):
+    async def needs_refresh(
+        self, token: Optional[str], user_manager: BaseUserManager[models.UP, models.ID]
+    ) -> Optional[bool]: ...  # pragma: no cover
+
+
+class CustomRedisRefreshStrategy(
+    RedisStrategy[models.UP, models.ID], RefreshStrategy[models.UP, models.ID], Generic[models.UP, models.ID]
+):
+    def __init__(
+        self,
+        redis: redis.asyncio.Redis,
+        lifetime_seconds: int | None = None,
+        refresh_before_seconds: int | None = None,
+        *,
+        key_prefix: str = "fastapi_users_token:",
+    ) -> None:
+        super().__init__(redis, lifetime_seconds, key_prefix=key_prefix)
+        self.refresh_before_seconds = refresh_before_seconds
+
+    async def needs_refresh(
+        self, token: Optional[str], user_manager: BaseUserManager[models.UP, models.ID]
+    ) -> Optional[bool]:
+        if token is None:
+            return None
+        if not self.refresh_before_seconds:
+            return False
+        key = f"{self.key_prefix}{token}"
+        expiry = await self.redis.ttl(key)
+        return (expiry < self.refresh_before_seconds) if expiry > 0 else None
+
+
 def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
     strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=3600)
     return strat
 
 
-def get_refresh_jwt_strategy() -> JWTStrategy[User_DB, int]:
+def get_refresh_redis_strategy() -> CustomRedisRefreshStrategy[User_DB, int]:
     # The refresh tokens do not need to contain permissions
-    strat = JWTStrategy[User_DB, int](secret=REFRESH_SECRET, lifetime_seconds=3600 * 24 * 30)
+    strat = CustomRedisRefreshStrategy[User_DB, int](redis_db, lifetime_seconds=3600 * 24 * 30)
     return strat
