@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Optional
-from sqlalchemy import Column, DateTime, ForeignKey
+from sqlalchemy import Column, DateTime, Enum, ForeignKey
 
 # from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
@@ -21,6 +21,10 @@ class EventUser_DB(BaseModel_DB):
 
     event: Mapped["Event_DB"] = relationship(back_populates="event_users")
     event_id: Mapped[int] = mapped_column(ForeignKey("event_table.id"), primary_key=True)
+
+    confirmed_status: Mapped[str] = mapped_column(
+        Enum("confirmed", "unconfirmed", name="confirmed_enum"), default="unconfirmed"
+    )
 
     group_name: Mapped[Optional[str]] = mapped_column(default=None)
     priority: Mapped[str] = mapped_column(default="Övrigt")
