@@ -44,7 +44,7 @@ def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
         db.commit()
     except DataError:
         db.rollback()
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="DataError")
 
     return user
 

@@ -8,7 +8,7 @@ from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from .user_door_access_model import UserDoorAccess_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
-from helpers.types import FOOD_PREFERENCES, MEMBER_TYPE
+from helpers.types import FOOD_PREFERENCES, MEMBER_TYPE, PROGRAM_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from .post_user_model import PostUser_DB
@@ -51,9 +51,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     start_year: Mapped[int] = mapped_column(default=datetime.date.today().year)  # start year at the guild
 
-    program: Mapped[Optional[str]] = mapped_column(
-        Enum("F", "N", "Pi", name="program_enum"), default=None
-    )  # program at the guild
+    program: Mapped[PROGRAM_TYPE] = mapped_column(default="Oklart", init=False)  # program at the guild
 
     account_created: Mapped[datetime_utc] = mapped_column(
         default=datetime.datetime.now(datetime.UTC)

@@ -6,7 +6,7 @@ from api_schemas.post_schemas import PostRead
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
-from helpers.types import DOOR_ACCESSES, datetime_utc
+from helpers.types import DOOR_ACCESSES, PROGRAM_TYPE, datetime_utc
 from sqlalchemy import Enum
 
 if TYPE_CHECKING:
@@ -69,7 +69,7 @@ class UserAccessUpdate(BaseSchema):
 class AdminUserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     first_name: str
     last_name: str
-    program: Literal["F", "Pi", "N"] | None
+    program: PROGRAM_TYPE
     email: str
     posts: list[PostRead]
     events: list[_UserEventRead]
@@ -89,7 +89,7 @@ class UserRead(BaseSchema):
     id: int
     first_name: str
     last_name: str
-    program: Literal["F", "Pi", "N"] | None
+    program: PROGRAM_TYPE
     posts: list[_UserPostRead]
     start_year: int
 
@@ -113,7 +113,6 @@ class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     last_name: Annotated[str, StringConstraints(max_length=MAX_LAST_NAME_LEN)]
     telephone_number: PhoneNumber | None = None
     start_year: int | None = None
-    program: str | None = None
     pass
 
 
@@ -121,7 +120,7 @@ class UserUpdate(BaseSchema):
     first_name: str | None = None
     last_name: str | None = None
     start_year: int | None = None
-    program: str | None = None
+    program: PROGRAM_TYPE | None = None
     notifications: bool | None = None
     stil_id: str | None = None
     standard_food_preferences: list[str] | None
