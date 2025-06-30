@@ -8,7 +8,7 @@ RUN apt install -y postgresql-common
 RUN /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
 
 # With the APT repository added we may apt install postgres, sed is for editing text later
-RUN apt install -y postgresql-16 sed
+RUN apt install -y postgresql-16 sed redis-server
 
 # Preliminary way to add postgres authentication. Prepend a line in postgres conf using sed  
 RUN sed -i '1s;^;host all postgres samenet trust\n;' /etc/postgresql/16/main/pg_hba.conf
@@ -18,6 +18,7 @@ RUN apt install -y python3.11 python3.11-venv sudo git
 
 ENV ENVIRONMENT=development
 ENV DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres"
+ENV REDIS_URL="redis://localhost:6379/0"
 
 # In prod we must NOT run our container with root user, security risk. 
 # In the future I think we should use non-root user event in dev to make environment similar to prod

@@ -34,5 +34,5 @@
         }
     },
     "postCreateCommand": "python3.11 -m venv .venv && . .venv/bin/activate && pip install uv && uv pip install -r requirements.txt",
-    "postStartCommand": "pg_ctlcluster 16 main restart"
+    "postStartCommand": "pg_ctlcluster 16 main restart && redis-server --daemonize yes",
 }
