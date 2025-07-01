@@ -23,3 +23,14 @@ class RefreshAuthenticationBackend(AuthenticationBackend[models.UP, models.ID], 
             return await self.transport.get_login_response(new_token)
         except StrategyDestroyNotSupportedError:
             raise NotImplementedError("Token refresh not supported by this strategy.")
+
+    async def logout_all_sessions(self, strategy: RefreshStrategy[models.UP, models.ID], user: models.UP) -> Response:
+        """
+        Logout the user from all sessions.
+        This method is called when the user requests to logout from all sessions.
+        """
+        try:
+            await strategy.destroy_all_tokens(user)
+            return await self.transport.get_logout_response()
+        except StrategyDestroyNotSupportedError:
+            raise NotImplementedError("Logout from all sessions not supported by this strategy.")

@@ -1,3 +1,4 @@
+import secrets
 from typing import Optional, TypedDict, Generic
 from fastapi_users_pelicanq import BaseUserManager
 from fastapi_users_pelicanq.authentication import JWTStrategy
@@ -46,6 +47,7 @@ class RefreshStrategy(Strategy[models.UP, models.ID]):
     async def needs_refresh(
         self, token: Optional[str], user_manager: BaseUserManager[models.UP, models.ID]
     ) -> Optional[bool]: ...  # pragma: no cover
+    async def destroy_all_tokens(self, user: models.UP) -> None: ...  # pragma: no cover
 
 
 class CustomRedisRefreshStrategy(
@@ -72,6 +74,25 @@ class CustomRedisRefreshStrategy(
         key = f"{self.key_prefix}{token}"
         expiry = await self.redis.ttl(key)
         return (expiry < self.refresh_before_seconds) if expiry > 0 else None
+
+    async def destroy_all_tokens(self, user: models.UP) -> None:
+        """
+        Destroy all tokens for the user.
+        This method is called when the user requests to logout from all sessions.
+        """
+        tokens = await self.redis.smembers(f"{self.key_prefix}user:{user.id}")
+        if tokens:
+            await self.redis.delete(*[f"{self.key_prefix}{token}" for token in tokens])
+            await self.redis.delete(f"{self.key_prefix}user:{user.id}")
+
+    async def write_token(self, user: models.UP) -> str:
+        token = secrets.token_urlsafe()
+        await self.redis.set(f"{self.key_prefix}{token}", str(user.id), ex=self.lifetime_seconds)
+        # Store the token in a set to be able to manage multiple tokens per user
+        # This allows us to easily invalidate all tokens for a user if needed
+        # ChatGPT says it is standard to use a set for this purpose ¯\_(ツ)_/¯
+        await self.redis.sadd(f"{self.key_prefix}user:{user.id}", token)
+        return token
 
 
 def get_jwt_strategy() -> JWTStrategy[User_DB, int]:

@@ -119,4 +119,21 @@ def get_auth_router(
         await user_manager.on_after_login(user, request, response)
         return response
 
+    @router.post(
+        "/logout-all",
+        name=f"auth:{backend.name}.logout all",
+        responses={
+            status.HTTP_401_UNAUTHORIZED: {"description": "Missing or invalid refresh token."},
+            **access_backend.transport.get_openapi_logout_responses_success(),
+        },
+    )
+    async def logout_all(
+        user_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
+        user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+        strategy: RefreshStrategy[models.UP, models.ID] = Depends(backend.get_strategy),
+    ):
+        user, token = user_token
+        response = await backend.logout_all_sessions(strategy, user)
+        return response
+
     return router
