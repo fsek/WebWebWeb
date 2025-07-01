@@ -86,7 +86,7 @@ class CustomRedisRefreshStrategy(
             await self.redis.delete(f"{self.key_prefix}user:{user.id}")
 
     async def write_token(self, user: models.UP) -> str:
-        token = secrets.token_urlsafe()
+        token = secrets.token_urlsafe(32)  # Is already 32 by default but just to be explicit
         await self.redis.set(f"{self.key_prefix}{token}", str(user.id), ex=self.lifetime_seconds)
         # Store the token in a set to be able to manage multiple tokens per user
         # This allows us to easily invalidate all tokens for a user if needed
