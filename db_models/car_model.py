@@ -7,6 +7,7 @@ from sqlalchemy import ForeignKey, String
 
 if TYPE_CHECKING:
     from .user_model import User_DB
+    from council_model import Council_DB
 
 
 class CarBooking_DB(BaseModel_DB):
@@ -23,4 +24,10 @@ class CarBooking_DB(BaseModel_DB):
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
 
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="car_bookings", init=False)
-    pass
+
+    council_id: Mapped[Optional[int]] = mapped_column(ForeignKey("council_table.id"))
+    council: Mapped[Optional["Council_DB"]] = relationship(back_populates="car_bookings", init=False)
+
+    confirmed: Mapped[bool] = mapped_column(default=False)
+
+    personal: Mapped[bool] = mapped_column(default=False)

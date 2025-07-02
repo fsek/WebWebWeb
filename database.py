@@ -8,7 +8,11 @@ import os
 
 
 # SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+if os.getenv("ENVIRONMENT") == "testing":
+    SQLALCHEMY_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
+else:
+    SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL")
+
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 session_factory = sessionmaker(engine, expire_on_commit=False)

@@ -24,6 +24,8 @@ async def lifespan(app: FastAPI):
         init_db()
         with session_factory() as db:
             seed_if_empty(app, db)
+    elif os.getenv("ENVIRONMENT") == "testing":
+        init_db()
 
     yield
     # after yield comes shutdown logic
