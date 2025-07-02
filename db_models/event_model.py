@@ -1,6 +1,6 @@
-from helpers.types import datetime_utc
+from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, datetime_utc
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, String
+from sqlalchemy import ForeignKey, String, Enum
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_LOCATION, MAX_EVENT_TITLE
 from .base_model import BaseModel_DB
@@ -35,6 +35,14 @@ class Event_DB(BaseModel_DB):
 
     location: Mapped[str] = mapped_column(String(MAX_EVENT_LOCATION))
 
+    dress_code: Mapped[str] = mapped_column(String(MAX_EVENT_TITLE))
+
+    price: Mapped[int] = mapped_column()
+
+    signup_count: Mapped[int] = mapped_column(init=False, default=0)
+
+    alcohol_event_type: Mapped[ALCOHOL_EVENT_TYPES] = mapped_column()
+
     max_event_users: Mapped[int] = mapped_column(default=0)
 
     event_users: Mapped[list["EventUser_DB"]] = relationship(
@@ -50,11 +58,8 @@ class Event_DB(BaseModel_DB):
     )
 
     all_day: Mapped[bool] = mapped_column(default=False)
-    signup_not_opened_yet: Mapped[bool] = mapped_column(default=True)
     recurring: Mapped[bool] = mapped_column(default=False)
-    drink: Mapped[bool] = mapped_column(default=False)
     food: Mapped[bool] = mapped_column(default=False)
-    cash: Mapped[bool] = mapped_column(default=False)
     closed: Mapped[bool] = mapped_column(default=False)
     can_signup: Mapped[bool] = mapped_column(default=False)
     drink_package: Mapped[bool] = mapped_column(default=False)
@@ -64,3 +69,7 @@ class Event_DB(BaseModel_DB):
     )
 
     is_nollning_event: Mapped[bool] = mapped_column(default=False)
+
+    dot: Mapped[EVENT_DOT_TYPES] = mapped_column(default="None")
+
+    lottery: Mapped[bool] = mapped_column(default=False)

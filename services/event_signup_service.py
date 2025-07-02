@@ -10,7 +10,14 @@ from user.permission import Permission
 
 def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
     now = datetime.now(UTC)
-    if event.signup_end < now and manage_permission == False:
+
+    if (event.closed) and (manage_permission == False):
+        raise HTTPException(400, detail="Event is closed")
+
+    if (event.signup_start > now) and (manage_permission == False):
+        raise HTTPException(400, detail="Event signup has not opened yet")
+
+    if (event.signup_end < now) and (manage_permission == False):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Event signup deadline is passed")
 
     if (
@@ -25,8 +32,15 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     for var, value in vars(data).items():
         setattr(signup, var, value) if value else None
 
+    if event.lottery == False:
+        signup.confirmed_status = "confirmed"
+
     db.add(signup)
+
+    event.signup_count += 1
+
     db.commit()
+
     return signup
 
 
@@ -44,6 +58,9 @@ def signoff_from_event(
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     db.delete(signup)
+
+    event.signup_count -= 1
+
     db.commit()
     return signup
 
@@ -61,4 +78,13 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
 
     db.commit()
     db.refresh(event)
+    return signup
+
+
+def check_me_signup(event_id: int, me: User_DB, db: Session):
+    signup = db.query(EventUser_DB).filter_by(user_id=me.id, event_id=event_id).one_or_none()
+
+    if not signup:
+        raise HTTPException(404, detail="Signup not found")
+
     return signup
