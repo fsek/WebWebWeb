@@ -1,14 +1,15 @@
 from datetime import datetime, timedelta, timezone
-from typing import Tuple
+from typing import Tuple, Type
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from fastapi_users_pelicanq import models
+from fastapi_users_pelicanq import models, schemas, exceptions
 from fastapi_users_pelicanq.authentication import AuthenticationBackend, Authenticator, Strategy
 from fastapi_users_pelicanq.manager import BaseUserManager, UserManagerDependency
 from fastapi_users_pelicanq.openapi import OpenAPIResponseType
 from fastapi_users_pelicanq.router.common import ErrorCode, ErrorModel
+from pydantic import EmailStr
 from user.refresh_auth_backend import RefreshAuthenticationBackend
 from user.token_strategy import RefreshStrategy
 
@@ -133,6 +134,126 @@ def get_auth_router(
     ):
         user, token = user_token
         response = await backend.logout_all_sessions(strategy, user)
+        return response
+
+    return router
+
+
+def get_update_account_router(
+    backend: RefreshAuthenticationBackend[models.UP, models.ID],
+    get_user_manager: UserManagerDependency[models.UP, models.ID],
+    user_schema: Type[schemas.U],
+    user_update_schema: Type[schemas.UU],
+    authenticator: Authenticator[models.UP, models.ID],
+) -> APIRouter:
+    """Generate a router with update email/password routes for an authentication backend."""
+    router = APIRouter()
+
+    get_current_refresh_user_token = authenticator.current_user_token(
+        active=True, verified=False, get_enabled_backends=lambda: [backend]
+    )
+
+    @router.patch(
+        "/update-email",
+        name=f"auth:{backend.name}.update_email",
+        response_model=user_schema,
+        status_code=status.HTTP_200_OK,
+        responses={
+            status.HTTP_400_BAD_REQUEST: {
+                "model": ErrorModel,
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            ErrorCode.UPDATE_USER_EMAIL_ALREADY_EXISTS: {
+                                "summary": "A user with this email already exists.",
+                                "value": {"detail": ErrorCode.UPDATE_USER_EMAIL_ALREADY_EXISTS},
+                            }
+                        }
+                    }
+                },
+            }
+        },
+    )
+    async def update_email(
+        request: Request,
+        credentials: OAuth2PasswordRequestForm = Depends(),
+        refresh_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
+        new_email: EmailStr = Body(..., embed=True),
+        user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+        strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
+    ):
+        user = await user_manager.authenticate(credentials)
+
+        token_user, _ = refresh_token
+
+        if user is None or not user.is_active or not user.id == token_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+            )
+
+        user_update = user_update_schema(email=new_email, is_verified=False)
+        try:
+            updated_user = await user_manager.update(user_update, user, safe=False, request=request)
+        except exceptions.UserAlreadyExists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorCode.UPDATE_USER_EMAIL_ALREADY_EXISTS,
+            )
+        await user_manager.on_after_update(updated_user, user_update.create_update_dict_superuser(), request)
+        return updated_user
+
+    @router.patch(
+        "/update-password",
+        name=f"auth:{backend.name}.update_password",
+        status_code=status.HTTP_200_OK,
+        responses={
+            status.HTTP_400_BAD_REQUEST: {
+                "model": ErrorModel,
+                "content": {
+                    "application/json": {
+                        "examples": {
+                            ErrorCode.UPDATE_USER_INVALID_PASSWORD: {
+                                "summary": "Invalid password.",
+                                "value": {"detail": ErrorCode.UPDATE_USER_INVALID_PASSWORD},
+                            }
+                        }
+                    }
+                },
+            },
+            **backend.transport.get_openapi_logout_responses_success(),
+        },
+    )
+    async def update_password(
+        request: Request,
+        credentials: OAuth2PasswordRequestForm = Depends(),
+        refresh_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
+        new_password: str = Body(..., embed=True),
+        user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
+        strategy: RefreshStrategy[models.UP, models.ID] = Depends(backend.get_strategy),
+    ):
+        user = await user_manager.authenticate(credentials)
+
+        token_user, _ = refresh_token
+
+        if user is None or not user.is_active or not user.id == token_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+            )
+
+        user_update = user_update_schema(password=new_password)
+
+        try:
+            updated_user = await user_manager.update(user_update, user, safe=True, request=request)
+        except exceptions.InvalidPasswordException:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorCode.UPDATE_USER_INVALID_PASSWORD,
+            )
+        await user_manager.on_after_update(updated_user, user_update.create_update_dict(), request)
+        # Probably good to logout all sessions?
+        response = await backend.logout_all_sessions(strategy, updated_user)
         return response
 
     return router
