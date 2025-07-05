@@ -1,13 +1,14 @@
+import os
 import secrets
 from typing import Optional, TypedDict, Generic
 from fastapi_users_pelicanq import BaseUserManager
 from fastapi_users_pelicanq.authentication import JWTStrategy
 from db_models.user_model import User_DB
 import redis.asyncio
+from fastapi import Depends
 from fastapi_users_pelicanq.authentication import RedisStrategy, Strategy
 from fastapi_users_pelicanq import models
-
-redis_db = redis.asyncio.from_url("redis://localhost:6379", decode_responses=True)
+from database import get_redis
 
 # TODO: Use environment variables or a secure vault for secrets in production
 JWT_SECRET = "MEGA SECRET"
@@ -100,7 +101,9 @@ def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
     return strat
 
 
-def get_refresh_redis_strategy() -> CustomRedisRefreshStrategy[User_DB, int]:
+def get_refresh_redis_strategy(
+    redis=Depends(get_redis),
+) -> CustomRedisRefreshStrategy[User_DB, int]:
     # The refresh tokens do not need to contain permissions
-    strat = CustomRedisRefreshStrategy[User_DB, int](redis_db, lifetime_seconds=3600 * 24 * 30)
+    strat = CustomRedisRefreshStrategy[User_DB, int](redis, lifetime_seconds=3600 * 24 * 30)
     return strat

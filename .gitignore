@@ -4,3 +4,4 @@ __pycache__
 dev_db/
 .pytest_cache
 *.DS_Store
+dump.rdb
