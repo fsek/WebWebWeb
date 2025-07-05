@@ -1,9 +1,10 @@
 from typing import get_args
+
 from api_schemas.user_schemas import UserUpdate, UpdateUserMember
 from database import DB_dependency
 from db_models.user_model import User_DB
 from fastapi import HTTPException, status
-from sqlalchemy.exc import DataError
+from sqlalchemy.exc import DataError, NoResultFound
 import re
 from helpers.types import FOOD_PREFERENCES
 
@@ -20,8 +21,10 @@ def condition(model, asset):
 
 
 def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
-    user = db.query(User_DB).filter_by(id=user_id).one()
-
+    try:
+        user = db.query(User_DB).filter_by(id=user_id).one()
+    except NoResultFound:
+        user = None
     if not user:
         raise HTTPException(404, detail="User not found")
 
