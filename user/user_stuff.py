@@ -14,13 +14,15 @@ from user.user_manager import UserManager
 # Access token is sent in the Authorization header as a Bearer token.
 bearer_transport = BearerTransport(tokenUrl="auth/login")
 
+LOGIN_TIMEOUT = 3600 * 24 * 30
+
 # Refresh token is sent in a cookie.
 # The cookie is set to expire in 30 days.
 if os.getenv("ENVIRONMENT") == "production":
     cookie_transport = CookieTransport(
         # Secure cookie for production, with __Secure- prefix to ensure it is only sent over HTTPS
         cookie_name="__Secure-fsek_refresh_token",
-        cookie_max_age=3600 * 24 * 30,
+        cookie_max_age=LOGIN_TIMEOUT,
         cookie_samesite="strict",
         cookie_domain="fsektionen.se",
         cookie_path="/auth",  # Server path where the cookie is sent
@@ -30,7 +32,7 @@ if os.getenv("ENVIRONMENT") == "production":
 elif os.getenv("ENVIRONMENT") == "staging":
     cookie_transport = CookieTransport(
         cookie_name="_fsek_refresh_token",
-        cookie_max_age=3600 * 24 * 30,
+        cookie_max_age=LOGIN_TIMEOUT,
         cookie_samesite="lax",
         cookie_domain=None,  # Use default domain for local development
         cookie_path="/auth",
@@ -40,7 +42,7 @@ elif os.getenv("ENVIRONMENT") == "staging":
 else:
     cookie_transport = CookieTransport(
         cookie_name="_fsek_refresh_token",
-        cookie_max_age=3600 * 24 * 30,
+        cookie_max_age=LOGIN_TIMEOUT,
         cookie_samesite="lax",
         cookie_domain=None,  # Use default domain for local development
         cookie_path="/auth",

@@ -9,6 +9,7 @@ from fastapi import Depends
 from fastapi_users_pelicanq.authentication import RedisStrategy, Strategy
 from fastapi_users_pelicanq import models
 from database import get_redis
+from user.user_stuff import LOGIN_TIMEOUT
 
 # TODO: Use environment variables or a secure vault for secrets in production
 JWT_SECRET = "MEGA SECRET"
@@ -105,5 +106,5 @@ def get_refresh_redis_strategy(
     redis=Depends(get_redis),
 ) -> CustomRedisRefreshStrategy[User_DB, int]:
     # The refresh tokens do not need to contain permissions
-    strat = CustomRedisRefreshStrategy[User_DB, int](redis, lifetime_seconds=3600 * 24 * 30)
+    strat = CustomRedisRefreshStrategy[User_DB, int](redis, lifetime_seconds=LOGIN_TIMEOUT)
     return strat
