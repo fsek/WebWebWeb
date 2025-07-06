@@ -46,7 +46,7 @@ def test_logout_user(client, registered_user):
     token = login_response.json()["access_token"]
 
     headers = {"Authorization": f"Bearer {token}"}
-    response = client.post("/auth/logout", headers=headers)
+    response = client.delete("/auth/logout", headers=headers)
     assert response.status_code == status.HTTP_204_NO_CONTENT or response.status_code == status.HTTP_200_OK
 
 

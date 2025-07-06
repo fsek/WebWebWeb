@@ -9,11 +9,11 @@ from fastapi import Depends
 from fastapi_users_pelicanq.authentication import RedisStrategy, Strategy
 from fastapi_users_pelicanq import models
 from database import get_redis
-from user.user_stuff import LOGIN_TIMEOUT
 
 JWT_SECRET = secrets.token_urlsafe(
     32
 )  # Generate a secure random secret for JWT signing. JWT lifetime is short, so we can use a random secret.
+LOGIN_TIMEOUT = 3600 * 24 * 30
 
 
 # class to describe data in access token for our chosen JWT strategy

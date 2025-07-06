@@ -8,13 +8,13 @@ from fastapi_users_pelicanq import FastAPIUsers
 from database import get_db
 from db_models.user_model import User_DB
 from user.refresh_auth_backend import RefreshAuthenticationBackend
-from user.token_strategy import get_jwt_strategy, get_refresh_redis_strategy
+from user.token_strategy import get_jwt_strategy, get_refresh_redis_strategy, LOGIN_TIMEOUT
 from user.user_manager import UserManager
+
 
 # Access token is sent in the Authorization header as a Bearer token.
 bearer_transport = BearerTransport(tokenUrl="auth/login")
 
-LOGIN_TIMEOUT = 3600 * 24 * 30
 
 # Refresh token is sent in a cookie.
 # The cookie is set to expire in 30 days.
