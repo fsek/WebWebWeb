@@ -84,7 +84,7 @@ def get_auth_router(
         **backend.transport.get_openapi_logout_responses_success(),
     }
 
-    @router.post("/logout", name=f"auth:{backend.name}.logout", responses=logout_responses)
+    @router.delete("/logout", name=f"auth:{backend.name}.logout", responses=logout_responses)
     async def logout(
         user_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
@@ -119,7 +119,7 @@ def get_auth_router(
         await user_manager.on_after_login(user, request, response)
         return response
 
-    @router.post(
+    @router.delete(
         "/logout-all",
         name=f"auth:{backend.name}.logout all",
         responses={
