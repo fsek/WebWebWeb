@@ -11,8 +11,9 @@ from fastapi_users_pelicanq import models
 from database import get_redis
 from user.user_stuff import LOGIN_TIMEOUT
 
-# TODO: Use environment variables or a secure vault for secrets in production
-JWT_SECRET = "MEGA SECRET"
+JWT_SECRET = secrets.token_urlsafe(
+    32
+)  # Generate a secure random secret for JWT signing. JWT lifetime is short, so we can use a random secret.
 
 
 # class to describe data in access token for our chosen JWT strategy
