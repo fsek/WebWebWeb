@@ -67,16 +67,12 @@ class CustomRedisRefreshStrategy(
         super().__init__(redis, lifetime_seconds, key_prefix=key_prefix)
         self.refresh_before_seconds = refresh_before_seconds
 
-    async def needs_refresh(
-        self, token: Optional[str], user_manager: BaseUserManager[models.UP, models.ID]
-    ) -> Optional[bool]:
-        if token is None:
-            return None
-        if not self.refresh_before_seconds:
+    async def needs_refresh(self, token: Optional[str], user_manager: BaseUserManager[models.UP, models.ID]) -> bool:
+        if token is None or not self.refresh_before_seconds:
             return False
         key = f"{self.key_prefix}{token}"
         expiry = await self.redis.ttl(key)
-        return (expiry < self.refresh_before_seconds) if expiry > 0 else None
+        return (expiry < self.refresh_before_seconds) if expiry > 0 else False
 
     async def destroy_all_tokens(self, user: models.UP) -> None:
         """
@@ -93,7 +89,10 @@ class CustomRedisRefreshStrategy(
         await self.redis.set(f"{self.key_prefix}{token}", str(user.id), ex=self.lifetime_seconds)
         # Store the token in a set to be able to manage multiple tokens per user
         # This allows us to easily invalidate all tokens for a user if needed
-        # ChatGPT says it is standard to use a set for this purpose ¯\_(ツ)_/¯
+        # Quoting HellFelix: "Using a set here has several benefits:
+        #  - Constant time complexity for add/remove
+        #  - We can assure that there are no duplicates
+        #  - Clean and scalable (easily handles thousands of users)"
         await self.redis.sadd(f"{self.key_prefix}user:{user.id}", token)
         return token
 
