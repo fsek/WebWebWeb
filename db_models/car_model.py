@@ -1,5 +1,5 @@
 from helpers.types import datetime_utc
-from helpers.constants import MAX_CAR_DESC
+from helpers.constants import MAX_CAR_DESC, MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import Optional, TYPE_CHECKING
@@ -24,6 +24,9 @@ class CarBooking_DB(BaseModel_DB):
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
 
     user: Mapped["User_DB"] = relationship("User_DB", back_populates="car_bookings", init=False)
+
+    user_first_name: Mapped[str] = mapped_column(String(MAX_FIRST_NAME_LEN))
+    user_last_name: Mapped[str] = mapped_column(String(MAX_LAST_NAME_LEN))
 
     council_id: Mapped[Optional[int]] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped[Optional["Council_DB"]] = relationship(back_populates="car_bookings", init=False)

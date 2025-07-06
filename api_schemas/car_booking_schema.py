@@ -8,6 +8,8 @@ from helpers.constants import MAX_CAR_DESC
 class CarRead(BaseSchema):
     booking_id: int
     user_id: int
+    user_first_name: str
+    user_last_name: str
     description: str
     start_time: datetime_utc
     end_time: datetime_utc

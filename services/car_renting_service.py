@@ -140,6 +140,8 @@ def create_new_booking(
         confirmed=booking_confirmed,
         personal=data.personal,
         council_id=data.council_id,
+        user_first_name=current_user.first_name,
+        user_last_name=current_user.last_name,
     )
     db.add(db_booking)
     db.commit()
