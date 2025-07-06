@@ -73,9 +73,8 @@ def get_auth_router(
             )
         response = await access_backend.login(access_strategy, user)
         cookie = (await backend.login(strategy, user)).headers.get("set-cookie")
-        if not cookie:
-            return response
-        response.headers.append("set-cookie", cookie)
+        if cookie is not None:
+            response.headers.append("set-cookie", cookie)
         await user_manager.on_after_login(user, request, response)
         return response
 
