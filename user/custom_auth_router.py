@@ -1,5 +1,4 @@
-from datetime import datetime, timedelta, timezone
-from typing import Tuple, Type
+from typing import Tuple, Type, Optional
 
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -141,6 +140,7 @@ def get_auth_router(
 
 def get_update_account_router(
     backend: RefreshAuthenticationBackend[models.UP, models.ID],
+    access_backend: AuthenticationBackend[models.UP, models.ID],
     get_user_manager: UserManagerDependency[models.UP, models.ID],
     user_schema: Type[schemas.U],
     user_update_schema: Type[schemas.UU],
@@ -152,6 +152,32 @@ def get_update_account_router(
     get_current_refresh_user_token = authenticator.current_user_token(
         active=True, verified=False, get_enabled_backends=lambda: [backend]
     )
+
+    get_current_access_token = authenticator.current_user_token(
+        active=True, verified=False, get_enabled_backends=lambda: [access_backend]
+    )
+
+    def validate_user(
+        *users: Optional[models.UP],
+    ):
+        # Ensure all users are not None before comparing ids
+        if any(user is None for user in users):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+            )
+        first_id = users[0].id
+        if not all(user.id == first_id for user in users):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+            )
+        for user_instance in users:
+            if not user_instance.is_active:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
+                )
 
     @router.patch(
         "/update-email",
@@ -177,20 +203,16 @@ def get_update_account_router(
     async def update_email(
         request: Request,
         credentials: OAuth2PasswordRequestForm = Depends(),
-        refresh_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
+        refresh_token: Tuple[models.UP | None, str | None] = Depends(get_current_refresh_user_token),
+        access_token: Tuple[models.UP | None, str | None] = Depends(get_current_access_token),
         new_email: EmailStr = Body(..., embed=True),
         user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
         user = await user_manager.authenticate(credentials)
-
-        token_user, _ = refresh_token
-
-        if user is None or not user.is_active or not user.id == token_user.id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
-            )
+        refresh_token_user, _ = refresh_token
+        access_token_user, _ = access_token
+        validate_user(user, refresh_token_user, access_token_user)
 
         user_update = user_update_schema(email=new_email, is_verified=False)
         try:
@@ -227,20 +249,16 @@ def get_update_account_router(
     async def update_password(
         request: Request,
         credentials: OAuth2PasswordRequestForm = Depends(),
-        refresh_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
+        refresh_token: Tuple[models.UP, str] | None = Depends(get_current_refresh_user_token),
+        access_token: Tuple[models.UP, str] | None = Depends(get_current_access_token),
         new_password: str = Body(..., embed=True),
         user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
         strategy: RefreshStrategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
         user = await user_manager.authenticate(credentials)
-
-        token_user, _ = refresh_token
-
-        if user is None or not user.is_active or not user.id == token_user.id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=ErrorCode.LOGIN_BAD_CREDENTIALS,
-            )
+        refresh_token_user, _ = refresh_token
+        access_token_user, _ = access_token
+        validate_user(user, refresh_token_user, access_token_user)
 
         user_update = user_update_schema(password=new_password)
 

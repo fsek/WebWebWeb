@@ -25,6 +25,7 @@ auth_router.include_router(
 auth_router.include_router(
     get_update_account_router(
         refresh_backend,
+        auth_backend,
         USERS.get_user_manager,
         UserRead,
         BaseUserUpdate,
