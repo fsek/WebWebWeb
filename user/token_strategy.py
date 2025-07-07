@@ -13,6 +13,7 @@ from database import get_redis
 JWT_SECRET = secrets.token_urlsafe(
     32
 )  # Generate a secure random secret for JWT signing. JWT lifetime is short, so we can use a random secret.
+# Timeout for refresh token, user has to log in again after expiry
 LOGIN_TIMEOUT = 3600 * 24 * 30
 
 
