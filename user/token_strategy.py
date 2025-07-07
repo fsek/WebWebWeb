@@ -99,7 +99,7 @@ class CustomRedisRefreshStrategy(
 
 
 def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
-    strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=3600)
+    strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=900)
     return strat
 
 
