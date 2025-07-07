@@ -5,7 +5,7 @@ from fastapi_users_pelicanq import BaseUserManager, IntegerIDMixin
 
 from db_models.user_model import User_DB
 
-SECRET = os.environ["USER_MANAGER_SECRET"]
+SECRET = os.getenv("USER_MANAGER_SECRET")
 if not SECRET:
     raise ValueError("USER_MANAGER_SECRET environment variable is not set. Please set it to a secure value.")
 
