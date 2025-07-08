@@ -3,7 +3,6 @@ from api_schemas.user_schemas import UserAccessCreate, UserAccessRead, UserAcces
 from database import DB_dependency
 from db_models.user_door_access_model import UserDoorAccess_DB
 from user.permission import Permission
-from sqlalchemy.exc import IntegrityError, StatementError, SQLAlchemyError
 
 
 user_access_router = APIRouter()

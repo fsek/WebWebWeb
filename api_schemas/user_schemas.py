@@ -1,13 +1,11 @@
 from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import StringConstraints
 from fastapi_users_pelicanq import schemas as fastapi_users_schemas
-from api_schemas.permission_schemas import PermissionRead
 from api_schemas.post_schemas import PostRead
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from helpers.types import DOOR_ACCESSES, datetime_utc
-from sqlalchemy import Enum
 
 if TYPE_CHECKING:
     from api_schemas.group_schema import GroupRead
