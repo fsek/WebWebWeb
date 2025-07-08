@@ -13,8 +13,8 @@ from db_models.user_model import User_DB
 
 def verification_mailer(user: User_DB, token: str):
 
-    if os.getenv("ENVIRONMENT") == "testing":
-        print("Email cannot be used on testing")
+    if os.getenv("ENVIRONMENT") != "production":
+        print(f"Email cannot be used on testing \n Value of token is: {token}")
         return
 
     with open("/mailer/verification-mail.html", "r", encoding="utf-8") as f:

@@ -85,6 +85,8 @@ def get_enabled_backends() -> list[AuthenticationBackend[User_DB, int]]:
 # Below are dependencies (functions to feed into Depends()).
 # They validate the client to be a user who we have given a token.
 
+current_user: Any = USERS.current_user(get_enabled_backends=get_enabled_backends)
+
 current_verified_user: Any = USERS.current_user(verified=True, get_enabled_backends=get_enabled_backends)
 
 current_verified_user_token: Any = USERS.current_user_token(verified=True, get_enabled_backends=get_enabled_backends)

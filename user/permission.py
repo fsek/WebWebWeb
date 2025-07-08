@@ -5,16 +5,17 @@ from db_models.permission_model import PERMISSION_TYPE, PERMISSION_TARGET
 from db_models.user_model import User_DB
 from user.token_strategy import JWT_SECRET, AccessTokenData, CustomTokenStrategy
 from user.user_stuff import (
+    current_user,
     current_verified_user,
     current_verified_user_token,
 )
 
 
 class Permission:
-    # @classmethod
-    # def primitive(cls):
-    #     # Use this for almost only verification of email
-    #     return Depends(current_user)
+    @classmethod
+    def primitive(cls):
+        # Use this for almost only verification of email
+        return Depends(current_user)
 
     @classmethod
     def base(cls):
