@@ -11,13 +11,18 @@ from user.user_stuff import (
 
 
 class Permission:
+    # @classmethod
+    # def primitive(cls):
+    #     # Use this for almost only verification of email
+    #     return Depends(current_user)
+
     @classmethod
     def base(cls):
         # Use this dependency for routes that any user, member or not, should access
         return Depends(current_verified_user)
 
     @classmethod
-    def member(cls): 
+    def member(cls):
         # Use this dependency for routes that any member should access
         def dependency(user: User_DB = Depends(current_verified_user)):
             if not user.is_member:

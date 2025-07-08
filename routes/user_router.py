@@ -1,13 +1,19 @@
 from typing import Annotated
+import uuid
+
+import redis
 from db_models import permission_model
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from api_schemas.base_schema import BaseSchema
-from database import DB_dependency
+from database import DB_dependency, get_redis
 from db_models.user_model import User_DB
 from api_schemas.user_schemas import AdminUserRead, UpdateUserMember, UserUpdate, UserRead
+from mailer.verification_mailer import verification_mailer
 from services import user as user_service
 from user.permission import Permission
 from api_schemas.post_schemas import PostRead
+import datetime
+
 
 user_router = APIRouter()
 
@@ -66,3 +72,45 @@ def get_user_posts(user_id: int, db: DB_dependency):
     if user is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
     return user.posts
+
+
+@user_router.post("/verification", response_model=None, dependencies=[Permission.member()])
+def send_verfication(me: Annotated[User_DB, Permission.member()], redis: redis.Redis = Depends(get_redis)):
+
+    token = str(uuid.uuid4())
+    redis.setex(f"verif:{token}", 24 * 3600, me.id)
+
+    verification_mailer(me, token)
+
+
+@user_router.post(
+    "/verification/{token}",
+    response_model=UserRead,
+    status_code=status.HTTP_200_OK,
+)
+def verify_mail(
+    token: str,
+    db: DB_dependency,
+    redis: redis.Redis = Depends(get_redis),
+):
+
+    user_id = redis.get(f"verif:{token}")
+    if not user_id:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND,
+            detail="Invalid or expired verification token",
+        )
+
+    redis.delete(f"verif:{token}")
+
+    user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
+
+    if not user:
+        # this shouldn't normally happen
+        raise HTTPException(status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    user.is_verified = True
+    db.commit()
+    db.refresh(user)
+
+    return user

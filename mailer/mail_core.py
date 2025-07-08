@@ -2,7 +2,7 @@ from email.mime.text import MIMEText
 import smtplib
 
 from mailer.mail_constants import SMTP_SERVER, STANDARD_SENDER
-from user_model import User_DB
+from db_models.user_model import User_DB
 
 
 def send_mail(user: User_DB, msg: MIMEText):

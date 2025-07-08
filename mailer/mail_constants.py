@@ -2,6 +2,7 @@
 
 STANDARD_SENDER = "debianne-do-not-reply@fsektionen.se"
 SUPPORT_LINK = "support@fsektionen.se"
+URL = "fsektionen.se"
 
 SMTP_SERVER = "smtp-relay.gmail.com"
 SMTP_PORT = 587

@@ -3,7 +3,6 @@ from sqlalchemy import Column, DateTime, Enum, ForeignKey
 
 # from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
-from datetime import datetime
 from helpers.types import datetime_utc
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from helpers.db_util import created_at_column, latest_modified_column
