@@ -10,9 +10,13 @@ from fastapi_users_pelicanq.authentication import RedisStrategy, Strategy
 from fastapi_users_pelicanq import models
 from database import get_redis
 
-JWT_SECRET = secrets.token_urlsafe(
-    32
-)  # Generate a secure random secret for JWT signing. JWT lifetime is short, so we can use a random secret.
+JWT_SECRET = (
+    secrets.token_urlsafe(32)  # Generate a secure random secret key for JWT
+    if os.getenv("ENVIRONMENT") == "production"
+    else "this_is_a_very_long_secret_key_for_development_purposes"
+)
+JWT_TOKEN_LIFETIME_SECONDS = 3600 * 6 if os.getenv("ENVIRONMENT") == "development" else 900
+
 # Timeout for refresh token, user has to log in again after expiry
 LOGIN_TIMEOUT = 3600 * 24 * 30
 
@@ -99,7 +103,7 @@ class CustomRedisRefreshStrategy(
 
 
 def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
-    strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=900)
+    strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=JWT_TOKEN_LIFETIME_SECONDS)
     return strat
 
 
