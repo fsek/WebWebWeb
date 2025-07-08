@@ -1,11 +1,7 @@
 from fastapi import APIRouter, HTTPException, status
-from api_schemas.song_schemas import SongCreate, SongRead
 from api_schemas.tag_schema import TagCreate, TagEdit, TagRead
 from database import DB_dependency
-from db_models.song_model import Song_DB
 from db_models.tag_model import Tag_DB
-from db_models.event_model import Event_DB
-from db_models.event_tag_model import EventTag_DB
 from user.permission import Permission
 from sqlalchemy.exc import IntegrityError
 

@@ -1,19 +1,11 @@
-from sqlalchemy import ForeignKey, String
-from typing import TYPE_CHECKING, Optional
-
-
-from helpers.constants import MAX_GROUP_NAME, MAX_GROUP_TYPE_NAME
+from sqlalchemy import ForeignKey
+from typing import TYPE_CHECKING
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
-from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 
 
 if TYPE_CHECKING:
-    from .user_model import User_DB
-    from .group_user_model import GroupUser_DB
-    from db_models.nollning_model import Nollning_DB
     from db_models.nollning_group_model import NollningGroup_DB
-    from db_models.group_model import Group_DB
     from db_models.adventure_mission_model import AdventureMission_DB
 
 

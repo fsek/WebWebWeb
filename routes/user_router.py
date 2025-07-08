@@ -1,6 +1,5 @@
 from typing import Annotated
 import uuid
-
 import redis
 from fastapi import APIRouter, Depends, HTTPException, status
 from database import DB_dependency, get_redis
@@ -10,7 +9,6 @@ from mailer.verification_mailer import verification_mailer
 from services import user as user_service
 from user.permission import Permission
 from api_schemas.post_schemas import PostRead
-
 
 user_router = APIRouter()
 

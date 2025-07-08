@@ -12,7 +12,7 @@ from user_model import User_DB
 
 def reset_password_mailer(user: User_DB):
 
-    if os.getenv("ENVIRONMENT") == "testing":
+    if os.getenv("ENVIRONMENT") != "production":
         print("Email cannot be used on testing")
         return
 

@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from api_schemas.group_schema import GroupAddUser, GroupCreate, GroupRead, GroupRemoveUser
 from api_schemas.group_mission_schema import GroupMissionCreate, GroupMissionRead, GroupMissionEdit
 from database import DB_dependency
 from db_models.adventure_mission_model import AdventureMission_DB
@@ -44,7 +43,7 @@ def add_completed_mission(db: DB_dependency, data: GroupMissionCreate, id: int):
         db.add(mission_group)
         db.commit()
 
-    except IntegrityError as e:
+    except IntegrityError as _:
         db.rollback()
 
         raise HTTPException(400, detail="Group has already completed mission")

@@ -2,7 +2,6 @@ from sqlalchemy import String
 from typing import TYPE_CHECKING
 
 
-from db_models.group_mission_model import GroupMission_DB
 from helpers.constants import MAX_GROUP_NAME, MAX_GROUP_TYPE_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column

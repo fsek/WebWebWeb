@@ -1,8 +1,6 @@
 from api_schemas.base_schema import BaseSchema
-from fastapi_users_pelicanq import schemas as fastapi_users_schemas
-from pydantic_extra_types.phone_numbers import PhoneNumber
-from api_schemas.user_schemas import UserInEventRead, UserRead
-from helpers.types import DRINK_PACKAGES, datetime_utc
+from api_schemas.user_schemas import UserInEventRead
+from helpers.types import DRINK_PACKAGES
 
 
 class EventSignupCreate(BaseSchema):

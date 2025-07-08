@@ -1,6 +1,5 @@
 import os
 from email.mime.text import MIMEText
-from database import DB_dependency
 from .mail_constants import (
     STANDARD_SENDER,
     SUPPORT_LINK,

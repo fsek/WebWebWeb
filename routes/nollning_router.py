@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import and_, desc
-from api_schemas.group_schema import GroupRead
+from sqlalchemy import desc
 from api_schemas.nollning_schema import (
     NollningCreate,
     NollningRead,

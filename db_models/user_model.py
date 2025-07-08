@@ -1,6 +1,6 @@
-from typing import TYPE_CHECKING, Callable, Optional, Literal
+from typing import TYPE_CHECKING, Callable, Optional
 from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
-from sqlalchemy import ForeignKey, String, JSON
+from sqlalchemy import String, JSON
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from db_models.album_model import Album_DB
 from db_models.candidate_model import Candidate_DB
@@ -8,7 +8,7 @@ from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from .user_door_access_model import UserDoorAccess_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
-from helpers.types import FOOD_PREFERENCES, MEMBER_TYPE
+from helpers.types import MEMBER_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from .post_user_model import PostUser_DB
