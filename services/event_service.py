@@ -93,7 +93,17 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
         raise HTTPException(400, detail="Price cannot be lower than 0")
 
     for var, value in vars(data).items():
-        setattr(event, var, value) if value is not None else None
+        if value is not None:
+            if var == "priorities":
+                # Handle priorities separately
+                # First, remove all existing priorities
+                db.query(Priority_DB).filter_by(event_id=event.id).delete()
+                # Then create new ones (or none if empty)
+                priorities = [Priority_DB(priority=priority, event_id=event.id) for priority in value]
+                for priority in priorities:
+                    db.add(priority)
+            else:
+                setattr(event, var, value)
 
     db.commit()
     return event

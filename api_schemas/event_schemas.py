@@ -90,8 +90,9 @@ class EventUpdate(BaseSchema):
     can_signup: bool | None = None
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
+    priorities: list[MEMBER_ROLES] | None = None
     alcohol_event_type: ALCOHOL_EVENT_TYPES | None = None
-    dresscode: str | None = None
+    dress_code: str | None = None
     price: int | None = None
     dot: EVENT_DOT_TYPES | None = None
 
