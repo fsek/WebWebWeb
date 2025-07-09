@@ -3,6 +3,7 @@ from helpers.types import datetime_utc
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_CAR_DESC
+from api_schemas.council_schema import CouncilInCarRead
 
 
 class CarRead(BaseSchema):
@@ -16,6 +17,7 @@ class CarRead(BaseSchema):
     confirmed: bool
     personal: bool
     council_id: int | None = None
+    council: CouncilInCarRead | None = None
 
 
 class CarCreate(BaseSchema):
