@@ -125,6 +125,10 @@ def create_new_booking(
     if not data.personal and data.council_id is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Council ID is required for non-personal bookings.")
 
+    # Remove council_id if personal booking
+    if data.personal and data.council_id is not None:
+        data.council_id = None
+
     # Disallow regular users from booking cars for other councils
     if not manage_permission and data.council_id is not None:  # For safety, we don't care if it is a personal booking
         if data.council_id not in [post.council_id for post in current_user.posts]:
@@ -167,6 +171,10 @@ def booking_update(
         booking_confirmed = data.confirmed  # default to updated value, fallback to previous value
     else:
         booking_confirmed = car_booking.confirmed
+
+    # Automagically assume the user wants the booking confirmed, they should not have manual control unlike admins
+    if not manage_permission and booking_confirmed == False:
+        booking_confirmed = True
 
     # only check for illegal overlap if new times are provided
     if data.start_time is not None or data.end_time is not None:
@@ -212,6 +220,10 @@ def booking_update(
                 booking_confirmed = False
             if data.end_time.weekday() >= 5:
                 booking_confirmed = False
+
+    # Remove council_id if personal booking
+    if data.personal and data.council_id is not None:
+        data.council_id = None
 
     # Disallow regular users from booking cars for other councils
     if not manage_permission and data.council_id is not None:
