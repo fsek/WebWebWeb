@@ -1,13 +1,10 @@
-import os
 from typing import Optional
 from fastapi import Request
 from fastapi_users_pelicanq import BaseUserManager, IntegerIDMixin
 
 from db_models.user_model import User_DB
 
-SECRET = os.getenv("USER_MANAGER_SECRET")
-if not SECRET:
-    raise ValueError("USER_MANAGER_SECRET environment variable is not set. Please set it to a secure value.")
+SECRET = "SECRET!"
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):

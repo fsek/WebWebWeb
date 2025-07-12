@@ -20,8 +20,6 @@ TEST_DATABASE_URL = os.environ.setdefault(
     "TEST_DATABASE_URL", "postgresql+psycopg://postgres:password@localhost:5432/postgres_test"
 )
 
-TEST_REDIS_URL = os.environ.setdefault("TEST_REDIS_URL", "redis://localhost:6379/0")
-
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():

@@ -8,6 +8,7 @@ from helpers.constants import MAX_COUNCIL_DESC
 if TYPE_CHECKING:
     from .post_model import Post_DB
     from .event_model import Event_DB
+    from .car_model import CarBooking_DB
 
 
 class Council_DB(BaseModel_DB):
@@ -20,6 +21,8 @@ class Council_DB(BaseModel_DB):
     posts: Mapped[list["Post_DB"]] = relationship(back_populates="council", init=False)
 
     events: Mapped[list["Event_DB"]] = relationship(back_populates="council", init=False)
+
+    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="council", init=False)
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_COUNCIL_DESC))
 

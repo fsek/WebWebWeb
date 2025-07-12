@@ -147,3 +147,24 @@ def admin_council_id(db_session, admin_user):
     council_id = admin_user.posts[0].council_id
 
     return council_id
+
+
+@pytest.fixture()
+def non_membered_user(client, db_session):
+    """Create and return a user who is not a member."""
+    user_data = user_data_factory(
+        email="non-member@example.com", first_name="NonMember", last_name="User", password="Password123"
+    )
+    user = create_membered_user(client, db_session, **user_data)
+    # Ensure the user is not a member
+    user.is_member = False
+    user.is_verified = True  # Still verified
+    db_session.commit()
+    return user
+
+
+@pytest.fixture()
+def non_member_token(client, non_membered_user):
+    """Create a non-member user and return its access token."""
+    resp = client.post("/auth/login", data={"username": "non-member@example.com", "password": "Password123"})
+    return resp.json()["access_token"]
