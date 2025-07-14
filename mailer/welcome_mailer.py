@@ -1,23 +1,23 @@
 from email.mime.text import MIMEText
-import os
 from .mail_constants import (
     STANDARD_SENDER,
     SUPPORT_LINK,
-    VERIFICATION_LINK,
-    VERIFICATION_SUBJECT,
+    WELCOME_LINK,
+    WELCOME_SUBJECT,
 )
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB
+import os
 
 
-def verification_mailer(user: User_DB, token: str):
+def welcome_mailer(user: User_DB):
 
     path = os.getcwd()
 
-    with open(f"{path}/mailer/verification-mail.html", "r", encoding="utf-8") as f:
+    with open(f"{path}/mailer/welcome-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    verification_link = f"{VERIFICATION_LINK}/{token}"
+    verification_link = f"{WELCOME_LINK}"
 
     html = html.replace("{{ user.name }}", user.first_name)
     html = html.replace("{{ verification_link }}", verification_link)
@@ -27,6 +27,6 @@ def verification_mailer(user: User_DB, token: str):
 
     msg["From"] = STANDARD_SENDER
     msg["To"] = user.email
-    msg["Subject"] = VERIFICATION_SUBJECT
+    msg["Subject"] = WELCOME_SUBJECT
 
     send_mail(user, msg)

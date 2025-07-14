@@ -5,7 +5,6 @@ from db_models.event_model import Event_DB
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
-from user.permission import Permission
 
 
 def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):

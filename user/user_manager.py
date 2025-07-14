@@ -4,6 +4,7 @@ from fastapi import Request
 from fastapi_users_pelicanq import BaseUserManager, IntegerIDMixin
 
 from db_models.user_model import User_DB
+from mailer import reset_password_mailer, verification_mailer, welcome_mailer
 
 SECRET = os.getenv("USER_MANAGER_SECRET")
 if not SECRET:
@@ -15,11 +16,13 @@ class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):
     verification_token_secret = SECRET
 
     async def on_after_register(self, user: User_DB, request: Optional[Request] = None):
-        print(f"User {user.id} has registered.")
+        # print(f"User {user.id} has registered.")
+        welcome_mailer.welcome_mailer(user)
 
     async def on_after_forgot_password(self, user: User_DB, token: str, request: Optional[Request] = None):
-        print(f"User {user.id} has forgot their password. Reset token: {token}")
+        # print(f"User {user.id} has forgot their password. Reset token: {token}")
+        reset_password_mailer.reset_password_mailer(user, token)
 
     async def on_after_request_verify(self, user: User_DB, token: str, request: Optional[Request] = None):
-        print(f"Verification requested for user {user.id}. Verification token: {token}")
-        # TODO send email to user email with token in link for verification
+        # print(f"Verification requested for user {user.id}. Verification token: {token}")
+        verification_mailer.verification_mailer(user, token)

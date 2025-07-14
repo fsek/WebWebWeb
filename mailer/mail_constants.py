@@ -16,3 +16,8 @@ VERIFICATION_LINK = "fsektionen.se"
 
 RESET_PASSWORD_SUBJECT = "Nollställ lösenord"
 RESET_PASSWORD_LINK = "fsektionen.se"
+
+## Welcome constants
+
+WELCOME_SUBJECT = "Välkommen till F-sektionen"
+WELCOME_LINK = "fsektionen.se"

@@ -1,26 +1,26 @@
-import os
 from email.mime.text import MIMEText
-from mail_constants import (
+import os
+from mailer.mail_constants import (
     RESET_PASSWORD_LINK,
     RESET_PASSWORD_SUBJECT,
     STANDARD_SENDER,
     SUPPORT_LINK,
 )
 from mailer.mail_core import send_mail
-from user_model import User_DB
+from db_models.user_model import User_DB
 
 
-def reset_password_mailer(user: User_DB):
+def reset_password_mailer(user: User_DB, token: str):
 
-    if os.getenv("ENVIRONMENT") != "production":
-        print("Email cannot be used on testing")
-        return
+    path = os.getcwd()
 
-    with open("verification-mailer.html", "r", encoding="utf-8") as f:
+    with open(f"{path}/mailer/reset-password-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
+    reset_password_url = f"{RESET_PASSWORD_LINK}/{token}"
+
     html = html.replace("{{ user.name }}", user.first_name)
-    html = html.replace("{{ reset_link }}", RESET_PASSWORD_LINK)
+    html = html.replace("{{ reset_link }}", reset_password_url)
     html = html.replace("{{ support_link }}", SUPPORT_LINK)
 
     msg = MIMEText(html, "html", "utf-8")
