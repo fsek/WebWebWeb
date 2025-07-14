@@ -7,6 +7,12 @@ from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.car_model import CarBooking_DB
 from datetime import UTC, datetime
+from db_models.car_block_model import CarBlock_DB
+
+
+def is_user_blocked(user_id: int, db: DB_dependency) -> bool:
+    block = db.query(CarBlock_DB).filter(CarBlock_DB.user_id == user_id).first()
+    return block is not None
 
 
 def overlap_query_create(

@@ -18,6 +18,7 @@ from .img_router import img_router
 from .album_router import album_router
 from .ad_router import ad_router
 from .car_renting_router import car_router
+from .car_block_router import car_block_router
 from .candidate_router import candidate_router
 from .election_router import election_router
 from .group_router import group_router
@@ -58,6 +59,8 @@ main_router.include_router(album_router, prefix="/albums", tags=["albums"])
 main_router.include_router(ad_router, prefix="/ad", tags=["ads"])
 
 main_router.include_router(car_router, prefix="/car", tags=["cars"])
+
+main_router.include_router(car_block_router, prefix="/car/block", tags=["car blocking"])
 
 main_router.include_router(election_router, prefix="/election", tags=["elections"])
 
