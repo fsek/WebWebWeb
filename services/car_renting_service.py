@@ -12,7 +12,6 @@ from datetime import UTC, datetime
 def overlap_query_create(
     booking: CarCreate,
     db: DB_dependency,
-    check_confirmed: bool,
 ):
     result = (
         db.query(CarBooking_DB)
@@ -23,7 +22,6 @@ def overlap_query_create(
                     and_(booking.end_time > CarBooking_DB.start_time, booking.end_time <= CarBooking_DB.end_time),
                     and_(booking.start_time <= CarBooking_DB.start_time, booking.end_time >= CarBooking_DB.end_time),
                 ),
-                CarBooking_DB.confirmed.is_(check_confirmed),  # Only check confirmed or unconfirmed bookings
             )
         )
         .first()
@@ -33,7 +31,7 @@ def overlap_query_create(
         return True
 
 
-def overlap_query_update(booking: CarUpdate, booking_id: int, db: DB_dependency, check_confirmed: bool):
+def overlap_query_update(booking: CarUpdate, booking_id: int, db: DB_dependency):
     result = (
         db.query(CarBooking_DB)
         .filter(
@@ -72,7 +70,6 @@ def overlap_query_update(booking: CarUpdate, booking_id: int, db: DB_dependency,
                 ),  # This checks so that there is no overlap with other bookings before being added to the table
                 # filters out the booking we are editing
                 literal(booking_id) != CarBooking_DB.booking_id,
-                CarBooking_DB.confirmed.is_(check_confirmed),  # Only check confirmed or unconfirmed bookings
             )
         )
         .first()
@@ -93,21 +90,12 @@ def create_new_booking(
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
     if data.start_time == data.end_time:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking start time cannot be equal to end time.")
-    booking_overlaps_confirmed = overlap_query_create(
+    booking_overlaps = overlap_query_create(
         booking=data,
         db=db,
-        check_confirmed=True,
     )
-
-    booking_overlaps_unconfirmed = overlap_query_create(
-        booking=data,
-        db=db,
-        check_confirmed=False,
-    )
-    if booking_overlaps_confirmed:
-        booking_confirmed = False
-    if booking_overlaps_unconfirmed and not manage_permission:
-        booking_confirmed = False
+    if booking_overlaps:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking overlaps with another booking.")
     if data.start_time < datetime.now(UTC):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking start time cannot be in the past.")
 
@@ -187,25 +175,14 @@ def booking_update(
                 status.HTTP_400_BAD_REQUEST, detail="Booking start time cannot be after nor equal to end time."
             )
 
-        booking_overlaps_confirmed = overlap_query_update(
+        booking_overlaps = overlap_query_update(
             booking=data,
             booking_id=booking_id,
             db=db,
-            check_confirmed=True,
-        )
-        booking_overlaps_unconfirmed = overlap_query_update(
-            booking=data,
-            booking_id=booking_id,
-            db=db,
-            check_confirmed=False,
         )
 
-        # Admin is trying to edit a confirmed booking that overlaps with a confirmed booking
-        if manage_permission and booking_overlaps_confirmed and booking_confirmed:
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking overlaps with another confirmed booking.")
-        # User is trying to edit a confirmed booking that overlaps with a confirmed or unconfirmed booking
-        if not manage_permission and (booking_overlaps_confirmed or booking_overlaps_unconfirmed):
-            booking_confirmed = False
+        if booking_overlaps:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking overlaps with another booking.")
 
     if not manage_permission:
         # Unconfirm booking between 17:00 and 08:00

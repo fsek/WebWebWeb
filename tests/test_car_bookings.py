@@ -125,84 +125,55 @@ def test_user_edit_autounconfirm(client, member_token, member_council_id):
     assert resp2.json()["confirmed"] is False
 
 
-def test_unconfirmed_overlap_allowed(client, member_token, member_council_id):
-    # Book unconfirmed slot
-    start = stockholm_dt(2030, 1, 12, 7)
-    end = stockholm_dt(2030, 1, 12, 9)
-    resp1 = create_booking(client, member_token, start, end, "unconfirmed1", council_id=member_council_id)
-    assert resp1.json()["confirmed"] is False
-    # Overlapping unconfirmed booking
-    resp2 = create_booking(client, member_token, start, end, "unconfirmed2", council_id=member_council_id)
-    assert resp2.status_code in (200, 201)
-    assert resp2.json()["confirmed"] is False
-
-
-def test_confirmed_overlap_not_allowed(client, admin_token, admin_council_id):
-    # Book confirmed slot
-    start = stockholm_dt(2030, 1, 13, 10)
-    end = stockholm_dt(2030, 1, 13, 12)
-    resp1 = create_booking(client, admin_token, start, end, "confirmed1", council_id=admin_council_id)
+def test_overlapping_bookings_not_allowed(client, member_token, member_council_id):
+    # Book first slot
+    start = stockholm_dt(2030, 1, 11, 10)
+    end = stockholm_dt(2030, 1, 11, 12)
+    resp1 = create_booking(client, member_token, start, end, "first booking", council_id=member_council_id)
+    assert resp1.status_code in (200, 201)
     assert resp1.json()["confirmed"] is True
-    # Overlapping booking via POST should be auto-unconfirmed
-    resp2 = create_booking(client, admin_token, start, end, "confirmed2", council_id=admin_council_id)
+
+    # Try to book overlapping slot
+    start2 = stockholm_dt(2030, 1, 11, 11)
+    end2 = stockholm_dt(2030, 1, 11, 13)
+    resp2 = create_booking(client, member_token, start2, end2, "overlapping booking", council_id=member_council_id)
+    assert resp2.status_code >= 400 and resp2.status_code < 500
+
+
+def test_admin_overlapping_bookings_not_allowed(client, admin_token, admin_council_id):
+    # Book first slot
+    start = stockholm_dt(2030, 1, 11, 10)
+    end = stockholm_dt(2030, 1, 11, 12)
+    resp1 = create_booking(client, admin_token, start, end, "admin first booking", council_id=admin_council_id)
+    assert resp1.status_code in (200, 201)
+    assert resp1.json()["confirmed"] is True
+
+    # Try to book overlapping slot
+    start2 = stockholm_dt(2030, 1, 11, 11)
+    end2 = stockholm_dt(2030, 1, 11, 13)
+    resp2 = create_booking(client, admin_token, start2, end2, "admin overlapping booking", council_id=admin_council_id)
+    assert resp2.status_code >= 400 and resp2.status_code < 500
+
+
+def test_overlap_patch_not_allowed(client, member_token, member_council_id):
+    # Book first slot
+    start = stockholm_dt(2030, 1, 10, 10)
+    end = stockholm_dt(2030, 1, 10, 12)
+    resp1 = create_booking(client, member_token, start, end, "first booking", council_id=member_council_id)
+    assert resp1.status_code in (200, 201)
+    assert resp1.json()["confirmed"] is True
+
+    # Book second slot
+    start2 = stockholm_dt(2030, 1, 10, 13)
+    end2 = stockholm_dt(2030, 1, 10, 15)
+    resp2 = create_booking(client, member_token, start2, end2, "second booking", council_id=member_council_id)
     assert resp2.status_code in (200, 201)
-    assert resp2.json()["confirmed"] is False
+    assert resp2.json()["confirmed"] is True
 
-
-def test_confirmed_overlap_patch_not_allowed(client, admin_token, admin_council_id):
-    # Book two non-overlapping confirmed slots
-    start1 = stockholm_dt(2030, 1, 15, 8)
-    end1 = stockholm_dt(2030, 1, 15, 10)
-    start2 = stockholm_dt(2030, 1, 15, 12)
-    end2 = stockholm_dt(2030, 1, 15, 14)
-    resp1 = create_booking(client, admin_token, start1, end1, "confirmed1", council_id=admin_council_id)
-    resp2 = create_booking(client, admin_token, start2, end2, "confirmed2", council_id=admin_council_id)
-    id1 = resp1.json()["booking_id"]
+    # Try to patch second booking to overlap with first
     id2 = resp2.json()["booking_id"]
-    # Try to patch booking 2 to overlap with booking 1
-    patch_resp = patch_booking(client, admin_token, id2, start_time=start1.isoformat(), end_time=end1.isoformat())
+    patch_resp = patch_booking(client, member_token, id2, start_time=start.isoformat(), end_time=end.isoformat())
     assert patch_resp.status_code >= 400 and patch_resp.status_code < 500
-
-
-def test_unconfirmed_overlap_patch_allowed(client, member_token, member_council_id):
-    # Book two non-overlapping unconfirmed slots
-    start1 = stockholm_dt(2030, 1, 18, 7)
-    end1 = stockholm_dt(2030, 1, 18, 9)
-    start2 = stockholm_dt(2030, 1, 18, 19)
-    end2 = stockholm_dt(2030, 1, 18, 21)
-    resp1 = create_booking(client, member_token, start1, end1, "unconfirmed1", council_id=member_council_id)
-    resp2 = create_booking(client, member_token, start2, end2, "unconfirmed2", council_id=member_council_id)
-    assert resp1.json()["confirmed"] is False
-    assert resp2.json()["confirmed"] is False
-
-    # Patch booking 2 to overlap with booking 1
-    id2 = resp2.json()["booking_id"]
-    patch_resp = patch_booking(client, member_token, id2, start_time=start1.isoformat(), end_time=end1.isoformat())
-    assert patch_resp.status_code == 200
-    assert patch_resp.json()["confirmed"] is False
-
-
-def test_confirmed_and_unconfirmed_patch_overlap_allowed(
-    client, admin_token, member_token, admin_council_id, member_council_id
-):
-    # Confirmed booking by admin
-    start1 = stockholm_dt(2030, 1, 19, 10)
-    end1 = stockholm_dt(2030, 1, 19, 12)
-    resp1 = create_booking(client, admin_token, start1, end1, "confirmed", council_id=admin_council_id)
-    assert resp1.json()["confirmed"] is True
-
-    # Unconfirmed booking by user (not overlapping initially)
-    start2 = stockholm_dt(2030, 1, 19, 7)
-    end2 = stockholm_dt(2030, 1, 19, 8)
-    resp2 = create_booking(client, member_token, start2, end2, "unconfirmed", council_id=member_council_id)
-    assert resp2.json()["confirmed"] is False
-
-    # Patch unconfirmed booking to overlap with confirmed
-    booking_id = resp2.json()["booking_id"]
-    new_end = stockholm_dt(2030, 1, 19, 11)  # Creates overlap
-    patch_resp = patch_booking(client, member_token, booking_id, end_time=new_end.isoformat())
-    assert patch_resp.status_code == 200
-    assert patch_resp.json()["confirmed"] is False
 
 
 def test_zero_length_booking_not_allowed(client, admin_token, admin_council_id):
@@ -219,22 +190,6 @@ def test_zero_length_booking_not_allowed(client, admin_token, admin_council_id):
         client, admin_token, booking_id, start_time=start.isoformat(), end_time=start.isoformat()
     )
     assert patch_resp.status_code >= 400 and patch_resp.status_code < 500
-
-
-def test_confirmed_and_unconfirmed_overlap_allowed(
-    client, admin_token, member_token, admin_council_id, member_council_id
-):
-    # Confirmed booking by admin
-    start = stockholm_dt(2030, 1, 14, 10)
-    end = stockholm_dt(2030, 1, 14, 12)
-    resp1 = create_booking(client, admin_token, start, end, "confirmed", council_id=admin_council_id)
-    assert resp1.json()["confirmed"] is True
-    # Overlapping unconfirmed booking by user
-    start2 = stockholm_dt(2030, 1, 14, 7)
-    end2 = stockholm_dt(2030, 1, 14, 14)
-    resp2 = create_booking(client, member_token, start2, end2, "unconfirmed overlap", council_id=member_council_id)
-    assert resp2.status_code in (200, 201)
-    assert resp2.json()["confirmed"] is False
 
 
 def test_end_before_start_not_allowed(client, admin_token, admin_council_id):
@@ -254,13 +209,17 @@ def test_end_before_start_not_allowed(client, admin_token, admin_council_id):
 def test_admin_can_select_any_council(client, admin_token, admin_council_id, member_council_id):
     start = stockholm_dt(2030, 3, 1, 10)
     end = stockholm_dt(2030, 3, 1, 12)
+    start2 = stockholm_dt(2030, 3, 1, 13)
+    end2 = stockholm_dt(2030, 3, 1, 15)
 
     # Admin should be able to book with any council
     resp = create_booking(client, admin_token, start, end, "admin council booking", council_id=admin_council_id)
     assert resp.status_code in (200, 201)
     assert resp.json()["council_id"] == admin_council_id
 
-    resp2 = create_booking(client, admin_token, start, end, "admin other council booking", council_id=member_council_id)
+    resp2 = create_booking(
+        client, admin_token, start2, end2, "admin other council booking", council_id=member_council_id
+    )
     assert resp2.status_code in (200, 201)
     assert resp2.json()["council_id"] == member_council_id
 
