@@ -35,6 +35,7 @@ def overlap_query_create(
 
     if result:
         return True
+    return False
 
 
 def overlap_query_update(booking: CarUpdate, booking_id: int, db: DB_dependency):
@@ -93,7 +94,7 @@ def create_new_booking(
 ) -> CarBooking_DB:
     booking_confirmed = True  # Default to confirmed unless conditions below change it
     if data.end_time < data.start_time:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking end time cannot be before start time.")
     if data.start_time == data.end_time:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking start time cannot be equal to end time.")
     booking_overlaps = overlap_query_create(
@@ -157,9 +158,9 @@ def booking_update(
 
     car_booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
     if car_booking is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Booking not found.")
     if (car_booking.user != current_user) and (not manage_permission):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED)
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="You do not have permission to update this booking.")
 
     if data.confirmed is not None:
         booking_confirmed = data.confirmed  # default to updated value, fallback to previous value

@@ -55,7 +55,7 @@ def remove_booking(
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="You are blocked from booking cars.")
     car_booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
     if car_booking is None:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking not found.")
     if (car_booking.user == current_user) or manage_permission:
         db.delete(car_booking)
         db.commit()
