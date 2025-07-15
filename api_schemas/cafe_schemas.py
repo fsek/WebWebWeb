@@ -1,9 +1,6 @@
-from typing import Annotated
 from api_schemas.base_schema import BaseSchema
 from api_schemas.user_schemas import SimpleUserRead
-from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from helpers.types import datetime_utc
-from pydantic import StringConstraints
 
 
 class CafeShiftRead(BaseSchema):

@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING, Annotated
 from api_schemas.base_schema import BaseSchema
-from api_schemas.event_signup_schemas import EventSignupRead
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
 from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, MEMBER_ROLES, datetime_utc

@@ -3,7 +3,6 @@ from api_schemas.car_booking_schema import CarCreate, CarRead, CarUpdate
 from database import DB_dependency
 from typing import Annotated
 from sqlalchemy import or_, and_, literal
-import database
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.car_model import CarBooking_DB

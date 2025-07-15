@@ -8,7 +8,6 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 
 if TYPE_CHECKING:
-    from user_model import User_DB
     from db_models.group_model import Group_DB
     from db_models.nollning_model import Nollning_DB
 
