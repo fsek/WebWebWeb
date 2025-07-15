@@ -69,3 +69,11 @@ MAX_COUNCIL_DESC = 2500
 # Albums
 MAX_ALBUM_TITLE = 40
 MAX_ALBUM_DESC = 123
+
+# Room booking
+MAX_ROOM_DESC = 1000
+ROOMS = [
+    "Rum1",  # room id 1
+    "Rum2",  # room id 2
+    "Rum3",  # etc
+]
