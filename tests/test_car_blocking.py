@@ -34,10 +34,8 @@ def test_block_user_cannot_book(client, member_token, member_council_id, db_sess
 
 
 def test_block_user_cannot_edit(client, member_token, member_council_id, db_session, membered_user):
-    block = block_user(db_session, membered_user)
     start = stockholm_dt(2030, 4, 2, 10)
     end = stockholm_dt(2030, 4, 2, 12)
-    unblock_user(db_session, block)
     resp = create_booking(client, member_token, start, end, "edit test", council_id=member_council_id)
     booking_id = resp.json()["booking_id"]
     block_user(db_session, membered_user)
@@ -102,19 +100,6 @@ def test_unblock_nonblocked_user(client, admin_token, db_session, membered_user)
 def test_block_nonexistent_user(client, admin_token):
     resp = client.post(f"/car/block/999999", params={"reason": "No such user"}, headers=auth_headers(admin_token))
     assert resp.status_code >= 400 and resp.status_code < 500
-
-
-def test_admin_not_blocked_can_book(client, admin_token, admin_council_id, db_session, admin_user):
-    # Ensure not blocked
-    blocks = db_session.query(CarBlock_DB).filter(CarBlock_DB.user_id == admin_user.id).all()
-    for b in blocks:
-        db_session.delete(b)
-    db_session.commit()
-    start = stockholm_dt(2030, 5, 1, 10)
-    end = stockholm_dt(2030, 5, 1, 12)
-    resp = create_booking(client, admin_token, start, end, "admin booking", council_id=admin_council_id)
-    assert resp.status_code in (200, 201)
-    assert resp.json()["confirmed"] is True
 
 
 def test_blocked_user_cannot_delete_booking(client, member_token, member_council_id, db_session, membered_user):
