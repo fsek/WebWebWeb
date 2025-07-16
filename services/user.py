@@ -1,6 +1,5 @@
 from typing import get_args
-
-from api_schemas.user_schemas import UserUpdate, UpdateUserMember
+from api_schemas.user_schemas import UpdateUserMemberMultiple, UserUpdate, UpdateUserMember
 from database import DB_dependency
 from db_models.user_model import User_DB
 from fastapi import HTTPException, status
@@ -67,3 +66,25 @@ def update_user_status(user_id: int, data: UpdateUserMember, db: DB_dependency):
         db.rollback()
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
     return user
+
+
+def update_multiple_users_status(data: list[UpdateUserMemberMultiple], db: DB_dependency):
+    if not data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No users provided for status update")
+
+    updated_users: list[User_DB] = []
+    for user_data in data:
+        user = db.query(User_DB).filter_by(id=user_data.user_id).one_or_none()
+        if user is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"User with id {user_data.user_id} not found")
+
+        user.is_member = user_data.is_member
+        updated_users.append(user)
+
+    try:
+        db.commit()
+    except DataError:
+        db.rollback()
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Error updating user statuses")
+
+    return updated_users
