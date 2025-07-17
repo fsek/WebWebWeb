@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Annotated, Literal, TypeAlias
 from pydantic import AfterValidator
+from enum import Enum
 
 
 def force_utc(date: datetime):
@@ -15,7 +16,14 @@ datetime_utc: TypeAlias = Annotated[datetime, AfterValidator(force_utc)]
 
 # a user who is a member can have some member types
 MEMBER_TYPE = Literal["member", "novice", "mentor, photographer"]
-MEMBER_ROLES = Literal["photographer", "ordförande", "dinmamma"]
+
+
+# MEMBER_ROLES = Literal["Photographer", "Ordförande", "Dinmamma"]
+class MEMBER_ROLES(str, Enum):
+    PHOTOGRAPHER = ("Photographer",)
+    ORDFORANDE = ("Ordförande",)
+    DINMAMMA = "Dinmamma"
+
 
 # With these we define special permissions beyond being just a logged-in and verified user
 # Action/Target division is just for our convenience.
