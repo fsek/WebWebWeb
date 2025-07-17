@@ -22,9 +22,7 @@ class EventUser_DB(BaseModel_DB):
     event: Mapped["Event_DB"] = relationship(back_populates="event_users")
     event_id: Mapped[int] = mapped_column(ForeignKey("event_table.id"), primary_key=True)
 
-    confirmed_status: Mapped[str] = mapped_column(
-        Enum("confirmed", "unconfirmed", name="confirmed_enum"), default="unconfirmed"
-    )
+    confirmed_status: Mapped[bool] = mapped_column(init=False, default=False)
 
     group_name: Mapped[Optional[str]] = mapped_column(default=None)
     priority: Mapped[str] = mapped_column(default="Övrigt")

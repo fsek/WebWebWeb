@@ -11,6 +11,9 @@ from user.permission import Permission
 def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
     now = datetime.now(UTC)
 
+    if not event.can_signup:
+        raise HTTPException(400, detail="Cannot signup to this event")
+
     if (event.closed) and (manage_permission == False):
         raise HTTPException(400, detail="Event is closed")
 
@@ -33,7 +36,7 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
         setattr(signup, var, value) if value else None
 
     if event.lottery == False:
-        signup.confirmed_status = "confirmed"
+        signup.confirmed_status = True
 
     db.add(signup)
 
@@ -82,8 +85,9 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
 
 
 def check_me_signup(event_id: int, me: User_DB, db: Session):
-    signup = db.query(EventUser_DB).filter_by(user_id=me.id, event_id=event_id).one_or_none()
-
+    signup = (
+        db.query(EventUser_DB).filter(EventUser_DB.user_id == me.id and EventUser_DB.event_id == event_id).one_or_none()
+    )
     if not signup:
         raise HTTPException(404, detail="Signup not found")
 
