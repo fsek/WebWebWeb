@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status
-from api_schemas.car_booking_schema import CarCreate, CarUpdate
+from api_schemas.car_booking_schema import CarBookingCreate, CarBookingUpdate
 from database import DB_dependency
 from typing import Annotated
 from sqlalchemy import or_, and_, literal
 from user.permission import Permission
 from db_models.user_model import User_DB
-from db_models.car_model import CarBooking_DB
+from db_models.car_booking_model import CarBooking_DB
 from datetime import UTC, datetime
 from db_models.car_block_model import CarBlock_DB
 
@@ -16,7 +16,7 @@ def is_user_blocked(user_id: int, db: DB_dependency) -> bool:
 
 
 def overlap_query_create(
-    booking: CarCreate,
+    booking: CarBookingCreate,
     db: DB_dependency,
 ):
     result = (
@@ -38,7 +38,7 @@ def overlap_query_create(
     return False
 
 
-def overlap_query_update(booking: CarUpdate, booking_id: int, db: DB_dependency):
+def overlap_query_update(booking: CarBookingUpdate, booking_id: int, db: DB_dependency):
     result = (
         db.query(CarBooking_DB)
         .filter(
@@ -87,7 +87,7 @@ def overlap_query_update(booking: CarUpdate, booking_id: int, db: DB_dependency)
 
 
 def create_new_booking(
-    data: CarCreate,
+    data: CarBookingCreate,
     db: DB_dependency,
     current_user: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Car")],
@@ -150,7 +150,7 @@ def create_new_booking(
 
 def booking_update(
     booking_id: int,
-    data: CarUpdate,
+    data: CarBookingUpdate,
     current_user: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Car")],
     db: DB_dependency,

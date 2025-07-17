@@ -7,7 +7,7 @@ class CarBlockRead(BaseSchema):
     user_id: int
     reason: str
     blocked_by: int
-    created_at: datetime_utc | None = None
+    created_at: datetime_utc
 
 
 class CarBlockCreate(BaseSchema):

@@ -8,7 +8,7 @@ from helpers.constants import MAX_COUNCIL_DESC
 if TYPE_CHECKING:
     from .post_model import Post_DB
     from .event_model import Event_DB
-    from .car_model import CarBooking_DB
+    from .car_booking_model import CarBooking_DB
 
 
 class Council_DB(BaseModel_DB):

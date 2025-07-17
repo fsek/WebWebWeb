@@ -3,10 +3,10 @@ from helpers.types import datetime_utc
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_CAR_DESC
-from api_schemas.council_schema import CouncilInCarRead
+from api_schemas.council_schema import CouncilInCarBookingRead
 
 
-class CarRead(BaseSchema):
+class CarBookingRead(BaseSchema):
     booking_id: int
     user_id: int
     user_first_name: str
@@ -17,18 +17,18 @@ class CarRead(BaseSchema):
     confirmed: bool
     personal: bool
     council_id: int | None = None
-    council: CouncilInCarRead | None = None
+    council: CouncilInCarBookingRead | None = None
 
 
-class CarCreate(BaseSchema):
-    description: Annotated[str, StringConstraints(max_length=MAX_CAR_DESC)] | None = None
+class CarBookingCreate(BaseSchema):
+    description: Annotated[str, StringConstraints(max_length=MAX_CAR_DESC)]
     start_time: datetime_utc
     end_time: datetime_utc
     personal: bool
     council_id: int | None = None
 
 
-class CarUpdate(BaseSchema):
+class CarBookingUpdate(BaseSchema):
     description: Annotated[str, StringConstraints(max_length=MAX_CAR_DESC)] | None = None
     start_time: datetime_utc | None = None
     end_time: datetime_utc | None = None

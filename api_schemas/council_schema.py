@@ -26,6 +26,6 @@ class CouncilInEventRead(BaseSchema):
     name: str
 
 
-class CouncilInCarRead(BaseSchema):
+class CouncilInCarBookingRead(BaseSchema):
     id: int
     name: str
