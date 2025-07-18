@@ -1,73 +1,117 @@
 from pydoc import doc
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
 from database import DB_dependency
 from db_models.document_model import Document_DB
-from api_schemas.document_schema import DocumentRead, DocumentCreate, DocumentUpdate
+from api_schemas.document_schema import DocumentRead, DocumentCreate, DocumentUpdate, document_create_form
 from db_models.user_model import User_DB
 from helpers.constants import MAX_DOC_TITLE
 from user.permission import Permission
 from fastapi import File, UploadFile, HTTPException
 import random
 import os
+import re
 from fastapi.responses import FileResponse
-
+from helpers.db_util import sanitize_title
+from sqlalchemy.exc import IntegrityError
 
 from pathlib import Path
 
 document_router = APIRouter()
 
-UPLOAD_DIR = Path("document_uploads")
-UPLOAD_DIR.mkdir(exist_ok=True)
+base_path = os.getenv("DOCUMENT_BASE_PATH")
 
 
 @document_router.get("/", response_model=list[DocumentRead])
-def get_all_documents(db: DB_dependency):
-    documents = db.query(Document_DB).all()
+def get_all_documents(db: DB_dependency, manage_permission: Annotated[bool, Permission.check("manage", "Document")]):
+    if manage_permission:
+        documents = db.query(Document_DB).all()
+    else:
+        documents = db.query(Document_DB).filter(Document_DB.is_private == False).all()
     return documents
 
 
-@document_router.post("/", dependencies=[Permission.require("manage", "Document")], response_model=dict[str, str])
-def upload_document(data: Annotated[User_DB, Permission().member()], db: DB_dependency, file: UploadFile = File()):
+@document_router.post("/", dependencies=[Permission.require("manage", "Document")], response_model=DocumentRead)
+def upload_document(
+    db: DB_dependency,
+    uploader: Annotated[User_DB, Permission.member()],
+    data: DocumentCreate = Depends(document_create_form),
+    file: UploadFile = File(),
+):
+
     if file.filename is None:
         raise HTTPException(400, detail="The file has no name")
 
-    if len(file.filename) > MAX_DOC_TITLE:
+    filename, ext = os.path.splitext(str(file.filename))
+
+    sanitized_filename = sanitize_title(filename)
+
+    if len(sanitized_filename) > MAX_DOC_TITLE:
         raise HTTPException(400, detail="The file name is too long")
 
-    salt = random.getrandbits(24)
-    filename = f"{salt}{file.filename.replace(' ', '')}"
-    file_path = UPLOAD_DIR / filename
+    allowed_exts = {".pdf"}
 
+    ext = ext.lower()
+
+    if ext not in allowed_exts:
+        raise HTTPException(400, "File extension not allowed")
+
+    file.filename = f"{sanitized_filename}{ext}"
+
+    file_path = Path(f"{base_path}/{sanitized_filename}{ext}")
     if file_path.is_file():
-        raise HTTPException(400, detail="Filename is equal to already existing file")
+        raise HTTPException(409, detail="Filename is equal to already existing file")
+
+    document = Document_DB(
+        title=data.title,
+        category=data.category,
+        is_private=data.is_private,
+        file_name=f"{sanitized_filename}{ext}",
+        author_id=uploader.id,
+    )
+
+    try:
+        db.add(document)
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        print(uploader.id)
+        print(str(e.orig))
+        raise HTTPException(400, detail="Something is invalid")
 
     file_path.write_bytes(file.file.read())
-    doc = Document_DB(title=file.filename, path=str(filename), salt=salt)
-    db.add(doc)
-    db.commit()
-    return {"message": "File saved successfully"}
+
+    return document
 
 
-@document_router.get("/{document_id}", response_model=DocumentRead)
-def get_document_by_id(document_id: int, db: DB_dependency):
-    document = db.query(Document_DB).filter(Document_DB.document_id == document_id).one_or_none()
+@document_router.get("/document_data/{document_id}", response_model=DocumentRead)
+def get_document_data_by_id(
+    document_id: int, db: DB_dependency, manage_permission: Annotated[bool, Permission.check("manage", "Document")]
+):
+    document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
     if document is None:
         raise HTTPException(404, detail="Document not found")
 
-    file_path = UPLOAD_DIR / document.path
+    if document.is_private and not manage_permission:
+        raise HTTPException(401, detail="Document is private, check your permissions m8")
 
+    return document
+
+
+@document_router.get("/document_file/{document_id}")
+def get_document_file_by_id(
+    document_id: int, db: DB_dependency, manage_permission: Annotated[bool, Permission.check("manage", "Document")]
+):
+    document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
+    if document is None:
+        raise HTTPException(404, detail="Document not found")
+
+    if document.is_private and not manage_permission:
+        raise HTTPException(401, detail="Document is private, check your permissions m8")
+
+    file_path = Path(f"{base_path}/{document.file_name}")
     if not file_path.exists():
-        available_files = "\n".join(os.listdir(UPLOAD_DIR))
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "message": "File not found",
-                "expected_path": str(file_path),
-                "available_files": available_files,
-                "stored_filename": document.path,
-            },
-        )
+        raise HTTPException(418, detail="Something is very cooked, contact the Webmasters pls!")
 
-    return FileResponse(file_path, filename=document.title, media_type="application/octet-stream")
+    return FileResponse(file_path, filename=document.file_name, media_type="application/octet-stream")
