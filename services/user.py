@@ -1,9 +1,9 @@
 from typing import get_args
-from api_schemas.user_schemas import UserUpdate, UpdateUserMember
+from api_schemas.user_schemas import UpdateUserMemberMultiple, UserUpdate, UpdateUserMember
 from database import DB_dependency
 from db_models.user_model import User_DB
 from fastapi import HTTPException, status
-from sqlalchemy.exc import DataError
+from sqlalchemy.exc import DataError, NoResultFound, MultipleResultsFound
 import re
 from helpers.types import FOOD_PREFERENCES
 
@@ -20,10 +20,14 @@ def condition(model, asset):
 
 
 def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
-    user = db.query(User_DB).filter_by(id=user_id).one()
-
-    if not user:
+    try:
+        user = db.query(User_DB).filter_by(id=user_id).one()
+    except NoResultFound:
         raise HTTPException(404, detail="User not found")
+    except MultipleResultsFound:
+        # Probably shouldn't happen
+        print("ERROR: Multiple users found with the same ID:", user_id)
+        raise HTTPException(500, detail="Multiple users found with the same ID")
 
     if data.stil_id:
         if not check_stil_id(data.stil_id):
@@ -62,3 +66,25 @@ def update_user_status(user_id: int, data: UpdateUserMember, db: DB_dependency):
         db.rollback()
         raise HTTPException(status.HTTP_400_BAD_REQUEST)
     return user
+
+
+def update_multiple_users_status(data: list[UpdateUserMemberMultiple], db: DB_dependency):
+    if not data:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No users provided for status update")
+
+    updated_users: list[User_DB] = []
+    for user_data in data:
+        user = db.query(User_DB).filter_by(id=user_data.user_id).one_or_none()
+        if user is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"User with id {user_data.user_id} not found")
+
+        user.is_member = user_data.is_member
+        updated_users.append(user)
+
+    try:
+        db.commit()
+    except DataError:
+        db.rollback()
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Error updating user statuses")
+
+    return updated_users

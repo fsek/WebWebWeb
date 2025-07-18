@@ -1,5 +1,8 @@
 FROM python:3.12-slim
 
+RUN apt-get update && \
+    apt-get install -y libpq-dev
+
 ENV ENVIRONMENT=production
 
 ARG USERNAME=deployuser
@@ -21,6 +24,7 @@ RUN python3 -m venv venv
 
 COPY . .
 
+# installing psycopg2-binary is perhaps not needed since we try to use psycopg3 (called "psycopg")
 RUN . venv/bin/activate && pip install --no-cache-dir -r requirements.txt && pip install psycopg2-binary
 
 EXPOSE 8000

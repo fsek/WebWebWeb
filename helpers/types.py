@@ -64,3 +64,9 @@ DOOR_ACCESSES = Literal[
 # Standard food preferences the user can put on their account
 
 FOOD_PREFERENCES = Literal["Vegetarian", "Vegan", "Pescetarian", "Mjölkallergi", "Gluten"]
+
+DRINK_PACKAGES = Literal["None", "AlcoholFree", "Alcohol"]
+
+ALCOHOL_EVENT_TYPES = Literal["Alcohol", "Alcohol-Served", "None"]
+
+EVENT_DOT_TYPES = Literal["None", "Single", "Double"]

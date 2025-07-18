@@ -215,6 +215,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="view", target="Nollning", posts=["Buggmästare"]),
         Permission(action="manage", target="Council", posts=["Buggmästare"]),
         Permission(action="view", target="Council", posts=["Buggmästare"]),
+        Permission(action="manage", target="User", posts=["Buggmästare"]),
     ]
 
     [[post.permissions.append(perm.degenerate()) for perm in permissions if post.name in perm.posts] for post in posts]
@@ -238,6 +239,11 @@ def seed_events(db: Session, one_council: Council_DB):
         signup_start=signup_start,
         signup_end=signup_end,
         location="Mattehuset",
+        dress_code="vad du vill",
+        price=123,
+        alcohol_event_type="Alcohol",
+        dot="Double",
+        lottery=False,
     )
     db.add(event)
     db.commit()
