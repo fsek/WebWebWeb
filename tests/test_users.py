@@ -27,6 +27,73 @@ def test_register_duplicate_user(client, user1_data):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+def test_change_password_user(client, registered_user):
+    """Test changing password for a registered user"""
+    # Registration happens in the fixture, so we can directly test password change
+    login_data = {"username": registered_user["email"], "password": registered_user["password"]}
+    login_response = client.post("/auth/login", data=login_data)
+    token = login_response.json()["access_token"]
+
+    new_password = "new_secure_password"
+    change_password_data = {
+        "username": registered_user["email"],
+        "password": registered_user["password"],
+        "new_password": new_password,
+    }
+
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/x-www-form-urlencoded"}
+    response = client.patch("/auth/update-password", data=change_password_data, headers=headers)
+
+    assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    # Verify that session is invalidated after password change
+    # Attempt to access a protected route with the old session token
+    response = client.post("/auth/refresh", headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+    # Verify that the old password no longer works
+    login_data["password"] = registered_user["password"]
+    response = client.post("/auth/login", data=login_data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    # Verify that the new password works
+    login_data["password"] = new_password
+    response = client.post("/auth/login", data=login_data)
+    assert response.status_code == status.HTTP_200_OK
+
+
+def test_change_email_user(client, registered_user, db_session):
+    """Test changing email for a registered user"""
+    # Registration happens in the fixture, so we can directly test email change
+    login_data = {"username": registered_user["email"], "password": registered_user["password"]}
+    login_response = client.post("/auth/login", data=login_data)
+    token = login_response.json()["access_token"]
+
+    new_email = "hilbert_himself@fsektionen.se"  # New email for the user
+    change_email_data = {
+        "username": registered_user["email"],
+        "password": registered_user["password"],
+        "new_email": new_email,
+    }
+    headers = {"Authorization": f"Bearer {token}", "Content-Type": "application/x-www-form-urlencoded"}
+    response = client.patch("/auth/update-email", data=change_email_data, headers=headers)
+    assert response.status_code == status.HTTP_200_OK
+    # Verify that the old email no longer works
+    login_data["username"] = registered_user["email"]
+    response = client.post("/auth/login", data=login_data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    # Verify that the new email works
+    login_data["username"] = new_email
+    response = client.post("/auth/login", data=login_data)
+    assert response.status_code == status.HTTP_200_OK
+    # Verify that the user's email is no longer verified
+    from db_models.user_model import User_DB
+
+    db_user = db_session.query(User_DB).filter_by(email=new_email).one()
+    assert db_user.email == new_email
+    assert db_user.is_verified is False
+
+
 def test_login_user(client, registered_user):
     """Test user login after registration"""
     # Registration happens in the fixture, so we can directly test login
