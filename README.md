@@ -3,7 +3,7 @@
 This repo uses VSCode's Dev Containers extension to standardize the development environment and avoid headache-inducing installation. All development will happen inside a Docker container which installs the same dependencies and versions on every developer's machine.
 
 ## Installation
-0. Using Windows? First set up WSL 2.
+0. Using Windows? First set up WSL  2.
     - Press Windows `⊞` -> "Turn Windows features on or off". Enable "Windows Subsystem for Linux", might need to enable "Virtual Machine Platform" also.
     - Open Powershell as admin.
     - `wsl --install`  
