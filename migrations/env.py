@@ -10,7 +10,7 @@ from db_models import (
     cafe_shift_model,
     candidate_model,
     candidate_post_model,
-    car_model,
+    car_booking_model,
     council_model,
     election_model,
     election_post_model,

@@ -24,3 +24,8 @@ class CouncilUpdate(BaseSchema):
 class CouncilInEventRead(BaseSchema):
     id: int
     name: str
+
+
+class CouncilInCarBookingRead(BaseSchema):
+    id: int
+    name: str
