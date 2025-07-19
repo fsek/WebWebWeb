@@ -113,3 +113,24 @@ def get_document_file_by_id(
         raise HTTPException(418, detail="Something is very cooked, contact the Webmasters pls!")
 
     return FileResponse(file_path, filename=document.file_name, media_type="application/octet-stream")
+
+
+@document_router.delete(
+    "/delete_document/{document_id}",
+    response_model=DocumentRead,
+    dependencies=[Permission.require("manage", "Document")],
+)
+def delete_document(document_id: int, db: DB_dependency):
+    document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
+    if document is None:
+        raise HTTPException(404, detail="Document not found")
+
+    try:
+        db.delete(document)
+        db.commit()
+    except IntegrityError:
+        raise HTTPException(500, detail="Something went wrong trying to delete the document, contact the Webmasters")
+
+    os.remove(f"{base_path}/{document.file_name}")
+
+    return document
