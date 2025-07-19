@@ -8,18 +8,11 @@ from helpers.constants import MAX_IMG_NAME
 import random
 import os
 import re
+from helpers.db_util import sanitize_title
+from sqlalchemy.exc import IntegrityError
 
 
-def normalize_swedish(text: str) -> str:
-    replacements = {"å": "a", "ä": "a", "ö": "o", "Å": "A", "Ä": "A", "Ö": "O"}
-    return "".join(replacements.get(c, c) for c in text)
-
-
-def sanitize_title(text: str) -> str:
-    title = normalize_swedish(text)
-    title = re.sub(r"[^a-z0-9]", "", title)
-
-    return title
+base_path = os.getenv("ALBUM_BASE_PATH")
 
 
 def upload_img(db: Session, album_id: int, file: UploadFile = File()):
@@ -47,21 +40,30 @@ def upload_img(db: Session, album_id: int, file: UploadFile = File()):
     if ext not in allowed_exts:
         raise HTTPException(400, "file extension not allowed")
 
-    BASE_UPLOAD_DIR = Path("/albums")
+    BASE_UPLOAD_DIR = Path(f"{base_path}")
 
     album_dir = (BASE_UPLOAD_DIR / album.path).resolve()
 
     if not str(album_dir).startswith(str(BASE_UPLOAD_DIR)):
         raise HTTPException(400, "Invalid album path")
 
+    file.filename = sanitized_filename
+
     file_path = Path(f"/{album.path}/{salt}{sanitized_filename}{ext}")
     if file_path.is_file():
         raise HTTPException(409, detail="Filename is equal to already existing file")
 
-    file_path.write_bytes(file.file.read())
     img = Img_DB(path=file_path.name, album_id=album_id)
-    db.add(img)
-    db.commit()
+
+    try:
+        db.add(img)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(400, detail="Invalid tag name")
+
+    file_path.write_bytes(file.file.read())
+
     return {"message": "File saved successfully"}
 
 

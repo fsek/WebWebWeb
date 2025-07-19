@@ -6,6 +6,7 @@ from db_models.album_model import Album_DB
 from db_models.candidate_model import Candidate_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
+from db_models.document_model import Document_DB
 from .user_door_access_model import UserDoorAccess_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import FOOD_PREFERENCES, MEMBER_TYPE
@@ -111,6 +112,8 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     )
 
     photographed_albums: Mapped[list[Album_DB]] = relationship(back_populates="photographer", init=False)
+
+    uploaded_documents: Mapped[list[Document_DB]] = relationship(back_populates="author", init=False)
 
     # notifications: Mapped[list["Notification_DB"]]
     # fredmansky: Mapped["Fredmansky_DB"] should not be implemented like this I think //Benjamin

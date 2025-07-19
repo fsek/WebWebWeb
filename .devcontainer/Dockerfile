@@ -23,7 +23,8 @@ ENV DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres
 ENV REDIS_URL="redis://localhost:6379/0"
 ENV TEST_DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres_test"
 ENV USER_MANAGER_SECRET="debug_secret_dont_use_in_prod"
-
+ENV DOCUMENT_BASE_PATH="/documents"
+ENV ALBUM_BASE_PATH="/albums"
 
 # In prod we must NOT run our container with root user, security risk. 
 # In the future I think we should use non-root user event in dev to make environment similar to prod

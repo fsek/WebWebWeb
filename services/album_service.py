@@ -5,28 +5,21 @@ from db_models.album_model import Album_DB
 from pathlib import Path
 import os
 import re
+from helpers.db_util import sanitize_title
+
 
 from db_models.user_model import User_DB
 
 
-def normalize_swedish(text: str) -> str:
-    replacements = {"å": "a", "ä": "a", "ö": "o", "Å": "A", "Ä": "A", "Ö": "O"}
-    return "".join(replacements.get(c, c) for c in text)
-
-
-def sanitize_title(text: str) -> str:
-    title = normalize_swedish(text)
-    title = re.sub(r"[^a-z0-9]", "", title)
-
-    return title
+base_path = os.getenv("ALBUM_BASE_PATH")
 
 
 def add_album(db: Session, album: AlbumCreate):
 
-    file_path = Path(f"/albums/{album.year}/{sanitize_title(album.title_sv)}")
+    file_path = Path(f"{base_path}/{album.year}/{sanitize_title(album.title_sv)}")
 
-    if not Path(f"/albums/{album.year}").exists():
-        os.mkdir(f"/albums/{album.year}")
+    if not Path(f"{base_path}/{album.year}").exists():
+        os.mkdir(f"{base_path}/{album.year}")
 
     if file_path.is_dir() or file_path.is_file():
         raise HTTPException(409, detail="album or file already exists")
@@ -95,7 +88,7 @@ def delete_album(db: Session, id: int):
 
 
 def delete_year(db: Session, year: int):
-    path = Path(f"/albums/{year}")
+    path = Path(f"{base_path}/{year}")
     if not path.exists():
         raise HTTPException(404, detail="Year not in database")
 
