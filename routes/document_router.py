@@ -134,3 +134,19 @@ def delete_document(document_id: int, db: DB_dependency):
     os.remove(f"{base_path}/{document.file_name}")
 
     return document
+
+
+@document_router.patch(
+    "patch_document/{document_id}", response_model=DocumentRead, dependencies=[Permission.require("manage", "Document")]
+)
+def update_document(document_id: int, db: DB_dependency, data: DocumentUpdate):
+    document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
+    if document is None:
+        raise HTTPException(404, detail="Document not found")
+
+    for var, value in vars(data).items():
+        setattr(document, var, value) if value is not None else None
+
+    db.commit()
+    db.refresh(document)
+    return document
