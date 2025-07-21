@@ -81,8 +81,6 @@ async def send_verfication(me: Annotated[User_DB, Permission.primitive()], redis
 
     await redis.setex(f"verif:{hashed_token}", 24 * 3600, me.id)
 
-    print(f"Verification token for {me.id}: {token}")
-
     verification_mailer(me, token)
 
 
