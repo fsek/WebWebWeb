@@ -82,9 +82,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
         back_populates="user", cascade="all, delete-orphan", init=False
     )
 
-    cafe_shifts: Mapped[list["CafeShift_DB"]] = relationship(
-        back_populates="user", cascade="all, delete-orphan", init=False
-    )
+    cafe_shifts: Mapped[list["CafeShift_DB"]] = relationship(back_populates="user", init=False)
 
     standard_food_preferences: Mapped[list[str]] = mapped_column(JSON, init=False, default=list)
 

@@ -5,7 +5,7 @@ from typing import Annotated
 from database import DB_dependency
 from db_models.user_model import User_DB
 from db_models.cafe_shift_model import CafeShift_DB
-from api_schemas.cafe_schemas import CafeShiftCreate, CafeShiftRead, CafeShiftUpdate
+from api_schemas.cafe_schemas import CafeShiftCreate, CafeShiftRead, CafeShiftUpdate, CafeViewBetweenDates
 from user.permission import Permission
 from helpers.types import datetime_utc
 from datetime import UTC, datetime
@@ -27,15 +27,19 @@ def view_shift(shift_id: int, db: DB_dependency):
     return shift
 
 
-@cafe_shift_router.get("/view-between-dates", dependencies=[Permission.member()], response_model=list[CafeShiftRead])
-def view_shifts_between_dates(start_date: datetime_utc, end_date: datetime_utc, db: DB_dependency):
-    shifts = db.query(CafeShift_DB).filter(CafeShift_DB.starts_at >= start_date, CafeShift_DB.ends_at <= end_date)
-    if shifts.count() == 0:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No shifts between selected dates")
+# Var tvungen att göra en fuling och göra detta till en POST för att kunna skicka med en JSON body. Det var problem med att parsa datetimes om de skickades med som fält.
+@cafe_shift_router.post("/view-between-dates", dependencies=[Permission.member()], response_model=list[CafeShiftRead])
+def view_shifts_between_dates(data: CafeViewBetweenDates, db: DB_dependency):
+    shifts = (
+        db.query(CafeShift_DB)
+        .filter(CafeShift_DB.starts_at >= data.start_date, CafeShift_DB.ends_at <= data.end_date)
+        .all()
+    )
+
     return shifts
 
 
-@cafe_shift_router.post("/", dependencies=[Permission.require("manage", "Cafe")], response_model=CafeShiftCreate)
+@cafe_shift_router.post("/", dependencies=[Permission.require("manage", "Cafe")], response_model=CafeShiftRead)
 def create_shift(data: CafeShiftCreate, db: DB_dependency):
     start = data.starts_at
     end = data.ends_at

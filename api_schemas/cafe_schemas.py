@@ -23,3 +23,8 @@ class CafeShiftUpdate(BaseSchema):
     starts_at: datetime_utc | None = None
     ends_at: datetime_utc | None = None
     user_id: int | None = None
+
+
+class CafeViewBetweenDates(BaseSchema):
+    start_date: datetime_utc
+    end_date: datetime_utc
