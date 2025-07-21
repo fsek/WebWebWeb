@@ -9,6 +9,7 @@ from mailer.verification_mailer import verification_mailer
 from services import user as user_service
 from user.permission import Permission
 from api_schemas.post_schemas import PostRead
+import hashlib
 
 user_router = APIRouter()
 
@@ -73,7 +74,14 @@ def get_user_posts(user_id: int, db: DB_dependency):
 async def send_verfication(me: Annotated[User_DB, Permission.primitive()], redis: redis.Redis = Depends(get_redis)):
 
     token = str(uuid.uuid4())
-    await redis.setex(f"verif:{token}", 24 * 3600, me.id)
+
+    # To be a bit overly secure, we hash the token before storing it
+    # An intruder with a hashed token cannot use it directly, it'd get hashed again before checking
+    hashed_token = hashlib.sha256(token.encode()).hexdigest()
+
+    await redis.setex(f"verif:{hashed_token}", 24 * 3600, me.id)
+
+    print(f"Verification token for {me.id}: {token}")
 
     verification_mailer(me, token)
 
@@ -89,14 +97,16 @@ async def verify_mail(
     redis: redis.Redis = Depends(get_redis),
 ):
 
-    user_id = await redis.get(f"verif:{token}")
+    hashed_token = hashlib.sha256(token.encode()).hexdigest()
+
+    user_id = await redis.get(f"verif:{hashed_token}")
     if not user_id:
         raise HTTPException(
             status.HTTP_404_NOT_FOUND,
             detail="Invalid or expired verification token",
         )
 
-    redis.delete(f"verif:{token}")
+    await redis.delete(f"verif:{hashed_token}")
 
     user_id = int(user_id)
 
