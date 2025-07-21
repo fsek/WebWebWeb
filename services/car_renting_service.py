@@ -1,5 +1,6 @@
 from fastapi import HTTPException, status
 from api_schemas.car_booking_schema import CarBookingCreate, CarBookingUpdate
+from db_models.council_model import Council_DB
 from database import DB_dependency
 from typing import Annotated
 from sqlalchemy import or_, and_, literal
@@ -124,6 +125,12 @@ def create_new_booking(
     if data.personal and data.council_id is not None:
         data.council_id = None
 
+    # Check if the council_id is valid
+    if data.council_id is not None:
+        council = db.query(Council_DB).filter(Council_DB.id == data.council_id).one_or_none()
+        if council is None:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid council ID.")
+
     # Disallow regular users from booking cars for other councils
     if not manage_permission and data.council_id is not None:  # For safety, we don't care if it is a personal booking
         if data.council_id not in [post.council_id for post in current_user.posts]:
@@ -209,6 +216,12 @@ def booking_update(
     if data.personal and data.council_id is not None:
         data.council_id = None
 
+    # Check if the council_id is valid
+    if data.council_id is not None:
+        council = db.query(Council_DB).filter(Council_DB.id == data.council_id).one_or_none()
+        if council is None:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid council ID.")
+
     # Disallow regular users from booking cars for other councils
     if not manage_permission and data.council_id is not None:
         if data.council_id not in [post.council_id for post in current_user.posts]:
@@ -229,16 +242,10 @@ def booking_update(
 
     car_booking.confirmed = booking_confirmed
 
-    if data.description is not None:
-        car_booking.description = data.description
-    if data.start_time is not None:
-        car_booking.start_time = data.start_time
-    if data.end_time is not None:
-        car_booking.end_time = data.end_time
-    if data.personal is not None:
-        car_booking.personal = data.personal
-    if data.council_id is not None:
-        car_booking.council_id = data.council_id
+    for attr in ["description", "start_time", "end_time", "personal", "council_id"]:
+        value = getattr(data, attr, None)
+        if value is not None:
+            setattr(car_booking, attr, value)
 
     db.commit()
 
