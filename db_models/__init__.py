@@ -11,6 +11,8 @@ from .song_model import Song_DB
 from .song_category_model import SongCategory_DB
 from .ad_model import BookAd_DB
 from .priority_model import Priority_DB
+from .car_booking_model import CarBooking_DB
+from .car_block_model import CarBlock_DB
 
 
 # Import all models that exist into this file and list them in __all__
@@ -30,4 +32,6 @@ __all__ = [
     "Song_DB",
     "SongCategory_DB",
     "BookAd_DB",
+    "CarBooking_DB",
+    "CarBlock_DB",
 ]
