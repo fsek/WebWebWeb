@@ -16,6 +16,6 @@ def delete_image(db: DB_dependency, id: int):
     return remove_img(db, id)
 
 
-@img_router.get("/{id}")
+@img_router.get("/{id}", dependencies=[Permission.require("view", "Gallery")])
 def get_image(db: DB_dependency, id: int):
     return get_single_img(db, id)
