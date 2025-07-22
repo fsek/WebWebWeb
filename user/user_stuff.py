@@ -29,12 +29,12 @@ if os.getenv("ENVIRONMENT") == "production":
         cookie_secure=True,  # Secure cookie for production
         cookie_httponly=True,  # HttpOnly to prevent JavaScript access
     )
-elif os.getenv("ENVIRONMENT") == "staging":
+elif os.getenv("ENVIRONMENT") == "stage":
     cookie_transport = CookieTransport(
-        cookie_name="_fsek_refresh_token",
+        cookie_name="_fsek_stage_refresh_token",
         cookie_max_age=LOGIN_TIMEOUT,
         cookie_samesite="lax",
-        cookie_domain=None,  # Use default domain for local development
+        cookie_domain="fsektionen.se",  # Use default domain for local development
         cookie_path="/auth",
         cookie_secure=True,
         cookie_httponly=True,  # HttpOnly to prevent JavaScript access

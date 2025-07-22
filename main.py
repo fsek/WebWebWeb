@@ -39,6 +39,8 @@ dev_origins = [
     "http://localhost:3000",
 ]
 
+stage_origins = ["https://stage.frontend.fsektionen.se"]
+
 app = FastAPI(
     lifespan=lifespan,
     redoc_url=None if no_docs else "/redoc",
@@ -50,6 +52,15 @@ if os.getenv("ENVIRONMENT") == "development":
     app.add_middleware(
         CORSMiddleware,
         allow_origins=dev_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+if os.getenv("ENVIRONMENT") == "stage":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=stage_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
