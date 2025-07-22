@@ -1,10 +1,12 @@
 from fastapi import APIRouter
+from httpx import post
 from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB
 from api_schemas.post_schemas import PostRead, PostCreate, PostUpdate
 from user.permission import Permission
 from fastapi import status, HTTPException
+from api_schemas.user_schemas import SimpleUserRead
 
 post_router = APIRouter()
 
@@ -54,3 +56,11 @@ def update_post(post_id: int, updated_post: PostUpdate, db: DB_dependency):
 def get_post(post_id: int, db: DB_dependency):
     post = db.query(Post_DB).filter(Post_DB.id == post_id).one_or_none()
     return post
+
+
+@post_router.get("/users/{post_id}", response_model=list[SimpleUserRead])
+def get_all_users_with_post(post_id: int, db: DB_dependency):
+    posts = db.query(Post_DB).filter_by(id=post_id).one_or_none()
+    if posts is None:
+        raise HTTPException(404, detail="Post not found")
+    return posts.users

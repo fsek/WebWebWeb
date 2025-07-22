@@ -3,7 +3,7 @@ from api_schemas.base_schema import BaseSchema
 from api_schemas.event_signup_schemas import EventSignupRead
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
-from helpers.types import MEMBER_ROLES, datetime_utc
+from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, MEMBER_ROLES, datetime_utc
 from pydantic import StringConstraints
 
 if TYPE_CHECKING:
@@ -26,15 +26,18 @@ class EventRead(BaseSchema):
     max_event_users: int
     priorities: list[Priority_DB]
     all_day: bool
-    signup_not_opened_yet: bool
     recurring: bool
-    drink: bool
     food: bool
-    cash: bool
     closed: bool
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
+    alcohol_event_type: str
+    dress_code: str
+    price: int
+    signup_count: int
+    dot: str
+    lottery: bool
 
 
 # we dont need to be as strict about out data as in data.
@@ -55,18 +58,21 @@ class EventCreate(BaseSchema):
     max_event_users: int
     priorities: list[MEMBER_ROLES]
     all_day: bool
-    signup_not_opened_yet: bool
     recurring: bool
-    drink: bool
     food: bool
-    cash: bool
     closed: bool
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
+    alcohol_event_type: ALCOHOL_EVENT_TYPES
+    dress_code: str
+    price: int
+    dot: EVENT_DOT_TYPES
+    lottery: bool
 
 
 class EventUpdate(BaseSchema):
+    council_id: int | None = None
     starts_at: datetime_utc | None = None
     ends_at: datetime_utc | None = None
     signup_start: datetime_utc | None = None
@@ -75,18 +81,20 @@ class EventUpdate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_TITLE)] | None = None
     description_sv: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)] | None = None
-    location: str
+    location: str | None = None
     max_event_users: int | None = None
     all_day: bool | None = None
-    signup_not_opened_yet: bool | None = None
     recurring: bool | None = None
-    drink: bool | None = None
     food: bool | None = None
-    cash: bool | None = None
     closed: bool | None = None
     can_signup: bool | None = None
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
+    priorities: list[MEMBER_ROLES] | None = None
+    alcohol_event_type: ALCOHOL_EVENT_TYPES | None = None
+    dress_code: str | None = None
+    price: int | None = None
+    dot: EVENT_DOT_TYPES | None = None
 
 
 class AddEventTag(BaseSchema):

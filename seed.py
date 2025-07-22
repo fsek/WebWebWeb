@@ -14,6 +14,7 @@ from api_schemas.user_schemas import UserCreate
 from db_models.song_category_model import SongCategory_DB
 from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
+from db_models.document_model import Document_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
@@ -174,6 +175,9 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm34 = Permission_DB(action="manage", target="Nollning")
     perm36 = Permission_DB(action="view", target="Nollning")
 
+    perm90 = Permission_DB(action="view", target="Document")
+    perm91 = Permission_DB(action="manage", target="Document")
+
     posts[0].permissions.append(perm1)
     posts[0].permissions.append(perm2)
     posts[1].permissions.append(perm3)
@@ -193,6 +197,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm36)
     posts[0].permissions.append(perm69)
     posts[0].permissions.append(perm1337)
+    posts[0].permissions.append(perm90)
+    posts[0].permissions.append(perm91)
 
     permissions = [
         Permission(action="manage", target="Permission", posts=["Buggmästare"]),
@@ -239,6 +245,11 @@ def seed_events(db: Session, one_council: Council_DB):
         signup_start=signup_start,
         signup_end=signup_end,
         location="Mattehuset",
+        dress_code="vad du vill",
+        price=123,
+        alcohol_event_type="Alcohol",
+        dot="Double",
+        lottery=False,
     )
     db.add(event)
     db.commit()
