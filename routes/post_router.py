@@ -1,5 +1,4 @@
 from fastapi import APIRouter
-from httpx import post
 from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB

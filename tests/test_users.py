@@ -34,7 +34,7 @@ def test_change_password_user(client, registered_user):
     login_response = client.post("/auth/login", data=login_data)
     token = login_response.json()["access_token"]
 
-    new_password = "new_secure_password"
+    new_password = "new_secure_password69"
     change_password_data = {
         "username": registered_user["email"],
         "password": registered_user["password"],

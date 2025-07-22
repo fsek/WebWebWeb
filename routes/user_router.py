@@ -1,5 +1,4 @@
 from typing import Annotated, Optional
-
 from sqlalchemy import ColumnElement, and_, or_
 from db_models import permission_model
 from fastapi import APIRouter, HTTPException, Query, status
@@ -30,7 +29,7 @@ def admin_get_user(user_id: int, db: DB_dependency):
 
 
 @user_router.get("/me", response_model=AdminUserRead)
-def get_me(user: Annotated[User_DB, Permission.base()]):
+def get_me(user: Annotated[User_DB, Permission.primitive()]):
     return user
 
 
@@ -80,6 +79,7 @@ def get_user_posts(user_id: int, db: DB_dependency):
     return user.posts
 
 
+# Verification routes can be found in auth_router.py
 @user_router.get("/search/", response_model=list[UserRead], dependencies=[Permission.require("view", "User")])
 def search_users(
     db: DB_dependency,

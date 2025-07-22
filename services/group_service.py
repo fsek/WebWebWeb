@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from api_schemas.group_schema import GroupAddUser, GroupCreate, GroupRead, GroupRemoveUser
+from api_schemas.group_schema import GroupAddUser, GroupCreate, GroupRemoveUser
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from db_models.user_model import User_DB

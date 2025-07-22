@@ -1,9 +1,8 @@
 from typing import Literal, TYPE_CHECKING
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from sqlalchemy import ForeignKey, String, DateTime
+from sqlalchemy import ForeignKey
 from helpers.types import datetime_utc, DOOR_ACCESSES
-from datetime import datetime
 
 
 # from user_model import User_DB

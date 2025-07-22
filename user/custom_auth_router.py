@@ -134,7 +134,7 @@ def get_auth_router(
         user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
         strategy: RefreshStrategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
-        user, token = user_token
+        user, _ = user_token
         response = await backend.logout_all_sessions(strategy, user)
         return response
 

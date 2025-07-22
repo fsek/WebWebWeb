@@ -1,6 +1,5 @@
 from datetime import datetime
 from api_schemas.base_schema import BaseSchema
-from db_models.adventure_mission_model import AdventureMission_DB
 
 
 class AdventureMissionCreate(BaseSchema):

@@ -1,4 +1,3 @@
-from datetime import datetime
 from helpers.types import datetime_utc
 from typing import TYPE_CHECKING, Optional
 from db_models.base_model import BaseModel_DB

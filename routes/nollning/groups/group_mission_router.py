@@ -44,7 +44,7 @@ def add_completed_mission_to_group(db: DB_dependency, data: GroupMissionCreate, 
         db.add(mission_group)
         db.commit()
 
-    except IntegrityError as e:
+    except IntegrityError as _:
         db.rollback()
 
         raise HTTPException(400, detail="Group has already completed mission")

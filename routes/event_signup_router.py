@@ -1,15 +1,12 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
-from api_schemas.user_schemas import UserRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
-from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from services.event_signup_service import signup_to_event, signoff_from_event, update_event_signup, check_me_signup
 from user.permission import Permission
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupRead, EventSignupUpdate
-from pydantic_extra_types.phone_numbers import PhoneNumber
-from api_schemas.event_schemas import EventRead
+
 
 event_signup_router = APIRouter()
 
