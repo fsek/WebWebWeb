@@ -103,4 +103,4 @@ def remove_completed_mission_from_group(db: DB_dependency, nollning_id: int, dat
     "/", dependencies=[Permission.require("view", "Nollning")], response_model=list[GroupMissionRead]
 )
 def get_completed_missions_from_group(db: DB_dependency, nollning_id: int, group_id: int):
-    return db.query(GroupMission_DB).filter(GroupMission_DB.nollning_group_id == group_id)
+    return db.query(GroupMission_DB).filter(GroupMission_DB.nollning_group_id == group_id).all()

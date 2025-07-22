@@ -43,7 +43,7 @@ def get_nollning(db: DB_dependency, nollning_id: int):
     nollning = db.query(Nollning_DB).filter(Nollning_DB.id == nollning_id).one_or_none()
 
     if nollning is None:
-        raise HTTPException(404, detail="Mission not found")
+        raise HTTPException(404, detail="Nollning not found")
 
     return nollning
 
