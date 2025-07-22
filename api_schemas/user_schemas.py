@@ -130,6 +130,11 @@ class UpdateUserMember(BaseSchema):
     is_member: bool
 
 
+class UpdateUserMemberMultiple(BaseSchema):
+    user_id: int
+    is_member: bool
+
+
 from api_schemas.group_schema import GroupRead
 
 UserRead.model_rebuild()

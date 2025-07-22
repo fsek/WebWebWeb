@@ -30,6 +30,10 @@ def create_membered_user(client, db_session, **kwargs):
     # Register the user
     register_response = client.post("/auth/register", json=user_data)
 
+    assert (
+        register_response.status_code == 201
+    ), f"Expected status code 201, got {register_response.status_code} with response: {register_response.text}"
+
     user_id = register_response.json()["id"]
 
     # Make user member and verified
@@ -38,3 +42,7 @@ def create_membered_user(client, db_session, **kwargs):
     user_in_db.is_verified = True
     db_session.commit()
     return user_in_db
+
+
+def auth_headers(token):
+    return {"Authorization": f"Bearer {token}"}

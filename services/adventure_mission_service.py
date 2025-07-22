@@ -6,7 +6,7 @@ from db_models.nollning_model import Nollning_DB
 from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
 
 
-def create_adventure_mission(db: Session, data: AdventureMissionCreate):
+def create_adventure_mission_(db: Session, data: AdventureMissionCreate):
 
     if len(data.title) > MAX_ADVENTURE_MISSION_NAME:
         raise HTTPException(400, detail="Title too long")
@@ -66,14 +66,14 @@ def remove_adventure_mission(db: Session, id: int):
     return adventure_mission
 
 
-def find_all_adventure_missions(db: Session):
+def find_all_adventure_missions(db: Session, nollning_id: int):
 
-    adventure_missions = db.query(AdventureMission_DB).all()
+    adventure_missions = db.query(AdventureMission_DB).filter(AdventureMission_DB.nollning_id == nollning_id).all()
 
     return adventure_missions
 
 
-def edit_adventure_mission(db: Session, id: int, data: AdventureMissionCreate):
+def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
 
     adventure_mission = db.query(AdventureMission_DB).filter(AdventureMission_DB.id == id).one_or_none()
 
