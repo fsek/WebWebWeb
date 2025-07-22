@@ -17,7 +17,7 @@ def verification_mailer(user: User_DB, token: str):
     with open(f"{path}/mailer/verification-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    verification_link = f"{VERIFICATION_LINK}/{token}"
+    verification_link = f"{VERIFICATION_LINK}{token}"
 
     html = html.replace("{{ user.name }}", user.first_name)
     html = html.replace("{{ verification_link }}", verification_link)

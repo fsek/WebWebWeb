@@ -9,15 +9,15 @@ SMTP_PORT = 587
 
 ## Verification constants
 
-VERIFICATION_SUBJECT = "Email bekräftelse"
-VERIFICATION_LINK = "fsektionen.se"
+VERIFICATION_SUBJECT = "Email bekräftelse / Email Confirmation"
+VERIFICATION_LINK = "fsektionen.se/verify?token="
 
 ## Reset password constants
 
-RESET_PASSWORD_SUBJECT = "Nollställ lösenord"
-RESET_PASSWORD_LINK = "fsektionen.se"
+RESET_PASSWORD_SUBJECT = "Nollställ lösenord / Reset Password"
+RESET_PASSWORD_LINK = "fsektionen.se/forgot-password?token="
 
 ## Welcome constants
 
-WELCOME_SUBJECT = "Välkommen till F-sektionen"
-WELCOME_LINK = "fsektionen.se"
+WELCOME_SUBJECT = "Välkommen till F-sektionen / Welcome to the F-Guild"
+WELCOME_LINK = "fsektionen.se/verify"

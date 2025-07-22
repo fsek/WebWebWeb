@@ -109,7 +109,7 @@ class UserInGroupRead(BaseSchema):
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     first_name: Annotated[str, StringConstraints(max_length=MAX_FIRST_NAME_LEN)]
     last_name: Annotated[str, StringConstraints(max_length=MAX_LAST_NAME_LEN)]
-    telephone_number: PhoneNumber | None = None
+    telephone_number: PhoneNumber
     start_year: int | None = None
     program: str | None = None
     pass

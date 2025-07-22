@@ -14,7 +14,7 @@ from user.user_stuff import (
 class Permission:
     @classmethod
     def primitive(cls):
-        # Use this for almost only verification of email
+        # Use this for almost only verification of email and getMe
         return Depends(current_user)
 
     @classmethod

@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="sv">
-
 <head>
   <meta charset="UTF-8">
-  <title>Bekräfta din e-post</title>
+  <title>Bekräfta din e-post / Confirm your email</title>
 </head>
-
 <body style="font-family: sans-serif; color: #333; line-height: 1.5; margin:0; padding:0;">
+  <div style="text-align: center; padding: 10px; background-color: #f5f5f5; font-size: 14px; color: #666;">
+    This email is available in Swedish above and English below / Detta mail finns på svenska ovan och engelska nedan
+  </div>
+  
+  <!-- Swedish Version -->
   <!-- Header -->
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FF6600;padding:20px 0;">
     <tr>
@@ -16,14 +19,12 @@
       </td>
     </tr>
   </table>
-
   <table width="100%" cellpadding="20" cellspacing="0" > 
     <tr>
       <td align="center">
         <p>Hej {{ user.name }},</p>
         <p>Tack för att du registrerat dig hos <strong>F-sektionen inom TLTH</strong>!</p>
         <p>För att aktivera ditt konto och ta del av alla förmåner behöver du bekräfta din e-postadress.</p>
-
         <!-- Knapp -->
         <p style="text-align: center; margin: 30px 0;">
           <a href="{{ verification_link }}"
@@ -31,22 +32,16 @@
             Bekräfta e-postadress
           </a>
         </p>
-
         <p>Om knappen inte fungerar, kopiera och klistra in länken nedan i din webbläsare:<br>
           <a href="{{ verification_link }}">{{ verification_link }}</a>
         </p>
-
-        <p>Observera att länken är giltig i 24 timmar. Efter det behöver du be om en ny verifieringslänk.</p>
-
+        <p>Observera att länken är giltig i 1 timme. Efter det behöver du be om en ny verifieringslänk.</p>
         <p>Har du frågor eller behöver hjälp? Hör av dig till vårt supportteam på
           <a href="mailto:{{ support_link }}">{{ support_link }}</a>.
         </p>
-
         <p>Vänliga hälsningar,<br>
           Teamet på F-sektionen inom TLTH</p>
-
         <hr style="border:none; border-top:1px solid #ddd; margin: 40px 0 20px;">
-
         <p style="font-size: 12px; color: #888;">
           Du får detta mail eftersom du registrerat dig hos F-sektionen inom TLTH.<br>
           Om du inte känner igen detta, kontakta oss eller ignorera mailet.
@@ -54,6 +49,49 @@
       </td>
     </tr>
   </table>
-</body>
 
+  <!-- Separator -->
+  <div style="height: 40px; background-color: #f5f5f5; border-top: 2px solid #ddd; border-bottom: 2px solid #ddd;"></div>
+
+  <!-- English Version -->
+  <!-- Header -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FF6600;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <img src="https://i.imgur.com/vajEXHm.png" alt="F-sektionen icon" width="80"
+          style="display:block; height:auto; border:none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;">
+      </td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="20" cellspacing="0" > 
+    <tr>
+      <td align="center">
+        <p>Hello {{ user.name }},</p>
+        <p>Thank you for registering with <strong>the F-Guild at TLTH</strong>!</p>
+        <p>To activate your account and access all benefits, you need to confirm your email address.</p>
+        <!-- Button -->
+        <p style="text-align: center; margin: 30px 0;">
+          <a href="{{ verification_link }}"
+            style="display: inline-block; padding: 14px 28px; background-color: #FF6600; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
+            Confirm Email Address
+          </a>
+        </p>
+        <p>If the button doesn't work, copy and paste the link below into your web browser:<br>
+          <a href="{{ verification_link }}">{{ verification_link }}</a>
+        </p>
+        <p>Please note that the link is valid for 1 hour. After that, you will need to request a new verification link.</p>
+        <p>Do you have questions or need help? Contact our support team at
+          <a href="mailto:{{ support_link }}">{{ support_link }}</a>.
+        </p>
+        <p>Best regards,<br>
+          The team at the F-Guild at TLTH</p>
+        <hr style="border:none; border-top:1px solid #ddd; margin: 40px 0 20px;">
+        <p style="font-size: 12px; color: #888;">
+          You are receiving this email because you registered with the F-Guild at TLTH.<br>
+          If you don't recognize this, contact us or ignore this email.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
 </html>

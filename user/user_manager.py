@@ -15,6 +15,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
 
+    # TODO: Implement password validation logic here before production
+    # https://fastapi-users.github.io/fastapi-users/latest/configuration/user-manager/?h=password+valida#validate_password
+
     async def on_after_register(self, user: User_DB, request: Optional[Request] = None):
         # print(f"User {user.id} has registered.")
         welcome_mailer.welcome_mailer(user)

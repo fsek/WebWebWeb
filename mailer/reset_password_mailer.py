@@ -17,7 +17,7 @@ def reset_password_mailer(user: User_DB, token: str):
     with open(f"{path}/mailer/reset-password-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    reset_password_url = f"{RESET_PASSWORD_LINK}/{token}"
+    reset_password_url = f"{RESET_PASSWORD_LINK}{token}"
 
     html = html.replace("{{ user.name }}", user.first_name)
     html = html.replace("{{ reset_link }}", reset_password_url)
