@@ -8,6 +8,7 @@ from fastapi_users_pelicanq.authentication import AuthenticationBackend, Authent
 from fastapi_users_pelicanq.manager import BaseUserManager, UserManagerDependency
 from fastapi_users_pelicanq.openapi import OpenAPIResponseType
 from fastapi_users_pelicanq.router.common import ErrorCode, ErrorModel
+from helpers.rate_limit import rate_limit
 from pydantic import EmailStr
 from user.refresh_auth_backend import RefreshAuthenticationBackend
 from user.token_strategy import RefreshStrategy
@@ -51,6 +52,7 @@ def get_auth_router(
         "/login",
         name=f"auth:{backend.name}.login",
         responses=login_responses,
+        dependencies=[Depends(rate_limit())],
     )
     async def login(
         request: Request,
@@ -125,6 +127,7 @@ def get_auth_router(
             status.HTTP_401_UNAUTHORIZED: {"description": "Missing or invalid refresh token."},
             **access_backend.transport.get_openapi_logout_responses_success(),
         },
+        dependencies=[Depends(rate_limit())],
     )
     async def logout_all(
         user_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
