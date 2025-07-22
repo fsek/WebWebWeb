@@ -7,6 +7,7 @@ from db_models.candidate_model import Candidate_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from db_models.document_model import Document_DB
+from db_models.room_booking_model import RoomBooking_DB
 from .user_door_access_model import UserDoorAccess_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
 from helpers.types import FOOD_PREFERENCES, MEMBER_TYPE
@@ -60,7 +61,13 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
         default=datetime.datetime.now(datetime.UTC)
     )  # date and time the account was created
 
-    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="user", init=False)
+    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
+
+    room_bookings: Mapped[list["RoomBooking_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False

@@ -21,11 +21,6 @@ class CouncilUpdate(BaseSchema):
     description: str | None = None
 
 
-class CouncilInEventRead(BaseSchema):
-    id: int
-    name: str
-
-
-class CouncilInCarBookingRead(BaseSchema):
+class SimpleCouncilRead(BaseSchema):
     id: int
     name: str

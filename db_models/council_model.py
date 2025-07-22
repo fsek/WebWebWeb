@@ -1,6 +1,8 @@
 from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import String
+
+from db_models.room_booking_model import RoomBooking_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_COUNCIL_DESC
@@ -22,7 +24,13 @@ class Council_DB(BaseModel_DB):
 
     events: Mapped[list["Event_DB"]] = relationship(back_populates="council", init=False)
 
-    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="council", init=False)
+    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(
+        back_populates="council", cascade="all, delete-orphan", init=False
+    )
+
+    room_bookings: Mapped[list["RoomBooking_DB"]] = relationship(
+        back_populates="council", cascade="all, delete-orphan", init=False
+    )
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_COUNCIL_DESC))
 

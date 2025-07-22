@@ -45,6 +45,7 @@ PERMISSION_TARGET = Literal[
     "UserDoorAccess",
     "Tags",
     "Council",
+    "Room Bookings",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
@@ -70,3 +71,5 @@ DRINK_PACKAGES = Literal["None", "AlcoholFree", "Alcohol"]
 ALCOHOL_EVENT_TYPES = Literal["Alcohol", "Alcohol-Served", "None"]
 
 EVENT_DOT_TYPES = Literal["None", "Single", "Double"]
+
+ROOMS = Literal["LC", "Alumni", "SK"]

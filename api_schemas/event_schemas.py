@@ -7,7 +7,7 @@ from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, MEMBER_ROLES, da
 from pydantic import StringConstraints
 
 if TYPE_CHECKING:
-    from api_schemas.council_schema import CouncilInEventRead
+    from api_schemas.council_schema import SimpleCouncilRead
 
 
 class EventRead(BaseSchema):
@@ -21,7 +21,7 @@ class EventRead(BaseSchema):
     title_en: str
     description_sv: str
     description_en: str
-    council: "CouncilInEventRead"
+    council: "SimpleCouncilRead"
     location: str
     max_event_users: int
     priorities: list[Priority_DB]

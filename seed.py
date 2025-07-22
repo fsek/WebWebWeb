@@ -164,6 +164,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     perm9 = Permission_DB(action="manage", target="Car")
     perm10 = Permission_DB(action="manage", target="Election")
     perm11 = Permission_DB(action="manage", target="Cafe")
+    perm12 = Permission_DB(action="manage", target="Rooms")
+    perm13 = Permission_DB(action="view", target="Rooms")
     perm21 = Permission_DB(action="manage", target="Groups")
     perm17 = Permission_DB(action="view", target="Groups")
     perm69 = Permission_DB(action="manage", target="UserDoorAccess")
@@ -187,6 +189,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
     posts[0].permissions.append(perm9)
     posts[0].permissions.append(perm10)
     posts[1].permissions.append(perm11)
+    posts[0].permissions.append(perm12)
+    posts[0].permissions.append(perm13)
     posts[0].permissions.append(perm21)
     posts[0].permissions.append(perm23)
     posts[0].permissions.append(perm34)
@@ -216,6 +220,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="Council", posts=["Buggmästare"]),
         Permission(action="view", target="Council", posts=["Buggmästare"]),
         Permission(action="manage", target="User", posts=["Buggmästare"]),
+        Permission(action="manage", target="Room Bookings", posts=["Buggmästare"]),
+        Permission(action="view", target="Room Bookings", posts=["Buggmästare"]),
     ]
 
     [[post.permissions.append(perm.degenerate()) for perm in permissions if post.name in perm.posts] for post in posts]

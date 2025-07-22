@@ -77,3 +77,6 @@ MAX_DOC_FILE_NAME = 50
 
 # Paths
 MAX_PATH_LENGTH = 256
+
+# Room booking
+MAX_ROOM_DESC = 200

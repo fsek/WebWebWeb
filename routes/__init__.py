@@ -29,6 +29,7 @@ from .user_access_router import user_access_router
 from .council_router import council_router
 from .document_router import document_router
 
+from .room_booking_router import room_router
 
 # here comes the big momma router
 main_router = APIRouter(dependencies=[Depends(rate_limit(limit=300, window_seconds=60))])
@@ -78,3 +79,5 @@ main_router.include_router(user_access_router, prefix="/user_access", tags=["use
 main_router.include_router(council_router, prefix="/councils", tags=["council"])
 
 main_router.include_router(document_router, prefix="/document", tags=["document"])
+
+main_router.include_router(room_router, prefix="/rooms", tags=["room booking"])
