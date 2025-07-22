@@ -4,6 +4,7 @@ from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, String
+from helpers.types import ROOMS
 
 if TYPE_CHECKING:
     from .user_model import User_DB
@@ -12,9 +13,10 @@ if TYPE_CHECKING:
 
 class RoomBooking_DB(BaseModel_DB):
     __tablename__ = "room_booking_table"
-    booking_id: Mapped[int] = mapped_column(primary_key=True, init=False)
-    room_id: Mapped[int] = mapped_column()
-    room: Mapped[str] = mapped_column()
+
+    id: Mapped[int] = mapped_column(primary_key=True, init=False)
+
+    room: Mapped[ROOMS] = mapped_column()
 
     start_time: Mapped[datetime] = mapped_column()
     end_time: Mapped[datetime] = mapped_column()

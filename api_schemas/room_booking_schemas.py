@@ -1,32 +1,36 @@
 from typing import Annotated
-from helpers.types import datetime_utc
+from api_schemas.council_schema import CouncilInCarBookingRead
+from api_schemas.user_schemas import SimpleUserRead
+from helpers.types import ROOMS, datetime_utc
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_ROOM_DESC
 
 
-class RoomCreate(BaseSchema):
-    room_id: int
+class RoomBookingCreate(BaseSchema):
+    room: ROOMS
     start_time: datetime_utc
     end_time: datetime_utc
     description: Annotated[str, StringConstraints(max_length=MAX_ROOM_DESC)]
-    council_id: int | None
+    council_id: int
 
 
-class RoomRead(BaseSchema):
-    booking_id: int
-    room_id: int
+class RoomBookingRead(BaseSchema):
+    id: int
     room: str
     start_time: datetime_utc
     end_time: datetime_utc
     description: str
-    user_id: int
-    council_id: int
+    user: SimpleUserRead
+    council: CouncilInCarBookingRead
 
 
-class RoomUpdate(BaseSchema):
-    room_id: int | None = None
+class RoomBookingUpdate(BaseSchema):
     start_time: datetime_utc | None = None
     end_time: datetime_utc | None = None
     description: Annotated[str, StringConstraints(max_length=MAX_ROOM_DESC)] | None = None
-    council_id: int | None = None
+
+
+class RoomBookingsBetweenDates(BaseSchema):
+    start_time: datetime_utc
+    end_time: datetime_utc

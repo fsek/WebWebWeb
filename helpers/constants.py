@@ -79,9 +79,4 @@ MAX_DOC_FILE_NAME = 50
 MAX_PATH_LENGTH = 256
 
 # Room booking
-MAX_ROOM_DESC = 1000
-ROOMS = [
-    "Rum1",  # room id 1
-    "Rum2",  # room id 2
-    "Rum3",  # etc
-]
+MAX_ROOM_DESC = 200

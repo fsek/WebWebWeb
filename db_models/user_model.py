@@ -61,8 +61,13 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
         default=datetime.datetime.now(datetime.UTC)
     )  # date and time the account was created
 
-    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="user", init=False)
-    room_bookings: Mapped[list["RoomBooking_DB"]] = relationship(back_populates="user", init=False)
+    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
+
+    room_bookings: Mapped[list["RoomBooking_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", init=False
+    )
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False

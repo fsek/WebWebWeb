@@ -24,9 +24,13 @@ class Council_DB(BaseModel_DB):
 
     events: Mapped[list["Event_DB"]] = relationship(back_populates="council", init=False)
 
-    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(back_populates="council", init=False)
+    car_bookings: Mapped[list["CarBooking_DB"]] = relationship(
+        back_populates="council", cascade="all, delete-orphan", init=False
+    )
 
-    room_bookings: Mapped[list["RoomBooking_DB"]] = relationship(back_populates="council", init=False)
+    room_bookings: Mapped[list["RoomBooking_DB"]] = relationship(
+        back_populates="council", cascade="all, delete-orphan", init=False
+    )
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_COUNCIL_DESC))
 
