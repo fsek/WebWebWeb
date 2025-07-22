@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Optional, Type, Union
+from typing import Any, Dict, Optional, Type, Union
 from fastapi import Request
 from fastapi_users_pelicanq import BaseUserManager, IntegerIDMixin, InvalidPasswordException
 from fastapi_users_pelicanq import schemas
@@ -51,3 +51,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):
     async def on_after_request_verify(self, user: User_DB, token: str, request: Optional[Request] = None):
         # print(f"Verification requested for user {user.id}. Verification token: {token}")
         verification_mailer.verification_mailer(user, token)
+
+    async def on_after_update(self, user: User_DB, update_dict: Dict[str, Any], request: Request | None = None) -> None:
+        if "email" in update_dict:
+            await self.request_verify(user, request)
