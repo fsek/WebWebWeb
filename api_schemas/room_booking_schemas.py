@@ -1,5 +1,5 @@
 from typing import Annotated
-from api_schemas.council_schema import CouncilInCarBookingRead
+from api_schemas.council_schema import SimpleCouncilRead
 from api_schemas.user_schemas import SimpleUserRead
 from helpers.types import ROOMS, datetime_utc
 from pydantic import StringConstraints
@@ -22,7 +22,7 @@ class RoomBookingRead(BaseSchema):
     end_time: datetime_utc
     description: str
     user: SimpleUserRead
-    council: CouncilInCarBookingRead
+    council: SimpleCouncilRead
 
 
 class RoomBookingUpdate(BaseSchema):
