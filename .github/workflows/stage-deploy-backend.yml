@@ -1,14 +1,14 @@
-name: Deploy WebWebWeb-backend
+name: Deploy Stage WebWebWeb-backend
 
 on:
   push:
-    branches: ['production']
+    branches: ['stage']
 
 env:
   REGISTRY: ghcr.io
   DOCKERFILE: Dockerfile
-  IMAGE_NAME: ${{ github.repository }}
-  ENVIRONMENT: production
+  IMAGE_NAME: "${{ github.repository }}-stage"
+  ENVIRONMENT: stage
 
 jobs:
   build-and-push-image:

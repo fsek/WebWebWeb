@@ -14,7 +14,8 @@ from services.event_service import create_new_event, delete_event, update_event
 from db_models.tag_model import Tag_DB
 from user.permission import Permission
 import random
-from typing import List
+from typing import List, get_args
+from helpers.types import MEMBER_ROLES
 
 import pandas as pd
 
@@ -25,6 +26,13 @@ event_router = APIRouter()
 def get_all_events(db: DB_dependency):
     events = db.query(Event_DB).all()
     return events
+
+
+@event_router.get("/priorities", response_model=list[str])
+def get_event_priorities():
+    # Extract literal values using typing
+    member_roles = get_args(MEMBER_ROLES)
+    return list(member_roles)
 
 
 @event_router.get("/{eventId}", response_model=EventRead)
@@ -108,6 +116,32 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
     users = [event_user.user for event_user in unique_prioritized_people]
 
     return users
+
+
+@event_router.patch(
+    "/event-confirm-event-users/{event_id}",
+    dependencies=[Permission.require("manage", "Event")],
+    response_model=EventRead,
+)
+def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[UserRead]):
+    event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    if len(confirmed_users) > event.max_event_users:
+        raise HTTPException(400, detail="Too many users for chosen event")
+
+    confirmed_user_ids = [user.id for user in confirmed_users]
+
+    for event_user in event.event_users:
+        if event_user.user_id in confirmed_user_ids:
+            event_user.confirmed_status = "confirmed"
+
+    db.commit()
+    db.refresh(event)
+
+    return event
 
 
 @event_router.post("/add-tag", dependencies=[Permission.require("manage", "Event")], response_model=AddEventTag)

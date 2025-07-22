@@ -18,6 +18,7 @@ from .img_router import img_router
 from .album_router import album_router
 from .ad_router import ad_router
 from .car_renting_router import car_router
+from .car_block_router import car_block_router
 from .candidate_router import candidate_router
 from .election_router import election_router
 from .group_router import group_router
@@ -25,6 +26,8 @@ from .nollning import nollning_router
 from .tag_router import tag_router
 from .user_access_router import user_access_router
 from .council_router import council_router
+from .document_router import document_router
+
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -57,6 +60,8 @@ main_router.include_router(ad_router, prefix="/ad", tags=["ads"])
 
 main_router.include_router(car_router, prefix="/car", tags=["cars"])
 
+main_router.include_router(car_block_router, prefix="/car/block", tags=["car blocking"])
+
 main_router.include_router(election_router, prefix="/election", tags=["elections"])
 
 main_router.include_router(candidate_router, prefix="/candidate", tags=["candidates"])
@@ -70,3 +75,5 @@ main_router.include_router(tag_router, prefix="/tags", tags=["tags"])
 main_router.include_router(user_access_router, prefix="/user_access", tags=["user door access"])
 
 main_router.include_router(council_router, prefix="/councils", tags=["council"])
+
+main_router.include_router(document_router, prefix="/document", tags=["document"])
