@@ -12,16 +12,22 @@ class PostRead(BaseSchema):
     name: str
     council_id: int
     permissions: list[_PostPermissionRead]
+    description: str
+    email: str
 
     class Config:
         from_attributes = True
 
 
 class PostUpdate(BaseSchema):
-    name: str
-    council_id: int
+    name: str | None = None
+    council_id: int | None = None
+    description: str | None = None
+    email: str | None = None
 
 
 class PostCreate(BaseSchema):
     name: str
     council_id: int
+    email: str
+    description: str

@@ -22,7 +22,7 @@ def create_post(data: PostCreate, db: DB_dependency):
     council = db.query(Council_DB).filter_by(id=data.council_id).one_or_none()
     if council is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    post = Post_DB(name=data.name, council_id=data.council_id)
+    post = Post_DB(name=data.name, council_id=data.council_id, email=data.email, description=data.description)
     db.add(post)
     db.commit()
     return post
@@ -44,7 +44,7 @@ def delete_post(post_id: int, db: DB_dependency):
 def update_post(post_id: int, updated_post: PostUpdate, db: DB_dependency):
     post = db.query(Post_DB).filter_by(id=post_id).one_or_none()
     if post is None:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Cannot find post")
+        raise HTTPException(404, "Post not found")
     for var, value in vars(updated_post).items():
         setattr(post, var, value) if value else None
     db.commit()

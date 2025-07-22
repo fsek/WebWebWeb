@@ -30,6 +30,10 @@ class Post_DB(BaseModel_DB):
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped["Council_DB"] = relationship(back_populates="posts", init=False)
 
+    description: Mapped[str] = mapped_column(nullable=False, default="")
+
+    email: Mapped[str] = mapped_column(nullable=False, default="")
+
     post_permissions: Mapped[list["PostPermission_DB"]] = relationship(
         back_populates="post", cascade="all, delete-orphan", init=False
     )

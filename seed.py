@@ -122,9 +122,14 @@ def seed_councils(db: Session):
 
 def seed_posts(db: Session, some_councils: list[Council_DB]):
     posts = [
-        Post_DB(name="Buggmästare", council_id=some_councils[0].id),
-        Post_DB(name="Lallare", council_id=some_councils[0].id),
-        Post_DB(name="Mytoman", council_id=some_councils[1].id),
+        Post_DB(
+            name="Buggmästare",
+            council_id=some_councils[0].id,
+            description="Buggmästare",
+            email="buggmastare@fsektionen.se",
+        ),
+        Post_DB(name="Lallare", council_id=some_councils[0].id, description="Lallare", email="lallare@fsektionen.se"),
+        Post_DB(name="Mytoman", council_id=some_councils[1].id, description="Mytoman", email="mytoman@fsektionen.se"),
     ]
     db.add_all(posts)
     db.commit()
