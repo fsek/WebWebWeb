@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 
 
+from helpers.rate_limit import rate_limit
 from routes import council_router
 
 from .council_router import council_router
@@ -30,7 +31,7 @@ from .document_router import document_router
 
 
 # here comes the big momma router
-main_router = APIRouter()
+main_router = APIRouter(dependencies=[Depends(rate_limit(limit=300, window_seconds=60))])
 
 main_router.include_router(user_router, prefix="/users", tags=["users"])
 

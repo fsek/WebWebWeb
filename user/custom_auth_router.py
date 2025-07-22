@@ -52,7 +52,7 @@ def get_auth_router(
         "/login",
         name=f"auth:{backend.name}.login",
         responses=login_responses,
-        dependencies=[Depends(rate_limit)],
+        dependencies=[Depends(rate_limit())],
     )
     async def login(
         request: Request,
@@ -127,7 +127,7 @@ def get_auth_router(
             status.HTTP_401_UNAUTHORIZED: {"description": "Missing or invalid refresh token."},
             **access_backend.transport.get_openapi_logout_responses_success(),
         },
-        dependencies=[Depends(rate_limit)],
+        dependencies=[Depends(rate_limit())],
     )
     async def logout_all(
         user_token: Tuple[models.UP, str] = Depends(get_current_refresh_user_token),
