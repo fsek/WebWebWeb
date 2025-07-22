@@ -1,4 +1,4 @@
-# app/rate_limiter.py
+import os
 from fastapi import HTTPException, Request, status, Depends
 import redis.asyncio as aioredis
 from database import get_redis
@@ -16,6 +16,9 @@ def rate_limit(
         request: Request,
         redis: aioredis.Redis = Depends(get_redis),
     ):
+        if os.getenv("ENVIRONMENT") == "test":
+            return
+
         client_signature = request.client.host
         key = f"rate:{client_signature}:{request.url.path}"
 
