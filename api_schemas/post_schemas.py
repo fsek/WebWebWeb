@@ -9,10 +9,12 @@ class _PostPermissionRead(BaseSchema):
 
 class PostRead(BaseSchema):
     id: int
-    name: str
+    name_sv: str
+    name_en: str
     council_id: int
     permissions: list[_PostPermissionRead]
-    description: str
+    description_sv: str
+    description_en: str
     email: str
 
     class Config:
@@ -20,14 +22,18 @@ class PostRead(BaseSchema):
 
 
 class PostUpdate(BaseSchema):
-    name: str | None = None
+    name_sv: str | None = None
+    name_en: str | None = None
     council_id: int | None = None
-    description: str | None = None
+    description_sv: str | None = None
+    description_en: str | None = None
     email: str | None = None
 
 
 class PostCreate(BaseSchema):
-    name: str
+    name_sv: str
+    name_en: str
     council_id: int
     email: str
-    description: str
+    description_sv: str
+    description_en: str

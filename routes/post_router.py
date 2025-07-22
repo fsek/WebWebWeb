@@ -22,7 +22,14 @@ def create_post(data: PostCreate, db: DB_dependency):
     council = db.query(Council_DB).filter_by(id=data.council_id).one_or_none()
     if council is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    post = Post_DB(name=data.name, council_id=data.council_id, email=data.email, description=data.description)
+    post = Post_DB(
+        name_sv=data.name_sv,
+        name_en=data.name_en,
+        council_id=data.council_id,
+        email=data.email,
+        description_sv=data.description_sv,
+        description_en=data.description_en,
+    )
     db.add(post)
     db.commit()
     return post

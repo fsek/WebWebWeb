@@ -123,13 +123,29 @@ def seed_councils(db: Session):
 def seed_posts(db: Session, some_councils: list[Council_DB]):
     posts = [
         Post_DB(
-            name="Buggmästare",
+            name_sv="Buggmästare",
+            name_en="Bugmaster",
             council_id=some_councils[0].id,
-            description="Buggmästare",
+            description_sv="buggmästare",
+            description_en="bugmaster",
             email="buggmastare@fsektionen.se",
         ),
-        Post_DB(name="Lallare", council_id=some_councils[0].id, description="Lallare", email="lallare@fsektionen.se"),
-        Post_DB(name="Mytoman", council_id=some_councils[1].id, description="Mytoman", email="mytoman@fsektionen.se"),
+        Post_DB(
+            name_sv="Lallare",
+            name_en="Laller",
+            council_id=some_councils[0].id,
+            description_sv="lallare",
+            description_en="laller",
+            email="lallare@fsektionen.se",
+        ),
+        Post_DB(
+            name_sv="Mytoman",
+            name_en="Liar",
+            council_id=some_councils[1].id,
+            description_sv="mytoman",
+            description_en="liar",
+            email="mytoman@fsektionen.se",
+        ),
     ]
     db.add_all(posts)
     db.commit()
@@ -221,7 +237,10 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="User", posts=["Buggmästare"]),
     ]
 
-    [[post.permissions.append(perm.degenerate()) for perm in permissions if post.name in perm.posts] for post in posts]
+    [
+        [post.permissions.append(perm.degenerate()) for perm in permissions if post.name_sv in perm.posts]
+        for post in posts
+    ]
 
     db.commit()
 
