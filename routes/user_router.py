@@ -1,6 +1,8 @@
-from typing import Annotated
+from typing import Annotated, Optional
+
+from sqlalchemy import ColumnElement, and_, or_
 from db_models import permission_model
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 from api_schemas.base_schema import BaseSchema
 from database import DB_dependency
 from db_models.user_model import User_DB
@@ -76,3 +78,33 @@ def get_user_posts(user_id: int, db: DB_dependency):
     if user is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
     return user.posts
+
+
+@user_router.get("/search/", response_model=list[UserRead], dependencies=[Permission.require("view", "User")])
+def search_users(
+    db: DB_dependency,
+    name: Optional[str] = Query(default=None),
+    program: Optional[str] = Query(default=None),
+    start_year: Optional[int] = Query(default=None),
+    exclude_ids: Optional[list[int]] = Query(default=None),
+    limit: int = Query(default=20, le=100),
+    offset: int = Query(default=0),
+):
+    users = db.query(User_DB)
+
+    if name:
+        name_filters: list[ColumnElement[bool]] = []
+        for term in name.split(" "):
+            name_filters.append(or_(User_DB.first_name.ilike(f"%{term}%"), User_DB.last_name.ilike(f"%{term}%")))
+        users = users.filter(and_(*name_filters))
+
+    if program:
+        users = users.filter_by(program=program)
+
+    if start_year:
+        users = users.filter_by(start_year=start_year)
+
+    if exclude_ids:
+        users = users.filter(~(User_DB.id.in_(exclude_ids)))
+
+    return users.offset(offset).limit(limit).all()
