@@ -1,7 +1,6 @@
-from email.policy import default
 from typing import Annotated, Optional
 
-from sqlalchemy import BooleanClauseList, ColumnElement, and_, or_
+from sqlalchemy import ColumnElement, and_, or_
 from db_models import permission_model
 from fastapi import APIRouter, HTTPException, Query, status
 from api_schemas.base_schema import BaseSchema
@@ -108,4 +107,4 @@ def search_users(
     if exclude_ids:
         users = users.filter(~(User_DB.id.in_(exclude_ids)))
 
-    return users.offset(offset).limit(limit)
+    return users.offset(offset).limit(limit).all()

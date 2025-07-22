@@ -68,7 +68,7 @@ def remove_adventure_mission(db: Session, id: int):
 
 def find_all_adventure_missions(db: Session, nollning_id: int):
 
-    adventure_missions = db.query(AdventureMission_DB).filter(AdventureMission_DB.nollning_id == nollning_id)
+    adventure_missions = db.query(AdventureMission_DB).filter(AdventureMission_DB.nollning_id == nollning_id).all()
 
     return adventure_missions
 
