@@ -48,23 +48,13 @@ jobs:
             sleep 1
           done
 
-      - name: Bootstrap database schema & seed
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
+      - name: Apply existing migrations   
         run: |
-          python - << 'EOF'
-          import os, pkgutil, importlib
-          from sqlalchemy import create_engine
-          from db_models.base_model import BaseModel_DB
-          import db_models
-          for _, m, _ in pkgutil.iter_modules(db_models.__path__):
-              importlib.import_module(f"db_models.{m}")
-          engine = create_engine(os.environ["DATABASE_URL"])
-          BaseModel_DB.metadata.create_all(bind=engine)
-          EOF
+          alembic upgrade head
 
       - name: Set up SHORT_SHA
         run: echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+
 
       - name: Generate Alembic revision
         id: gen
@@ -103,6 +93,6 @@ jobs:
             This PR was created automatically by CI.
 
             **Migration file:** `${{ steps.gen.outputs.revision_file }}`
-          head: alembic-migration-${{ env.SHORT_SHA }}
+          branch: alembic-migration-${{ env.SHORT_SHA }}
           base: main
           draft: false
