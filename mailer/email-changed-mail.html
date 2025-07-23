@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>E-postadress ändrad / Email address changed</title>
+</head>
+<body style="font-family: sans-serif; color: #333; line-height: 1.5; margin:0; padding:0;">
+  <div style="text-align: center; padding: 10px; background-color: #f5f5f5; font-size: 14px; color: #666;">
+    This email is available in Swedish above and English below / Detta mail finns på svenska ovan och engelska nedan
+  </div>
+  
+  <!-- Swedish Version -->
+  <!-- Header -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FF6600;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <img src="https://i.imgur.com/vajEXHm.png" alt="F-sektionen ikon" width="80"
+          style="display:block; height:auto; border:none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;">
+      </td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="20" cellspacing="0">
+    <tr>
+      <td align="center">
+        <p>Hej {{ user.name }},</p>
+        <p>E-postadressen för ditt <strong>F-sektionen inom TLTH</strong> konto har ändrats till {{ new_email_masked }}.</p>
+        
+        <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 20px 0;">
+          <p style="margin: 0; color: #721c24;"><strong>🚨 Var detta inte du?</strong></p>
+          <p style="margin: 10px 0 0 0; color: #721c24;">Om du inte ändrade din e-postadress själv, kontakta vårt supportteam omedelbart.</p>
+        </div>
+
+        <p>Du kommer inte längre att få meddelanden på denna e-postadress.</p>
+        
+        <p>Om du ändrade e-postadressen själv kan du ignorera detta mail.</p>
+
+        <p>Hör av dig till oss på <a href="mailto:{{ support_link }}">{{ support_link }}</a> om du har frågor.</p>
+
+        <p>Vänliga hälsningar,<br>
+          Teamet på F-sektionen inom TLTH</p>
+        
+        <hr style="border:none; border-top:1px solid #ddd; margin: 40px 0 20px;">
+        <p style="font-size: 12px; color: #888;">
+          Detta mail skickas automatiskt när e-postadresser ändras.
+        </p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Separator -->
+  <div style="height: 40px; background-color: #f5f5f5; border-top: 2px solid #ddd; border-bottom: 2px solid #ddd;"></div>
+
+  <!-- English Version -->
+  <!-- Header -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FF6600;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <img src="https://i.imgur.com/vajEXHm.png" alt="F-sektionen icon" width="80"
+          style="display:block; height:auto; border:none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;">
+      </td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="20" cellspacing="0">
+    <tr>
+      <td align="center">
+        <p>Hello {{ user.name }},</p>
+        <p>The email address for your <strong>the F-Guild at TLTH</strong> account has been changed to {{ new_email_masked }}.</p>
+        
+        <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; padding: 15px; margin: 20px 0;">
+          <p style="margin: 0; color: #721c24;"><strong>🚨 Wasn't this you?</strong></p>
+          <p style="margin: 10px 0 0 0; color: #721c24;">If you didn't change your email address yourself, contact our support team immediately.</p>
+        </div>
+
+        <p>You will no longer receive notifications at this email address.</p>
+        
+        <p>If you changed the email address yourself, you can ignore this email.</p>
+
+        <p>Contact us at <a href="mailto:{{ support_link }}">{{ support_link }}</a> if you have any questions.</p>
+
+        <p>Best regards,<br>
+          The team at the F-Guild at TLTH</p>
+        
+        <hr style="border:none; border-top:1px solid #ddd; margin: 40px 0 20px;">
+        <p style="font-size: 12px; color: #888;">
+          This email is sent automatically when email addresses are changed.
+        </p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

@@ -12,6 +12,7 @@ from helpers.rate_limit import rate_limit
 from pydantic import EmailStr
 from user.refresh_auth_backend import RefreshAuthenticationBackend
 from user.token_strategy import RefreshStrategy
+from mailer import email_changed_mailer
 
 
 def get_auth_router(
@@ -213,6 +214,10 @@ def get_update_account_router(
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
         user = await user_manager.authenticate(credentials)
+
+        # temporarily store old email for notification
+        old_email = user.email if user else None
+
         refresh_token_user, _ = refresh_token
         access_token_user, _ = access_token
         validate_user(user, refresh_token_user, access_token_user)
@@ -225,7 +230,10 @@ def get_update_account_router(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=ErrorCode.UPDATE_USER_EMAIL_ALREADY_EXISTS,
             )
-        await user_manager.on_after_update(updated_user, user_update.create_update_dict_superuser(), request)
+
+        # Send email notification about email change
+        email_changed_mailer.email_changed_mailer(updated_user, new_email, old_email)
+
         return updated_user
 
     @router.patch(
@@ -272,7 +280,6 @@ def get_update_account_router(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=ErrorCode.UPDATE_USER_INVALID_PASSWORD,
             )
-        await user_manager.on_after_update(updated_user, user_update.create_update_dict(), request)
         # Probably good to logout all sessions?
         response = await backend.logout_all_sessions(strategy, updated_user)
         return response
