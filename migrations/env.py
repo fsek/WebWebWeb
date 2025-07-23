@@ -3,38 +3,12 @@ import os
 
 from db_models.base_model import BaseModel_DB
 
-from db_models import (
-    ad_model,
-    adventure_mission_model,
-    album_model,
-    cafe_shift_model,
-    candidate_model,
-    candidate_post_model,
-    car_booking_model,
-    council_model,
-    election_model,
-    election_post_model,
-    event_model,
-    event_tag_model,
-    event_user_model,
-    group_mission_model,
-    group_model,
-    group_user_model,
-    img_model,
-    news_model,
-    news_tag_model,
-    nollning_group_model,
-    nollning_model,
-    permission_model,
-    post_model,
-    post_permission_model,
-    post_user_model,
-    priority_model,
-    song_category_model,
-    song_model,
-    tag_model,
-    user_model,
-)
+import pkgutil
+import importlib
+import db_models
+
+for _, module_name, _ in pkgutil.iter_modules(db_models.__path__):
+    importlib.import_module(f"db_models.{module_name}")
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
