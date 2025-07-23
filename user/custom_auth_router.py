@@ -12,6 +12,7 @@ from helpers.rate_limit import rate_limit
 from pydantic import EmailStr
 from user.refresh_auth_backend import RefreshAuthenticationBackend
 from user.token_strategy import RefreshStrategy
+from mailer import email_changed_mailer
 
 
 def get_auth_router(
@@ -225,6 +226,10 @@ def get_update_account_router(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=ErrorCode.UPDATE_USER_EMAIL_ALREADY_EXISTS,
             )
+
+        # Send email notification about email change
+        email_changed_mailer.email_changed_mailer(updated_user, new_email)
+
         await user_manager.on_after_update(updated_user, user_update.create_update_dict_superuser(), request)
         return updated_user
 
