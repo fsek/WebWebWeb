@@ -48,14 +48,13 @@ jobs:
             sleep 1
           done
 
-      - name: Apply existing migrations
-        env:
-          DATABASE_URL: ${{ env.DATABASE_URL }}
+      - name: Apply existing migrations   
         run: |
           alembic upgrade head
 
       - name: Set up SHORT_SHA
         run: echo "SHORT_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+
 
       - name: Generate Alembic revision
         id: gen
@@ -68,6 +67,7 @@ jobs:
         id: check
         run: |
           echo "::set-output name=changed::$(git status --porcelain migrations/versions)"
+
 
       - name: Commit & push migration
         if: steps.check.outputs.changed != ''

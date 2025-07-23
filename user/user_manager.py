@@ -7,7 +7,7 @@ from fastapi_users_pelicanq import schemas
 
 from api_schemas.user_schemas import UserCreate
 from db_models.user_model import User_DB
-from mailer import reset_password_mailer, verification_mailer, welcome_mailer
+from mailer import reset_password_mailer, verification_mailer, welcome_mailer, password_changed_mailer
 
 SECRET = os.getenv("USER_MANAGER_SECRET")
 if not SECRET:
@@ -55,3 +55,6 @@ class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):
     async def on_after_update(self, user: User_DB, update_dict: Dict[str, Any], request: Request | None = None) -> None:
         if "email" in update_dict:
             await self.request_verify(user, request)
+
+        if "password" in update_dict:
+            password_changed_mailer.password_changed_mailer(user)
