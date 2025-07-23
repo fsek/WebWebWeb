@@ -20,11 +20,11 @@ def mask_email(email: Optional[str]) -> str:
             return f"{local[0]}***@{domain}"
         else:
             return f"{local[0]}***{local[-1]}@{domain}"
-    except:
+    except (ValueError, IndexError):
         return "***@***.***"  # fallback in case of an invalid email format
 
 
-def email_changed_mailer(user: User_DB, new_email: str):
+def email_changed_mailer(user: User_DB, new_email: str, old_email: str):
     path = os.getcwd()
 
     with open(f"{path}/mailer/email-changed-mail.html", "r", encoding="utf-8") as f:
@@ -37,7 +37,7 @@ def email_changed_mailer(user: User_DB, new_email: str):
     msg = MIMEText(html, "html", "utf-8")
 
     msg["From"] = STANDARD_SENDER
-    msg["To"] = user.email
+    msg["To"] = old_email
     msg["Subject"] = EMAIL_CHANGED_SUBJECT
 
     send_mail(user, msg)

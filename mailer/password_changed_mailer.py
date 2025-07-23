@@ -1,7 +1,5 @@
 from email.mime.text import MIMEText
 import os
-
-from sqlalchemy import true
 from mailer.mail_constants import (
     PASSWORD_CHANGED_SUBJECT,
     STANDARD_SENDER,

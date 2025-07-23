@@ -214,6 +214,10 @@ def get_update_account_router(
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
         user = await user_manager.authenticate(credentials)
+
+        # temporarily store old email for notification
+        old_email = user.email if user else None
+
         refresh_token_user, _ = refresh_token
         access_token_user, _ = access_token
         validate_user(user, refresh_token_user, access_token_user)
@@ -228,7 +232,7 @@ def get_update_account_router(
             )
 
         # Send email notification about email change
-        email_changed_mailer.email_changed_mailer(updated_user, new_email)
+        email_changed_mailer.email_changed_mailer(updated_user, new_email, old_email)
 
         await user_manager.on_after_update(updated_user, user_update.create_update_dict_superuser(), request)
         return updated_user
