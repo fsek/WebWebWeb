@@ -2,7 +2,7 @@
 import pytest
 from sqlalchemy import text
 from fastapi import status
-from .basic_factories import user_data_factory, create_membered_user
+from .basic_factories import user_data_factory, create_membered_user, auth_headers
 
 
 def test_register_user(client, user1_data):
@@ -165,3 +165,45 @@ def test_membered_user_factory(client, db_session):
     user = db_session.query(User_DB).filter_by(email="member@example.com").one()
     assert user.is_member is True
     assert user.is_verified is True
+
+
+def test_change_phone_num(membered_user, client, db_session, member_token):
+    """Test changing phone number for a membered user."""
+    from db_models.user_model import User_DB
+    import re
+
+    # Ensure the user has a phone number
+    assert membered_user.telephone_number is not None
+
+    new_phone_number = "+46701234567"
+    response = client.patch(
+        "/users/update/me",
+        json={"telephone_number": new_phone_number},
+        headers=auth_headers(member_token),
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    # Verify the phone number was updated
+    updated_user = db_session.query(User_DB).filter_by(id=membered_user.id).one()
+
+    def only_digits(s):
+        return re.sub(r"\D", "", s)
+
+    assert only_digits(updated_user.telephone_number) == only_digits(new_phone_number)
+
+
+def test_change_phone_num_invalid_format(membered_user, client, db_session, member_token):
+    """Test changing phone number with invalid format."""
+    from db_models.user_model import User_DB
+
+    invalid_phone_number = "12345"  # Invalid format
+    response = client.patch(
+        "/users/update/me",
+        json={"telephone_number": invalid_phone_number},
+        headers=auth_headers(member_token),
+    )
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    # Verify the phone number was not updated
+    updated_user = db_session.query(User_DB).filter_by(id=membered_user.id).one()
+    assert updated_user.telephone_number == membered_user.telephone_number
