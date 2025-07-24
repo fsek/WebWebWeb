@@ -13,10 +13,15 @@ council_router = APIRouter()
 
 @council_router.post("/", response_model=CouncilRead, dependencies=[Permission.require("manage", "Council")])
 def create_council(data: CouncilCreate, db: DB_dependency):
-    council = db.query(Council_DB).filter_by(name=data.name).one_or_none()
+    council = db.query(Council_DB).filter_by(name_sv=data.name_sv).one_or_none()
     if council is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Council already exists")
-    council = Council_DB(name=data.name, description=data.description)
+    council = Council_DB(
+        name_sv=data.name_sv,
+        description_sv=data.description_sv,
+        name_en=data.name_en,
+        description_en=data.description_en,
+    )
     db.add(council)
     db.commit()
     return council

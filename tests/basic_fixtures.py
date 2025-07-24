@@ -37,7 +37,12 @@ def admin_post(db_session):
     from db_models.council_model import Council_DB
     from db_models.permission_model import Permission_DB
 
-    council = Council_DB(name="AdminCouncil", description="Council for admins")
+    council = Council_DB(
+        name_sv="AdminCouncilSV",
+        description_sv="Svensk beskrivning för admins",
+        name_en="AdminCouncilEN",
+        description_en="English description for admins",
+    )
     db_session.add(council)
     db_session.commit()
     post = Post_DB(name="AdminPost", council_id=council.id)
@@ -125,7 +130,12 @@ def member_council_id(client, db_session, membered_user):
     from db_models.council_model import Council_DB
     from db_models.post_model import Post_DB
 
-    council = Council_DB(name="MemberCouncil", description="Council for members")
+    council = Council_DB(
+        name_sv="MemberCouncilSV",
+        description_sv="Svensk beskrivning för medlemmar",
+        name_en="MemberCouncilEN",
+        description_en="English description for members",
+    )
     db_session.add(council)
     db_session.commit()
 

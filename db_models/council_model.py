@@ -18,7 +18,9 @@ class Council_DB(BaseModel_DB):
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    name: Mapped[str] = mapped_column(String(160), unique=True)
+    name_sv: Mapped[str] = mapped_column(String(160), unique=True)
+
+    name_en: Mapped[str] = mapped_column(String(160), unique=True)
 
     posts: Mapped[list["Post_DB"]] = relationship(back_populates="council", init=False)
 
@@ -32,6 +34,8 @@ class Council_DB(BaseModel_DB):
         back_populates="council", cascade="all, delete-orphan", init=False
     )
 
-    description: Mapped[Optional[str]] = mapped_column(String(MAX_COUNCIL_DESC))
+    description_sv: Mapped[Optional[str]] = mapped_column(String(MAX_COUNCIL_DESC))
+
+    description_en: Mapped[Optional[str]] = mapped_column(String(MAX_COUNCIL_DESC))
 
     pass
