@@ -12,13 +12,13 @@ car_router = APIRouter()
 
 
 @car_router.get("/", response_model=list[CarBookingRead], dependencies=[Permission.member()])
-def get_all_booking(db: DB_dependency):
+def get_all_car_bookings(db: DB_dependency):
     bookings = db.query(CarBooking_DB).all()
     return bookings
 
 
 @car_router.get("/{booking_id}", response_model=CarBookingRead, dependencies=[Permission.member()])
-def get_booking(booking_id: int, db: DB_dependency):
+def get_car_booking(booking_id: int, db: DB_dependency):
     booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
     if booking:
         return booking
@@ -26,7 +26,7 @@ def get_booking(booking_id: int, db: DB_dependency):
 
 
 @car_router.post("/", response_model=CarBookingRead, dependencies=[Permission.member()])
-def create_booking(
+def create_car_booking(
     booking: CarBookingCreate,
     current_user: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Car")],
@@ -45,7 +45,7 @@ def create_booking(
 
 
 @car_router.delete("/{booking_id}", response_model=CarBookingRead, dependencies=[Permission.member()])
-def remove_booking(
+def remove_car_booking(
     booking_id: int,
     current_user: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Car")],
@@ -66,7 +66,7 @@ def remove_booking(
 
 
 @car_router.patch("/{booking_id}", response_model=CarBookingRead, dependencies=[Permission.member()])
-def update_booking(
+def update_car_booking(
     booking_id: int,
     data: CarBookingUpdate,
     current_user: Annotated[User_DB, Permission.member()],

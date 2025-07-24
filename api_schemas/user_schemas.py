@@ -122,8 +122,9 @@ class UserUpdate(BaseSchema):
     program: str | None = None
     notifications: bool | None = None
     stil_id: str | None = None
-    standard_food_preferences: list[str] | None
-    other_food_preferences: str | None
+    standard_food_preferences: list[str] | None = None
+    other_food_preferences: str | None = None
+    telephone_number: PhoneNumber | None = None
 
 
 class UpdateUserMember(BaseSchema):

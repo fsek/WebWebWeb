@@ -19,7 +19,9 @@ room_router = APIRouter()
 
 
 @room_router.post("/", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "Room Bookings")])
-def create_booking(data: RoomBookingCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
+def create_room_booking(
+    data: RoomBookingCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency
+):
     if data.end_time <= data.start_time:
         raise HTTPException(400, "End time must be after start time")
 
@@ -60,7 +62,7 @@ def create_booking(data: RoomBookingCreate, current_user: Annotated[User_DB, Per
     response_model=RoomBookingRead,
     dependencies=[Permission.require("view", "Room Bookings")],
 )
-def get_booking(booking_id: int, db: DB_dependency):
+def get_room_booking(booking_id: int, db: DB_dependency):
     booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.id == booking_id).one_or_none()
     if booking is None:
         raise HTTPException(404, detail="Room booking not found")
@@ -70,7 +72,7 @@ def get_booking(booking_id: int, db: DB_dependency):
 @room_router.get(
     "/get_all", response_model=list[RoomBookingRead], dependencies=[Permission.require("view", "Room Bookings")]
 )
-def get_all_bookings(db: DB_dependency):
+def get_all_room_bookings(db: DB_dependency):
     bookings = db.query(RoomBooking_DB).all()
     return bookings
 
@@ -81,7 +83,7 @@ def get_all_bookings(db: DB_dependency):
     response_model=list[RoomBookingRead],
     dependencies=[Permission.require("view", "Room Bookings")],
 )
-def get_bookings_between_times(db: DB_dependency, data: RoomBookingsBetweenDates):
+def get_room_bookings_between_times(db: DB_dependency, data: RoomBookingsBetweenDates):
     bookings = (
         db.query(RoomBooking_DB)
         .filter((RoomBooking_DB.start_time >= data.start_time) & (RoomBooking_DB.end_time <= data.end_time))
@@ -103,7 +105,7 @@ def get_bookings_by_room(room: ROOMS, db: DB_dependency):
 @room_router.delete(
     "/{booking_id}", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "Room Bookings")]
 )
-def remove_booking(
+def remove_room_booking(
     booking_id: int,
     db: DB_dependency,
 ):
@@ -119,7 +121,7 @@ def remove_booking(
 @room_router.patch(
     "/{booking_id}", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "Room Bookings")]
 )
-def update_booking(
+def update_room_booking(
     booking_id: int, data: RoomBookingUpdate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency
 ):
     booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.id == booking_id).one_or_none()
