@@ -1,6 +1,7 @@
 from pydoc import doc
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import Response
 from sqlalchemy import func
 from database import DB_dependency
 from db_models.document_model import Document_DB
@@ -113,6 +114,29 @@ def get_document_file_by_id(
         raise HTTPException(418, detail="Something is very cooked, contact the Webmasters pls!")
 
     return FileResponse(file_path, filename=document.file_name, media_type="application/octet-stream")
+
+
+@document_router.get("/{document_id}")
+def get_document_file(
+    document_id: int,
+    db: DB_dependency,
+    manage_permission: Annotated[bool, Permission.check("manage", "Document")],
+    response: Response,
+):
+    document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
+    if document is None:
+        raise HTTPException(404, detail="Document not found")
+
+    if document.is_private and not manage_permission:
+        raise HTTPException(401, detail="Document is private, check your permissions m8")
+
+    file_path = Path(f"{base_path}/{document.file_name}")
+    if not file_path.exists():
+        raise HTTPException(418, detail="Something is very cooked, contact the Webmasters pls!")
+
+    response.headers["X-Accel-Redirect"] = str(file_path)
+
+    return response
 
 
 @document_router.delete(
