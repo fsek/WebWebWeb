@@ -113,8 +113,18 @@ def seed_cafe_shifts(db: Session, user: User_DB):
 
 def seed_councils(db: Session):
     councils = [
-        Council_DB(name="Kodmästeriet", description="bra beskrivning"),
-        Council_DB(name="Sanningsministeriet", description="bättre beskrivning"),
+        Council_DB(
+            name_sv="Kodmästeriet",
+            description_sv="bra beskrivning",
+            name_en="The Code Masters",
+            description_en="a better description",
+        ),
+        Council_DB(
+            name_sv="Sanningsministeriet",
+            description_sv="bättre beskrivning",
+            name_en="The Ministry of Truth",
+            description_en="an even better description",
+        ),
     ]
     db.add_all(councils)
     db.commit()

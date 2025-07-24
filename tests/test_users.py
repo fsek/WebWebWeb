@@ -143,7 +143,7 @@ def test_admin_post_fixture(admin_post, db_session):
 
     post = db_session.query(Post_DB).filter_by(id=admin_post.id).one()
     assert post.name == "AdminPost"
-    assert post.council.name == "AdminCouncil"
+    assert post.council.name_sv == "AdminCouncilSV"
 
 
 def test_admin_user_fixture(admin_user, db_session):
