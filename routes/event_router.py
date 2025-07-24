@@ -135,7 +135,7 @@ def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[
 
     for event_user in event.event_users:
         if event_user.user_id in confirmed_user_ids:
-            event_user.confirmed_status = "confirmed"
+            event_user.confirmed_status = True
 
     db.commit()
     db.refresh(event)

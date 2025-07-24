@@ -44,11 +44,17 @@ def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
     for var, val in vars(data).items():
         setattr(user, var, val) if val else None
 
+    if data.standard_food_preferences == []:
+        setattr(user, "standard_food_preferences", data.standard_food_preferences)
+
+    if data.other_food_preferences == "":
+        setattr(user, "other_food_preferences", data.other_food_preferences)
+
     try:
         db.commit()
     except DataError:
         db.rollback()
-        raise HTTPException(status.HTTP_400_BAD_REQUEST)
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="DataError")
 
     return user
 

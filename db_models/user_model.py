@@ -11,11 +11,10 @@ from db_models.room_booking_model import RoomBooking_DB
 from helpers.db_util import created_at_column
 from .user_door_access_model import UserDoorAccess_DB
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN, MAX_TELEPHONE_LEN
-from helpers.types import MEMBER_TYPE
+from helpers.types import PROGRAM_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from .post_user_model import PostUser_DB
-from sqlalchemy import Enum
 import datetime
 from helpers.types import datetime_utc
 from .ad_model import BookAd_DB
@@ -51,9 +50,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     account_created: Mapped[datetime_utc] = created_at_column()
 
-    program: Mapped[Optional[str]] = mapped_column(
-        Enum("F", "N", "Pi", name="program_enum"), default=None
-    )  # program at the guild
+    program: Mapped[PROGRAM_TYPE] = mapped_column(default="Oklart", init=False)  # program at the guild
 
     standard_food_preferences: Mapped[list[str]] = mapped_column(JSON, init=False, default=list)
 

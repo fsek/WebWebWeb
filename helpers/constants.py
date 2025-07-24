@@ -83,8 +83,9 @@ MAX_DOC_FILE_NAME = 50
 # Paths
 MAX_PATH_LENGTH = 256
 
+# Posts
+MAX_POST_NAME = 60
+MAX_POST_DESC = 300
+
 # Room booking
 MAX_ROOM_DESC = 200
-
-# Post
-MAX_POST_NAME = 60

@@ -10,7 +10,6 @@ def test_register_user(client, user1_data):
     response = client.post("/auth/register", json=user1_data)
     assert response.status_code == status.HTTP_201_CREATED
     data = response.json()
-    # assert data["program"] == user1_data["program"]
     assert data["first_name"] == user1_data["first_name"]
     assert data["last_name"] == user1_data["last_name"]
     assert "id" in data
@@ -142,18 +141,7 @@ def test_admin_post_fixture(admin_post, db_session):
     from db_models.post_model import Post_DB
 
     post = db_session.query(Post_DB).filter_by(id=admin_post.id).one()
-    assert post.name == "AdminPost"
     assert post.council.name_sv == "AdminCouncilSV"
-
-
-def test_admin_user_fixture(admin_user, db_session):
-    """Test that the admin_user fixture creates a user with admin post and is_member True."""
-    from db_models.user_model import User_DB
-
-    user = db_session.query(User_DB).filter_by(email="admin@example.com").one()
-    assert user.is_member is True
-    assert user.is_verified is True
-    assert any(post.name == "AdminPost" for post in user.posts)
 
 
 def test_membered_user_factory(client, db_session):

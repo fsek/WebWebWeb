@@ -14,7 +14,7 @@ class EventSignupRead(BaseSchema):
     user: UserInEventRead
     event_id: int
     priority: str
-    group_name: str
+    group_name: str | None
     drinkPackage: DRINK_PACKAGES
     confirmed_status: bool
 

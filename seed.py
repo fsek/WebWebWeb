@@ -27,7 +27,6 @@ def seed_users(db: Session, app: FastAPI):
         last_name="AllaPostersson",
         password="dabdab69",
         telephone_number=PhoneNumber("+46760187158"),
-        program="F",
     )
     user = UserCreate(
         email="user@fsektionen.se",
@@ -35,7 +34,6 @@ def seed_users(db: Session, app: FastAPI):
         last_name="Userström",
         password="dabdab69",
         telephone_number=PhoneNumber("+46706427444"),
-        program="F",
     )
     user2 = UserCreate(
         email="user2@fsektionen.se",
@@ -134,9 +132,30 @@ def seed_councils(db: Session):
 
 def seed_posts(db: Session, some_councils: list[Council_DB]):
     posts = [
-        Post_DB(name="Buggmästare", council_id=some_councils[0].id),
-        Post_DB(name="Lallare", council_id=some_councils[0].id),
-        Post_DB(name="Mytoman", council_id=some_councils[1].id),
+        Post_DB(
+            name_sv="Buggmästare",
+            name_en="Bugmaster",
+            council_id=some_councils[0].id,
+            description_sv="buggmästare",
+            description_en="bugmaster",
+            email="buggmastare@fsektionen.se",
+        ),
+        Post_DB(
+            name_sv="Lallare",
+            name_en="Laller",
+            council_id=some_councils[0].id,
+            description_sv="lallare",
+            description_en="laller",
+            email="lallare@fsektionen.se",
+        ),
+        Post_DB(
+            name_sv="Mytoman",
+            name_en="Liar",
+            council_id=some_councils[1].id,
+            description_sv="mytoman",
+            description_en="liar",
+            email="mytoman@fsektionen.se",
+        ),
     ]
     db.add_all(posts)
     db.commit()
@@ -191,7 +210,10 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="view", target="Document", posts=["Buggmästare"]),
     ]
 
-    [[post.permissions.append(perm.degenerate()) for perm in permissions if post.name in perm.posts] for post in posts]
+    [
+        [post.permissions.append(perm.degenerate()) for perm in permissions if post.name_sv in perm.posts]
+        for post in posts
+    ]
 
     db.commit()
 
