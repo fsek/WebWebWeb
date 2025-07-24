@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File
 from fastapi import Response
 from database import DB_dependency
-from img_model import Img_DB
+from db_models.img_model import Img_DB
 from services.img_service import upload_img, remove_img, get_single_img
 from user.permission import Permission
 
