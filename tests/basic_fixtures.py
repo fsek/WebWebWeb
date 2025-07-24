@@ -45,7 +45,13 @@ def admin_post(db_session):
     )
     db_session.add(council)
     db_session.commit()
-    post = Post_DB(name="AdminPost", council_id=council.id)
+    post = Post_DB(
+        name_sv="AdminPostSV",
+        name_en="AdminPost",
+        description_en="AdminDescriptionEn",
+        description_sv="AdminDescriptionSv",
+        council_id=council.id,
+    )
     db_session.add(post)
     db_session.commit()
 
@@ -139,7 +145,9 @@ def member_council_id(client, db_session, membered_user):
     db_session.add(council)
     db_session.commit()
 
-    post = Post_DB(name="MemberPost", council_id=council.id)
+    post = Post_DB(
+        name_en="rkngkr", name_sv="kejfk", description_en="jrv", description_sv="rekngvrjn", council_id=council.id
+    )
     db_session.add(post)
     db_session.commit()
 
