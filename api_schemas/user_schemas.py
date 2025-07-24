@@ -37,7 +37,7 @@ class UserAccessCreate(BaseSchema):
     user_id: int
     door: Literal[DOOR_ACCESSES]
     starttime: datetime_utc
-    stoptime: datetime_utc
+    endtime: datetime_utc
 
 
 class UserAccessRead(BaseSchema):
@@ -45,20 +45,20 @@ class UserAccessRead(BaseSchema):
     user: SimpleUserRead
     door: str
     starttime: datetime_utc
-    stoptime: datetime_utc
+    endtime: datetime_utc
 
 
 class SimpleUserAccessRead(BaseSchema):
     door: str
     starttime: datetime_utc
-    stoptime: datetime_utc
+    endtime: datetime_utc
 
 
 class UserAccessUpdate(BaseSchema):
     access_id: int
     door: Literal[DOOR_ACCESSES] | None = None
     starttime: datetime_utc | None = None
-    stoptime: datetime_utc | None = None
+    endtime: datetime_utc | None = None
 
 
 #################################

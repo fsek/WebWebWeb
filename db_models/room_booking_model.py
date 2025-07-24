@@ -1,10 +1,9 @@
-from datetime import datetime
 from helpers.constants import MAX_ROOM_DESC
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from sqlalchemy import ForeignKey, String
-from helpers.types import ROOMS
+from helpers.types import ROOMS, datetime_utc
 
 if TYPE_CHECKING:
     from .user_model import User_DB
@@ -18,15 +17,15 @@ class RoomBooking_DB(BaseModel_DB):
 
     room: Mapped[ROOMS] = mapped_column()
 
-    start_time: Mapped[datetime] = mapped_column()
-    end_time: Mapped[datetime] = mapped_column()
-
-    description: Mapped[str] = mapped_column(String(MAX_ROOM_DESC))
+    start_time: Mapped[datetime_utc] = mapped_column()
+    end_time: Mapped[datetime_utc] = mapped_column()
 
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
-    user: Mapped["User_DB"] = relationship("User_DB", back_populates="room_bookings", init=False)
+    user: Mapped["User_DB"] = relationship(back_populates="room_bookings", init=False)
 
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
-    council: Mapped["Council_DB"] = relationship("Council_DB", back_populates="room_bookings", init=False)
+    council: Mapped["Council_DB"] = relationship(back_populates="room_bookings", init=False)
+
+    description: Mapped[Optional[str]] = mapped_column(String(MAX_ROOM_DESC), default=None)
 
     pass

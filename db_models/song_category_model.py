@@ -9,7 +9,7 @@ if TYPE_CHECKING:
 
 
 class SongCategory_DB(BaseModel_DB):
-    __tablename__ = "songcategory_table"
+    __tablename__ = "song_category_table"
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 

@@ -1,5 +1,5 @@
+from helpers.db_util import created_at_column
 from helpers.types import datetime_utc
-import datetime
 
 from sqlalchemy import ForeignKey, String
 from db_models.base_model import BaseModel_DB
@@ -36,4 +36,4 @@ class AdventureMission_DB(BaseModel_DB):
         back_populates="adventure_mission", cascade="all, delete-orphan", init=False
     )
 
-    created_at: Mapped[datetime_utc] = mapped_column(default=datetime.datetime.now(datetime.UTC))
+    created_at: Mapped[datetime_utc] = created_at_column()

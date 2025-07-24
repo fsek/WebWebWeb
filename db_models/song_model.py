@@ -25,7 +25,7 @@ class Song_DB(BaseModel_DB):
 
     melody: Mapped[Optional[str]] = mapped_column(String(MAX_SONG_MELODY), default=None)
 
-    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("songcategory_table.id"), default=None)
+    category_id: Mapped[Optional[int]] = mapped_column(ForeignKey("song_category_table.id"), default=None)
 
     category: Mapped[Optional["SongCategory_DB"]] = relationship(back_populates="songs", init=False)
 

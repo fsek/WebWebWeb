@@ -41,6 +41,3 @@ class News_DB(BaseModel_DB):
     news_tags: Mapped[list["NewsTag_DB"]] = relationship(
         back_populates="news", cascade="all, delete-orphan", init=False
     )
-
-    # categories: Mapped[list["Category_DB"]]
-    # image: Mapped["Image_DB"]

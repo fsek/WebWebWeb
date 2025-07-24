@@ -17,11 +17,11 @@ class NollningGroup_DB(BaseModel_DB):
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    nollning: Mapped["Nollning_DB"] = relationship(back_populates="nollning_groups")
     nollning_id: Mapped[int] = mapped_column(ForeignKey("nollning_table.id"))
+    nollning: Mapped["Nollning_DB"] = relationship(back_populates="nollning_groups")
 
-    group: Mapped["Group_DB"] = relationship(back_populates="nollning_groups")
     group_id: Mapped[int] = mapped_column(ForeignKey("group_table.id"))
+    group: Mapped["Group_DB"] = relationship(back_populates="nollning_groups")
 
     group_missions: Mapped[list["GroupMission_DB"]] = relationship(
         back_populates="nollning_group", cascade="all, delete-orphan", init=False

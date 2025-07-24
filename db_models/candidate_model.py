@@ -6,11 +6,6 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 
-
-# if TYPE_CHECKING:
-#     from .user_model import User_DB
-#     from .election_model import Election_DB
-
 if TYPE_CHECKING:
     from .election_model import Election_DB
     from .user_model import User_DB
@@ -25,11 +20,11 @@ class Candidate_DB(BaseModel_DB):
 
     election_id: Mapped[int] = mapped_column(ForeignKey("election_table.election_id"))
 
-    election: Mapped["Election_DB"] = relationship("Election_DB", back_populates="candidates", init=False)
+    election: Mapped["Election_DB"] = relationship(back_populates="candidates", init=False)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
 
-    user: Mapped["User_DB"] = relationship("User_DB", back_populates="candidates", init=False)
+    user: Mapped["User_DB"] = relationship(back_populates="candidates", init=False)
 
     candidations: Mapped[list["Candidation_DB"]] = relationship(
         back_populates="candidate", cascade="all, delete-orphan", init=False
