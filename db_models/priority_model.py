@@ -14,5 +14,5 @@ class Priority_DB(BaseModel_DB):
 
     priority: Mapped[str] = mapped_column()
 
-    event: Mapped["Event_DB"] = relationship(back_populates="priorities", init=False)
     event_id: Mapped[int] = mapped_column(ForeignKey("event_table.id"))
+    event: Mapped["Event_DB"] = relationship(back_populates="priorities", init=False)

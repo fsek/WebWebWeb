@@ -2,7 +2,7 @@ from helpers.types import datetime_utc
 from db_models.candidate_model import Candidate_DB
 from db_models.election_post_model import ElectionPost_DB
 from db_models.post_model import Post_DB
-from helpers.constants import MAX_ELECTION_DESC
+from helpers.constants import MAX_ELECTION_DESC, MAX_ELECTION_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import TYPE_CHECKING, Optional
@@ -21,7 +21,7 @@ class Election_DB(BaseModel_DB):
 
     election_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    title: Mapped[str] = mapped_column()
+    title: Mapped[str] = mapped_column(String(MAX_ELECTION_TITLE))
 
     start_time: Mapped[datetime_utc] = mapped_column()
 
@@ -34,7 +34,7 @@ class Election_DB(BaseModel_DB):
     )
 
     candidates: Mapped[list["Candidate_DB"]] = relationship(
-        "Candidate_DB", back_populates="election", cascade="all, delete-orphan", init=False
+        back_populates="election", cascade="all, delete-orphan", init=False
     )
 
     posts: AssociationProxy[list["Post_DB"]] = association_proxy(

@@ -1,4 +1,5 @@
 from typing import Annotated
+from api_schemas.user_schemas import SimpleUserRead
 from helpers.types import datetime_utc
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
@@ -8,9 +9,7 @@ from api_schemas.council_schema import SimpleCouncilRead
 
 class CarBookingRead(BaseSchema):
     booking_id: int
-    user_id: int
-    user_first_name: str
-    user_last_name: str
+    user: SimpleUserRead
     description: str
     start_time: datetime_utc
     end_time: datetime_utc

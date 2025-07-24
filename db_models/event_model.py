@@ -1,8 +1,8 @@
 from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, datetime_utc
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, String, Enum
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import mapped_column, Mapped, relationship
-from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_LOCATION, MAX_EVENT_TITLE
+from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_DRESS_CODE, MAX_EVENT_LOCATION, MAX_EVENT_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from db_models.event_tag_model import EventTag_DB
@@ -35,13 +35,13 @@ class Event_DB(BaseModel_DB):
 
     location: Mapped[str] = mapped_column(String(MAX_EVENT_LOCATION))
 
-    dress_code: Mapped[str] = mapped_column(String(MAX_EVENT_TITLE))
+    dress_code: Mapped[str] = mapped_column(String(MAX_EVENT_DRESS_CODE))
 
     price: Mapped[int] = mapped_column()
 
     signup_count: Mapped[int] = mapped_column(init=False, default=0)
 
-    alcohol_event_type: Mapped[ALCOHOL_EVENT_TYPES] = mapped_column()
+    alcohol_event_type: Mapped[ALCOHOL_EVENT_TYPES] = mapped_column(default="None")
 
     max_event_users: Mapped[int] = mapped_column(default=0)
 

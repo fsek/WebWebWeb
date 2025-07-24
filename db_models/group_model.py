@@ -2,7 +2,8 @@ from sqlalchemy import String
 from typing import TYPE_CHECKING
 
 
-from helpers.constants import MAX_GROUP_NAME, MAX_GROUP_TYPE_NAME
+from helpers.constants import MAX_GROUP_NAME
+from helpers.types import GROUP_TYPE
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
@@ -22,7 +23,7 @@ class Group_DB(BaseModel_DB):
 
     name: Mapped[str] = mapped_column(String(MAX_GROUP_NAME))
 
-    group_type: Mapped[str] = mapped_column(String(MAX_GROUP_TYPE_NAME), default=None)
+    group_type: Mapped[GROUP_TYPE] = mapped_column(default="Default")
 
     group_users: Mapped[list["GroupUser_DB"]] = relationship(
         back_populates="group", cascade="all, delete-orphan", init=False
