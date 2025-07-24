@@ -1,23 +1,22 @@
 from typing import Annotated
+from api_schemas.user_schemas import SimpleUserRead
 from helpers.types import datetime_utc
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_CAR_DESC
-from api_schemas.council_schema import CouncilInCarBookingRead
+from api_schemas.council_schema import SimpleCouncilRead
 
 
 class CarBookingRead(BaseSchema):
     booking_id: int
-    user_id: int
-    user_first_name: str
-    user_last_name: str
+    user: SimpleUserRead
     description: str
     start_time: datetime_utc
     end_time: datetime_utc
     confirmed: bool
     personal: bool
     council_id: int | None = None
-    council: CouncilInCarBookingRead | None = None
+    council: SimpleCouncilRead | None = None
 
 
 class CarBookingCreate(BaseSchema):

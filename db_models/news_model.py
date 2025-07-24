@@ -1,4 +1,3 @@
-from datetime import datetime
 from helpers.types import datetime_utc
 from typing import TYPE_CHECKING, Optional
 from db_models.base_model import BaseModel_DB
@@ -42,6 +41,3 @@ class News_DB(BaseModel_DB):
     news_tags: Mapped[list["NewsTag_DB"]] = relationship(
         back_populates="news", cascade="all, delete-orphan", init=False
     )
-
-    # categories: Mapped[list["Category_DB"]]
-    # image: Mapped["Image_DB"]

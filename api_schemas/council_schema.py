@@ -4,28 +4,30 @@ from api_schemas.event_schemas import EventRead
 
 
 class CouncilCreate(BaseSchema):
-    name: str
-    description: str | None = None
+    name_sv: str
+    name_en: str
+    description_sv: str | None = None
+    description_en: str | None = None
 
 
 class CouncilRead(BaseSchema):
     id: int
-    name: str
+    name_sv: str
+    name_en: str
     posts: list[PostRead]
     events: list[EventRead]
-    description: str | None
+    description_sv: str | None
+    description_en: str | None
 
 
 class CouncilUpdate(BaseSchema):
-    name: str | None = None
-    description: str | None = None
+    name_sv: str | None = None
+    name_en: str | None = None
+    description_sv: str | None = None
+    description_en: str | None = None
 
 
-class CouncilInEventRead(BaseSchema):
+class SimpleCouncilRead(BaseSchema):
     id: int
-    name: str
-
-
-class CouncilInCarBookingRead(BaseSchema):
-    id: int
-    name: str
+    name_sv: str
+    name_en: str

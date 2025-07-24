@@ -37,6 +37,6 @@ class Album_DB(BaseModel_DB):
 
     photographer_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"), default=None)
 
-    photographer: Mapped["User_DB"] = relationship(back_populates="photographed_albums", init=False)
+    photographer: Mapped[Optional["User_DB"]] = relationship(back_populates="photographed_albums", init=False)
 
     imgs: Mapped[list["Img_DB"]] = relationship(back_populates="album", init=False)

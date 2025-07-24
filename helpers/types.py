@@ -33,7 +33,7 @@ class MEMBER_ROLES(str, Enum):
 # WARNING: Remove only an item from these if db-objects using the item have been deleted.
 # Adding to them is always safe though.
 
-PERMISSION_TYPE = Literal["view", "manage"]
+PERMISSION_TYPE = Literal["view", "manage", "super"]
 PERMISSION_TARGET = Literal[
     "Event",
     "Document",
@@ -53,6 +53,7 @@ PERMISSION_TARGET = Literal[
     "UserDoorAccess",
     "Tags",
     "Council",
+    "Room Bookings",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
@@ -80,3 +81,5 @@ ALCOHOL_EVENT_TYPES = Literal["Alcohol", "Alcohol-Served", "None"]
 EVENT_DOT_TYPES = Literal["None", "Single", "Double"]
 
 PROGRAM_TYPE = Literal["Oklart", "F", "Pi", "N"]
+
+ROOMS = Literal["LC", "Alumni", "SK"]

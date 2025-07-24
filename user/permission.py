@@ -5,6 +5,7 @@ from db_models.permission_model import PERMISSION_TYPE, PERMISSION_TARGET
 from db_models.user_model import User_DB
 from user.token_strategy import JWT_SECRET, AccessTokenData, CustomTokenStrategy
 from user.user_stuff import (
+    current_user,
     current_verified_user,
     current_verified_user_token,
 )
@@ -12,12 +13,17 @@ from user.user_stuff import (
 
 class Permission:
     @classmethod
+    def primitive(cls):
+        # Use this for almost only verification of email and getMe
+        return Depends(current_user)
+
+    @classmethod
     def base(cls):
         # Use this dependency for routes that any user, member or not, should access
         return Depends(current_verified_user)
 
     @classmethod
-    def member(cls): 
+    def member(cls):
         # Use this dependency for routes that any member should access
         def dependency(user: User_DB = Depends(current_verified_user)):
             if not user.is_member:

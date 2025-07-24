@@ -1,13 +1,11 @@
 from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import StringConstraints
 from fastapi_users_pelicanq import schemas as fastapi_users_schemas
-from api_schemas.permission_schemas import PermissionRead
 from api_schemas.post_schemas import PostRead
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from helpers.types import DOOR_ACCESSES, PROGRAM_TYPE, datetime_utc
-from sqlalchemy import Enum
 
 if TYPE_CHECKING:
     from api_schemas.group_schema import GroupRead
@@ -39,7 +37,7 @@ class UserAccessCreate(BaseSchema):
     user_id: int
     door: Literal[DOOR_ACCESSES]
     starttime: datetime_utc
-    stoptime: datetime_utc
+    endtime: datetime_utc
 
 
 class UserAccessRead(BaseSchema):
@@ -47,20 +45,20 @@ class UserAccessRead(BaseSchema):
     user: SimpleUserRead
     door: str
     starttime: datetime_utc
-    stoptime: datetime_utc
+    endtime: datetime_utc
 
 
 class SimpleUserAccessRead(BaseSchema):
     door: str
     starttime: datetime_utc
-    stoptime: datetime_utc
+    endtime: datetime_utc
 
 
 class UserAccessUpdate(BaseSchema):
     access_id: int
     door: Literal[DOOR_ACCESSES] | None = None
     starttime: datetime_utc | None = None
-    stoptime: datetime_utc | None = None
+    endtime: datetime_utc | None = None
 
 
 #################################
@@ -111,7 +109,7 @@ class UserInGroupRead(BaseSchema):
 class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
     first_name: Annotated[str, StringConstraints(max_length=MAX_FIRST_NAME_LEN)]
     last_name: Annotated[str, StringConstraints(max_length=MAX_LAST_NAME_LEN)]
-    telephone_number: PhoneNumber | None = None
+    telephone_number: PhoneNumber
     start_year: int | None = None
     pass
 
@@ -123,8 +121,9 @@ class UserUpdate(BaseSchema):
     program: PROGRAM_TYPE | None = None
     notifications: bool | None = None
     stil_id: str | None = None
-    standard_food_preferences: list[str] | None
-    other_food_preferences: str | None
+    standard_food_preferences: list[str] | None = None
+    other_food_preferences: str | None = None
+    telephone_number: PhoneNumber | None = None
 
 
 class UpdateUserMember(BaseSchema):

@@ -2,7 +2,7 @@ from io import StringIO
 from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import StreamingResponse
 from psycopg import IntegrityError
-from api_schemas.tag_schema import EventTagRead, TagRead
+from api_schemas.tag_schema import EventTagRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
 from api_schemas.event_schemas import AddEventTag, EventCreate, EventRead, EventUpdate
@@ -11,7 +11,6 @@ from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from db_models.event_tag_model import EventTag_DB
 from services.event_service import create_new_event, delete_event, update_event
-from db_models.tag_model import Tag_DB
 from user.permission import Permission
 import random
 from typing import List, get_args

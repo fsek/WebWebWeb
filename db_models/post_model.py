@@ -41,7 +41,7 @@ class Post_DB(BaseModel_DB):
         back_populates="post", cascade="all, delete-orphan", init=False
     )
     permissions: AssociationProxy[list["Permission_DB"]] = association_proxy(
-        attr="permission", target_collection="post_permissions", init=False, creator=perm_creator
+        attr="permission", target_collection="post_permissions", creator=perm_creator, init=False
     )
 
     post_users: Mapped[list["PostUser_DB"]] = relationship(
@@ -53,7 +53,5 @@ class Post_DB(BaseModel_DB):
     )
 
     users: AssociationProxy[list["User_DB"]] = association_proxy(
-        target_collection="post_users", attr="user", init=False, creator=creator
+        target_collection="post_users", attr="user", creator=creator, init=False
     )
-
-    # has many users through postusers

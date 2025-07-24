@@ -46,3 +46,21 @@ def create_membered_user(client, db_session, **kwargs):
 
 def auth_headers(token):
     return {"Authorization": f"Bearer {token}"}
+
+
+def council_data_factory(**kwargs):
+    """Factory for council create/update payloads."""
+    default_data = {
+        "name_sv": "Testutskott",
+        "description_sv": "Test beskrivning",
+        "name_en": "Test Council",
+        "description_en": "Test description",
+    }
+    return {**default_data, **kwargs}
+
+
+def create_council(client, token=None, **kwargs):
+    """Helper to POST /councils/ with optional token and payload overrides."""
+    data = council_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.post("/councils/", json=data, headers=headers)

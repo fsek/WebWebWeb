@@ -3,7 +3,6 @@ from api_schemas.user_schemas import UserAccessCreate, UserAccessRead, UserAcces
 from database import DB_dependency
 from db_models.user_door_access_model import UserDoorAccess_DB
 from user.permission import Permission
-from sqlalchemy.exc import IntegrityError, StatementError, SQLAlchemyError
 
 
 user_access_router = APIRouter()
@@ -14,12 +13,10 @@ user_access_router = APIRouter()
 )
 def post_user_access(db: DB_dependency, data: UserAccessCreate):
 
-    if data.starttime >= data.stoptime:
+    if data.starttime >= data.endtime:
         raise HTTPException(400, detail="Stop time must be later than start time")
 
-    newAccess = UserDoorAccess_DB(
-        user_id=data.user_id, door=data.door, starttime=data.starttime, stoptime=data.stoptime
-    )
+    newAccess = UserDoorAccess_DB(user_id=data.user_id, door=data.door, starttime=data.starttime, endtime=data.endtime)
 
     try:
         db.add(newAccess)
@@ -52,7 +49,7 @@ def update_user_access(db: DB_dependency, data: UserAccessUpdate):
     for var, value in vars(data).items():
         setattr(access, var, value) if value else None
 
-    if access.stoptime < access.starttime:
+    if access.endtime < access.starttime:
         db.rollback()
         raise HTTPException(400, detail="Stop time must be later than start time")
 

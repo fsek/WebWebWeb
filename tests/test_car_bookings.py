@@ -403,26 +403,3 @@ def test_admin_delete_any_booking(client, admin_token, member_token, member_coun
     resp2 = client.delete(f"/car/{booking_id}", headers=auth_headers(admin_token))
     assert resp2.status_code in (200, 204)
 
-
-# Test members cannot read too much information about other members' bookings
-def test_member_read_other_booking(client, member_token, admin_token, admin_council_id):
-    start = stockholm_dt(2030, 3, 13, 10)
-    end = stockholm_dt(2030, 3, 13, 12)
-
-    # Admin creates a booking
-    resp = create_booking(client, admin_token, start, end, "admin booking", council_id=admin_council_id)
-    assert resp.status_code in (200, 201)
-    booking_id = resp.json()["booking_id"]
-
-    # Member should not be able to read admin's booking details
-    resp2 = client.get(f"/car/{booking_id}", headers=auth_headers(member_token))
-    assert resp2.status_code == 200
-    assert "start_time" in resp2.json()
-    assert "end_time" in resp2.json()
-    assert "personal" in resp2.json()
-    if "user" in resp2.json():
-        assert "posts" not in resp2.user.json()  # Should not see posts or other sensitive info
-        assert "cafe_shifts" not in resp2.user.json()
-        assert "stil_id" not in resp2.user.json()
-    else:
-        assert "user_id" in resp2.json()

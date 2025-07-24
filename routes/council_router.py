@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
+from httpx import delete
 from api_schemas.council_schema import CouncilCreate, CouncilRead, CouncilUpdate
 from db_models.council_model import Council_DB
 from user.permission import Permission
@@ -13,10 +14,15 @@ council_router = APIRouter()
 
 @council_router.post("/", response_model=CouncilRead, dependencies=[Permission.require("manage", "Council")])
 def create_council(data: CouncilCreate, db: DB_dependency):
-    council = db.query(Council_DB).filter_by(name=data.name).one_or_none()
+    council = db.query(Council_DB).filter_by(name_sv=data.name_sv).one_or_none()
     if council is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Council already exists")
-    council = Council_DB(name=data.name, description=data.description)
+    council = Council_DB(
+        name_sv=data.name_sv,
+        description_sv=data.description_sv,
+        name_en=data.name_en,
+        description_en=data.description_en,
+    )
     db.add(council)
     db.commit()
     return council
@@ -49,4 +55,14 @@ def update_council(council_id: int, data: CouncilUpdate, db: DB_dependency):
 
     db.commit()
 
+    return council
+
+
+@council_router.delete(
+    "/{council_id}", response_model=CouncilRead, dependencies=[Permission.require("super", "Council")]
+)
+def delete_council(council_id: int, db: DB_dependency):
+    council = db.query(Council_DB).filter_by(id=council_id).one_or_none()
+    db.delete(council)
+    db.commit()
     return council

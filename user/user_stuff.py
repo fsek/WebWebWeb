@@ -29,12 +29,12 @@ if os.getenv("ENVIRONMENT") == "production":
         cookie_secure=True,  # Secure cookie for production
         cookie_httponly=True,  # HttpOnly to prevent JavaScript access
     )
-elif os.getenv("ENVIRONMENT") == "staging":
+elif os.getenv("ENVIRONMENT") == "stage":
     cookie_transport = CookieTransport(
-        cookie_name="_fsek_refresh_token",
+        cookie_name="_fsek_stage_refresh_token",
         cookie_max_age=LOGIN_TIMEOUT,
         cookie_samesite="lax",
-        cookie_domain=None,  # Use default domain for local development
+        cookie_domain="fsektionen.se",  # Use default domain for local development
         cookie_path="/auth",
         cookie_secure=True,
         cookie_httponly=True,  # HttpOnly to prevent JavaScript access
@@ -84,6 +84,8 @@ def get_enabled_backends() -> list[AuthenticationBackend[User_DB, int]]:
 
 # Below are dependencies (functions to feed into Depends()).
 # They validate the client to be a user who we have given a token.
+
+current_user: Any = USERS.current_user(get_enabled_backends=get_enabled_backends)
 
 current_verified_user: Any = USERS.current_user(verified=True, get_enabled_backends=get_enabled_backends)
 

@@ -25,35 +25,35 @@ def seed_users(db: Session, app: FastAPI):
         email="boss@fsektionen.se",
         first_name="Boss",
         last_name="AllaPostersson",
-        password="dabdab",
+        password="dabdab69",
         telephone_number=PhoneNumber("+46760187158"),
     )
     user = UserCreate(
         email="user@fsektionen.se",
         first_name="User",
         last_name="Userström",
-        password="dabdab",
+        password="dabdab69",
         telephone_number=PhoneNumber("+46706427444"),
     )
     user2 = UserCreate(
         email="user2@fsektionen.se",
         first_name="User2",
         last_name="Userström2",
-        password="dabdab",
+        password="dabdab69",
         telephone_number=PhoneNumber("+46760187158"),
     )
     user3 = UserCreate(
         email="user3@fsektionen.se",
         first_name="User3",
         last_name="Userström3",
-        password="dabdab",
+        password="dabdab69",
         telephone_number=PhoneNumber("+46760187158"),
     )
     user4 = UserCreate(
         email="user4@fsektionen.se",
         first_name="User4",
         last_name="Userström4",
-        password="dabdab",
+        password="dabdab69",
         telephone_number=PhoneNumber("+46760187158"),
     )
 
@@ -111,8 +111,18 @@ def seed_cafe_shifts(db: Session, user: User_DB):
 
 def seed_councils(db: Session):
     councils = [
-        Council_DB(name="Kodmästeriet", description="bra beskrivning"),
-        Council_DB(name="Sanningsministeriet", description="bättre beskrivning"),
+        Council_DB(
+            name_sv="Kodmästeriet",
+            description_sv="bra beskrivning",
+            name_en="The Code Masters",
+            description_en="a better description",
+        ),
+        Council_DB(
+            name_sv="Sanningsministeriet",
+            description_sv="bättre beskrivning",
+            name_en="The Ministry of Truth",
+            description_en="an even better description",
+        ),
     ]
     db.add_all(councils)
     db.commit()
@@ -172,49 +182,6 @@ class Permission(Permission_DB):
 
 def seed_permissions(db: Session, posts: list[Post_DB]):
 
-    perm1 = Permission_DB(action="manage", target="Permission")
-    perm2 = Permission_DB(action="view", target="User")
-    perm3 = Permission_DB(action="manage", target="Event")
-    perm4 = Permission_DB(action="manage", target="Post")
-    perm5 = Permission_DB(action="manage", target="News")
-    perm6 = Permission_DB(action="manage", target="Song")
-    perm7 = Permission_DB(action="manage", target="Gallery")
-    perm8 = Permission_DB(action="manage", target="Ads")
-    perm9 = Permission_DB(action="manage", target="Car")
-    perm10 = Permission_DB(action="manage", target="Election")
-    perm11 = Permission_DB(action="manage", target="Cafe")
-    perm21 = Permission_DB(action="manage", target="Groups")
-    perm17 = Permission_DB(action="view", target="Groups")
-    perm69 = Permission_DB(action="manage", target="UserDoorAccess")
-    perm1337 = Permission_DB(action="view", target="UserDoorAccess")
-
-    perm23 = Permission_DB(action="manage", target="Adventure Missions")
-    perm34 = Permission_DB(action="manage", target="Nollning")
-    perm36 = Permission_DB(action="view", target="Nollning")
-
-    perm90 = Permission_DB(action="view", target="Document")
-    perm91 = Permission_DB(action="manage", target="Document")
-
-    posts[0].permissions.append(perm1)
-    posts[0].permissions.append(perm2)
-    posts[1].permissions.append(perm3)
-    posts[0].permissions.append(perm4)
-    posts[1].permissions.append(perm5)
-    posts[0].permissions.append(perm6)
-    posts[0].permissions.append(perm7)
-    posts[0].permissions.append(perm8)
-    posts[0].permissions.append(perm9)
-    posts[0].permissions.append(perm10)
-    posts[1].permissions.append(perm11)
-    posts[0].permissions.append(perm21)
-    posts[0].permissions.append(perm23)
-    posts[0].permissions.append(perm34)
-    posts[0].permissions.append(perm36)
-    posts[0].permissions.append(perm69)
-    posts[0].permissions.append(perm1337)
-    posts[0].permissions.append(perm90)
-    posts[0].permissions.append(perm91)
-
     permissions = [
         Permission(action="manage", target="Permission", posts=["Buggmästare"]),
         Permission(action="view", target="User", posts=["Buggmästare"]),
@@ -235,6 +202,12 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="Council", posts=["Buggmästare"]),
         Permission(action="view", target="Council", posts=["Buggmästare"]),
         Permission(action="manage", target="User", posts=["Buggmästare"]),
+        Permission(action="manage", target="Room Bookings", posts=["Buggmästare"]),
+        Permission(action="view", target="Room Bookings", posts=["Buggmästare"]),
+        Permission(action="manage", target="UserDoorAccess", posts=["Buggmästare"]),
+        Permission(action="view", target="UserDoorAccess", posts=["Buggmästare"]),
+        Permission(action="manage", target="Document", posts=["Buggmästare"]),
+        Permission(action="view", target="Document", posts=["Buggmästare"]),
     ]
 
     [

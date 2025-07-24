@@ -16,9 +16,11 @@ class ElectionPost_DB(BaseModel_DB):
     election_post_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     election_id: Mapped[int] = mapped_column(ForeignKey("election_table.election_id"))
-    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"))
-
-    post: Mapped["Post_DB"] = relationship(back_populates="election_posts", init=False)
     election: Mapped["Election_DB"] = relationship(back_populates="election_posts", init=False)
 
-    candidations: Mapped[list["Candidation_DB"]] = relationship(back_populates="election_post", init=False)
+    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"))
+    post: Mapped["Post_DB"] = relationship(back_populates="election_posts", init=False)
+
+    candidations: Mapped[list["Candidation_DB"]] = relationship(
+        back_populates="election_post", cascade="all, delete-orphan", init=False
+    )
