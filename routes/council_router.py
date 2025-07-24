@@ -1,5 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
+from httpx import delete
 from api_schemas.council_schema import CouncilCreate, CouncilRead, CouncilUpdate
 from db_models.council_model import Council_DB
 from user.permission import Permission
@@ -54,4 +55,14 @@ def update_council(council_id: int, data: CouncilUpdate, db: DB_dependency):
 
     db.commit()
 
+    return council
+
+
+@council_router.delete(
+    "/{council_id}", response_model=CouncilRead, dependencies=[Permission.require("super", "Council")]
+)
+def delete_council(council_id: int, db: DB_dependency):
+    council = db.query(Council_DB).filter_by(id=council_id).one_or_none()
+    db.delete(council)
+    db.commit()
     return council

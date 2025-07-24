@@ -25,7 +25,7 @@ MEMBER_ROLES = Literal["photographer", "ordförande", "dinmamma"]
 # WARNING: Remove only an item from these if db-objects using the item have been deleted.
 # Adding to them is always safe though.
 
-PERMISSION_TYPE = Literal["view", "manage"]
+PERMISSION_TYPE = Literal["view", "manage", "super"]
 PERMISSION_TARGET = Literal[
     "Event",
     "Document",
