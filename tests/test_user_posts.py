@@ -42,11 +42,12 @@ def test_admin_remove_user_posts(client, membered_user, admin_post, admin_token)
     assert data["posts"] == []  # All posts should be removed
 
 
-def test_admin_update_user_posts_invalid_post(client, membered_user, admin_token):
+def test_admin_update_user_posts_invalid_post(client, membered_user, admin_token, admin_post):
     """Updating with a non-existent post ID returns 404."""
+    invalid_post_id = admin_post.id + 9999  # +1 should be sufficient, but let's be sure
     response = client.patch(
         f"/users/admin/user-posts/{membered_user.id}",
-        json={"post_ids": [9999]},
+        json={"post_ids": [invalid_post_id]},
         headers=auth_headers(admin_token),
     )
     assert response.status_code == status.HTTP_404_NOT_FOUND

@@ -1,5 +1,5 @@
 from typing import get_args
-from api_schemas.user_schemas import UpdateUserMemberMultiple, UserUpdate, UpdateUserMember
+from api_schemas.user_schemas import UpdateUserMemberMultiple, UpdateUserPosts, UserUpdate, UpdateUserMember
 from database import DB_dependency
 from db_models.user_model import User_DB
 from fastapi import HTTPException, status
@@ -97,29 +97,30 @@ def update_multiple_users_status(data: list[UpdateUserMemberMultiple], db: DB_de
     return updated_users
 
 
-def update_user_posts(user: User_DB, post_ids: list[int], db: DB_dependency):
+def update_user_posts(user: User_DB, update_posts: UpdateUserPosts, db: DB_dependency):
+    post_ids = update_posts.post_ids
     if not post_ids:
-        # If no post IDs are provided, clear the user's posts
         user.posts.clear()
-        try:
-            db.commit()
-        except DataError:
-            db.rollback()
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Error updating user posts")
-        return user
 
-    for post_id in post_ids:
-        post = db.query(Post_DB).filter(Post_DB.id == post_id).one_or_none()
-        if not post:
-            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Post with id {post_id} not found")
+    else:
+        # Fetch all posts with the given IDs
+        posts = db.query(Post_DB).filter(Post_DB.id.in_(post_ids)).all()
+        posts_by_id = {post.id: post for post in posts}
 
-        # Add new posts
-        if post not in user.posts:
-            user.posts.append(post)
+        # Check if all post_ids exist in the database
+        missing_post_ids = [post_id for post_id in post_ids if post_id not in posts_by_id]
+        if missing_post_ids:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Posts with ids {missing_post_ids} not found")
 
-    # Remove posts not in the new list
-    for post in user.posts:
-        if post.id not in post_ids:
+        # Add new posts to the user
+        for post_id in post_ids:
+            post = posts_by_id[post_id]
+            if post not in user.posts:
+                user.posts.append(post)
+
+        # Remove posts not in the new list
+        posts_to_remove = [post for post in user.posts if post.id not in post_ids]
+        for post in posts_to_remove:
             user.posts.remove(post)
 
     try:

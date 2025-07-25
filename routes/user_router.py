@@ -72,14 +72,14 @@ def update_multiple_users_status(data: list[UpdateUserMemberMultiple], db: DB_de
 @user_router.patch(
     "/admin/user-posts/{user_id}",
     response_model=AdminUserRead,
-    dependencies=[Permission.require("manage", "User"), Permission.require("manage", "Post")],
+    dependencies=[Permission.require("manage", "User")],
 )
 def update_user_posts(user_id: int, data: UpdateUserPosts, db: DB_dependency):
     user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
     if not user:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
 
-    updated_user = user_service.update_user_posts(user, data.post_ids, db)
+    updated_user = user_service.update_user_posts(user, data, db)
     return updated_user
 
 
