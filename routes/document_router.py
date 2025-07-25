@@ -1,8 +1,6 @@
-from pydoc import doc
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi import Response
-from sqlalchemy import func
 from database import DB_dependency
 from db_models.document_model import Document_DB
 from api_schemas.document_schema import DocumentRead, DocumentCreate, DocumentUpdate, document_create_form
@@ -10,9 +8,7 @@ from db_models.user_model import User_DB
 from helpers.constants import MAX_DOC_TITLE
 from user.permission import Permission
 from fastapi import File, UploadFile, HTTPException
-import random
 import os
-import re
 from fastapi.responses import FileResponse
 from helpers.db_util import sanitize_title
 from sqlalchemy.exc import IntegrityError

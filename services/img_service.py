@@ -7,7 +7,6 @@ from db_models.img_model import Img_DB
 from helpers.constants import MAX_IMG_NAME
 import random
 import os
-import re
 from helpers.db_util import sanitize_title
 from sqlalchemy.exc import IntegrityError
 
@@ -49,11 +48,11 @@ def upload_img(db: Session, album_id: int, file: UploadFile = File()):
 
     file.filename = sanitized_filename
 
-    file_path = Path(f"/{album.path}/{salt}{sanitized_filename}{ext}")
+    file_path = Path(f"{album.path}/{salt}{sanitized_filename}{ext}")
     if file_path.is_file():
         raise HTTPException(409, detail="Filename is equal to already existing file")
 
-    img = Img_DB(path=file_path.name, album_id=album_id)
+    img = Img_DB(path=str(file_path), album_id=album_id)
 
     try:
         db.add(img)

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, status
 from fastapi import Response
 from database import DB_dependency
 from db_models.img_model import Img_DB
@@ -34,7 +34,7 @@ def get_image(db: DB_dependency, img_id: int, response: Response):
 
     if img is None:
         raise HTTPException(status_code=404, detail="Not found")
-
-    response.headers["X-Accel-Redirect"] = img.path
-
-    return response
+    return Response(
+        status_code=status.HTTP_200_OK,
+        headers={"X-Accel-Redirect": img.path},
+    )
