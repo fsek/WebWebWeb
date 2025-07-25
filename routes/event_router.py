@@ -29,9 +29,8 @@ def get_all_events(db: DB_dependency):
 
 @event_router.get("/priorities", response_model=list[str])
 def get_event_priorities():
-    # Extract literal values using typing
-    member_roles = get_args(MEMBER_ROLES)
-    return list(member_roles)
+    # Return the values of the MEMBER_ROLES Enum
+    return [role.value for role in MEMBER_ROLES]
 
 
 @event_router.get("/{eventId}", response_model=EventRead)
