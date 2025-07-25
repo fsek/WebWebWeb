@@ -5,7 +5,14 @@ from fastapi import APIRouter, HTTPException, Query, status
 from api_schemas.base_schema import BaseSchema
 from database import DB_dependency
 from db_models.user_model import User_DB
-from api_schemas.user_schemas import AdminUserRead, UpdateUserMember, UpdateUserMemberMultiple, UserUpdate, UserRead
+from api_schemas.user_schemas import (
+    AdminUserRead,
+    UpdateUserMember,
+    UpdateUserMemberMultiple,
+    UserUpdate,
+    UserRead,
+    UpdateUserPosts,
+)
 from services import user as user_service
 from user.permission import Permission
 from api_schemas.post_schemas import PostRead
@@ -60,6 +67,20 @@ def update_multiple_users_status(data: list[UpdateUserMemberMultiple], db: DB_de
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No users provided for status update")
 
     return user_service.update_multiple_users_status(data, db)
+
+
+@user_router.patch(
+    "/admin/user-posts/{user_id}",
+    response_model=AdminUserRead,
+    dependencies=[Permission.require("manage", "User"), Permission.require("manage", "Post")],
+)
+def update_user_posts(user_id: int, data: UpdateUserPosts, db: DB_dependency):
+    user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
+    if not user:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    updated_user = user_service.update_user_posts(user, data.post_ids, db)
+    return updated_user
 
 
 @user_router.get("/{user_id}", dependencies=[Permission.require("view", "User")], response_model=UserRead)

@@ -6,6 +6,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.exc import DataError, NoResultFound, MultipleResultsFound
 import re
 from helpers.types import FOOD_PREFERENCES
+from db_models.post_model import Post_DB
 
 
 def check_stil_id(s: str) -> bool:
@@ -94,3 +95,37 @@ def update_multiple_users_status(data: list[UpdateUserMemberMultiple], db: DB_de
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Error updating user statuses")
 
     return updated_users
+
+
+def update_user_posts(user: User_DB, post_ids: list[int], db: DB_dependency):
+    if not post_ids:
+        # If no post IDs are provided, clear the user's posts
+        user.posts.clear()
+        try:
+            db.commit()
+        except DataError:
+            db.rollback()
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Error updating user posts")
+        return user
+
+    for post_id in post_ids:
+        post = db.query(Post_DB).filter(Post_DB.id == post_id).one_or_none()
+        if not post:
+            raise HTTPException(status.HTTP_404_NOT_FOUND, detail=f"Post with id {post_id} not found")
+
+        # Add new posts
+        if post not in user.posts:
+            user.posts.append(post)
+
+    # Remove posts not in the new list
+    for post in user.posts:
+        if post.id not in post_ids:
+            user.posts.remove(post)
+
+    try:
+        db.commit()
+    except DataError:
+        db.rollback()
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Error updating user posts")
+
+    return user
