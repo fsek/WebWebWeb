@@ -158,6 +158,16 @@ def member_council_id(client, db_session, membered_user):
 
 
 @pytest.fixture()
+def member_post(db_session, member_council_id):
+    """Return the post DB object just created for the member council."""
+    from db_models.post_model import Post_DB
+
+    post = db_session.query(Post_DB).filter_by(council_id=member_council_id).first()
+    assert post is not None, "No post found for the member council"
+    return post
+
+
+@pytest.fixture()
 def admin_council_id(db_session, admin_user):
     """Create a council with an admin user and return its ID."""
 

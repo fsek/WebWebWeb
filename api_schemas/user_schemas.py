@@ -10,9 +10,6 @@ from helpers.types import DOOR_ACCESSES, PROGRAM_TYPE, datetime_utc
 if TYPE_CHECKING:
     from api_schemas.group_schema import GroupRead
 
-if TYPE_CHECKING:
-    from api_schemas.group_schema import GroupRead
-
 
 class _UserEventRead(BaseSchema):
     id: int
@@ -133,6 +130,10 @@ class UpdateUserMember(BaseSchema):
 class UpdateUserMemberMultiple(BaseSchema):
     user_id: int
     is_member: bool
+
+
+class UpdateUserPosts(BaseSchema):
+    post_ids: list[int]
 
 
 from api_schemas.group_schema import GroupRead
