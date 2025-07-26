@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Annotated, Optional
 from fastapi.responses import FileResponse
 from sqlalchemy import ColumnElement, and_, or_
-from fastapi import APIRouter, File, HTTPException, Query, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from database import DB_dependency
 from db_models.user_model import User_DB
 from api_schemas.user_schemas import (
@@ -15,6 +15,7 @@ from api_schemas.user_schemas import (
     UpdateUserPosts,
 )
 from helpers.image_checker import validate_image
+from helpers.rate_limit import rate_limit
 from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from services import user as user_service
 from user.permission import Permission
@@ -134,7 +135,7 @@ def search_users(
     return users.offset(offset).limit(limit).all()
 
 
-@user_router.post("/{user_id}/image", dependencies=[Permission.require("manage", "User")])
+@user_router.post("/{user_id}/image", dependencies=[Permission.require("manage", "User"), Depends(rate_limit())])
 async def post_user_image(user_id: int, db: DB_dependency, image: UploadFile = File()):
     user = db.query(User_DB).get(user_id)
     if not user:
@@ -168,7 +169,7 @@ def get_user_image(user_id: int, db: DB_dependency):
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 
-@user_router.get("/{user_id}/image/stream", dependencies=[Permission.require("manage", "User")])
+@user_router.get("/{user_id}/image/stream", dependencies=[Permission.require("manage", "User"), Depends(rate_limit())])
 def get_user_image_stream(user_id: int, db: DB_dependency):
     user = db.query(User_DB).get(user_id)
     if not user:

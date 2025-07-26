@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from typing import Annotated
-from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 import datetime
 
 from fastapi.responses import FileResponse
@@ -12,6 +12,7 @@ from db_models.news_model import News_DB
 from db_models.user_model import User_DB
 from helpers.constants import NEWS_PER_PAGE
 from helpers.image_checker import validate_image
+from helpers.rate_limit import rate_limit
 from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from services.news_service import create_new_news, update_existing_news, bump_existing_news
 from user.permission import Permission
@@ -40,7 +41,7 @@ def create_news(data: NewsCreate, author: Annotated[User_DB, Permission.require(
     return news
 
 
-@news_router.post("/{news_id}/image", dependencies=[Permission.require("manage", "News")])
+@news_router.post("/{news_id}/image", dependencies=[Permission.require("manage", "News"), Depends(rate_limit())])
 async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = File()):
     news = db.query(News_DB).get(news_id)
     if not news:
@@ -63,7 +64,7 @@ async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = F
         dest_path.write_bytes(image.file.read())
 
 
-@news_router.get("/{news_id}/image", dependencies=[Permission.require("manage", "News")])
+@news_router.get("/{news_id}/image", dependencies=[Depends(rate_limit(limit=100))])
 def get_news_image(news_id: int, db: DB_dependency):
     news = db.query(News_DB).get(news_id)
     if not news:
@@ -73,7 +74,7 @@ def get_news_image(news_id: int, db: DB_dependency):
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 
-@news_router.get("/{news_id}/image/stream", dependencies=[])
+@news_router.get("/{news_id}/image/stream", dependencies=[Depends(rate_limit(limit=100))])
 def get_news_image_stream(news_id: int, db: DB_dependency):
     news = db.query(News_DB).get(news_id)
     if not news:
