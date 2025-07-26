@@ -20,14 +20,10 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade():
     op.add_column('user_table',
-        sa.Column('moose_game_name', sa.String(), nullable=False, server_default='')
-    )
+        sa.Column('moose_game_name', sa.String(), nullable=False, server_default=''))
     op.add_column('user_table',
         sa.Column('moose_game_score', sa.Integer(), nullable=False, server_default='0')
     )
-    # now that the column exists and is populated, drop the defaults
-    op.alter_column('user_table', 'moose_game_name', server_default=None)
-    op.alter_column('user_table', 'moose_game_score', server_default=None)
 
 
 def upgrade():
