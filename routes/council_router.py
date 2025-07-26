@@ -1,6 +1,5 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
-from httpx import delete
 from api_schemas.council_schema import CouncilCreate, CouncilRead, CouncilUpdate
 from db_models.council_model import Council_DB
 from user.permission import Permission

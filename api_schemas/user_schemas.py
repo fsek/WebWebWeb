@@ -78,6 +78,8 @@ class AdminUserRead(fastapi_users_schemas.BaseUser[int], BaseSchema):
     accesses: list[SimpleUserAccessRead]
     is_member: bool
     groups: list["GroupRead"]
+    moose_game_name: str
+    moose_game_score: int
 
 
 class UserRead(BaseSchema):
@@ -121,6 +123,7 @@ class UserUpdate(BaseSchema):
     standard_food_preferences: list[str] | None = None
     other_food_preferences: str | None = None
     telephone_number: PhoneNumber | None = None
+    moose_game_name: str | None = None
 
 
 class UpdateUserMember(BaseSchema):
