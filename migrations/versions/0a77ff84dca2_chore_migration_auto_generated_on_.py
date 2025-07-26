@@ -25,15 +25,8 @@ def upgrade():
         sa.Column('moose_game_score', sa.Integer(), nullable=False, server_default='0')
     )
 
+def downgrade():
+    op.drop_column('user_table', 'moose_game_score')
+    op.drop_column('user_table', 'moose_game_name')
 
-def upgrade():
-    op.add_column('user_table',
-        sa.Column('moose_game_name', sa.String(), nullable=True)
-    )
-    op.add_column('user_table',
-        sa.Column('moose_game_score', sa.Integer(), nullable=True)
-    )
-    # (run a data-migration here, e.g. UPDATE user_table SET ... WHERE ... )
-    op.alter_column('user_table', 'moose_game_name', nullable=False)
-    op.alter_column('user_table', 'moose_game_score', nullable=False)
 
