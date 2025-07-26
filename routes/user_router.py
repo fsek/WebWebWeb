@@ -1,8 +1,9 @@
+import os
+from pathlib import Path
 from typing import Annotated, Optional
+from fastapi.responses import FileResponse
 from sqlalchemy import ColumnElement, and_, or_
-from db_models import permission_model
-from fastapi import APIRouter, HTTPException, Query, status
-from api_schemas.base_schema import BaseSchema
+from fastapi import APIRouter, File, HTTPException, Query, Response, UploadFile, status
 from database import DB_dependency
 from db_models.user_model import User_DB
 from api_schemas.user_schemas import (
@@ -13,6 +14,8 @@ from api_schemas.user_schemas import (
     UserRead,
     UpdateUserPosts,
 )
+from helpers.image_checker import validate_image
+from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from services import user as user_service
 from user.permission import Permission
 from api_schemas.post_schemas import PostRead
@@ -129,3 +132,46 @@ def search_users(
         users = users.filter(~(User_DB.id.in_(exclude_ids)))
 
     return users.offset(offset).limit(limit).all()
+
+
+@user_router.post("/{user_id}/image", dependencies=[Permission.require("manage", "User")])
+async def post_user_image(user_id: int, db: DB_dependency, image: UploadFile = File()):
+    user = db.query(User_DB).get(user_id)
+    if not user:
+        raise HTTPException(404, "No event found")
+
+    if image:
+
+        await validate_image(image)
+
+        filename: str = str(image.filename)
+        _, ext = os.path.splitext(filename)
+
+        ext = ext.lower()
+
+        if ext not in ALLOWED_EXT:
+            raise HTTPException(400, "file extension not allowed")
+
+        dest_path = Path(f"{ASSETS_BASE_PATH}/user/{user.id}")
+
+        dest_path.write_bytes(image.file.read())
+
+
+@user_router.get("/{user_id}/image", dependencies=[Permission.require("manage", "User")])
+def get_user_image(user_id: int, db: DB_dependency):
+    user = db.query(User_DB).get(user_id)
+    if not user:
+        raise HTTPException(404, "No image for this user")
+
+    internal = f"/{ASSETS_BASE_PATH}/user/{user.id}"
+    return Response(status_code=200, headers={"X-Accel-Redirect": internal})
+
+
+@user_router.get("/{user_id}/image/stream", dependencies=[Permission.require("manage", "User")])
+def get_user_image_stream(user_id: int, db: DB_dependency):
+    user = db.query(User_DB).get(user_id)
+    if not user:
+        raise HTTPException(404, "No image for this user")
+
+    internal = f"/{ASSETS_BASE_PATH}/user/{user.id}"
+    return FileResponse(internal)

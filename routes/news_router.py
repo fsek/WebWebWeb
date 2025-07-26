@@ -1,13 +1,18 @@
+import os
+from pathlib import Path
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 import datetime
 
+from fastapi.responses import FileResponse
 from sqlalchemy import and_
 from api_schemas.news_schemas import NewsCreate, NewsRead, NewsUpdate
 from database import DB_dependency
 from db_models.news_model import News_DB
 from db_models.user_model import User_DB
 from helpers.constants import NEWS_PER_PAGE
+from helpers.image_checker import validate_image
+from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from services.news_service import create_new_news, update_existing_news, bump_existing_news
 from user.permission import Permission
 
@@ -33,6 +38,49 @@ def get_news(news_id: int, db: DB_dependency):
 def create_news(data: NewsCreate, author: Annotated[User_DB, Permission.require("manage", "News")], db: DB_dependency):
     news = create_new_news(data, author.id, db)
     return news
+
+
+@news_router.post("/{news_id}/image", dependencies=[Permission.require("manage", "News")])
+async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = File()):
+    news = db.query(News_DB).get(news_id)
+    if not news:
+        raise HTTPException(404, "No event found")
+
+    if image:
+
+        await validate_image(image)
+
+        filename: str = str(image.filename)
+        _, ext = os.path.splitext(filename)
+
+        ext = ext.lower()
+
+        if ext not in ALLOWED_EXT:
+            raise HTTPException(400, "file extension not allowed")
+
+        dest_path = Path(f"{ASSETS_BASE_PATH}/news/{news.id}")
+
+        dest_path.write_bytes(image.file.read())
+
+
+@news_router.get("/{news_id}/image", dependencies=[Permission.require("manage", "News")])
+def get_news_image(news_id: int, db: DB_dependency):
+    news = db.query(News_DB).get(news_id)
+    if not news:
+        raise HTTPException(404, "No image for this news")
+
+    internal = f"/{ASSETS_BASE_PATH}/news/{news.id}"
+    return Response(status_code=200, headers={"X-Accel-Redirect": internal})
+
+
+@news_router.get("/{news_id}/image/stream", dependencies=[])
+def get_news_image_stream(news_id: int, db: DB_dependency):
+    news = db.query(News_DB).get(news_id)
+    if not news:
+        raise HTTPException(404, "No image for this news")
+
+    internal = f"/{ASSETS_BASE_PATH}/news/{news.id}"
+    return FileResponse(internal)
 
 
 @news_router.delete(

@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, status
 from fastapi import Response
 from database import DB_dependency
 from db_models.img_model import Img_DB
+from helpers.image_checker import validate_image
 from services.img_service import upload_img, remove_img, get_single_img
 from user.permission import Permission
 
@@ -9,7 +10,8 @@ img_router = APIRouter()
 
 
 @img_router.post("/", dependencies=[Permission.require("manage", "Gallery")], response_model=dict[str, str])
-def upload_image(db: DB_dependency, album_id: int, file: UploadFile = File()):
+async def upload_image(db: DB_dependency, album_id: int, file: UploadFile = File()):
+    await validate_image(file)
     return upload_img(db, album_id, file)
 
 

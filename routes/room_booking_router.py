@@ -7,12 +7,11 @@ from api_schemas.room_booking_schemas import (
 )
 from database import DB_dependency
 from typing import Annotated
-from sqlalchemy import or_, and_, literal
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.council_model import Council_DB
 from db_models.room_booking_model import RoomBooking_DB
-from helpers.types import datetime_utc, ROOMS
+from helpers.types import ROOMS
 
 
 room_router = APIRouter()

@@ -23,7 +23,7 @@ makefun==1.15.2
 packaging==23.2
 passlib==1.7.4
 phonenumbers==8.13.30
-pillow==10.2.0
+Pillow==10.2.0
 pluggy==1.4.0
 psycopg==3.1.17
 pwdlib==0.2.0
