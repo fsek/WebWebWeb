@@ -164,6 +164,7 @@ def get_user_image(user_id: int, db: DB_dependency):
         raise HTTPException(404, "No image for this user")
 
     internal = f"/{ASSETS_BASE_PATH}/users/{user.id}"
+
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 

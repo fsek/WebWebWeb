@@ -106,6 +106,7 @@ def get_post_image(post_id: int, db: DB_dependency):
         raise HTTPException(404, "No image for this post")
 
     internal = f"/{ASSETS_BASE_PATH}/posts/{post.id}"
+
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 
@@ -116,4 +117,5 @@ def get_post_image_stream(post_id: int, db: DB_dependency):
         raise HTTPException(404, "No image for this post")
 
     internal = f"/{ASSETS_BASE_PATH}/posts/{post.id}"
+
     return FileResponse(internal)
