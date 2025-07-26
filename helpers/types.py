@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import os
 from typing import Annotated, Literal, TypeAlias
 from pydantic import AfterValidator
 from enum import Enum
@@ -23,6 +24,9 @@ class MEMBER_ROLES(str, Enum):
     PHOTOGRAPHER = ("Photographer",)
     ORDFORANDE = ("Ordförande",)
     DINMAMMA = "Dinmamma"
+
+
+ALLOWED_EXT = {".png", ".jpg", ".jpeg", ".gif"}
 
 
 # With these we define special permissions beyond being just a logged-in and verified user
@@ -83,3 +87,5 @@ EVENT_DOT_TYPES = Literal["None", "Single", "Double"]
 PROGRAM_TYPE = Literal["Oklart", "F", "Pi", "N"]
 
 ROOMS = Literal["LC", "Alumni", "SK"]
+
+ASSETS_BASE_PATH = os.getenv("ASSETS_BASE_PATH")

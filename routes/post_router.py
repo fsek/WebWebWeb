@@ -1,8 +1,12 @@
-from fastapi import APIRouter
+import os
+from pathlib import Path
+from fastapi import APIRouter, File, Response, UploadFile
+from fastapi.responses import FileResponse
 from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB
 from api_schemas.post_schemas import PostRead, PostCreate, PostUpdate
+from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from user.permission import Permission
 from fastapi import status, HTTPException
 from api_schemas.user_schemas import SimpleUserRead
@@ -70,3 +74,43 @@ def get_all_users_with_post(post_id: int, db: DB_dependency):
     if posts is None:
         raise HTTPException(404, detail="Post not found")
     return posts.users
+
+
+@post_router.post("/{post_id}/image", dependencies=[Permission.require("manage", "Post")])
+def post_post_image(post_id: int, db: DB_dependency, image: UploadFile = File()):
+    post = db.query(Post_DB).get(post_id)
+    if not post:
+        raise HTTPException(404, "No event found")
+
+    if image:
+        filename: str = str(image.filename)
+        _, ext = os.path.splitext(filename)
+
+        ext = ext.lower()
+
+        if ext not in ALLOWED_EXT:
+            raise HTTPException(400, "file extension not allowed")
+
+        dest_path = Path(f"{ASSETS_BASE_PATH}/post/{post.id}")
+
+        dest_path.write_bytes(image.file.read())
+
+
+@post_router.get("/{post_id}/image", dependencies=[Permission.require("manage", "Post")])
+def get_post_image(post_id: int, db: DB_dependency):
+    post = db.query(Post_DB).get(post_id)
+    if not post:
+        raise HTTPException(404, "No image for this post")
+
+    internal = f"/{ASSETS_BASE_PATH}/post/{post.id}"
+    return Response(status_code=200, headers={"X-Accel-Redirect": internal})
+
+
+@post_router.get("/{post_id}/image/stream", dependencies=[Permission.require("manage", "Post")])
+def get_post_image_stream(post_id: int, db: DB_dependency):
+    post = db.query(Post_DB).get(post_id)
+    if not post:
+        raise HTTPException(404, "No image for this post")
+
+    internal = f"/{ASSETS_BASE_PATH}/post/{post.id}"
+    return FileResponse(internal)

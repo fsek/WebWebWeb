@@ -1,6 +1,7 @@
 from io import StringIO
-from fastapi import APIRouter, HTTPException, status
-from fastapi.responses import StreamingResponse
+import os
+from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
+from fastapi.responses import FileResponse, StreamingResponse
 from psycopg import IntegrityError
 from api_schemas.tag_schema import EventTagRead
 from database import DB_dependency
@@ -13,8 +14,10 @@ from db_models.event_tag_model import EventTag_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
-from typing import List, get_args
-from helpers.types import MEMBER_ROLES
+from typing import List
+from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH, MEMBER_ROLES
+from pathlib import Path
+
 
 import pandas as pd
 
@@ -43,8 +46,51 @@ def get_single_event(db: DB_dependency, eventId: int):
     return event
 
 
+@event_router.post("/{event_id}/image", dependencies=[Permission.require("manage", "Event")])
+def post_event_image(event_id: int, db: DB_dependency, image: UploadFile = File()):
+    event = db.query(Event_DB).get(event_id)
+    if not event:
+        raise HTTPException(404, "No event found")
+
+    if image:
+        filename: str = str(image.filename)
+        _, ext = os.path.splitext(filename)
+
+        ext = ext.lower()
+
+        if ext not in ALLOWED_EXT:
+            raise HTTPException(400, "file extension not allowed")
+
+        dest_path = Path(f"{ASSETS_BASE_PATH}/events/{event.id}")
+
+        dest_path.write_bytes(image.file.read())
+
+
+@event_router.get("/{event_id}/image", dependencies=[Permission.require("manage", "Event")])
+def get_event_image(event_id: int, db: DB_dependency):
+    event = db.query(Event_DB).get(event_id)
+    if not event:
+        raise HTTPException(404, "No image for this event")
+
+    internal = f"/{ASSETS_BASE_PATH}/events/{event.id}"
+    return Response(status_code=200, headers={"X-Accel-Redirect": internal})
+
+
+@event_router.get("/{event_id}/image/stream", dependencies=[Permission.require("manage", "Event")])
+def get_event_image_stream(event_id: int, db: DB_dependency):
+    event = db.query(Event_DB).get(event_id)
+    if not event:
+        raise HTTPException(404, "No image for this event")
+
+    internal = f"/{ASSETS_BASE_PATH}/events/{event.id}"
+    return FileResponse(internal)
+
+
 @event_router.post("/", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
-def create_event(data: EventCreate, db: DB_dependency):
+def create_event(
+    data: EventCreate,
+    db: DB_dependency,
+):
     event = create_new_event(data, db)
     return event
 
@@ -55,7 +101,11 @@ def event_remove(event_id: int, db: DB_dependency):
 
 
 @event_router.patch("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
-def event_update(event_id: int, data: EventUpdate, db: DB_dependency):
+def event_update(
+    event_id: int,
+    data: EventUpdate,
+    db: DB_dependency,
+):
     event = update_event(event_id, data, db)
     return event
 

@@ -71,11 +71,10 @@ def upload_document(
     try:
         db.add(document)
         db.commit()
+        file_path.write_bytes(file.file.read())
     except IntegrityError:
         db.rollback()
         raise HTTPException(400, detail="Something is invalid")
-
-    file_path.write_bytes(file.file.read())
 
     return document
 
