@@ -7,8 +7,9 @@ from db_models.user_model import User_DB
 
 
 def send_mail(user: User_DB, msg: MIMEText):
+    env = os.getenv("ENVIRONMENT")
 
-    if os.getenv("ENVIRONMENT") != "production":
+    if env != "production" and env != "stage":
         print("Email cannot be used on testing")
         return
 
