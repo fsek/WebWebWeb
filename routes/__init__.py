@@ -31,7 +31,7 @@ from .document_router import document_router
 from .room_booking_router import room_router
 
 # here comes the big momma router
-main_router = APIRouter(dependencies=[Depends(rate_limit(limit=300, window_seconds=60))])
+main_router = APIRouter()
 
 main_router.include_router(user_router, prefix="/users", tags=["users"])
 

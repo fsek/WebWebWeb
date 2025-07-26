@@ -1,12 +1,13 @@
 import os
 from pathlib import Path
-from fastapi import APIRouter, File, Response, UploadFile
+from fastapi import APIRouter, Depends, File, Response, UploadFile
 from fastapi.responses import FileResponse
 from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB
 from api_schemas.post_schemas import PostRead, PostCreate, PostUpdate
 from helpers.image_checker import validate_image
+from helpers.rate_limit import rate_limit
 from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from user.permission import Permission
 from fastapi import status, HTTPException
@@ -77,7 +78,9 @@ def get_all_users_with_post(post_id: int, db: DB_dependency):
     return posts.users
 
 
-@post_router.post("/{post_id}/image", dependencies=[Permission.require("manage", "Post")])
+@post_router.post(
+    "/{post_id}/image", dependencies=[Permission.require("manage", "Post"), Depends(rate_limit(limit=20))]
+)
 async def post_post_image(post_id: int, db: DB_dependency, image: UploadFile = File()):
     post = db.query(Post_DB).get(post_id)
     if not post:
@@ -110,7 +113,9 @@ def get_post_image(post_id: int, db: DB_dependency):
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 
-@post_router.get("/{post_id}/image/stream", dependencies=[Permission.require("manage", "Post")])
+@post_router.get(
+    "/{post_id}/image/stream", dependencies=[Permission.require("manage", "Post"), Depends(rate_limit(limit=20))]
+)
 def get_post_image_stream(post_id: int, db: DB_dependency):
     post = db.query(Post_DB).get(post_id)
     if not post:

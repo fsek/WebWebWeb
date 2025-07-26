@@ -32,5 +32,6 @@ auth_router.include_router(
         UserRead,
         BaseUserUpdate,
         USERS.authenticator,
-    )
+    ),
+    dependencies=[Depends(rate_limit())],
 )
