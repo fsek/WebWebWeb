@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, status
 from api_schemas.car_booking_schema import CarBookingCreate, CarBookingRead, CarBookingUpdate
 from database import DB_dependency
 from typing import Annotated
-from sqlalchemy import or_, and_, literal
 from services.car_renting_service import create_new_booking, booking_update, is_user_blocked
 from user.permission import Permission
 from db_models.user_model import User_DB

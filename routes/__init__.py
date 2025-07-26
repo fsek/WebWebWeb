@@ -2,8 +2,7 @@ from fastapi import APIRouter, Depends
 
 
 from helpers.rate_limit import rate_limit
-from routes import council_router
-
+from .moose_game_router import moose_game_router
 from .council_router import council_router
 from .user_router import user_router
 from .post_router import post_router
@@ -81,3 +80,5 @@ main_router.include_router(council_router, prefix="/councils", tags=["council"])
 main_router.include_router(document_router, prefix="/document", tags=["document"])
 
 main_router.include_router(room_router, prefix="/rooms", tags=["room booking"])
+
+main_router.include_router(moose_game_router, prefix="/moose-game", tags=["moose-game"])

@@ -26,6 +26,7 @@ ENV USER_MANAGER_SECRET="debug_secret_dont_use_in_prod"
 ENV DOCUMENT_BASE_PATH="/workspaces/WebWebWeb/test-assets/documents"
 ENV ALBUM_BASE_PATH="/workspaces/WebWebWeb/test-assets/albums"
 ENV ASSETS_BASE_PATH="/workspaces/WebWebWeb/test-assets/assets"
+ENV MOOSE_GAME_TOKEN="sad_secret_key"
 
 RUN mkdir -p "$DOCUMENT_BASE_PATH" \
              "$ALBUM_BASE_PATH" \

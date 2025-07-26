@@ -56,6 +56,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     other_food_preferences: Mapped[Optional[str]] = mapped_column(init=False, default="")
 
+    moose_game_name: Mapped[str] = mapped_column(default="", init=False)
+
+    moose_game_score: Mapped[int] = mapped_column(default=0, init=False)
+
     want_notifications: Mapped[bool] = mapped_column(default=True)
 
     car_bookings: Mapped[list["CarBooking_DB"]] = relationship(
