@@ -11,6 +11,7 @@ from database import DB_dependency
 from db_models.news_model import News_DB
 from db_models.user_model import User_DB
 from helpers.constants import NEWS_PER_PAGE
+from helpers.image_checker import validate_image
 from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from services.news_service import create_new_news, update_existing_news, bump_existing_news
 from user.permission import Permission
@@ -40,12 +41,15 @@ def create_news(data: NewsCreate, author: Annotated[User_DB, Permission.require(
 
 
 @news_router.post("/{news_id}/image", dependencies=[Permission.require("manage", "News")])
-def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = File()):
+async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = File()):
     news = db.query(News_DB).get(news_id)
     if not news:
         raise HTTPException(404, "No event found")
 
     if image:
+
+        await validate_image(image)
+
         filename: str = str(image.filename)
         _, ext = os.path.splitext(filename)
 

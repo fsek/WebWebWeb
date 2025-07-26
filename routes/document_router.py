@@ -6,6 +6,7 @@ from db_models.document_model import Document_DB
 from api_schemas.document_schema import DocumentRead, DocumentCreate, DocumentUpdate, document_create_form
 from db_models.user_model import User_DB
 from helpers.constants import MAX_DOC_TITLE
+from helpers.pdf_checker import validate_pdf_header
 from user.permission import Permission
 from fastapi import File, UploadFile, HTTPException
 import os
@@ -30,12 +31,13 @@ def get_all_documents(db: DB_dependency, manage_permission: Annotated[bool, Perm
 
 
 @document_router.post("/", dependencies=[Permission.require("manage", "Document")], response_model=DocumentRead)
-def upload_document(
+async def upload_document(
     db: DB_dependency,
     uploader: Annotated[User_DB, Permission.member()],
     data: DocumentCreate = Depends(document_create_form),
     file: UploadFile = File(),
 ):
+    await validate_pdf_header(file)
 
     if file.filename is None:
         raise HTTPException(400, detail="The file has no name")

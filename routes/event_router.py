@@ -11,6 +11,7 @@ from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from db_models.event_tag_model import EventTag_DB
+from helpers.image_checker import validate_image
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
@@ -47,12 +48,15 @@ def get_single_event(db: DB_dependency, eventId: int):
 
 
 @event_router.post("/{event_id}/image", dependencies=[Permission.require("manage", "Event")])
-def post_event_image(event_id: int, db: DB_dependency, image: UploadFile = File()):
+async def post_event_image(event_id: int, db: DB_dependency, image: UploadFile = File()):
     event = db.query(Event_DB).get(event_id)
     if not event:
         raise HTTPException(404, "No event found")
 
     if image:
+
+        await validate_image(image)
+
         filename: str = str(image.filename)
         _, ext = os.path.splitext(filename)
 

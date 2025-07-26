@@ -14,6 +14,7 @@ from api_schemas.user_schemas import (
     UserRead,
     UpdateUserPosts,
 )
+from helpers.image_checker import validate_image
 from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from services import user as user_service
 from user.permission import Permission
@@ -134,12 +135,15 @@ def search_users(
 
 
 @user_router.post("/{user_id}/image", dependencies=[Permission.require("manage", "User")])
-def post_user_image(user_id: int, db: DB_dependency, image: UploadFile = File()):
+async def post_user_image(user_id: int, db: DB_dependency, image: UploadFile = File()):
     user = db.query(User_DB).get(user_id)
     if not user:
         raise HTTPException(404, "No event found")
 
     if image:
+
+        await validate_image(image)
+
         filename: str = str(image.filename)
         _, ext = os.path.splitext(filename)
 

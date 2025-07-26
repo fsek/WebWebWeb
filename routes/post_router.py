@@ -6,6 +6,7 @@ from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB
 from api_schemas.post_schemas import PostRead, PostCreate, PostUpdate
+from helpers.image_checker import validate_image
 from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from user.permission import Permission
 from fastapi import status, HTTPException
@@ -77,12 +78,14 @@ def get_all_users_with_post(post_id: int, db: DB_dependency):
 
 
 @post_router.post("/{post_id}/image", dependencies=[Permission.require("manage", "Post")])
-def post_post_image(post_id: int, db: DB_dependency, image: UploadFile = File()):
+async def post_post_image(post_id: int, db: DB_dependency, image: UploadFile = File()):
     post = db.query(Post_DB).get(post_id)
     if not post:
         raise HTTPException(404, "No event found")
 
     if image:
+
+        await validate_image(image)
         filename: str = str(image.filename)
         _, ext = os.path.splitext(filename)
 
