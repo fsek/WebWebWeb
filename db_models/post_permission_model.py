@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 class PostPermission_DB(BaseModel_DB):
     __tablename__ = "post_permission_table"
 
-    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"), primary_key=True)
+    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"), primary_key=True, init=False)
     permission_id: Mapped[int] = mapped_column(ForeignKey("permission_table.id"), primary_key=True)
 
-    post: Mapped["Post_DB"] = relationship(back_populates="post_permissions", default=None)
+    post: Mapped["Post_DB"] = relationship(back_populates="post_permissions", default=Non, init=False)
     permission: Mapped["Permission_DB"] = relationship(back_populates="post_permissions", default=None)
