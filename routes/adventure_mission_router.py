@@ -14,13 +14,15 @@ adventure_mission_router = APIRouter()
 
 
 @adventure_mission_router.post(
-    "/", dependencies=[Permission.require("manage", "AdventureMissions")], response_model=AdventureMissionRead
+    "/{nollning_id}",
+    dependencies=[Permission.require("manage", "AdventureMissions")],
+    response_model=AdventureMissionRead,
 )
 def create_adventure_mission(nollning_id: int, db: DB_dependency, data: AdventureMissionCreate):
-    return create_adventure_mission_(db, data)
+    return create_adventure_mission_(db, data, nollning_id)
 
 
-@adventure_mission_router.get("/", response_model=list[AdventureMissionRead])
+@adventure_mission_router.get("/{nollning_id}", response_model=list[AdventureMissionRead])
 def get_all_adventure_missions_in_nollning(db: DB_dependency, nollning_id: int):
     return find_all_adventure_missions(db, nollning_id)
 

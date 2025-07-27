@@ -7,7 +7,6 @@ class AdventureMissionCreate(BaseSchema):
     description: str
     max_points: int
     min_points: int
-    nollning_id: int
     nollning_week: int
 
 
