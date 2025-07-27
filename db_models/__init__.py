@@ -1,37 +1,22 @@
-from .base_model import BaseModel_DB
-from .council_model import Council_DB
-from .event_model import Event_DB
-from .event_user_model import EventUser_DB
-from .permission_model import Permission_DB
-from .post_model import Post_DB
-from .post_permission_model import PostPermission_DB
-from .user_model import User_DB
-from .news_model import News_DB
-from .song_model import Song_DB
-from .song_category_model import SongCategory_DB
-from .ad_model import BookAd_DB
-from .priority_model import Priority_DB
-from .car_booking_model import CarBooking_DB
-from .car_block_model import CarBlock_DB
+# db_models/__init__.py
 
+import pkgutil
+import importlib
 
-# Import all models that exist into this file and list them in __all__
+# Walk this package’s directory for modules
+for finder, module_name, is_pkg in pkgutil.iter_modules(__path__):
+    # Skip any private or unintended modules
+    if module_name.startswith("_"):
+        continue
 
+    # Dynamically import db_models.<module_name>
+    module = importlib.import_module(f"{__name__}.{module_name}")
 
-__all__ = [
-    "BaseModel_DB",
-    "Council_DB",
-    "Priority_DB",
-    "Event_DB",
-    "EventUser_DB",
-    "Permission_DB",
-    "Post_DB",
-    "PostPermission_DB",
-    "User_DB",
-    "News_DB",
-    "Song_DB",
-    "SongCategory_DB",
-    "BookAd_DB",
-    "CarBooking_DB",
-    "CarBlock_DB",
-]
+    # Pull every class ending in "_DB" into the package namespace
+    for attr_name in dir(module):
+        if not attr_name.endswith("_DB"):
+            continue
+        globals()[attr_name] = getattr(module, attr_name)
+
+# Now auto‑build __all__ from those names
+__all__ = [name for name in globals() if name.endswith("_DB")]  # type: ignore[reportUnsupportedDunderAll]
