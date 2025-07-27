@@ -35,9 +35,7 @@ def add_completed_mission_to_group(db: DB_dependency, data: GroupMissionCreate, 
     mission_group = GroupMission_DB(
         points=data.points,
         adventure_mission_id=data.adventure_mission_id,
-        adventure_mission=adventure_mission,
         nollning_group_id=group_id,
-        nollning_group=nollning_group,
     )
 
     try:

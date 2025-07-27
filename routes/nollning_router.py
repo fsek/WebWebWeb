@@ -20,8 +20,12 @@ from services.nollning_service import (
     get_all_groups_in_nollning,
 )
 from user.permission import Permission
+from .adventure_mission_router import adventure_mission_router
+from .group_mission_router import group_mission_router
 
 nollning_router = APIRouter()
+nollning_router.include_router(adventure_mission_router, prefix="/missions")
+nollning_router.include_router(group_mission_router, prefix="/groups/missions")
 
 
 @nollning_router.post("/", dependencies=[Permission.require("manage", "Nollning")], response_model=NollningRead)
@@ -29,49 +33,49 @@ def post_nollning(data: NollningCreate, db: DB_dependency):
     return create_nollning(db, data)
 
 
-@nollning_router.get("/all", dependencies=[Permission.require("view", "Nollning")], response_model=list[NollningRead])
+@nollning_router.get("/", dependencies=[Permission.require("view", "Nollning")], response_model=list[NollningRead])
 def get_all_nollning(db: DB_dependency):
     nollningar = db.query(Nollning_DB).order_by(desc(Nollning_DB.id))
     return nollningar
 
 
 @nollning_router.patch(
-    "/patch/{id}", dependencies=[Permission.require("manage", "Nollning")], response_model=NollningRead
+    "/{nollning_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=NollningRead
 )
-def patch_nollning(db: DB_dependency, id: int, data: NollningCreate):
-    return edit_nollning(db, id, data)
+def patch_nollning(db: DB_dependency, nollning_id: int, data: NollningCreate):
+    return edit_nollning(db, nollning_id, data)
 
 
 @nollning_router.delete(
-    "/delete/{id}", dependencies=[Permission.require("manage", "Nollning")], response_model=dict[str, str]
+    "/{nollning_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=dict[str, str]
 )
-def delete_nollning(db: DB_dependency, id: int):
-    return remove_nollning(db, id)
+def delete_nollning(db: DB_dependency, nollning_id: int):
+    return remove_nollning(db, nollning_id)
 
 
 @nollning_router.post(
-    "/add_group/{id}", dependencies=[Permission.require("manage", "Nollning")], response_model=NollningRead
+    "/add_group/{nollning_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=NollningRead
 )
-def add_group_to_nollning(db: DB_dependency, id: int, data: NollningAddGroup):
-    return add_g_to_nollning(db, id, data)
+def add_group_to_nollning(db: DB_dependency, nollning_id: int, data: NollningAddGroup):
+    return add_g_to_nollning(db, nollning_id, data)
 
 
 @nollning_router.get(
-    "/",
+    "/groups/{nollning_id}",
     dependencies=[Permission.require("view", "Nollning")],
     response_model=list[NollningGroupRead],
 )
-def get_all_nollning_groups(db: DB_dependency, id: int):
-    return get_all_groups_in_nollning(db, id)
+def get_all_nollning_groups(db: DB_dependency, nollning_id: int):
+    return get_all_groups_in_nollning(db, nollning_id)
 
 
 @nollning_router.delete(
-    "/delete_group_mission/{id}",
+    "/delete_group_mission/{nollning_id}",
     dependencies=[Permission.require("manage", "Nollning")],
     response_model=NollningDeleteMission,
 )
-def delete_group_mission(db: DB_dependency, id: int, data: NollningDeleteMission):
-    return delete_group_m(db, id, data)
+def delete_group_mission(db: DB_dependency, nollning_id: int, data: NollningDeleteMission):
+    return delete_group_m(db, nollning_id, data)
 
 
 @nollning_router.delete(

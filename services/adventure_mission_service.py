@@ -6,7 +6,7 @@ from db_models.nollning_model import Nollning_DB
 from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
 
 
-def create_adventure_mission_(db: Session, data: AdventureMissionCreate):
+def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollning_id: int):
 
     if len(data.title) > MAX_ADVENTURE_MISSION_NAME:
         raise HTTPException(400, detail="Title too long")
@@ -14,7 +14,7 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate):
     if len(data.description) > MAX_ADVENTURE_MISSION_DESC:
         raise HTTPException(400, detail="Description too long")
 
-    nollning = db.query(Nollning_DB).filter(Nollning_DB.id == data.nollning_id).one_or_none()
+    nollning = db.query(Nollning_DB).filter(Nollning_DB.id == nollning_id).one_or_none()
 
     if not nollning:
         raise HTTPException(404, detail="Nollning not found")
@@ -29,7 +29,7 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate):
         raise HTTPException(400, detail="Min points has to be atleast 0")
 
     new_adventure_mission = AdventureMission_DB(
-        nollning_id=data.nollning_id,
+        nollning_id=nollning_id,
         nollning_week=data.nollning_week,
         title=data.title,
         description=data.description,

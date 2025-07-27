@@ -12,10 +12,7 @@ from services.group_service import (
     delete_group,
     remove_user_group,
 )
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from db_models.user_model import User_DB
 
 group_router = APIRouter()
 
