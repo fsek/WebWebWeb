@@ -41,7 +41,7 @@ dev_origins = [
 
 stage_origins = ["https://stage.frontend.fsektionen.se"]
 
-production_origins = ["fsektionen.se"]
+production_origins = ["https://fsektionen.se"]
 
 app = FastAPI(
     lifespan=lifespan,
