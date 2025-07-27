@@ -17,7 +17,7 @@ from helpers.types import ROOMS
 room_router = APIRouter()
 
 
-@room_router.post("/", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "Room Bookings")])
+@room_router.post("/", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "RoomBookings")])
 def create_room_booking(
     data: RoomBookingCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency
 ):
@@ -59,7 +59,7 @@ def create_room_booking(
 @room_router.get(
     "/get_booking/{booking_id}",
     response_model=RoomBookingRead,
-    dependencies=[Permission.require("view", "Room Bookings")],
+    dependencies=[Permission.require("view", "RoomBookings")],
 )
 def get_room_booking(booking_id: int, db: DB_dependency):
     booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.id == booking_id).one_or_none()
@@ -69,7 +69,7 @@ def get_room_booking(booking_id: int, db: DB_dependency):
 
 
 @room_router.get(
-    "/get_all", response_model=list[RoomBookingRead], dependencies=[Permission.require("view", "Room Bookings")]
+    "/get_all", response_model=list[RoomBookingRead], dependencies=[Permission.require("view", "RoomBookings")]
 )
 def get_all_room_bookings(db: DB_dependency):
     bookings = db.query(RoomBooking_DB).all()
@@ -80,7 +80,7 @@ def get_all_room_bookings(db: DB_dependency):
 @room_router.post(
     "/get_between_times",
     response_model=list[RoomBookingRead],
-    dependencies=[Permission.require("view", "Room Bookings")],
+    dependencies=[Permission.require("view", "RoomBookings")],
 )
 def get_room_bookings_between_times(db: DB_dependency, data: RoomBookingsBetweenDates):
     bookings = (
@@ -94,7 +94,7 @@ def get_room_bookings_between_times(db: DB_dependency, data: RoomBookingsBetween
 @room_router.get(
     "/get_by_room/",
     response_model=list[RoomBookingRead],
-    dependencies=[Permission.require("view", "Room Bookings")],
+    dependencies=[Permission.require("view", "RoomBookings")],
 )
 def get_bookings_by_room(room: ROOMS, db: DB_dependency):
     bookings = db.query(RoomBooking_DB).filter(RoomBooking_DB.room == room)
@@ -102,7 +102,7 @@ def get_bookings_by_room(room: ROOMS, db: DB_dependency):
 
 
 @room_router.delete(
-    "/{booking_id}", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "Room Bookings")]
+    "/{booking_id}", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "RoomBookings")]
 )
 def remove_room_booking(
     booking_id: int,
@@ -118,7 +118,7 @@ def remove_room_booking(
 
 
 @room_router.patch(
-    "/{booking_id}", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "Room Bookings")]
+    "/{booking_id}", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "RoomBookings")]
 )
 def update_room_booking(
     booking_id: int, data: RoomBookingUpdate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency

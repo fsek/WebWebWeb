@@ -52,12 +52,12 @@ PERMISSION_TARGET = Literal[
     "Cafe",
     "Election",
     "Groups",
-    "Adventure Missions",
+    "AdventureMissions",
     "Nollning",
     "UserDoorAccess",
     "Tags",
     "Council",
-    "Room Bookings",
+    "RoomBookings",
     "Moosegame",
 ]
 
