@@ -2,30 +2,31 @@
 
 STANDARD_SENDER = "no-reply@fsektionen.se"
 SUPPORT_LINK = "spindelman@fsektionen.se"
-URL = "fsektionen.se"
+URL = "https://fsektionen.se"
+STAGE_URL = "https://stage.frontend.fsektionen.se"
 
 SMTP_SERVER = "smtp-relay.gmail.com"
 SMTP_PORT = 587
 
 ## Verification constants
 
-VERIFICATION_SUBJECT = "Email bekräftelse / Email Confirmation"
-VERIFICATION_LINK = "fsektionen.se/verify?token="
+VERIFICATION_SUBJECT = "Email verifiering / Email Verification"
+VERIFICATION_LINK = "/verify?token="
 
 ## Reset password constants
 
-RESET_PASSWORD_SUBJECT = "Nollställ lösenord / Reset Password"
-RESET_PASSWORD_LINK = "fsektionen.se/forgot-password?token="
+RESET_PASSWORD_SUBJECT = "Glömt lösenord / Forgot Password"
+RESET_PASSWORD_LINK = "/forgot-password?token="
 
 ## Welcome constants
 
 WELCOME_SUBJECT = "Välkommen till F-sektionen / Welcome to the F-Guild"
-WELCOME_LINK = "fsektionen.se/verify"
+WELCOME_LINK = "/verify"
 
 ## Password changed constants
 
-PASSWORD_CHANGED_SUBJECT = "Lösenord ändrat / Password Changed"
+PASSWORD_CHANGED_SUBJECT = "Lösenordet ändrat / Your Password Changed"
 
 ## Email changed constants
 
-EMAIL_CHANGED_SUBJECT = "E-postadress ändrad / Email Address Changed"
+EMAIL_CHANGED_SUBJECT = "E-postadressen ändrad / Your Email Address Changed"

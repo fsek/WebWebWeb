@@ -5,6 +5,8 @@ from .mail_constants import (
     SUPPORT_LINK,
     VERIFICATION_LINK,
     VERIFICATION_SUBJECT,
+    URL,
+    STAGE_URL,
 )
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB
@@ -17,7 +19,10 @@ def verification_mailer(user: User_DB, token: str):
     with open(f"{path}/mailer/verification-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    verification_link = f"{VERIFICATION_LINK}{token}"
+    if os.getenv("ENVIRONMENT") == "stage":
+        verification_link = f"{STAGE_URL}{VERIFICATION_LINK}{token}"
+    else:
+        verification_link = f"{URL}{VERIFICATION_LINK}{token}"
 
     html = html.replace("{{ user.name }}", user.first_name)
     html = html.replace("{{ verification_link }}", verification_link)
