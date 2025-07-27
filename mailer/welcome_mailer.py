@@ -1,10 +1,5 @@
 from email.mime.text import MIMEText
-from .mail_constants import (
-    STANDARD_SENDER,
-    SUPPORT_LINK,
-    WELCOME_LINK,
-    WELCOME_SUBJECT,
-)
+from .mail_constants import STANDARD_SENDER, SUPPORT_LINK, WELCOME_LINK, WELCOME_SUBJECT, URL, STAGE_URL
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB
 import os
@@ -17,7 +12,10 @@ def welcome_mailer(user: User_DB):
     with open(f"{path}/mailer/welcome-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    verification_link = f"{WELCOME_LINK}"
+    if os.getenv("ENVIRONMENT") == "stage":
+        verification_link = f"{STAGE_URL}{WELCOME_LINK}"
+    else:
+        verification_link = f"{URL}{WELCOME_LINK}"
 
     html = html.replace("{{ user.name }}", user.first_name)
     html = html.replace("{{ verification_link }}", verification_link)

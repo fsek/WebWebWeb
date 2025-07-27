@@ -5,6 +5,8 @@ from mailer.mail_constants import (
     RESET_PASSWORD_SUBJECT,
     STANDARD_SENDER,
     SUPPORT_LINK,
+    URL,
+    STAGE_URL,
 )
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB
@@ -17,7 +19,10 @@ def reset_password_mailer(user: User_DB, token: str):
     with open(f"{path}/mailer/reset-password-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    reset_password_url = f"{RESET_PASSWORD_LINK}{token}"
+    if os.getenv("ENVIRONMENT") == "stage":
+        reset_password_url = f"{STAGE_URL}{RESET_PASSWORD_LINK}{token}"
+    else:
+        reset_password_url = f"{URL}{RESET_PASSWORD_LINK}{token}"
 
     html = html.replace("{{ user.name }}", user.first_name)
     html = html.replace("{{ reset_link }}", reset_password_url)
