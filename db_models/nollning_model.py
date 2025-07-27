@@ -25,6 +25,8 @@ class Nollning_DB(BaseModel_DB):
 
     description: Mapped[str] = mapped_column(String(MAX_NOLLNING_DESC))
 
+    year: Mapped[int] = mapped_column()
+
     missions: Mapped[list["AdventureMission_DB"]] = relationship(
         back_populates="nollning", cascade="all, delete-orphan", init=False
     )

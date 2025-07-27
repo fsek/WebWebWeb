@@ -8,7 +8,7 @@ from db_models.group_mission_model import GroupMission_DB
 
 
 def create_nollning(db: Session, data: NollningCreate):
-    nollning = Nollning_DB(name=data.name, description=data.description)
+    nollning = Nollning_DB(name=data.name, description=data.description, year=data.year)
 
     db.add(nollning)
     db.commit()

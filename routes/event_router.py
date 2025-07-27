@@ -3,6 +3,7 @@ import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse, StreamingResponse
 from psycopg import IntegrityError
+from sqlalchemy import join, select
 from api_schemas.tag_schema import EventTagRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
@@ -12,11 +13,12 @@ from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from db_models.event_tag_model import EventTag_DB
 from helpers.image_checker import validate_image
+from priority_model import Priority_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
 from typing import List
-from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH, MEMBER_ROLES
+from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from pathlib import Path
 
 
@@ -31,10 +33,15 @@ def get_all_events(db: DB_dependency):
     return events
 
 
-@event_router.get("/priorities", response_model=list[str])
-def get_event_priorities():
-    # Return the values of the MEMBER_ROLES Enum
-    return [role.value for role in MEMBER_ROLES]
+@event_router.get("/priorities/{event_id}", response_model=list[str])
+def get_event_priorities(event_id: int, db: DB_dependency):
+    stmt = select(Priority_DB.priority).where(Priority_DB.event_id == event_id).order_by(Priority_DB.id)
+    result = db.execute(stmt).scalars().all()
+
+    if not result:
+        # either event doesn't exist or no priorities set
+        raise HTTPException(404, detail="No priorities found for this event")
+    return result
 
 
 @event_router.get("/{eventId}", response_model=EventRead)
