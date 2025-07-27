@@ -39,6 +39,17 @@ def get_all_nollning(db: DB_dependency):
     return nollningar
 
 
+@nollning_router.get(
+    "/{nollning_id}", dependencies=[Permission.require("view", "Nollning")], response_model=NollningRead
+)
+def get_nollning(nollning_id: int, db: DB_dependency):
+    nollning = db.query(Nollning_DB).filter(Nollning_DB.id == nollning_id).one_or_none()
+    if not nollning:
+        raise HTTPException(404, detail="Nollning not found")
+
+    return nollning
+
+
 @nollning_router.patch(
     "/{nollning_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=NollningRead
 )
