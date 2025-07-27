@@ -16,5 +16,5 @@ class PostPermission_DB(BaseModel_DB):
     post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"), primary_key=True)
     permission_id: Mapped[int] = mapped_column(ForeignKey("permission_table.id"), primary_key=True)
 
-    post: Mapped["Post_DB"] = relationship(back_populates="post_permissions", default=None, init=False)
-    permission: Mapped["Permission_DB"] = relationship(back_populates="post_permissions", default=None, init=False)
+    post: Mapped["Post_DB"] = relationship(back_populates="post_permissions", default=None)
+    permission: Mapped["Permission_DB"] = relationship(back_populates="post_permissions", default=None)

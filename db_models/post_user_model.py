@@ -15,5 +15,5 @@ class PostUser_DB(BaseModel_DB):
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
     post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"), primary_key=True)
 
-    user: Mapped["User_DB"] = relationship(back_populates="post_users", default=None, init=False)
-    post: Mapped["Post_DB"] = relationship(back_populates="post_users", default=None, init=False)
+    user: Mapped["User_DB"] = relationship(back_populates="post_users", default=None)
+    post: Mapped["Post_DB"] = relationship(back_populates="post_users", default=None)
