@@ -18,8 +18,8 @@ from services.nollning_service import (
     get_all_groups_in_nollning,
 )
 from user.permission import Permission
-from routes.nollning.adventure_mission_router import adventure_mission_router
-from routes.nollning.groups.group_mission_router import group_mission_router
+from routes.adventure_mission_router import adventure_mission_router
+from routes.group_mission_router import group_mission_router
 
 
 nollning_router = APIRouter()

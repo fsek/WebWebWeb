@@ -7,7 +7,6 @@ from db_models.user_model import User_DB
 from db_models.cafe_shift_model import CafeShift_DB
 from api_schemas.cafe_schemas import CafeShiftCreate, CafeShiftRead, CafeShiftUpdate, CafeViewBetweenDates
 from user.permission import Permission
-from helpers.types import datetime_utc
 from datetime import UTC, datetime
 
 cafe_shift_router = APIRouter()

@@ -16,7 +16,7 @@ adventure_mission_router = APIRouter()
 @adventure_mission_router.post(
     "/", dependencies=[Permission.require("manage", "Adventure Missions")], response_model=AdventureMissionRead
 )
-def create_adventure_mission(db: DB_dependency, data: AdventureMissionCreate):
+def create_adventure_mission(nollning_id: int, db: DB_dependency, data: AdventureMissionCreate):
     return create_adventure_mission_(db, data)
 
 
@@ -35,7 +35,7 @@ def get_adventure_mission(db: DB_dependency, mission_id: int):
     dependencies=[Permission.require("manage", "Adventure Missions")],
     response_model=AdventureMissionRead,
 )
-def delete_adventure_mission(db: DB_dependency, mission_id: int):
+def delete_adventure_mission(db: DB_dependency, mission_id: int, nollning_id: int):
     return remove_adventure_mission(db, mission_id)
 
 
