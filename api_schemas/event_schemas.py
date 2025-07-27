@@ -39,6 +39,10 @@ class EventRead(BaseSchema):
     lottery: bool
 
 
+class EventPriorityRead(BaseSchema):
+    priority: str
+
+
 # we dont need to be as strict about out data as in data.
 # str is fine for Read but Create needs max_length, good validation
 
