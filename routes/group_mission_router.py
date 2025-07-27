@@ -14,7 +14,7 @@ group_mission_router = APIRouter()
 
 
 @group_mission_router.post(
-    "/{mission_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
+    "/{group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
 )
 def add_completed_mission_to_group(db: DB_dependency, data: GroupMissionCreate, group_id: int):
     nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == group_id).one_or_none()
@@ -51,7 +51,7 @@ def add_completed_mission_to_group(db: DB_dependency, data: GroupMissionCreate, 
 
 
 @group_mission_router.patch(
-    "/{mission_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
+    "/{group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
 )
 def edit_completed_mission_in_group(db: DB_dependency, data: GroupMissionEdit, group_id: int):
     nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == group_id).one_or_none()
@@ -89,7 +89,7 @@ def edit_completed_mission_in_group(db: DB_dependency, data: GroupMissionEdit, g
 
 
 @group_mission_router.delete(
-    "/{mission_id}",
+    "/{nollning_id}",
     dependencies=[Permission.require("manage", "Nollning")],
     status_code=204,
 )
@@ -98,7 +98,7 @@ def remove_completed_mission_from_group(db: DB_dependency, nollning_id: int, dat
 
 
 @group_mission_router.get(
-    "/", dependencies=[Permission.require("view", "Nollning")], response_model=list[GroupMissionRead]
+    "/{group_id}", dependencies=[Permission.require("view", "Nollning")], response_model=list[GroupMissionRead]
 )
-def get_completed_missions_from_group(db: DB_dependency, nollning_id: int, group_id: int):
+def get_completed_missions_from_group(db: DB_dependency, group_id: int):
     return db.query(GroupMission_DB).filter(GroupMission_DB.nollning_group_id == group_id).all()
