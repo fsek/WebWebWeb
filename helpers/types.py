@@ -16,15 +16,7 @@ datetime_utc: TypeAlias = Annotated[datetime, AfterValidator(force_utc)]
 
 
 # a user who is a member can have some member types
-MEMBER_TYPE = Literal["member", "novice", "mentor, photographer"]
-
-
-# MEMBER_ROLES = Literal["Photographer", "Ordförande", "Dinmamma"]
-class MEMBER_ROLES(str, Enum):
-    PHOTOGRAPHER = ("Photographer",)
-    ORDFORANDE = ("Ordförande",)
-    DINMAMMA = "Dinmamma"
-
+MEMBER_TYPE = Literal["member", "novice", "mentor"]
 
 ALLOWED_EXT = {".png", ".jpg", ".jpeg", ".gif"}
 

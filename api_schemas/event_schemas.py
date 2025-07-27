@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Annotated
 from api_schemas.base_schema import BaseSchema
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
-from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, MEMBER_ROLES, datetime_utc
+from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, datetime_utc
 from pydantic import StringConstraints
 
 if TYPE_CHECKING:
@@ -59,7 +59,7 @@ class EventCreate(BaseSchema):
     description_en: Annotated[str, StringConstraints(max_length=MAX_EVENT_DESC)]
     location: str
     max_event_users: int
-    priorities: list[MEMBER_ROLES]
+    priorities: list[str]
     all_day: bool
     recurring: bool
     food: bool
@@ -93,7 +93,7 @@ class EventUpdate(BaseSchema):
     can_signup: bool | None = None
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
-    priorities: list[MEMBER_ROLES] | None = None
+    priorities: list[str] | None = None
     alcohol_event_type: ALCOHOL_EVENT_TYPES | None = None
     dress_code: str | None = None
     price: int | None = None
