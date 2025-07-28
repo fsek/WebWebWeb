@@ -195,3 +195,36 @@ def test_change_phone_num_invalid_format(membered_user, client, db_session, memb
     # Verify the phone number was not updated
     updated_user = db_session.query(User_DB).filter_by(id=membered_user.id).one()
     assert updated_user.telephone_number == membered_user.telephone_number
+
+
+def test_change_notifications(membered_user, client, db_session, member_token):
+    """Test changing notification preferences for a membered user."""
+    from db_models.user_model import User_DB
+
+    # Ensure the user has a notification preference
+    assert membered_user.want_notifications is not None
+
+    new_notification_preference = not membered_user.want_notifications
+    response = client.patch(
+        "/users/update/me",
+        json={"notifications": new_notification_preference},
+        headers=auth_headers(member_token),
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    # Verify the notification preference was updated
+    updated_user = db_session.query(User_DB).filter_by(id=membered_user.id).one()
+    assert updated_user.want_notifications == new_notification_preference
+
+    # Go back to the original preference
+    new_notification_preference = not updated_user.want_notifications
+    response = client.patch(
+        "/users/update/me",
+        json={"notifications": new_notification_preference},
+        headers=auth_headers(member_token),
+    )
+    assert response.status_code == status.HTTP_200_OK
+
+    # Verify the notification preference was updated
+    updated_user = db_session.query(User_DB).filter_by(id=membered_user.id).one()
+    assert updated_user.want_notifications == new_notification_preference
