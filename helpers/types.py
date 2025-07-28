@@ -43,6 +43,7 @@ PERMISSION_TARGET = Literal[
     "Document",
     "User",
     "Post",
+    "UserPost",
     "Permission",
     "News",
     "Song",

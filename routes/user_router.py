@@ -76,7 +76,7 @@ def update_multiple_users_status(data: list[UpdateUserMemberMultiple], db: DB_de
 @user_router.patch(
     "/admin/user-posts/{user_id}",
     response_model=AdminUserRead,
-    dependencies=[Permission.require("manage", "User")],
+    dependencies=[Permission.require("manage", "UserPost")],
 )
 def update_user_posts(user_id: int, data: UpdateUserPosts, db: DB_dependency):
     user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
@@ -135,11 +135,8 @@ def search_users(
     return users.offset(offset).limit(limit).all()
 
 
-@user_router.post("/{user_id}/image", dependencies=[Permission.require("manage", "User"), Depends(rate_limit())])
-async def post_user_image(user_id: int, db: DB_dependency, image: UploadFile = File()):
-    user = db.query(User_DB).get(user_id)
-    if not user:
-        raise HTTPException(404, "No event found")
+@user_router.post("/image", dependencies=[Depends(rate_limit())])
+async def post_user_image(user: Annotated[User_DB, Permission.member()], db: DB_dependency, image: UploadFile = File()):
 
     if image:
 
@@ -158,7 +155,7 @@ async def post_user_image(user_id: int, db: DB_dependency, image: UploadFile = F
         dest_path.write_bytes(image.file.read())
 
 
-@user_router.get("/{user_id}/image", dependencies=[Permission.require("manage", "User")])
+@user_router.get("/{user_id}/image", dependencies=[Permission.member()])
 def get_user_image(user_id: int, db: DB_dependency):
     user = db.query(User_DB).get(user_id)
     if not user:
@@ -169,7 +166,7 @@ def get_user_image(user_id: int, db: DB_dependency):
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 
-@user_router.get("/{user_id}/image/stream", dependencies=[Permission.require("manage", "User"), Depends(rate_limit())])
+@user_router.get("/{user_id}/image/stream", dependencies=[Permission.member(), Depends(rate_limit())])
 def get_user_image_stream(user_id: int, db: DB_dependency):
     user = db.query(User_DB).get(user_id)
     if not user:
