@@ -71,6 +71,10 @@ def get_news_image(news_id: int, db: DB_dependency):
         raise HTTPException(404, "No image for this news")
 
     internal = f"/{ASSETS_BASE_PATH}/news/{news.id}"
+
+    if not Path(internal).is_file():
+        raise HTTPException(404, "Image not found")
+
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 
