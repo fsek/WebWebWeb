@@ -43,6 +43,9 @@ def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
                 raise HTTPException(400, detail=f"{item} not a valid standard food preference")
 
     for var, val in vars(data).items():
+        if val is not None and var == "notifications":
+            # Set manually because the name in the database is different
+            user.want_notifications = val
         setattr(user, var, val) if val else None
 
     if data.standard_food_preferences == []:
