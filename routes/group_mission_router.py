@@ -14,10 +14,10 @@ group_mission_router = APIRouter()
 
 
 @group_mission_router.post(
-    "/{group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
+    "/{nollning_group_id}", dependencies=[Permission.require("view", "Nollning")], response_model=GroupMissionRead
 )
-def add_completed_mission_to_group(db: DB_dependency, data: GroupMissionCreate, group_id: int):
-    nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == group_id).one_or_none()
+def add_group_mission(db: DB_dependency, data: GroupMissionCreate, nollning_group_id: int):
+    nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == nollning_group_id).one_or_none()
 
     if not nollning_group:
         raise HTTPException(404, detail="Nollning group not found")
@@ -32,10 +32,19 @@ def add_completed_mission_to_group(db: DB_dependency, data: GroupMissionCreate, 
     if not adventure_mission.nollning_id == nollning_group.nollning_id:
         raise HTTPException(400, detail="Adventure mission not in given nollning")
 
+    mission = (
+        db.query(GroupMission_DB)
+        .filter(GroupMission_DB.nollning_group_id == nollning_group.id)
+        .filter(GroupMission_DB.adventure_mission_id == adventure_mission.id)
+        .one_or_none()
+    )
+    if mission:
+        raise HTTPException(400, detail="Group has already made an attempt for this mission")
+
     mission_group = GroupMission_DB(
         points=data.points,
         adventure_mission_id=data.adventure_mission_id,
-        nollning_group_id=group_id,
+        nollning_group_id=nollning_group_id,
     )
 
     try:
@@ -51,10 +60,10 @@ def add_completed_mission_to_group(db: DB_dependency, data: GroupMissionCreate, 
 
 
 @group_mission_router.patch(
-    "/{group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
+    "/{nollning_group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
 )
-def edit_completed_mission_in_group(db: DB_dependency, data: GroupMissionEdit, group_id: int):
-    nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == group_id).one_or_none()
+def edit_group_mission(db: DB_dependency, data: GroupMissionEdit, nollning_group_id: int):
+    nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == nollning_group_id).one_or_none()
 
     if not nollning_group:
         raise HTTPException(404, detail="Nollning group not found")
@@ -93,12 +102,12 @@ def edit_completed_mission_in_group(db: DB_dependency, data: GroupMissionEdit, g
     dependencies=[Permission.require("manage", "Nollning")],
     status_code=204,
 )
-def remove_completed_mission_from_group(db: DB_dependency, nollning_id: int, data: NollningDeleteMission):
+def remove_group_mission(db: DB_dependency, nollning_id: int, data: NollningDeleteMission):
     delete_group_m(db, nollning_id, data)
 
 
 @group_mission_router.get(
-    "/{group_id}", dependencies=[Permission.require("view", "Nollning")], response_model=list[GroupMissionRead]
+    "/{nollning_group_id}", dependencies=[Permission.require("view", "Nollning")], response_model=list[GroupMissionRead]
 )
-def get_completed_missions_from_group(db: DB_dependency, group_id: int):
-    return db.query(GroupMission_DB).filter(GroupMission_DB.nollning_group_id == group_id).all()
+def get_group_missions_from_nollning_group(db: DB_dependency, nollning_group_id: int):
+    return db.query(GroupMission_DB).filter(GroupMission_DB.nollning_group_id == nollning_group_id).all()

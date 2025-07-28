@@ -89,4 +89,6 @@ PROGRAM_TYPE = Literal["Oklart", "F", "Pi", "N"]
 
 ROOMS = Literal["LC", "Alumni", "SK"]
 
+MISSION_CONFIRMED_TYPES = Literal["Accepted", "Failed", "Review"]
+
 ASSETS_BASE_PATH = os.getenv("ASSETS_BASE_PATH")
