@@ -10,7 +10,7 @@ This repo uses VSCode's Dev Containers extension to standardize the development 
     - `wsl --set-default-version 2`
     - `wsl --install -d Ubuntu-22.04`
     - `wsl --set-default Ubuntu-22.04`
-    -  For more info: [Microsoft documentation](https://learn.microsoft.com/en-us/windows/wsl/install)
+    -  For more info: [Microsoft documentation](https://learn.microsoft.com/en-us/windows/wsl/install) 
 
 
 1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/). 
