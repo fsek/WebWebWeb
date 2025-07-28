@@ -3,7 +3,7 @@ from fastapi import HTTPException, Request, status, Depends
 import redis.asyncio as aioredis
 from database import get_redis
 
-DEFAULT_RATE_LIMIT = 5  # default max calls
+DEFAULT_RATE_LIMIT = 15  # default max calls
 DEFAULT_WINDOW = 300  # default window in seconds
 
 

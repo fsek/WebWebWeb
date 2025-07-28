@@ -80,6 +80,8 @@ def admin_post(db_session):
         Permission_DB(action="view", target="Council"),
         Permission_DB(action="manage", target="User"),
         Permission_DB(action="manage", target="RoomBookings"),
+        Permission_DB(action="view", target="UserPost"),
+        Permission_DB(action="manage", target="UserPost"),
     ]
     post.permissions.extend(permissions)
     db_session.commit()
