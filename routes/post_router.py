@@ -1,19 +1,28 @@
 import os
 from pathlib import Path
+import re
+from typing import get_args
 from fastapi import APIRouter, Depends, File, Response, UploadFile
 from fastapi.responses import FileResponse
 from database import DB_dependency
 from db_models.council_model import Council_DB
 from db_models.post_model import Post_DB
-from api_schemas.post_schemas import PostRead, PostCreate, PostUpdate
+from api_schemas.post_schemas import PostDoorAccessRead, PostRead, PostCreate, PostUpdate
 from helpers.image_checker import validate_image
 from helpers.rate_limit import rate_limit
-from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
+from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH, DOOR_ACCESSES
+from db_models.post_door_access_model import PostDoorAccess_DB
 from user.permission import Permission
 from fastapi import status, HTTPException
 from api_schemas.user_schemas import SimpleUserRead
 
 post_router = APIRouter()
+
+
+@post_router.get("/door_accesses", response_model=list[str], dependencies=[Permission.require("manage", "Post")])
+def get_all_doors():
+    accesses = get_args(DOOR_ACCESSES)
+    return [access for access in accesses]
 
 
 @post_router.get("/", response_model=list[PostRead])
@@ -58,7 +67,18 @@ def update_post(post_id: int, updated_post: PostUpdate, db: DB_dependency):
     if post is None:
         raise HTTPException(404, "Post not found")
     for var, value in vars(updated_post).items():
+        if var == "doors" or value is None:
+            continue
         setattr(post, var, value) if value else None
+
+    if updated_post.doors is not None:
+        # a) delete existing links
+        db.query(PostDoorAccess_DB).filter_by(post_id=post_id).delete()
+
+        # b) add new ones
+        for door in updated_post.doors:
+            db.add(PostDoorAccess_DB(post_id=post_id, door=door))
+
     db.commit()
     db.refresh(post)
     return post
@@ -109,6 +129,9 @@ def get_post_image(post_id: int, db: DB_dependency):
         raise HTTPException(404, "No image for this post")
 
     internal = f"/{ASSETS_BASE_PATH}/posts/{post.id}"
+
+    if not Path(internal).is_file():
+        raise HTTPException(404, "Image not found")
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 

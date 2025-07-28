@@ -163,6 +163,9 @@ def get_user_image(user_id: int, db: DB_dependency):
 
     internal = f"/{ASSETS_BASE_PATH}/users/{user.id}"
 
+    if not Path(internal).is_file():
+        raise HTTPException(404, "Image not found")
+
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 
