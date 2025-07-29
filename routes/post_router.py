@@ -117,7 +117,7 @@ async def post_post_image(post_id: int, db: DB_dependency, image: UploadFile = F
         if ext not in ALLOWED_EXT:
             raise HTTPException(400, "file extension not allowed")
 
-        dest_path = Path(f"{ASSETS_BASE_PATH}/posts/{post.id}")
+        dest_path = Path(f"{ASSETS_BASE_PATH}/posts/{post.id}{ext}")
 
         dest_path.write_bytes(image.file.read())
 
@@ -128,10 +128,15 @@ def get_post_image(post_id: int, db: DB_dependency):
     if not post:
         raise HTTPException(404, "No image for this post")
 
-    internal = f"/{ASSETS_BASE_PATH}/posts/{post.id}"
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "posts"
 
-    if not Path(internal).is_file():
+    matches = list(asset_dir.glob(f"{post.id}.*"))
+    if not matches:
         raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/posts/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
@@ -144,6 +149,14 @@ def get_post_image_stream(post_id: int, db: DB_dependency):
     if not post:
         raise HTTPException(404, "No image for this post")
 
-    internal = f"/{ASSETS_BASE_PATH}/posts/{post.id}"
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "posts"
+
+    matches = list(asset_dir.glob(f"{post.id}.*"))
+    if not matches:
+        raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/posts/{filename}"
 
     return FileResponse(internal)

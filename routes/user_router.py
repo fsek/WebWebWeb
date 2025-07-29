@@ -150,7 +150,7 @@ async def post_user_image(user: Annotated[User_DB, Permission.member()], db: DB_
         if ext not in ALLOWED_EXT:
             raise HTTPException(400, "file extension not allowed")
 
-        dest_path = Path(f"{ASSETS_BASE_PATH}/users/{user.id}")
+        dest_path = Path(f"{ASSETS_BASE_PATH}/users/{user.id}{ext}")
 
         dest_path.write_bytes(image.file.read())
 
@@ -161,10 +161,15 @@ def get_user_image(user_id: int, db: DB_dependency):
     if not user:
         raise HTTPException(404, "No image for this user")
 
-    internal = f"/{ASSETS_BASE_PATH}/users/{user.id}"
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "users"
 
-    if not Path(internal).is_file():
+    matches = list(asset_dir.glob(f"{user.id}.*"))
+    if not matches:
         raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/users/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
@@ -175,5 +180,14 @@ def get_user_image_stream(user_id: int, db: DB_dependency):
     if not user:
         raise HTTPException(404, "No image for this user")
 
-    internal = f"/{ASSETS_BASE_PATH}/users/{user.id}"
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "users"
+
+    matches = list(asset_dir.glob(f"{user.id}.*"))
+    if not matches:
+        raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/users/{filename}"
+
     return FileResponse(internal)
