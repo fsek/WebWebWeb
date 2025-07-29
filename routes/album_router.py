@@ -1,7 +1,15 @@
 from fastapi import APIRouter
 from database import DB_dependency
 from api_schemas.album_schema import AlbumCreate, AlbumPhotographerAdd, AlbumRead
-from services.album_service import add_album, get_album, get_all_albums, delete_album, delete_year, add_photographer
+from services.album_service import (
+    add_album,
+    get_album,
+    get_all_albums,
+    delete_album,
+    delete_year,
+    add_photographer,
+    remove_photographer,
+)
 from user.permission import Permission
 
 album_router = APIRouter()
@@ -39,3 +47,10 @@ def delete_album_year(db: DB_dependency, year: int):
 )
 def add_album_photographer(db: DB_dependency, data: AlbumPhotographerAdd):
     return add_photographer(db, data.album_id, data.user_id)
+
+
+@album_router.patch(
+    "/remove_photographer", dependencies=[Permission.require("manage", "Gallery")], response_model=AlbumRead
+)
+def remove_album_photographer(db: DB_dependency, data: AlbumPhotographerAdd):
+    return remove_photographer(db, data.album_id, data.user_id)

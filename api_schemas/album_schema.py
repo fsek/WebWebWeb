@@ -16,6 +16,10 @@ class AlbumCreate(BaseSchema):
     date: datetime_utc
 
 
+class PhotographerInAlbumRead(BaseSchema):
+    user: SimpleUserRead
+
+
 class AlbumRead(BaseSchema):
     id: int
     title_sv: str
@@ -25,7 +29,7 @@ class AlbumRead(BaseSchema):
     year: int
     date: datetime_utc
     location: str
-    photographer: SimpleUserRead | None
+    photographer: list[PhotographerInAlbumRead]
     imgs: list[ImgInAlbum]
 
 
