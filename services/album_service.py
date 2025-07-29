@@ -4,7 +4,6 @@ from api_schemas.album_schema import AlbumCreate
 from db_models.album_model import Album_DB
 from pathlib import Path
 import os
-import re
 from helpers.db_util import sanitize_title
 
 

@@ -1,5 +1,7 @@
 from sqlalchemy import ForeignKey
 from typing import TYPE_CHECKING
+
+from helpers.types import MISSION_CONFIRMED_TYPES
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -20,4 +22,4 @@ class GroupMission_DB(BaseModel_DB):
     nollning_group_id: Mapped[int] = mapped_column(ForeignKey("nollning_group_table.id"), primary_key=True)
     nollning_group: Mapped["NollningGroup_DB"] = relationship(back_populates="group_missions", init=False)
 
-    is_accepted: Mapped[bool] = mapped_column(default=False, init=False)
+    is_accepted: Mapped[MISSION_CONFIRMED_TYPES] = mapped_column(default="Review", init=False)
