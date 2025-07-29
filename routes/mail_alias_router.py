@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from re import L
+from user.permission import Permission
 from typing import List, Any, Dict
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import Response
@@ -10,7 +10,6 @@ from google.oauth2 import service_account
 # pyright: reportGeneralTypeIssues=false
 
 from googleapiclient.discovery import build  # type: ignore
-from numpy import add
 from pydantic import EmailStr
 from api_schemas.mail_alias_schema import AliasRead
 import os
@@ -42,7 +41,7 @@ def get_groups_settings_service() -> Any:
     return build("groupssettings", "v1", credentials=credentials)  # pyright: ignore[reportUnknownVariableType]
 
 
-@mail_alias_router.post("/alias", response_model=AliasRead)
+@mail_alias_router.post("/alias", response_model=AliasRead, dependencies=[Permission.require("manage", "MailAlias")])
 def create_alias(
     alias: EmailStr,
     directory_service: Any = Depends(get_directory_service),
@@ -70,7 +69,9 @@ def create_alias(
     return Response(status_code=status.HTTP_201_CREATED)
 
 
-@mail_alias_router.get("/aliases", response_model=List[AliasRead])
+@mail_alias_router.get(
+    "/aliases", response_model=List[AliasRead], dependencies=[Permission.require("view", "MailAlias")]
+)
 def list_aliases(
     service: Any = Depends(get_directory_service),
 ) -> List[AliasRead]:
@@ -96,7 +97,7 @@ def list_aliases(
     return aliases
 
 
-@mail_alias_router.delete("/alias/{alias_email}")
+@mail_alias_router.delete("/alias/{alias_email}", dependencies=[Permission.require("manage", "MailAlias")])
 def delete_alias(
     alias_email: str,
     service: Any = Depends(get_directory_service),
@@ -111,7 +112,11 @@ def delete_alias(
     return {"status": "deleted", "alias": alias_email}
 
 
-@mail_alias_router.post("/alias/{alias_email}/add_member", response_model=AliasRead)
+@mail_alias_router.post(
+    "/alias/{alias_email}/add_member",
+    response_model=AliasRead,
+    dependencies=[Permission.require("manage", "MailAlias")],
+)
 def add_member(
     alias_email: str,
     member_email: EmailStr,
@@ -129,7 +134,11 @@ def add_member(
         raise HTTPException(status_code=400, detail=f"Add member failed: {e}")
 
 
-@mail_alias_router.delete("/alias/{alias_email}/remove_member", response_model=AliasRead)
+@mail_alias_router.delete(
+    "/alias/{alias_email}/remove_member",
+    response_model=AliasRead,
+    dependencies=[Permission.require("manage", "MailAlias")],
+)
 def remove_member(
     alias_email: str,
     member_email: EmailStr,
@@ -145,31 +154,3 @@ def remove_member(
         return AliasRead(alias=alias_email, members=members)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Remove member failed: {e}")
-
-
-if __name__ == "__main__":
-
-    alias: EmailStr = "test_alias@fsektionen.se"
-    alias2: EmailStr = "test2_alias@fsektionen.se"
-
-    create_alias(alias)
-
-    add_member(alias_email=alias, member_email="benjamin_halasz@icloud.com")
-
-    list_aliases()
-
-    create_alias(alias2)
-
-    list_aliases()
-
-    add_member(alias_email=alias2, member_email="benjamin_halasz@icloud.com")
-
-    delete_alias(alias_email=alias2)
-
-    list_aliases()
-
-    remove_member(alias_email=alias, member_email="benjamin_halasz@icloud.com")
-
-    list_aliases()
-
-    delete_alias(alias_email=alias)
