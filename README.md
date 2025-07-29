@@ -13,7 +13,7 @@ This repo uses VSCode's Dev Containers extension to standardize the development 
     -  For more info: [Microsoft documentation](https://learn.microsoft.com/en-us/windows/wsl/install)
 
 
-1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/). 
+1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/).  
 
     - Windows users: Make sure you select Use WSL 2 instead of Hyper-V if the option is presented.
 
