@@ -48,3 +48,6 @@ websockets==12.0
 alembic==1.14.1
 pandas==2.2.3
 redis==6.2.0
+google-auth==2.40.3
+google-api-python-client==2.177.0
+google_auth_oauthlib==1.2.2
