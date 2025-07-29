@@ -59,7 +59,7 @@ async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = F
         if ext not in ALLOWED_EXT:
             raise HTTPException(400, "file extension not allowed")
 
-        dest_path = Path(f"{ASSETS_BASE_PATH}/news/{news.id}")
+        dest_path = Path(f"{ASSETS_BASE_PATH}/news/{news.id}{ext}")
 
         dest_path.write_bytes(image.file.read())
 
@@ -70,10 +70,15 @@ def get_news_image(news_id: int, db: DB_dependency):
     if not news:
         raise HTTPException(404, "No image for this news")
 
-    internal = f"/{ASSETS_BASE_PATH}/news/{news.id}"
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "news"
 
-    if not Path(internal).is_file():
+    matches = list(asset_dir.glob(f"{news.id}.*"))
+    if not matches:
         raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/news/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
@@ -84,7 +89,16 @@ def get_news_image_stream(news_id: int, db: DB_dependency):
     if not news:
         raise HTTPException(404, "No image for this news")
 
-    internal = f"/{ASSETS_BASE_PATH}/news/{news.id}"
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "news"
+
+    matches = list(asset_dir.glob(f"{news.id}.*"))
+    if not matches:
+        raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/news/{filename}"
+
     return FileResponse(internal)
 
 

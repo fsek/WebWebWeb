@@ -65,7 +65,7 @@ async def post_event_image(event_id: int, db: DB_dependency, image: UploadFile =
         if ext not in ALLOWED_EXT:
             raise HTTPException(400, "file extension not allowed")
 
-        dest_path = Path(f"{ASSETS_BASE_PATH}/events/{event.id}")
+        dest_path = Path(f"{ASSETS_BASE_PATH}/events/{event.id}{ext}")
 
         dest_path.write_bytes(image.file.read())
 
@@ -76,10 +76,15 @@ def get_event_image(event_id: int, db: DB_dependency):
     if not event:
         raise HTTPException(404, "No image for this event")
 
-    internal = f"/{ASSETS_BASE_PATH}/events/{event.id}"
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "events"
 
-    if not Path(internal).is_file():
+    matches = list(asset_dir.glob(f"{event.id}.*"))
+    if not matches:
         raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/events/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
@@ -90,7 +95,16 @@ def get_event_image_stream(event_id: int, db: DB_dependency):
     if not event:
         raise HTTPException(404, "No image for this event")
 
-    internal = f"/{ASSETS_BASE_PATH}/events/{event.id}"
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "events"
+
+    matches = list(asset_dir.glob(f"{event.id}.*"))
+    if not matches:
+        raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/events/{filename}"
+
     return FileResponse(internal)
 
 
