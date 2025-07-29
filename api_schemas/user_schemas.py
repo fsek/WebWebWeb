@@ -52,7 +52,6 @@ class SimpleUserAccessRead(BaseSchema):
 
 
 class UserAccessUpdate(BaseSchema):
-    access_id: int
     door: Literal[DOOR_ACCESSES] | None = None
     starttime: datetime_utc | None = None
     endtime: datetime_utc | None = None

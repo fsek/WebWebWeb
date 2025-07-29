@@ -38,10 +38,10 @@ def get_all_user_accesses(db: DB_dependency):
 
 
 @user_access_router.patch(
-    "/", dependencies=[Permission.require("manage", "UserDoorAccess")], response_model=UserAccessRead
+    "/{access_id}", dependencies=[Permission.require("manage", "UserDoorAccess")], response_model=UserAccessRead
 )
-def update_user_access(db: DB_dependency, data: UserAccessUpdate):
-    access = db.query(UserDoorAccess_DB).filter_by(user_access_id=data.access_id).one_or_none()
+def update_user_access(db: DB_dependency, access_id: int, data: UserAccessUpdate):
+    access = db.query(UserDoorAccess_DB).filter_by(user_access_id=access_id).one_or_none()
 
     if access is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
@@ -58,7 +58,9 @@ def update_user_access(db: DB_dependency, data: UserAccessUpdate):
 
 
 @user_access_router.delete(
-    "/", dependencies=[Permission.require("manage", "UserDoorAccess")], status_code=status.HTTP_204_NO_CONTENT
+    "/{access_id}",
+    dependencies=[Permission.require("manage", "UserDoorAccess")],
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 def delete_user_access(db: DB_dependency, access_id: int):
     access = db.query(UserDoorAccess_DB).filter_by(user_access_id=access_id).one_or_none()
