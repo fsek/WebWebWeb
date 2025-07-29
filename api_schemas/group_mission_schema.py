@@ -6,7 +6,6 @@ from helpers.types import MISSION_CONFIRMED_TYPES
 
 
 class GroupMissionCreate(BaseSchema):
-    points: int
     adventure_mission_id: int
 
 

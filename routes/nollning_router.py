@@ -33,15 +33,13 @@ def post_nollning(data: NollningCreate, db: DB_dependency):
     return create_nollning(db, data)
 
 
-@nollning_router.get("/", dependencies=[Permission.require("view", "Nollning")], response_model=list[NollningRead])
+@nollning_router.get("/", dependencies=[Permission.member()], response_model=list[NollningRead])
 def get_all_nollning(db: DB_dependency):
     nollningar = db.query(Nollning_DB).order_by(desc(Nollning_DB.id))
     return nollningar
 
 
-@nollning_router.get(
-    "/{nollning_id}", dependencies=[Permission.require("view", "Nollning")], response_model=NollningRead
-)
+@nollning_router.get("/{nollning_id}", dependencies=[Permission.member()], response_model=NollningRead)
 def get_nollning(nollning_id: int, db: DB_dependency):
     nollning = db.query(Nollning_DB).filter(Nollning_DB.id == nollning_id).one_or_none()
     if not nollning:
@@ -73,7 +71,7 @@ def add_group_to_nollning(db: DB_dependency, nollning_id: int, data: NollningAdd
 
 @nollning_router.get(
     "/groups/{nollning_id}",
-    dependencies=[Permission.require("view", "Nollning")],
+    dependencies=[Permission.member()],
     response_model=list[NollningGroupRead],
 )
 def get_all_nollning_groups(db: DB_dependency, nollning_id: int):

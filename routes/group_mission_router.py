@@ -18,9 +18,7 @@ from user.permission import Permission
 group_mission_router = APIRouter()
 
 
-@group_mission_router.post(
-    "/{nollning_group_id}", dependencies=[Permission.require("view", "Nollning")], response_model=GroupMissionRead
-)
+@group_mission_router.post("/{nollning_group_id}", response_model=GroupMissionRead)
 def add_group_mission(
     db: DB_dependency,
     data: GroupMissionCreate,
@@ -58,11 +56,8 @@ def add_group_mission(
     if mission:
         raise HTTPException(400, detail="Group has already made an attempt for this mission")
 
-    if (data.points > adventure_mission.max_points) or (data.points < adventure_mission.min_points):
-        raise HTTPException(400, detail="Point input doesn't match adventure mission points")
-
     mission_group = GroupMission_DB(
-        points=data.points,
+        points=adventure_mission.min_points,
         adventure_mission_id=data.adventure_mission_id,
         nollning_group_id=nollning_group_id,
     )
