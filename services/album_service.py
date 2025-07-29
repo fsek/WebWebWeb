@@ -5,7 +5,6 @@ from api_schemas.album_schema import AlbumCreate
 from db_models.album_model import Album_DB
 from pathlib import Path
 import os
-import re
 from helpers.db_util import sanitize_title
 
 
@@ -70,6 +69,7 @@ def add_photographer(db: Session, album_id: int, user_id: int):
         db.add(photographer)
         db.commit()
     except IntegrityError as e:
+        db.rollback()
         raise HTTPException(400, detail=e.detail)
 
     return album
@@ -101,6 +101,7 @@ def remove_photographer(db: Session, album_id: int, user_id: int):
         db.commit()
         db.refresh(album)
     except IntegrityError as e:
+        db.rollback()
         raise HTTPException(500, detail=e.detail)
 
     return album
