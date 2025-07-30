@@ -4,6 +4,7 @@ from db_models.user_door_access_model import UserDoorAccess_DB
 from db_models.post_model import Post_DB
 from helpers.types import DOOR_ACCESSES
 from typing import get_args
+import datetime
 
 
 access_serve_router = APIRouter()
@@ -24,6 +25,10 @@ def _get_user_access_stil_ids(db: DB_dependency, door: str) -> list[str]:
 
     for access in user_accesses:
         if access.user and access.user.stil_id:
+            if access.starttime and access.starttime > datetime.datetime.now():
+                continue
+            if access.endtime and access.endtime < datetime.datetime.now():
+                continue
             stil_ids.append(access.user.stil_id)
 
     return stil_ids
