@@ -16,11 +16,6 @@ down_revision: Union[str, None] = "de17c545e41d"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-# define two Enum objects:
-#  • one to CREATE/DROP (no create_type flag)
-#  • one to use in the Column (create_type=False so SQLAlchemy won’t try to re-emit DDL)
-create_mission_status = sa.Enum("Accepted", "Failed", "Review", name="mission_status")
-mission_status = sa.Enum("Accepted", "Failed", "Review", name="mission_status", create_type=False)
 
 door_enum = sa.Enum(
     "Ledningscentralen",
@@ -38,15 +33,15 @@ door_enum = sa.Enum(
 
 def upgrade() -> None:
 
-    op.execute("DROP TYPE IF EXISTS mission_status")
-
     op.drop_column("group_mission_table", "is_accepted")
+
+    op.execute("DROP TYPE IF EXISTS mission_status")
 
     op.add_column(
         "group_mission_table",
         sa.Column(
             "is_accepted",
-            mission_status,
+            sa.Enum("Accepted", "Failed", "Review", name="mission_status", native_enum=False),
             nullable=False,
             server_default=text("'Review'"),
         ),
@@ -73,7 +68,6 @@ def downgrade() -> None:
             existing_nullable=False,
         )
 
-    # 2) Drop the enum‐backed column, re-add the old Boolean
     op.drop_column("group_mission_table", "is_accepted")
     op.add_column(
         "group_mission_table",

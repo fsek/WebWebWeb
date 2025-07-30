@@ -15,8 +15,6 @@ def upgrade() -> None:
     # 1) Drop the old boolean column (data is lost)
     op.drop_column("group_mission_table", "is_accepted")
 
-    op.execute("DROP TYPE IF EXISTS mission_status")
-
     # 2) Create the enum type
     STATUS_ENUM.create(op.get_bind(), checkfirst=True)
 
