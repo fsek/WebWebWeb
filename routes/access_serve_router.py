@@ -22,12 +22,13 @@ def _get_user_access_stil_ids(db: DB_dependency, door: str) -> list[str]:
     """Get STIL IDs for users with direct access to the door."""
     user_accesses = db.query(UserDoorAccess_DB).filter(UserDoorAccess_DB.door == door).all()
     stil_ids: list[str] = []
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     for access in user_accesses:
         if access.user and access.user.stil_id:
-            if access.starttime and access.starttime > datetime.datetime.now():
+            if access.starttime and access.starttime > now:
                 continue
-            if access.endtime and access.endtime < datetime.datetime.now():
+            if access.endtime and access.endtime < now:
                 continue
             stil_ids.append(access.user.stil_id)
 
