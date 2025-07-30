@@ -14,9 +14,9 @@ def create_nollning(db: Session, data: NollningCreate):
     try:
         db.add(nollning)
         db.commit()
-    except IntegrityError as e:
+    except IntegrityError:
         db.rollback()
-        raise HTTPException(409, detail=e.detail)
+        raise HTTPException(409, detail="Nollning cannot have same year as other nollning")
 
     return nollning
 
