@@ -77,11 +77,11 @@ DOOR_ACCESSES = Literal[
     "Ledningscentralen",
     "Ambassaden",
     "Syster Kents",
-    "Hilbert Cafet",
+    "Hilbert Cafe",
     "Cafeförrådet",
     "Sexmästeriets Förråd",
     "Pubförrådet",
-    "Containern",
+    "Sopkomprimatorn",
     "Arkivet",
 ]
 
