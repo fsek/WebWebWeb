@@ -9,6 +9,8 @@ from sqlalchemy.exc import IntegrityError
 
 
 def create_nollning(db: Session, data: NollningCreate):
+    if data.year < 0:
+        raise HTTPException(400, "Cannot have nollning year be less than 0")
     nollning = Nollning_DB(name=data.name, description=data.description, year=data.year)
 
     try:
