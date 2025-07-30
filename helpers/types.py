@@ -74,7 +74,15 @@ GROUP_USER_TYPE = Literal["Mentor", "Mentee", "Default"]
 # All doors the guild manages access to.
 
 DOOR_ACCESSES = Literal[
-    "LC", "Bunkern", "Syster Kents", "Cafét", "Caféförrådet", "Pubförrådet", "Containern", "Arkivet"
+    "Ledningscentralen",
+    "Ambassaden",
+    "Syster Kents",
+    "Hilbert Cafe",
+    "Cafeförrådet",
+    "Sexmästeriets Förråd",
+    "Pubförrådet",
+    "Sopkomprimatorn",
+    "Arkivet",
 ]
 
 # Standard food preferences the user can put on their account
