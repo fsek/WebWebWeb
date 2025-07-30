@@ -8,8 +8,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import ENUM as PG_ENUM
-from sqlalchemy import Enum as SAEnum, text
+from sqlalchemy import text
 
 # revision identifiers, used by Alembic.
 revision: str = "bab4b99afc6c"
@@ -20,10 +19,10 @@ depends_on: Union[str, Sequence[str], None] = None
 # define two Enum objects:
 #  • one to CREATE/DROP (no create_type flag)
 #  • one to use in the Column (create_type=False so SQLAlchemy won’t try to re-emit DDL)
-create_mission_status = PG_ENUM("Accepted", "Failed", "Review", name="mission_status")
-mission_status = PG_ENUM("Accepted", "Failed", "Review", name="mission_status", create_type=False)
+create_mission_status = sa.Enum("Accepted", "Failed", "Review", name="mission_status")
+mission_status = sa.Enum("Accepted", "Failed", "Review", name="mission_status", create_type=False)
 
-door_enum = SAEnum(
+door_enum = sa.Enum(
     "Ledningscentralen",
     "Ambassaden",
     "Syster Kents",
@@ -38,11 +37,11 @@ door_enum = SAEnum(
 
 
 def upgrade() -> None:
-    # 1) Create the PG enum only if it doesn't already exist
-    create_mission_status.create(op.get_bind(), checkfirst=True)
 
-    # 2) Drop the old boolean, add the new enum column
+    op.execute("DROP TYPE IF EXISTS mission_status")
+
     op.drop_column("group_mission_table", "is_accepted")
+
     op.add_column(
         "group_mission_table",
         sa.Column(
@@ -54,7 +53,6 @@ def upgrade() -> None:
     )
     op.alter_column("group_mission_table", "is_accepted", server_default=None)
 
-    # 3) Convert door columns to non-native ENUMs
     for table in ("post_door_access_table", "user_door_access_table"):
         op.alter_column(
             table,
@@ -66,7 +64,6 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    # 1) Revert door columns back to VARCHAR
     for table in ("user_door_access_table", "post_door_access_table"):
         op.alter_column(
             table,
@@ -89,5 +86,4 @@ def downgrade() -> None:
     )
     op.alter_column("group_mission_table", "is_accepted", server_default=None)
 
-    # 3) Drop the PG enum if it's still there
-    create_mission_status.drop(op.get_bind(), checkfirst=True)
+    op.execute("DROP TYPE IF EXISTS mission_status")
