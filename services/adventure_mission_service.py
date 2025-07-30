@@ -8,10 +8,10 @@ from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_
 
 def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollning_id: int):
 
-    if len(data.title) > MAX_ADVENTURE_MISSION_NAME:
+    if len(data.title_sv) > MAX_ADVENTURE_MISSION_NAME or len(data.title_en) > MAX_ADVENTURE_MISSION_NAME:
         raise HTTPException(400, detail="Title too long")
 
-    if len(data.description) > MAX_ADVENTURE_MISSION_DESC:
+    if len(data.description_sv) > MAX_ADVENTURE_MISSION_DESC or len(data.description_en) > MAX_ADVENTURE_MISSION_DESC:
         raise HTTPException(400, detail="Description too long")
 
     nollning = db.query(Nollning_DB).filter(Nollning_DB.id == nollning_id).one_or_none()
@@ -31,8 +31,10 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
     new_adventure_mission = AdventureMission_DB(
         nollning_id=nollning_id,
         nollning_week=data.nollning_week,
-        title=data.title,
-        description=data.description,
+        title_sv=data.title_sv,
+        title_en=data.title_en,
+        description_sv=data.description_sv,
+        description_en=data.description_en,
         max_points=data.max_points,
         min_points=data.min_points,
     )
