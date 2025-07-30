@@ -21,6 +21,8 @@ class Nollning_DB(BaseModel_DB):
 
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
+    year: Mapped[int] = mapped_column(unique=True)
+
     name: Mapped[str] = mapped_column(String(MAX_NOLLNING_NAME))
 
     description: Mapped[str] = mapped_column(String(MAX_NOLLNING_DESC))
