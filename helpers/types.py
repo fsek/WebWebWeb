@@ -79,7 +79,6 @@ DOOR_ACCESSES = Literal[
     "Syster Kents",
     "Hilbert Cafe",
     "Cafeförrådet",
-    "Sexmästeriets Förråd",
     "Pubförrådet",
     "Sopkomprimatorn",
     "Arkivet",
