@@ -48,8 +48,12 @@ def update_existing_news(news_id: int, data: NewsUpdate, db: Session):
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     # This does not allow one to "unset" values that could be null but aren't currently
+    # except for pinned_from and pinned_to which are now handled separately
     for var, value in vars(data).items():
-        setattr(news, var, value) if value else None
+        if value:
+            setattr(news, var, value)
+        elif var in ["pinned_from", "pinned_to"]:
+            setattr(news, var, None)
 
     db.commit()
     db.refresh(news)
