@@ -1,4 +1,5 @@
 from fastapi import HTTPException
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from api_schemas.album_schema import AlbumCreate
 from db_models.album_model import Album_DB
@@ -8,6 +9,7 @@ from helpers.db_util import sanitize_title
 
 
 from db_models.user_model import User_DB
+from db_models.photographer_model import Photographer_DB
 
 
 base_path = os.getenv("ALBUM_BASE_PATH")
@@ -51,9 +53,56 @@ def add_photographer(db: Session, album_id: int, user_id: int):
     if not user:
         raise HTTPException(404, detail="User not found")
 
-    album.photographer_id = user_id
+    photographer_already_in_album = (
+        db.query(Photographer_DB)
+        .filter(Photographer_DB.album_id == album.id)
+        .filter(Photographer_DB.user_id == user.id)
+        .one_or_none()
+    )
 
-    db.commit()
+    if photographer_already_in_album:
+        raise HTTPException(400, detail="User already a photographer in chosen album")
+
+    photographer = Photographer_DB(user_id=user.id, album_id=album.id)
+
+    try:
+        db.add(photographer)
+        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(400, detail=e.detail)
+
+    return album
+
+
+def remove_photographer(db: Session, album_id: int, user_id: int):
+    album = db.query(Album_DB).filter(Album_DB.id == album_id).one_or_none()
+
+    if not album:
+        raise HTTPException(404, detail="Album not found")
+
+    user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
+
+    if not user:
+        raise HTTPException(404, detail="User not found")
+
+    photographer = (
+        db.query(Photographer_DB)
+        .filter(Photographer_DB.album_id == album.id)
+        .filter(Photographer_DB.user_id == user.id)
+        .one_or_none()
+    )
+
+    if not photographer:
+        raise HTTPException(400, detail="User not a photographer in chosen album")
+
+    try:
+        db.delete(photographer)
+        db.commit()
+        db.refresh(album)
+    except IntegrityError as e:
+        db.rollback()
+        raise HTTPException(500, detail=e.detail)
 
     return album
 
