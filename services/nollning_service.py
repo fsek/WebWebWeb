@@ -5,13 +5,21 @@ from db_models.group_model import Group_DB
 from db_models.nollning_group_model import NollningGroup_DB
 from db_models.nollning_model import Nollning_DB
 from db_models.group_mission_model import GroupMission_DB
+from sqlalchemy.exc import IntegrityError
 
 
 def create_nollning(db: Session, data: NollningCreate):
-    nollning = Nollning_DB(name=data.name, description=data.description)
+    if data.year < 1960:
+        raise HTTPException(400, "Cannot have nollning year be less than 1960")
 
-    db.add(nollning)
-    db.commit()
+    nollning = Nollning_DB(name=data.name, description=data.description, year=data.year)
+
+    try:
+        db.add(nollning)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, detail="Nollning cannot have same year as other nollning")
 
     return nollning
 
@@ -22,8 +30,17 @@ def edit_nollning(db: Session, id: int, data: NollningCreate):
     if not nollning:
         raise HTTPException(404, detail="Nollning not found")
 
+    conflicting_nollning = db.query(Nollning_DB).filter(Nollning_DB.year == data.year).one_or_none()
+
+    if conflicting_nollning:
+        raise HTTPException(409, detail="Year cannot be the same as other nollning")
+
     for var, value in vars(data).items():
         setattr(nollning, var, value) if value else None
+
+    if nollning.year < 1960:
+        db.rollback()
+        raise HTTPException(400, detail="Year cannot be lower than 1960")
 
     db.commit()
     db.refresh(nollning)

@@ -24,9 +24,13 @@ class AdventureMission_DB(BaseModel_DB):
 
     nollning_week: Mapped[int] = mapped_column()
 
-    title: Mapped[str] = mapped_column(String(MAX_ADVENTURE_MISSION_NAME))
+    title_sv: Mapped[str] = mapped_column(String(MAX_ADVENTURE_MISSION_NAME))
 
-    description: Mapped[str] = mapped_column(String(MAX_ADVENTURE_MISSION_DESC))
+    title_en: Mapped[str] = mapped_column(String(MAX_ADVENTURE_MISSION_NAME))
+
+    description_sv: Mapped[str] = mapped_column(String(MAX_ADVENTURE_MISSION_DESC))
+
+    description_en: Mapped[str] = mapped_column(String(MAX_ADVENTURE_MISSION_DESC))
 
     max_points: Mapped[int] = mapped_column()
 

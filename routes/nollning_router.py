@@ -48,6 +48,15 @@ def get_nollning(nollning_id: int, db: DB_dependency):
     return nollning
 
 
+@nollning_router.get("/year/{year}", dependencies=[Permission.member()], response_model=NollningRead)
+def get_nollning_by_year(year: int, db: DB_dependency):
+    nollning = db.query(Nollning_DB).filter(Nollning_DB.year == year).one_or_none()
+    if not nollning:
+        raise HTTPException(404, detail="Nollning not found")
+
+    return nollning
+
+
 @nollning_router.patch(
     "/{nollning_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=NollningRead
 )

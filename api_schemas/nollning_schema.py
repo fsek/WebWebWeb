@@ -5,6 +5,7 @@ from api_schemas.group_schema import GroupRead
 
 class NollningCreate(BaseSchema):
     name: str
+    year: int
     description: str
 
 
@@ -16,6 +17,7 @@ class NollningGroupRead(BaseSchema):
 
 class NollningRead(NollningCreate):
     id: int
+    year: int
     missions: list[AdventureMissionRead]
     nollning_groups: list[NollningGroupRead]
 
