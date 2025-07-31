@@ -9,8 +9,8 @@ from sqlalchemy.exc import IntegrityError
 
 
 def create_nollning(db: Session, data: NollningCreate):
-    if data.year < 1:
-        raise HTTPException(400, "Cannot have nollning year be less than 1")
+    if data.year < 1960:
+        raise HTTPException(400, "Cannot have nollning year be less than 1960")
 
     nollning = Nollning_DB(name=data.name, description=data.description, year=data.year)
 
@@ -38,9 +38,9 @@ def edit_nollning(db: Session, id: int, data: NollningCreate):
     for var, value in vars(data).items():
         setattr(nollning, var, value) if value else None
 
-    if nollning.year < 1:
+    if nollning.year < 1960:
         db.rollback()
-        raise HTTPException(400, detail="Year cannot be lower than 1")
+        raise HTTPException(400, detail="Year cannot be lower than 1960")
 
     db.commit()
     db.refresh(nollning)
