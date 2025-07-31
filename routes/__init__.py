@@ -26,8 +26,8 @@ from .tag_router import tag_router
 from .user_access_router import user_access_router
 from .council_router import council_router
 from .document_router import document_router
-
 from .room_booking_router import room_router
+from .access_serve_router import access_serve_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -83,3 +83,5 @@ main_router.include_router(room_router, prefix="/rooms", tags=["room booking"])
 main_router.include_router(moose_game_router, prefix="/moose-game", tags=["moose-game"])
 
 main_router.include_router(mail_alias_router, prefix="/mail-alias", tags=["mail-alias"])
+
+main_router.include_router(access_serve_router, prefix="/access-serve", tags=["access serve"])
