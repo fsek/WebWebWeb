@@ -23,9 +23,11 @@ class RoomBooking_DB(BaseModel_DB):
     user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"))
     user: Mapped["User_DB"] = relationship(back_populates="room_bookings", init=False)
 
-    council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
-    council: Mapped["Council_DB"] = relationship(back_populates="room_bookings", init=False)
+    council_id: Mapped[Optional[int]] = mapped_column(ForeignKey("council_table.id"))
+    council: Mapped[Optional["Council_DB"]] = relationship(back_populates="room_bookings", init=False)
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_ROOM_DESC), default=None)
+
+    personal: Mapped[bool] = mapped_column(default=False)
 
     pass

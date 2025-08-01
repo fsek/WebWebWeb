@@ -12,7 +12,8 @@ class RoomBookingCreate(BaseSchema):
     start_time: datetime_utc
     end_time: datetime_utc
     description: Annotated[str, StringConstraints(max_length=MAX_ROOM_DESC)]
-    council_id: int
+    council_id: int | None = None
+    personal: bool
 
 
 class RoomBookingRead(BaseSchema):
@@ -22,7 +23,8 @@ class RoomBookingRead(BaseSchema):
     end_time: datetime_utc
     description: str
     user: SimpleUserRead
-    council: SimpleCouncilRead
+    council: SimpleCouncilRead | None = None
+    personal: bool | None = None
 
 
 class RoomBookingUpdate(BaseSchema):
