@@ -9,6 +9,7 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.sql import text
 
 
 # revision identifiers, used by Alembic.
@@ -34,6 +35,11 @@ def upgrade() -> None:
     op.drop_column('adventure_mission_table', 'title')
     op.drop_column('adventure_mission_table', 'description')
     op.drop_constraint('album_table_photographer_id_fkey', 'album_table', type_='foreignkey')
+    op.execute(text("""
+    INSERT INTO photographer_table (user_id, album_id)
+    SELECT photographer_id, id FROM album_table
+    WHERE photographer_id IS NOT NULL
+"""))
     op.drop_column('album_table', 'photographer_id')
     op.add_column('nollning_table', sa.Column('year', sa.Integer(), nullable=False))
     op.create_unique_constraint(None, 'nollning_table', ['year'])
