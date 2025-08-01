@@ -1,3 +1,4 @@
+from operator import index
 from fastapi import APIRouter, HTTPException
 from api_schemas.room_booking_schemas import (
     RoomBookingCreate,
@@ -6,18 +7,20 @@ from api_schemas.room_booking_schemas import (
     RoomBookingsBetweenDates,
 )
 from database import DB_dependency
+import copy
+import datetime
 from typing import Annotated
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.council_model import Council_DB
 from db_models.room_booking_model import RoomBooking_DB
 from helpers.types import ROOMS
-
+from helpers.types import datetime_utc
 
 room_router = APIRouter()
 
 
-@room_router.post("/", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "RoomBookings")])
+@room_router.post("/", response_model=[RoomBookingRead], dependencies=[Permission.require("manage", "RoomBookings")])
 def create_room_booking(
     data: RoomBookingCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency
 ):
@@ -50,10 +53,40 @@ def create_room_booking(
         user_id=current_user.id,
     )
 
-    db.add(room_booking)
+    booking_list: list["RoomBooking_DB"] = [room_booking]
+
+    if not (data.recur_interval_days is None or data.recur_until is None):
+        if data.recur_interval_days < 1:
+            raise HTTPException(400, "Invalid argument for recurring interval days")
+
+        index = 0
+        first_start = data.start_time
+
+        delta = datetime.timedelta(days=data.recur_interval_days)
+        current_start = data.start_time + delta
+
+        while (
+            current_start <= data.recur_until
+            and current_start < first_start + datetime.timedelta(days=365 * 2)
+            and index < 50
+        ):
+            booking_clone = data.model_copy(
+                update={
+                    "start_time": current_start,
+                    "end_time": data.end_time + delta,
+                }
+            )
+            booking = create_new_event(booking_clone, db)
+            booking_list.append(booking)
+
+            delta += datetime.timedelta(days=data.recur_interval_days)
+            current_start = data.start_time + delta
+            index += 1
+
+    db.add_all(booking_list)
     db.commit()
 
-    return room_booking
+    return booking_list
 
 
 @room_router.get(
