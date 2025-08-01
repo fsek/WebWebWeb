@@ -13,6 +13,7 @@ from db_models.user_model import User_DB
 from db_models.room_booking_model import RoomBooking_DB
 from helpers.types import ROOMS
 from services.room_booking_service import create_new_room_booking
+from helpers.constants import MAX_RECURSION_TIME, MAX_RECURSION_STEPS
 
 room_router = APIRouter()
 
@@ -41,8 +42,8 @@ def create_room_booking(
 
         while (
             current_start <= data.recur_until
-            and current_start < first_start + datetime.timedelta(days=365 * 2)
-            and index < 50
+            and current_start < first_start + datetime.timedelta(days=MAX_RECURSION_TIME)
+            and index < MAX_RECURSION_STEPS
         ):
             booking_clone = data.model_copy(
                 update={
