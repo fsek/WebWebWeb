@@ -24,7 +24,7 @@ class RoomBookingRead(BaseSchema):
     description: str
     user: SimpleUserRead
     council: SimpleCouncilRead | None = None
-    personal: bool | None = None
+    personal: bool
 
 
 class RoomBookingUpdate(BaseSchema):
