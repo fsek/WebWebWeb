@@ -1,4 +1,3 @@
-from operator import index
 from fastapi import APIRouter, HTTPException
 from api_schemas.room_booking_schemas import (
     RoomBookingCreate,
@@ -7,51 +6,26 @@ from api_schemas.room_booking_schemas import (
     RoomBookingsBetweenDates,
 )
 from database import DB_dependency
-import copy
 import datetime
 from typing import Annotated
 from user.permission import Permission
 from db_models.user_model import User_DB
-from db_models.council_model import Council_DB
 from db_models.room_booking_model import RoomBooking_DB
 from helpers.types import ROOMS
-from helpers.types import datetime_utc
+from services.room_booking_service import create_new_room_booking
 
 room_router = APIRouter()
 
 
-@room_router.post("/", response_model=[RoomBookingRead], dependencies=[Permission.require("manage", "RoomBookings")])
+@room_router.post(
+    "/", response_model=list[RoomBookingRead], dependencies=[Permission.require("manage", "RoomBookings")]
+)
 def create_room_booking(
-    data: RoomBookingCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency
+    data: RoomBookingCreate,
+    current_user: Annotated[User_DB, Permission.require("manage", "RoomBookings")],
+    db: DB_dependency,
 ):
-    if data.end_time <= data.start_time:
-        raise HTTPException(400, "End time must be after start time")
-
-    overlapping_booking = (
-        db.query(RoomBooking_DB)
-        .filter(
-            (RoomBooking_DB.room == data.room)
-            & (RoomBooking_DB.start_time < data.end_time)
-            & (data.start_time < RoomBooking_DB.end_time)
-        )
-        .one_or_none()
-    )
-
-    if overlapping_booking:
-        raise HTTPException(400, "The booking clashes with another booking")
-
-    council = db.query(Council_DB).filter_by(id=data.council_id).one_or_none()
-    if council is None:
-        raise HTTPException(404, "Council not found")
-
-    room_booking = RoomBooking_DB(
-        room=data.room,
-        start_time=data.start_time,
-        end_time=data.end_time,
-        description=data.description,
-        council_id=data.council_id,
-        user_id=current_user.id,
-    )
+    room_booking = create_new_room_booking(data, current_user, db)
 
     booking_list: list["RoomBooking_DB"] = [room_booking]
 
@@ -76,7 +50,7 @@ def create_room_booking(
                     "end_time": data.end_time + delta,
                 }
             )
-            booking = create_new_event(booking_clone, db)
+            booking = create_new_room_booking(booking_clone, current_user, db)
             booking_list.append(booking)
 
             delta += datetime.timedelta(days=data.recur_interval_days)
@@ -92,7 +66,7 @@ def create_room_booking(
 @room_router.get(
     "/get_booking/{booking_id}",
     response_model=RoomBookingRead,
-    dependencies=[Permission.require("view", "RoomBookings")],
+    dependencies=[Permission.member()],
 )
 def get_room_booking(booking_id: int, db: DB_dependency):
     booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.id == booking_id).one_or_none()
@@ -102,7 +76,9 @@ def get_room_booking(booking_id: int, db: DB_dependency):
 
 
 @room_router.get(
-    "/get_all", response_model=list[RoomBookingRead], dependencies=[Permission.require("view", "RoomBookings")]
+    "/get_all",
+    response_model=list[RoomBookingRead],
+    dependencies=[Permission.member()],
 )
 def get_all_room_bookings(db: DB_dependency):
     bookings = db.query(RoomBooking_DB).all()
@@ -113,7 +89,7 @@ def get_all_room_bookings(db: DB_dependency):
 @room_router.post(
     "/get_between_times",
     response_model=list[RoomBookingRead],
-    dependencies=[Permission.require("view", "RoomBookings")],
+    dependencies=[Permission.member()],
 )
 def get_room_bookings_between_times(db: DB_dependency, data: RoomBookingsBetweenDates):
     bookings = (
@@ -127,7 +103,7 @@ def get_room_bookings_between_times(db: DB_dependency, data: RoomBookingsBetween
 @room_router.get(
     "/get_by_room/",
     response_model=list[RoomBookingRead],
-    dependencies=[Permission.require("view", "RoomBookings")],
+    dependencies=[Permission.member()],
 )
 def get_bookings_by_room(room: ROOMS, db: DB_dependency):
     bookings = db.query(RoomBooking_DB).filter(RoomBooking_DB.room == room)
@@ -154,27 +130,32 @@ def remove_room_booking(
     "/{booking_id}", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "RoomBookings")]
 )
 def update_room_booking(
-    booking_id: int, data: RoomBookingUpdate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency
+    booking_id: int,
+    data: RoomBookingUpdate,
+    db: DB_dependency,
 ):
     booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.id == booking_id).one_or_none()
     if booking is None:
         raise HTTPException(404, "Room booking not found")
 
-    for var, value in vars(data).items():
-        setattr(booking, var, value) if value is not None else None
+    # Fill in missing values with current booking values
+    new_start = data.start_time if data.start_time is not None else booking.start_time
+    new_end = data.end_time if data.end_time is not None else booking.end_time
 
-    if booking.end_time <= booking.start_time:
+    if new_end <= new_start:
         raise HTTPException(400, "End time must be after start time")
+    if new_start == new_end:
+        raise HTTPException(400, detail="Booking start time cannot be equal to end time.")
 
     overlapping_booking = (
         db.query(RoomBooking_DB)
         .filter(
             (RoomBooking_DB.id != booking.id)
             & (RoomBooking_DB.room == booking.room)
-            & (RoomBooking_DB.start_time < data.end_time)
-            & (data.start_time < RoomBooking_DB.end_time)
+            & (RoomBooking_DB.start_time < new_end)
+            & (new_start < RoomBooking_DB.end_time)
         )
-        .one_or_none()
+        .first()
     )
 
     if overlapping_booking:
