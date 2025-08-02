@@ -30,7 +30,9 @@ def edit_nollning(db: Session, id: int, data: NollningCreate):
     if not nollning:
         raise HTTPException(404, detail="Nollning not found")
 
-    conflicting_nollning = db.query(Nollning_DB).filter(Nollning_DB.year == data.year).one_or_none()
+    conflicting_nollning = (
+        db.query(Nollning_DB).filter((Nollning_DB.year == data.year) & (Nollning_DB.id != id)).one_or_none()
+    )
 
     if conflicting_nollning:
         raise HTTPException(409, detail="Year cannot be the same as other nollning")
