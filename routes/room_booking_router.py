@@ -30,7 +30,7 @@ def create_room_booking(
 
     booking_list: list["RoomBooking_DB"] = [room_booking]
 
-    if not (data.recur_interval_days is None or data.recur_until is None):
+    if not (data.recur_interval_days is None or data.recur_until is None or data.recur_interval_days == 0):
         if data.recur_interval_days < 1:
             raise HTTPException(400, "Invalid argument for recurring interval days")
 
