@@ -7,12 +7,18 @@ from helpers.types import MISSION_CONFIRMED_TYPES
 
 class GroupMissionCreate(BaseSchema):
     adventure_mission_id: int
+    points: int
+    is_accepted: MISSION_CONFIRMED_TYPES
 
 
 class GroupMissionEdit(BaseSchema):
     points: int | None = None
     adventure_mission_id: int | None = None
     is_accepted: MISSION_CONFIRMED_TYPES | None = None
+
+
+class GroupMissionUncomplete(BaseSchema):
+    adventure_mission_id: int
 
 
 class GroupMissionRead(BaseSchema):

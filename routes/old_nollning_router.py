@@ -14,7 +14,6 @@ from services.nollning_service import (
     create_nollning,
     edit_nollning,
     remove_nollning,
-    delete_group_m,
     get_all_groups_in_nollning,
 )
 from user.permission import Permission
@@ -69,10 +68,11 @@ def get_all_nollning_groups(db: DB_dependency, id: int):
     return get_all_groups_in_nollning(db, id)
 
 
-@nollning_router.delete(
-    "/{nollning_id}/groups/{group_id}",
-    dependencies=[Permission.require("manage", "Nollning")],
-    response_model=NollningDeleteMission,
-)
-def delete_group_mission(db: DB_dependency, nollning_id: int, data: NollningDeleteMission):
-    return delete_group_m(db, nollning_id, data)
+# Use adventure_mission_router for missions and group_mission_router for completed missions instead
+# @nollning_router.delete(
+#     "/{nollning_id}/groups/{group_id}",
+#     dependencies=[Permission.require("manage", "Nollning")],
+#     response_model=NollningDeleteMission,
+# )
+# def delete_group_mission(db: DB_dependency, nollning_id: int, data: NollningDeleteMission):
+#     return delete_group_m(db, nollning_id, data)

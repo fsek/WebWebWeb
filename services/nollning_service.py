@@ -98,19 +98,20 @@ def get_all_groups_in_nollning(db: Session, id: int):
     return nollning.nollning_groups
 
 
-def delete_group_m(db: Session, id: int, data: NollningDeleteMission):
-    adventure_mission = (
-        db.query(GroupMission_DB)
-        .filter(
-            GroupMission_DB.nollning_group_id == data.group_id, GroupMission_DB.adventure_mission_id == data.mission_id
-        )
-        .one_or_none()
-    )
+# Use adventure_mission_router for missions and group_mission_router for completed missions instead
+# def delete_group_m(db: Session, id: int, data: NollningDeleteMission):
+#     adventure_mission = (
+#         db.query(GroupMission_DB)
+#         .filter(
+#             GroupMission_DB.nollning_group_id == data.group_id, GroupMission_DB.adventure_mission_id == data.mission_id
+#         )
+#         .one_or_none()
+#     )
 
-    if not adventure_mission:
-        raise HTTPException(404, detail=f"Adventure mission or group not found")
+#     if not adventure_mission:
+#         raise HTTPException(404, detail=f"Adventure mission or group not found")
 
-    db.delete(adventure_mission)
-    db.commit()
+#     db.delete(adventure_mission)
+#     db.commit()
 
-    return adventure_mission
+#     return adventure_mission
