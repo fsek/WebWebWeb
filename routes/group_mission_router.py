@@ -3,9 +3,8 @@ from api_schemas.group_mission_schema import (
     GroupMissionCreate,
     GroupMissionRead,
     GroupMissionEdit,
-    GroupMissionUncomplete,
+    GroupMissionDelete,
 )
-from api_schemas.nollning_schema import NollningDeleteMission
 from database import DB_dependency
 from db_models.adventure_mission_model import AdventureMission_DB
 from db_models.group_mission_model import GroupMission_DB
@@ -22,14 +21,15 @@ from user.permission import Permission
 group_mission_router = APIRouter()
 
 
-@group_mission_router.post("/{nollning_group_id}", response_model=GroupMissionRead)
-def add_completed_group_mission(
+@group_mission_router.post("/{nollning_group_id}", dependencies=[Permission.member()], response_model=GroupMissionRead)
+def add_group_mission(
     db: DB_dependency,
     data: GroupMissionCreate,
     nollning_group_id: int,
     me: Annotated[User_DB, Permission.member()],
     manage_permission: Annotated[bool, Permission.check("manage", "Nollning")],
 ):
+    # A route to add a completed mission for a group in a nollning
     nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == nollning_group_id).one_or_none()
 
     if not nollning_group:
@@ -60,11 +60,15 @@ def add_completed_group_mission(
     if mission:
         raise HTTPException(400, detail="Group has already made an attempt for this mission")
 
+    if not manage_permission:
+        data.points = None
+        data.is_accepted = None
+
     mission_group = GroupMission_DB(
-        points=data.points,
+        points=data.points if data.points is not None else adventure_mission.min_points,
         adventure_mission_id=data.adventure_mission_id,
         nollning_group_id=nollning_group_id,
-        is_accepted=data.is_accepted,
+        is_accepted=data.is_accepted if data.is_accepted is not None else "Review",
     )
 
     try:
@@ -82,7 +86,8 @@ def add_completed_group_mission(
 @group_mission_router.patch(
     "/{nollning_group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
 )
-def edit_completed_group_mission(db: DB_dependency, data: GroupMissionEdit, nollning_group_id: int):
+def edit_group_mission(db: DB_dependency, data: GroupMissionEdit, nollning_group_id: int):
+    # A route to edit a completed mission for a group in a nollning
     nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == nollning_group_id).one_or_none()
 
     if not nollning_group:
@@ -120,7 +125,9 @@ def edit_completed_group_mission(db: DB_dependency, data: GroupMissionEdit, noll
 @group_mission_router.delete(
     "/{nollning_group_id}", dependencies=[Permission.require("manage", "Nollning")], response_model=GroupMissionRead
 )
-def uncomplete_group_mission(db: DB_dependency, data: GroupMissionUncomplete, nollning_group_id: int):
+def delete_group_mission(db: DB_dependency, data: GroupMissionDelete, nollning_group_id: int):
+    # A route to delete a completed mission (i.e., uncomplete) for a group in a nollning
+
     nollning_group = db.query(NollningGroup_DB).filter(NollningGroup_DB.id == nollning_group_id).one_or_none()
 
     if not nollning_group:

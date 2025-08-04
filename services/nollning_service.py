@@ -1,10 +1,9 @@
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
-from api_schemas.nollning_schema import NollningAddGroup, NollningCreate, NollningDeleteMission
+from api_schemas.nollning_schema import NollningAddGroup, NollningCreate
 from db_models.group_model import Group_DB
 from db_models.nollning_group_model import NollningGroup_DB
 from db_models.nollning_model import Nollning_DB
-from db_models.group_mission_model import GroupMission_DB
 from sqlalchemy.exc import IntegrityError
 
 
@@ -82,7 +81,7 @@ def add_g_to_nollning(db: Session, id: int, data: NollningAddGroup):
         group_id=group.id,
         nollning=nollning,
         nollning_id=nollning.id,
-        nollning_group_number=data.nollning_group_number,
+        mentor_group_number=data.mentor_group_number,
     )
 
     db.add(nollning_group)
@@ -102,22 +101,3 @@ def get_all_groups_in_nollning(db: Session, id: int):
         raise HTTPException(404, detail=f"No groups found")
 
     return nollning.nollning_groups
-
-
-# Use adventure_mission_router for missions and group_mission_router for completed missions instead
-# def delete_group_m(db: Session, id: int, data: NollningDeleteMission):
-#     adventure_mission = (
-#         db.query(GroupMission_DB)
-#         .filter(
-#             GroupMission_DB.nollning_group_id == data.group_id, GroupMission_DB.adventure_mission_id == data.mission_id
-#         )
-#         .one_or_none()
-#     )
-
-#     if not adventure_mission:
-#         raise HTTPException(404, detail=f"Adventure mission or group not found")
-
-#     db.delete(adventure_mission)
-#     db.commit()
-
-#     return adventure_mission

@@ -4,7 +4,6 @@ from api_schemas.nollning_schema import (
     NollningCreate,
     NollningRead,
     NollningAddGroup,
-    NollningDeleteMission,
     NollningGroupRead,
 )
 from database import DB_dependency
@@ -84,16 +83,6 @@ def add_group_to_nollning(db: DB_dependency, nollning_id: int, data: NollningAdd
 )
 def get_all_nollning_groups(db: DB_dependency, nollning_id: int):
     return get_all_groups_in_nollning(db, nollning_id)
-
-
-# Use adventure_mission_router for missions and group_mission_router for completed missions instead
-# @nollning_router.delete(
-#     "/delete_group_mission/{nollning_id}",
-#     dependencies=[Permission.require("manage", "Nollning")],
-#     response_model=NollningDeleteMission,
-# )
-# def delete_group_mission(db: DB_dependency, nollning_id: int, data: NollningDeleteMission):
-#     return delete_group_m(db, nollning_id, data)
 
 
 @nollning_router.delete(

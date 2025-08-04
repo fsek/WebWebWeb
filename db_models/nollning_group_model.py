@@ -23,7 +23,8 @@ class NollningGroup_DB(BaseModel_DB):
     group_id: Mapped[int] = mapped_column(ForeignKey("group_table.id"))
     group: Mapped["Group_DB"] = relationship(back_populates="nollning_groups")
 
-    nollning_group_number: Mapped[Optional[int]] = mapped_column(default=None)
+    # A number, usually 1-16, used by föset during the introduction to identify the group
+    mentor_group_number: Mapped[Optional[int]] = mapped_column(default=None)
 
     group_missions: Mapped[list["GroupMission_DB"]] = relationship(
         back_populates="nollning_group", cascade="all, delete-orphan", init=False
