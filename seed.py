@@ -16,7 +16,6 @@ from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
 from db_models.document_model import Document_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
-import random
 
 
 def seed_users(db: Session, app: FastAPI):
@@ -97,27 +96,6 @@ def seed_users(db: Session, app: FastAPI):
 
     db.commit()
     return boss, user
-
-
-def seed_many_users(db: Session, app: FastAPI, count: int = 100):
-    users = []
-    # I got rate limited so I can't use the register route for this.
-    for i in range(count):
-        random_text = "".join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", k=10))
-        user = User_DB(
-            email=f"non-login-user.{i}@fsektionen.se",
-            first_name=f"Användare{i}",
-            last_name=f"{random_text}ström",
-            hashed_password="not_used_for_seed",
-            telephone_number="+46760187158",
-            is_verified=True,
-            is_member=True,
-            is_active=True,
-            is_superuser=False,
-        )
-        users.append(user)
-    db.add_all(users)
-    db.commit()
 
 
 def seed_cafe_shifts(db: Session, user: User_DB):
@@ -371,9 +349,6 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_permissions(db, posts)
 
     boss, user = seed_users(db, app)
-
-    # These are not registered properly (their hashed passwords are not hashed!), so just don't use this script in staging
-    seed_many_users(db, app, count=100)
 
     seed_cafe_shifts(db, user)
 
