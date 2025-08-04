@@ -1,7 +1,7 @@
 from fastapi import HTTPException
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, DataError
 from sqlalchemy.orm import Session
-from api_schemas.album_schema import AlbumCreate
+from api_schemas.album_schema import AlbumCreate, AlbumPatch
 from db_models.album_model import Album_DB
 from pathlib import Path
 import os
@@ -146,3 +146,20 @@ def delete_year(db: Session, year: int):
     os.rmdir(path)
 
     return {"message": "Year successfully deleted"}
+
+
+def edit_album(db: Session, album_id: int, data: AlbumPatch):
+    album = db.query(Album_DB).filter(Album_DB.id == album_id).one_or_none()
+    if not album:
+        raise HTTPException(404, detail="Album not found")
+
+    for var, value in vars(data).items():
+        setattr(album, var, value) if value is not None else None
+
+    try:
+        db.commit()
+        db.refresh(album)
+        return album
+    except DataError:
+        db.rollback()
+        raise HTTPException(400, detail="Some string(s) in the input fields are too long")

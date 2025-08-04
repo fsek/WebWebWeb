@@ -36,3 +36,11 @@ class AlbumRead(BaseSchema):
 class AlbumPhotographerAdd(BaseSchema):
     user_id: int
     album_id: int
+
+
+class AlbumPatch(BaseSchema):
+    title_sv: str | None = None
+    title_en: str | None = None
+    desc_sv: str | None = None
+    desc_en: str | None = None
+    location: str | None = None
