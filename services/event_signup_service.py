@@ -24,7 +24,7 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
 
     if (
         db.query(EventUser_DB)
-        .filter(EventUser_DB.user_id == data.user_id and EventUser_DB.event_id == event.id)
+        .filter((EventUser_DB.user_id == data.user_id) & (EventUser_DB.event_id == event.id))
         .one_or_none()
     ):
         raise HTTPException(400, detail="User already signed up to chosen event")
@@ -88,7 +88,9 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
 
 def check_me_signup(event_id: int, me: User_DB, db: Session):
     signup = (
-        db.query(EventUser_DB).filter(EventUser_DB.user_id == me.id and EventUser_DB.event_id == event_id).one_or_none()
+        db.query(EventUser_DB)
+        .filter((EventUser_DB.user_id == me.id) & (EventUser_DB.event_id == event_id))
+        .one_or_none()
     )
     if not signup:
         raise HTTPException(404, detail="Signup not found")

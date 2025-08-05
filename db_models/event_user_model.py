@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Optional
 from sqlalchemy import Enum, ForeignKey
 
 from .base_model import BaseModel_DB
-from helpers.types import ALCOHOL_EVENT_TYPES, datetime_utc
+from helpers.types import DRINK_PACKAGES, datetime_utc
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from helpers.db_util import created_at_column, latest_modified_column
 
@@ -24,7 +24,7 @@ class EventUser_DB(BaseModel_DB):
 
     group_name: Mapped[Optional[str]] = mapped_column(default=None)
     priority: Mapped[str] = mapped_column(default="Övrigt")
-    drinkPackage: Mapped[ALCOHOL_EVENT_TYPES] = mapped_column(default="None")
+    drinkPackage: Mapped[DRINK_PACKAGES] = mapped_column(default="None")
 
     created_at: Mapped[datetime_utc] = created_at_column()
     latest_modified: Mapped[datetime_utc] = latest_modified_column()
