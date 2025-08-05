@@ -15,8 +15,6 @@ def create_new_room_booking(
 ):
     if data.end_time <= data.start_time:
         raise HTTPException(400, "End time must be after start time")
-    if data.start_time == data.end_time:
-        raise HTTPException(400, detail="Booking start time cannot be equal to end time.")
 
     overlapping_booking = (
         db.query(RoomBooking_DB)

@@ -145,8 +145,6 @@ def update_room_booking(
 
     if new_end <= new_start:
         raise HTTPException(400, "End time must be after start time")
-    if new_start == new_end:
-        raise HTTPException(400, detail="Booking start time cannot be equal to end time.")
 
     overlapping_booking = (
         db.query(RoomBooking_DB)
