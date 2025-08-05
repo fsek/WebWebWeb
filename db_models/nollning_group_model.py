@@ -18,10 +18,10 @@ class NollningGroup_DB(BaseModel_DB):
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     nollning_id: Mapped[int] = mapped_column(ForeignKey("nollning_table.id"))
-    nollning: Mapped["Nollning_DB"] = relationship(back_populates="nollning_groups")
+    nollning: Mapped["Nollning_DB"] = relationship(back_populates="nollning_groups", init=False)
 
     group_id: Mapped[int] = mapped_column(ForeignKey("group_table.id"))
-    group: Mapped["Group_DB"] = relationship(back_populates="nollning_groups")
+    group: Mapped["Group_DB"] = relationship(back_populates="nollning_groups", init=False)
 
     # A number, usually 1-16, used by föset during the introduction to identify the group
     mentor_group_number: Mapped[Optional[int]] = mapped_column(default=None)

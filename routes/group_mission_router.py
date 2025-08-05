@@ -50,14 +50,14 @@ def add_group_mission(
     if not adventure_mission.nollning_id == nollning_group.nollning_id:
         raise HTTPException(400, detail="Adventure mission not in given nollning")
 
-    mission = (
+    attempted_mission = (
         db.query(GroupMission_DB)
         .filter(GroupMission_DB.nollning_group_id == nollning_group.id)
         .filter(GroupMission_DB.adventure_mission_id == adventure_mission.id)
         .one_or_none()
     )
 
-    if mission:
+    if attempted_mission:
         raise HTTPException(400, detail="Group has already made an attempt for this mission")
 
     if not manage_permission:
@@ -78,7 +78,7 @@ def add_group_mission(
     except IntegrityError as _:
         db.rollback()
 
-        raise HTTPException(400, detail="Group has already completed mission")
+        raise HTTPException(400, detail="Group has already attempted mission, edit the attempt instead")
 
     return mission_group
 
@@ -103,23 +103,23 @@ def edit_group_mission(db: DB_dependency, data: GroupMissionEdit, nollning_group
     if not adventure_mission.nollning_id == nollning_group.nollning_id:
         raise HTTPException(400, detail="Adventure mission not in given nollning")
 
-    completed_mission = (
+    attempted_mission = (
         db.query(GroupMission_DB)
         .filter(GroupMission_DB.nollning_group_id == nollning_group.id)
         .filter(GroupMission_DB.adventure_mission_id == adventure_mission.id)
         .one_or_none()
     )
 
-    if not completed_mission:
-        raise HTTPException(404, detail="Group has not completed this mission")
+    if not attempted_mission:
+        raise HTTPException(404, detail="Group has not attempted this mission")
 
     for var, value in vars(data).items():
-        setattr(completed_mission, var, value) if value is not None else None
+        setattr(attempted_mission, var, value) if value is not None else None
 
     db.commit()
-    db.refresh(completed_mission)
+    db.refresh(attempted_mission)
 
-    return completed_mission
+    return attempted_mission
 
 
 @group_mission_router.delete(
@@ -143,21 +143,21 @@ def delete_group_mission(db: DB_dependency, data: GroupMissionDelete, nollning_g
     if not adventure_mission.nollning_id == nollning_group.nollning_id:
         raise HTTPException(400, detail="Adventure mission not in given nollning")
 
-    completed_mission = (
+    attempted_mission = (
         db.query(GroupMission_DB)
         .filter(GroupMission_DB.nollning_group_id == nollning_group.id)
         .filter(GroupMission_DB.adventure_mission_id == adventure_mission.id)
         .one_or_none()
     )
 
-    if not completed_mission:
-        raise HTTPException(404, detail="Group has not completed this mission")
+    if not attempted_mission:
+        raise HTTPException(404, detail="Group has not attempted this mission")
 
     # Delete the mission
-    db.delete(completed_mission)
+    db.delete(attempted_mission)
     db.commit()
 
-    return completed_mission
+    return attempted_mission
 
 
 @group_mission_router.get(
