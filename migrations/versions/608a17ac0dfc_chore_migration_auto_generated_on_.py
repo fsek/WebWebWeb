@@ -63,7 +63,33 @@ def upgrade() -> None:
         )
     )
     op.drop_column("album_table", "photographer_id")
-    op.add_column("nollning_table", sa.Column("year", sa.Integer(), server_default=sa.text("1"), nullable=False))
+    op.add_column(
+        "nollning_table",
+        sa.Column("year", sa.Integer(), nullable=True),
+    )
+
+    # 2) backfill: set year = the row-number for each existing row
+    op.execute(
+        text(
+            """
+    WITH numbered AS (
+      SELECT
+        id,
+        ROW_NUMBER() OVER (ORDER BY id) AS rn
+      FROM nollning_table
+    )
+    UPDATE nollning_table
+       SET year = numbered.rn
+      FROM numbered
+     WHERE nollning_table.id = numbered.id
+    """
+        )
+    )
+
+    # 3) now that every row has a non-null integer, make it NOT NULL
+    op.alter_column("nollning_table", "year", nullable=False)
+
+    # 4) and enforce uniqueness
     op.create_unique_constraint(None, "nollning_table", ["year"])
     # ### end Alembic commands ###
 
