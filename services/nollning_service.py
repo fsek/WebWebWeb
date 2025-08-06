@@ -77,9 +77,7 @@ def add_g_to_nollning(db: Session, id: int, data: NollningAddGroup):
             raise HTTPException(400, detail="Group already in nollning")
 
     nollning_group = NollningGroup_DB(
-        group=group,
         group_id=group.id,
-        nollning=nollning,
         nollning_id=nollning.id,
         mentor_group_number=data.mentor_group_number,
     )
