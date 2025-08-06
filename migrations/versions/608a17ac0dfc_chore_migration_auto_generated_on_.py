@@ -63,7 +63,7 @@ def upgrade() -> None:
         )
     )
     op.drop_column("album_table", "photographer_id")
-    op.add_column("nollning_table", sa.Column("year", sa.Integer(), nullable=False))
+    op.add_column("nollning_table", sa.Column("year", sa.Integer(), server_default=sa.text("1"), nullable=False))
     op.create_unique_constraint(None, "nollning_table", ["year"])
     # ### end Alembic commands ###
 
