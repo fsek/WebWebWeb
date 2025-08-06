@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 class Photographer_DB(BaseModel_DB):
     __tablename__ = "photographer_table"
 
-    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
-    user: Mapped[Optional["User_DB"]] = relationship(back_populates="photographer", init=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey("user_table.id"), primary_key=True)
+    user: Mapped["User_DB"] = relationship(back_populates="photographer", init=False)
 
-    album_id: Mapped[Optional[int]] = mapped_column(ForeignKey("album_table.id"), primary_key=True)
-    album: Mapped[Optional["Album_DB"]] = relationship(back_populates="photographer", init=False)
+    album_id: Mapped[int] = mapped_column(ForeignKey("album_table.id"), primary_key=True)
+    album: Mapped["Album_DB"] = relationship(back_populates="photographer", init=False)
