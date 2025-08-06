@@ -83,7 +83,7 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
         raise HTTPException(404, detail="Mission not found")
 
     for var, value in vars(data).items():
-        setattr(adventure_mission, var, value) if value else None
+        setattr(adventure_mission, var, value) if value is not None else None
 
     db.commit()
     db.refresh(adventure_mission)

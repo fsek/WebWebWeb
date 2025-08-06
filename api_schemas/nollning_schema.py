@@ -13,6 +13,7 @@ class NollningGroupRead(BaseSchema):
     id: int
     group: GroupRead
     nollning_id: int
+    mentor_group_number: int | None = None
 
 
 class NollningRead(NollningCreate):
@@ -24,8 +25,4 @@ class NollningRead(NollningCreate):
 
 class NollningAddGroup(BaseSchema):
     group_id: int
-
-
-class NollningDeleteMission(BaseSchema):
-    group_id: int
-    mission_id: int
+    mentor_group_number: int | None = None

@@ -17,7 +17,8 @@ class _UserEventRead(BaseSchema):
 
 class _UserPostRead(BaseSchema):
     id: int
-    name: str
+    name_sv: str
+    name_en: str
     council_id: int
 
 
