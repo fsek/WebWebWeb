@@ -13,6 +13,8 @@ class RoomBookingCreate(BaseSchema):
     end_time: datetime_utc
     description: Annotated[str, StringConstraints(max_length=MAX_ROOM_DESC)]
     council_id: int
+    recur_interval_days: int | None = None  # Set this to None if you don't want a recurring event
+    recur_until: datetime_utc | None = None
 
 
 class RoomBookingRead(BaseSchema):
