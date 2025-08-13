@@ -85,8 +85,13 @@ def get_enabled_backends() -> list[AuthenticationBackend[User_DB, int]]:
 # Below are dependencies (functions to feed into Depends()).
 # They validate the client to be a user who we have given a token.
 
-current_user: Any = USERS.current_user(get_enabled_backends=get_enabled_backends)
+# We want to use optional, which allows these to be None
+# to allow for routes which have optional manage_permission but
+# are still accessible without an account
+current_user: Any = USERS.current_user(get_enabled_backends=get_enabled_backends, optional=True)
 
-current_verified_user: Any = USERS.current_user(verified=True, get_enabled_backends=get_enabled_backends)
+current_verified_user: Any = USERS.current_user(verified=True, get_enabled_backends=get_enabled_backends, optional=True)
 
-current_verified_user_token: Any = USERS.current_user_token(verified=True, get_enabled_backends=get_enabled_backends)
+current_verified_user_token: Any = USERS.current_user_token(
+    verified=True, get_enabled_backends=get_enabled_backends, optional=True
+)

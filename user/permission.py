@@ -15,17 +15,30 @@ class Permission:
     @classmethod
     def primitive(cls):
         # Use this for almost only verification of email and getMe
-        return Depends(current_user)
+        def dependency(user: User_DB | None = Depends(current_user)):
+            if user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+            return user
+
+        return Depends(dependency)
 
     @classmethod
     def base(cls):
         # Use this dependency for routes that any user, member or not, should access
-        return Depends(current_verified_user)
+        def dependency(user: User_DB | None = Depends(current_verified_user)):
+            if user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+            return user
+
+        return Depends(dependency)
 
     @classmethod
     def member(cls):
         # Use this dependency for routes that any member should access
-        def dependency(user: User_DB = Depends(current_verified_user)):
+        def dependency(user: User_DB | None = Depends(current_verified_user)):
+            if user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
             if not user.is_member:
                 raise HTTPException(status.HTTP_403_FORBIDDEN)
 
@@ -36,8 +49,11 @@ class Permission:
     @classmethod
     def require(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
         # Use this dependency on routes which require specific permissions
-        def dependency(user_and_token: tuple[User_DB, str] = Depends(current_verified_user_token)):
+        def dependency(user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token)):
             user, token = user_and_token
+            if user is None or token is None:
+                # We can raise here unlike in "check" because this is supposed to be an absolute requirement
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
             permissions: list[str] = []
             for post in user.posts:
                 for perm in post.permissions:
@@ -81,9 +97,14 @@ class Permission:
 
     @classmethod
     def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
-        # Use this dependency on routes which require specific permissions
-        def dependency(user_and_token: tuple[User_DB, str] = Depends(current_verified_user_token)):
+        # Use this dependency on routes which work differently if the user has specific permissions
+        def dependency(user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token)):
             user, token = user_and_token
+            if user is None or token is None:
+                # If we raise an exception here, it would cause the whole calling function to get an exception
+                # which defeats the point of this check being optional
+                return False
+
             permissions: list[str] = []
             for post in user.posts:
                 for perm in post.permissions:
