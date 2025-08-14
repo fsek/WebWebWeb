@@ -62,7 +62,13 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The current settings we use for black-formatter has 120 line length
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=121 --statistics
-        
+
+    - name: Prepare pytest asset directories
+      run: |
+        mkdir -p /workspaces/WebWebWeb/pytest-assets/documents
+        mkdir -p /workspaces/WebWebWeb/pytest-assets/albums
+        mkdir -p /workspaces/WebWebWeb/pytest-assets/assets
+
     - name: Run tests with pytest
       env:
         TEST_DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres_test
