@@ -56,7 +56,7 @@ class Permission:
                 return False
 
             if not user.is_member:
-                raise HTTPException(status.HTTP_403_FORBIDDEN)
+                return False
 
             return user
 
@@ -133,7 +133,7 @@ class Permission:
                 try:
                     claim_action, claim_target = CustomTokenStrategy.decode_permission(perm)
                 except:
-                    raise HTTPException(status.HTTP_403_FORBIDDEN)
+                    return False
 
                 verified = cls.verify_permission(claim_action, claim_target, action, target)
                 if verified:
