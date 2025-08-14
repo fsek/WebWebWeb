@@ -33,7 +33,11 @@ def create_song(song_data: SongCreate, db: DB_dependency):
     if num_existing > 0:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Ths post already exists")
     song = Song_DB(
-        title=song_data.title, author=song_data.author, content=song_data.content, category_id=song_data.category_id
+        title=song_data.title,
+        author=song_data.author,
+        content=song_data.content,
+        category_id=song_data.category_id,
+        melody=song_data.melody,
     )
     db.add(song)
     db.commit()
