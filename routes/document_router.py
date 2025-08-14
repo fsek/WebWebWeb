@@ -137,6 +137,9 @@ def get_document_file(
 
     response.headers["X-Accel-Redirect"] = str(file_path)
 
+    # I got an error in swagger if these were not included
+    response.status_code = 200
+    response.body = b""
     return response
 
 

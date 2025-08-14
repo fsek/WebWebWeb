@@ -1,4 +1,5 @@
 import datetime
+import os
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -335,6 +336,40 @@ def seed_election(db: Session):
     db.commit()
 
 
+def seed_documents(db: Session):
+    # Start by removing all the old documents
+
+    base_path = os.getenv("DOCUMENT_BASE_PATH")
+
+    if base_path is None:
+        base_path = "/workspaces/WebWebWeb/test-assets/documents"
+
+    # directories are kept as is
+    for root, dirs, files in os.walk(base_path, topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
+
+    # Now create the PDF
+    from reportlab.pdfgen import canvas
+
+    pdf_file = os.path.join(base_path, "simple_test_document.pdf")
+
+    # Create a simple PDF
+    c = canvas.Canvas(pdf_file)
+    c.drawString(100, 750, "Hello, World!")
+    c.save()
+
+    # Now create the document object in the backend
+    document = Document_DB(
+        title="Simple Test Document",
+        file_name="simple_test_document.pdf",
+        category="cool category",
+        author_id=1,
+    )
+    db.add(document)
+    db.commit()
+
+
 def seed_if_empty(app: FastAPI, db: Session):
     # If there's no user, assumed DB is empty and seed it.
     if db.query(User_DB).count() > 0:
@@ -364,5 +399,7 @@ def seed_if_empty(app: FastAPI, db: Session):
     seed_ads(db)
 
     seed_election(db)
+
+    seed_documents(db)
 
     print("Done seeding!")
