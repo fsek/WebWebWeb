@@ -34,10 +34,26 @@ class Permission:
 
     @classmethod
     def member(cls):
-        # Use this dependency for routes that any member should access
+        # Use this dependency for routes that only members should access
+        # Do not use if you want to also allow users without accounts, see check_member
         def dependency(user: User_DB | None = Depends(current_verified_user)):
             if user is None:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
+            if not user.is_member:
+                raise HTTPException(status.HTTP_403_FORBIDDEN)
+
+            return user
+
+        return Depends(dependency)
+
+    @classmethod
+    def check_member(cls):
+        # Use this dependency for routes that OPTIONALLY require member status
+        # E.g. if a route should return different data for members and users without accounts
+        def dependency(user: User_DB | None = Depends(current_verified_user)):
+            if user is None:
+                return False
 
             if not user.is_member:
                 raise HTTPException(status.HTTP_403_FORBIDDEN)

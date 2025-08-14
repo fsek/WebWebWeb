@@ -84,6 +84,8 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="UserPost"),
         Permission_DB(action="view", target="RoomBookings"),
         Permission_DB(action="manage", target="RoomBookings"),
+        Permission_DB(action="view", target="Document"),
+        Permission_DB(action="manage", target="Document"),
     ]
     post.permissions.extend(permissions)
     db_session.commit()
@@ -201,3 +203,19 @@ def non_member_token(client, non_membered_user):
     """Create a non-member user and return its access token."""
     resp = client.post("/auth/login", data={"username": "non-member@example.com", "password": "Password123"})
     return resp.json()["access_token"]
+
+
+@pytest.fixture()
+def example_file():
+    """Creates a test pdf file and returns it as a file-like object"""
+    from reportlab.pdfgen import canvas
+
+    pdf_file = "simple_test_document.pdf"
+
+    # Create a simple PDF
+    c = canvas.Canvas(pdf_file)
+    c.drawString(100, 750, "Hello, World!")
+    c.save()
+    # Return as (filename, file_object, content_type)
+    f = open(pdf_file, "rb")
+    return (pdf_file, f, "application/pdf")

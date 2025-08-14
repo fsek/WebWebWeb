@@ -22,6 +22,11 @@ TEST_DATABASE_URL = os.environ.setdefault(
 
 TEST_REDIS_URL = os.environ.setdefault("TEST_REDIS_URL", "redis://localhost:6379/0")
 
+# Set file storage path for pytest
+os.environ["DOCUMENT_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/documents"
+os.environ["ALBUM_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/albums"
+os.environ["ASSETS_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/assets"
+
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_environment():
@@ -60,18 +65,34 @@ def db_session(test_engine):
     """
     Provide a transactional database session for each test.
     After each test, rollback the transaction to ensure tests don't affect each other.
-    Note: Sequences are not reset, this proved difficult to do and is probably not necessary.
+    Note 1: Sequences are not reset, this proved difficult to do and is probably not necessary.
     (For example, if you create a user with ID 1, then rollback and go to the next test,
     the next user will still have ID 2.)
+    Note 2: Files are (should be) removed after each test.
     """
     connection = test_engine.connect()
     transaction = connection.begin()
+
+    # Create all the directories
+    directories = ["albums", "documents", "assets/events", "assets/news", "assets/posts", "assets/users"]
+    for directory in directories:
+        os.makedirs(os.path.join("/workspaces/WebWebWeb/pytest-assets", directory), exist_ok=True)
 
     # Use autoflush=False for better control over when data is written
     Session = sessionmaker(bind=connection, expire_on_commit=False, autoflush=False)
     session = Session()
 
     yield session
+
+    # Clean up the test document
+    if os.path.exists("simple_test_document.pdf"):
+        os.remove("simple_test_document.pdf")
+
+    # Remove all the files in the file storage
+    # directories are kept as is
+    for root, dirs, files in os.walk("/workspaces/WebWebWeb/pytest-assets", topdown=False):
+        for name in files:
+            os.remove(os.path.join(root, name))
 
     # Cleanup in reverse order
     session.close()
