@@ -44,7 +44,13 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
+    - name: Create absolute path symlink
+      run: |
+        sudo mkdir -p /workspaces
+        sudo rm -f /workspaces/WebWebWeb
+        sudo ln -s "$GITHUB_WORKSPACE" /workspaces/WebWebWeb
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v5
       with:
