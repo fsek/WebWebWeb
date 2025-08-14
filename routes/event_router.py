@@ -12,11 +12,12 @@ from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from db_models.event_tag_model import EventTag_DB
 from helpers.image_checker import validate_image
+from db_models.post_model import Post_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
 from typing import List
-from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH, MEMBER_ROLES
+from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
 from pathlib import Path
 
 
@@ -32,9 +33,20 @@ def get_all_events(db: DB_dependency):
 
 
 @event_router.get("/priorities", response_model=list[str])
-def get_event_priorities():
-    # Return the values of the MEMBER_ROLES Enum
-    return [role.value for role in MEMBER_ROLES]
+def get_event_priorities(db: DB_dependency):
+
+    posts = db.query(Post_DB).all()
+
+    priorities: set[str] = set()
+
+    for post in posts:
+        priorities.add(post.name_sv)
+
+    priorities.add("Fadder")
+
+    priorities.add("Nolla")
+
+    return list(priorities)
 
 
 @event_router.get("/{eventId}", response_model=EventRead)
