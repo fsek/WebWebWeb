@@ -9,7 +9,7 @@ from db_models.car_block_model import CarBlock_DB
 car_block_router = APIRouter()
 
 
-@car_block_router.post("/", response_model=CarBlockRead, dependencies=[Permission.check("manage", "Car")])
+@car_block_router.post("/", response_model=CarBlockRead, dependencies=[Permission.require("manage", "Car")])
 def block_user_from_car_booking(
     block: CarBlockCreate,
     db: DB_dependency,
@@ -29,7 +29,7 @@ def block_user_from_car_booking(
     return car_block
 
 
-@car_block_router.delete("/{user_id}", response_model=CarBlockRead, dependencies=[Permission.check("manage", "Car")])
+@car_block_router.delete("/{user_id}", response_model=CarBlockRead, dependencies=[Permission.require("manage", "Car")])
 def unblock_user_from_car_booking(user_id: int, db: DB_dependency):
     # Check if user exists
     user = db.query(User_DB).filter(User_DB.id == user_id).first()
@@ -43,7 +43,7 @@ def unblock_user_from_car_booking(user_id: int, db: DB_dependency):
     return block
 
 
-@car_block_router.get("/", response_model=list[CarBlockRead], dependencies=[Permission.check("manage", "Car")])
+@car_block_router.get("/", response_model=list[CarBlockRead], dependencies=[Permission.require("manage", "Car")])
 def get_all_car_booking_blocks(db: DB_dependency):
     blocks = db.query(CarBlock_DB).all()
     return list(blocks)

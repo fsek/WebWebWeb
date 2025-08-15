@@ -81,6 +81,9 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     for var, value in vars(data).items():
         setattr(signup, var, value) if value else None
 
+    if not event.drink_package:
+        signup.drinkPackage = "None"
+
     db.commit()
     db.refresh(event)
     return signup
