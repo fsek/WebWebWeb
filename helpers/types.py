@@ -101,3 +101,9 @@ ROOMS = Literal["LC", "Alumni", "SK"]
 MISSION_CONFIRMED_TYPES = Literal["Accepted", "Failed", "Review"]
 
 ASSETS_BASE_PATH = os.getenv("ASSETS_BASE_PATH")
+
+# Different configurations of cafe shifts,
+# full = full day of 4 shifts: 8-10, 10-13, 13-15, 15-17
+# morning = like above but only up to 13
+# afternoon = like above but only after 13
+SHIFT_CONFIGURATIONS = Literal["full", "morning", "afternoon"]

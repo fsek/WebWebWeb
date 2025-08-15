@@ -1,6 +1,6 @@
 from api_schemas.base_schema import BaseSchema
 from api_schemas.user_schemas import SimpleUserRead
-from helpers.types import datetime_utc
+from helpers.types import datetime_utc, SHIFT_CONFIGURATIONS
 
 
 class CafeShiftRead(BaseSchema):
@@ -14,6 +14,12 @@ class CafeShiftRead(BaseSchema):
 class CafeShiftCreate(BaseSchema):
     starts_at: datetime_utc
     ends_at: datetime_utc
+
+
+class CafeShiftCreateMulti(BaseSchema):
+    startWeekStart: datetime_utc
+    endWeekStart: datetime_utc
+    configuration: SHIFT_CONFIGURATIONS
 
 
 class CafeShiftUpdate(BaseSchema):

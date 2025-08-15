@@ -1,13 +1,20 @@
 from fastapi import APIRouter, HTTPException, status
+from datetime import UTC, datetime, timedelta, time
+from zoneinfo import ZoneInfo
 
 # from sqlalchemy import null
 from typing import Annotated
 from database import DB_dependency
 from db_models.user_model import User_DB
 from db_models.cafe_shift_model import CafeShift_DB
-from api_schemas.cafe_schemas import CafeShiftCreate, CafeShiftRead, CafeShiftUpdate, CafeViewBetweenDates
+from api_schemas.cafe_schemas import (
+    CafeShiftCreate,
+    CafeShiftRead,
+    CafeShiftUpdate,
+    CafeViewBetweenDates,
+    CafeShiftCreateMulti,
+)
 from user.permission import Permission
-from datetime import UTC, datetime
 
 cafe_shift_router = APIRouter()
 
@@ -53,6 +60,68 @@ def create_shift(data: CafeShiftCreate, db: DB_dependency):
     db.commit()
 
     return shift
+
+
+@cafe_shift_router.post(
+    "/multi", dependencies=[Permission.require("manage", "Cafe")], response_model=list[CafeShiftRead]
+)
+def create_multiple_shifts(data: CafeShiftCreateMulti, db: DB_dependency):
+    shifts: list[CafeShift_DB] = []
+
+    # Define shift times based on configuration
+    shift_times = {
+        "full": [(8, 10), (10, 13), (13, 15), (15, 17)],
+        "morning": [(8, 10), (10, 13)],
+        "afternoon": [(13, 15), (15, 17)],
+    }
+
+    current_week = data.startWeekStart.date()
+    end_week = data.endWeekStart.date()
+
+    if current_week > end_week:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Invalid week range")
+
+    if current_week < datetime.now(UTC).date():
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Cannot create shifts in the past")
+
+    if end_week - current_week > timedelta(weeks=4):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Cannot create shifts for more than 4 weeks at a time")
+
+    local_tz = ZoneInfo("Europe/Stockholm")
+
+    sanity_index = 0
+
+    while current_week <= end_week and sanity_index < 100:
+        sanity_index += 1
+        # Create shifts for Monday (0) through Friday (4)
+        for day_offset in range(5):  # Monday to Friday
+            shift_date = current_week + timedelta(days=day_offset)
+
+            # Create shifts for the selected configuration
+            for start_hour, end_hour in shift_times[data.configuration]:
+                # build local time at Stockholm tz, then convert to UTC
+                start_local = datetime.combine(shift_date, time(start_hour), tzinfo=local_tz)
+                end_local = datetime.combine(shift_date, time(end_hour), tzinfo=local_tz)
+                start_time = start_local.astimezone(UTC)
+                end_time = end_local.astimezone(UTC)
+
+                # Skip shifts in the past
+                if start_time < datetime.now(UTC):
+                    continue
+
+                # Yes, we do want two shifts for each slot (two workers)
+                shift = CafeShift_DB(starts_at=start_time, ends_at=end_time)
+                shifts.append(shift)
+                db.add(shift)
+                shift = CafeShift_DB(starts_at=start_time, ends_at=end_time)
+                shifts.append(shift)
+                db.add(shift)
+
+        # Move to next week
+        current_week += timedelta(weeks=1)
+
+    db.commit()
+    return shifts
 
 
 @cafe_shift_router.delete(
