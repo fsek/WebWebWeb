@@ -93,6 +93,9 @@ def update_shift(shift_id: int, data: CafeShiftUpdate, db: DB_dependency):
             raise HTTPException(status.HTTP_404_NOT_FOUND)
         shift.user_id = data.user_id
         shift.user = user
+    else:  # This goes slightly against standards but makes the frontend way easier to create
+        shift.user = None
+        shift.user_id = None
 
     db.commit()
     return shift
