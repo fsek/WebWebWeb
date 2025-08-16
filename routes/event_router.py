@@ -87,7 +87,7 @@ def get_event_image(event_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
 
     filename = matches[0].name
 
-    internal = f"/internal/{dims}/{ASSETS_BASE_PATH}/events/{filename}"
+    internal = f"/internal/{dims}{ASSETS_BASE_PATH}/events/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 

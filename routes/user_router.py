@@ -172,7 +172,7 @@ def get_user_image(user_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
 
     filename = matches[0].name
 
-    internal = f"/internal/{dims}/{ASSETS_BASE_PATH}/users/{filename}"
+    internal = f"/internal/{dims}{ASSETS_BASE_PATH}/users/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 

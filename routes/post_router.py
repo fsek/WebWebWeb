@@ -139,7 +139,7 @@ def get_post_image(post_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
 
     filename = matches[0].name
 
-    internal = f"/internal/{dims}/{ASSETS_BASE_PATH}/posts/{filename}"
+    internal = f"/internal/{dims}{ASSETS_BASE_PATH}/posts/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
