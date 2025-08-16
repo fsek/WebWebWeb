@@ -16,6 +16,11 @@ class CafeShiftCreate(BaseSchema):
     ends_at: datetime_utc
 
 
+class CafeShiftCreateMulti(BaseSchema):
+    startWeekStart: datetime_utc
+    endWeekStart: datetime_utc
+
+
 class CafeShiftUpdate(BaseSchema):
     starts_at: datetime_utc | None = None
     ends_at: datetime_utc | None = None
