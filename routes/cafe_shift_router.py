@@ -68,12 +68,8 @@ def create_shift(data: CafeShiftCreate, db: DB_dependency):
 def create_multiple_shifts(data: CafeShiftCreateMulti, db: DB_dependency):
     shifts: list[CafeShift_DB] = []
 
-    # Define shift times based on configuration
-    shift_times = {
-        "full": [(8, 10), (10, 13), (13, 15), (15, 17)],
-        "morning": [(8, 10), (10, 13)],
-        "afternoon": [(13, 15), (15, 17)],
-    }
+    # Define shift times
+    shift_times = [(8, 10), (10, 13)]
 
     current_week = data.startWeekStart.date()
     end_week = data.endWeekStart.date()
@@ -98,7 +94,7 @@ def create_multiple_shifts(data: CafeShiftCreateMulti, db: DB_dependency):
             shift_date = current_week + timedelta(days=day_offset)
 
             # Create shifts for the selected configuration
-            for start_hour, end_hour in shift_times[data.configuration]:
+            for start_hour, end_hour in shift_times:
                 # build local time at Stockholm tz, then convert to UTC
                 start_local = datetime.combine(shift_date, time(start_hour), tzinfo=local_tz)
                 end_local = datetime.combine(shift_date, time(end_hour), tzinfo=local_tz)
