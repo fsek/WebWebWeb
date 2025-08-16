@@ -10,7 +10,7 @@ from db_models.post_model import Post_DB
 from api_schemas.post_schemas import PostDoorAccessRead, PostRead, PostCreate, PostUpdate
 from helpers.image_checker import validate_image
 from helpers.rate_limit import rate_limit
-from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH, DOOR_ACCESSES
+from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH, DOOR_ACCESSES
 from db_models.post_door_access_model import PostDoorAccess_DB
 from user.permission import Permission
 from fastapi import status, HTTPException
@@ -122,8 +122,11 @@ async def post_post_image(post_id: int, db: DB_dependency, image: UploadFile = F
         dest_path.write_bytes(image.file.read())
 
 
-@post_router.get("/{post_id}/image", dependencies=[Permission.require("manage", "Post")])
-def get_post_image(post_id: int, db: DB_dependency):
+@post_router.get("/{post_id}/image/{size}", dependencies=[Permission.require("manage", "Post")])
+def get_post_image(post_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
+
+    dims = ALLOWED_IMG_SIZES[size]
+
     post = db.query(Post_DB).get(post_id)
     if not post:
         raise HTTPException(404, "No image for this post")
@@ -136,7 +139,7 @@ def get_post_image(post_id: int, db: DB_dependency):
 
     filename = matches[0].name
 
-    internal = f"/{ASSETS_BASE_PATH}/posts/{filename}"
+    internal = f"/internal/{dims}/{ASSETS_BASE_PATH}/posts/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 

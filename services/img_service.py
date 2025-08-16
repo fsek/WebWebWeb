@@ -85,4 +85,4 @@ def get_single_img(db: Session, img_id: int):
     if img == None:
         raise HTTPException(404, detail="File not found")
 
-    return FileResponse(f"/{img.album.path}/{img.path}")
+    return FileResponse(f"{img.path}")

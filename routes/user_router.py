@@ -16,7 +16,7 @@ from api_schemas.user_schemas import (
 )
 from helpers.image_checker import validate_image
 from helpers.rate_limit import rate_limit
-from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
+from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
 from services import user as user_service
 from user.permission import Permission
 from api_schemas.post_schemas import PostRead
@@ -155,8 +155,11 @@ async def post_user_image(user: Annotated[User_DB, Permission.member()], db: DB_
         dest_path.write_bytes(image.file.read())
 
 
-@user_router.get("/{user_id}/image", dependencies=[Permission.member()])
-def get_user_image(user_id: int, db: DB_dependency):
+@user_router.get("/{user_id}/image/{size}", dependencies=[Permission.member()])
+def get_user_image(user_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
+
+    dims = ALLOWED_IMG_SIZES[size]
+
     user = db.query(User_DB).get(user_id)
     if not user:
         raise HTTPException(404, "No image for this user")
@@ -169,7 +172,7 @@ def get_user_image(user_id: int, db: DB_dependency):
 
     filename = matches[0].name
 
-    internal = f"/{ASSETS_BASE_PATH}/users/{filename}"
+    internal = f"/internal/{dims}/{ASSETS_BASE_PATH}/users/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 

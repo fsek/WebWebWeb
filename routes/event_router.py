@@ -16,7 +16,7 @@ from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
 from typing import List
-from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH, MEMBER_ROLES
+from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH, MEMBER_ROLES
 from pathlib import Path
 
 
@@ -70,8 +70,11 @@ async def post_event_image(event_id: int, db: DB_dependency, image: UploadFile =
         dest_path.write_bytes(image.file.read())
 
 
-@event_router.get("/{event_id}/image", dependencies=[Permission.require("manage", "Event")])
-def get_event_image(event_id: int, db: DB_dependency):
+@event_router.get("/{event_id}/image/{size}", dependencies=[Permission.require("manage", "Event")])
+def get_event_image(event_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
+
+    dims = ALLOWED_IMG_SIZES[size]
+
     event = db.query(Event_DB).get(event_id)
     if not event:
         raise HTTPException(404, "No image for this event")
@@ -84,7 +87,7 @@ def get_event_image(event_id: int, db: DB_dependency):
 
     filename = matches[0].name
 
-    internal = f"/{ASSETS_BASE_PATH}/events/{filename}"
+    internal = f"/internal/{dims}/{ASSETS_BASE_PATH}/events/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
