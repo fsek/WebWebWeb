@@ -1,3 +1,4 @@
+from datetime import datetime
 from io import StringIO
 import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
@@ -156,6 +157,10 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No event exist")
+
+    if event.signup_end > datetime.now():
+        raise HTTPException(400, detail="Event signups are not closed yet")
+
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
     users: list[User_DB] = []
     if len(people_signups) == 0:
@@ -188,6 +193,11 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
 
     users = [event_user.user for event_user in unique_prioritized_people]
 
+    for event_user in unique_prioritized_people:
+        event_user.confirmed_status = True
+
+    db.commit()
+
     return users
 
 
@@ -210,6 +220,29 @@ def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[
     for event_user in event.event_users:
         if event_user.user_id in confirmed_user_ids:
             event_user.confirmed_status = True
+
+    db.commit()
+    db.refresh(event)
+
+    return event
+
+
+@event_router.patch(
+    "/event-unconfirm-event-users/{event_id}",
+    dependencies=[Permission.require("manage", "Event")],
+    response_model=EventRead,
+)
+def unconfirm_event_users(db: DB_dependency, event_id: int, unconfirmed_users: list[UserRead]):
+    event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    unconfirmed_user_ids = [user.id for user in unconfirmed_users]
+
+    for event_user in event.event_users:
+        if event_user.user_id in unconfirmed_user_ids:
+            event_user.confirmed_status = False
 
     db.commit()
     db.refresh(event)

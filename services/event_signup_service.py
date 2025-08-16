@@ -34,7 +34,10 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     for var, value in vars(data).items():
         setattr(signup, var, value) if value else None
 
-    if not event.lottery:
+    if event.max_event_users == 0:
+        signup.confirmed_status = True
+
+    if (event.max_event_users > 0 and event.signup_count < event.max_event_users) and (event.lottery == False):
         signup.confirmed_status = True
 
     if not event.drink_package:
