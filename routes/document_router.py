@@ -127,7 +127,7 @@ def get_document_file(
     if document.is_private and not manage_permission:
         raise HTTPException(401, detail="Document is private, check your permissions m8")
 
-    file_path = Path(f"{base_path}/{document.file_name}")
+    file_path = Path(f"/internal/document{base_path}/{document.file_name}")
     if not file_path.exists():
         raise HTTPException(418, detail="Something is very cooked, contact the Webmasters pls!")
 
