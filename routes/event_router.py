@@ -1,3 +1,4 @@
+from datetime import datetime
 from io import StringIO
 import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
@@ -156,6 +157,10 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No event exist")
+
+    if event.signup_end > datetime.now():
+        raise HTTPException(400, detail="Event signups are not closed yet")
+
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
     users: list[User_DB] = []
     if len(people_signups) == 0:
@@ -187,6 +192,11 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
     unique_prioritized_people.extend(people_signups[:places_left])
 
     users = [event_user.user for event_user in unique_prioritized_people]
+
+    for event_user in unique_prioritized_people:
+        event_user.confirmed_status = True
+
+    db.commit()
 
     return users
 
