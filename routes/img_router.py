@@ -3,6 +3,7 @@ from fastapi import Response
 from database import DB_dependency
 from db_models.img_model import Img_DB
 from helpers.image_checker import validate_image
+from helpers.types import ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES
 from services.img_service import upload_img, remove_img, get_single_img
 from user.permission import Permission
 
@@ -29,14 +30,16 @@ def get_image_stream(
     return get_single_img(db, img_id)
 
 
-@img_router.get("/{img_id}", dependencies=[Permission.member()])
-def get_image(db: DB_dependency, img_id: int, response: Response):
+@img_router.get("/{img_id}/{size}", dependencies=[Permission.member()])
+def get_image(db: DB_dependency, img_id: int, size: ALLOWED_IMG_TYPES, response: Response):
+
+    dims = ALLOWED_IMG_SIZES[size]
 
     img = db.query(Img_DB).filter(Img_DB.id == img_id).one_or_none()
 
     if img is None:
         raise HTTPException(status_code=404, detail="Not found")
-    internal = "/" + img.path.lstrip("/")
+    internal = f"/internal{dims}/{img.path.lstrip('/')}"
     return Response(
         status_code=status.HTTP_200_OK,
         headers={"X-Accel-Redirect": internal},
