@@ -64,6 +64,25 @@ async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = F
         dest_path.write_bytes(image.file.read())
 
 
+@news_router.get("/{news_id}/image/stream", dependencies=[Depends(rate_limit(limit=100))])
+def get_news_image_stream(news_id: int, db: DB_dependency):
+    news = db.query(News_DB).get(news_id)
+    if not news:
+        raise HTTPException(404, "No image for this news")
+
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "news"
+
+    matches = list(asset_dir.glob(f"{news.id}.*"))
+    if not matches:
+        raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/{ASSETS_BASE_PATH}/news/{filename}"
+
+    return FileResponse(internal)
+
+
 @news_router.get("/{news_id}/image/{size}", dependencies=[Depends(rate_limit(limit=100))])
 def get_news_image(news_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
 
@@ -84,25 +103,6 @@ def get_news_image(news_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
     internal = f"/internal/{dims}{ASSETS_BASE_PATH}/news/{filename}"
 
     return Response(status_code=200, headers={"X-Accel-Redirect": internal})
-
-
-@news_router.get("/{news_id}/image/stream", dependencies=[Depends(rate_limit(limit=100))])
-def get_news_image_stream(news_id: int, db: DB_dependency):
-    news = db.query(News_DB).get(news_id)
-    if not news:
-        raise HTTPException(404, "No image for this news")
-
-    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "news"
-
-    matches = list(asset_dir.glob(f"{news.id}.*"))
-    if not matches:
-        raise HTTPException(404, "Image not found")
-
-    filename = matches[0].name
-
-    internal = f"/{ASSETS_BASE_PATH}/news/{filename}"
-
-    return FileResponse(internal)
 
 
 @news_router.delete(

@@ -72,7 +72,7 @@ def remove_img(db: Session, img_id: int):
     if img == None:
         raise HTTPException(404, detail="File not found")
 
-    os.remove(f"/{img.album.path}/{img.path}")
+    os.remove(img.path)
     db.delete(img)
     db.commit()
 
@@ -85,4 +85,4 @@ def get_single_img(db: Session, img_id: int):
     if img == None:
         raise HTTPException(404, detail="File not found")
 
-    return FileResponse(f"{img.path}")
+    return FileResponse(img.path)
