@@ -128,7 +128,9 @@ class Permission:
                 for perm in post.permissions:
                     permissions.append(f"{perm.action}:{perm.target}")
 
-            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, JWT_SECRET, audience=["fastapi-users:auth"]))
+            decoded_token = cast(
+                AccessTokenData, jwt.decode_jwt(token, Depends(get_jwt_secret), audience=["fastapi-users:auth"])
+            )
 
             # see if user has a permission matching the required permission
             for perm in decoded_token["permissions"]:
