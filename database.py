@@ -23,7 +23,7 @@ else:
     REDIS_URL = os.getenv("REDIS_URL")
 
 
-if os.getenv("ENVIRONMENT") == "production":
+if os.getenv("ENVIRONMENT") == "production" or os.getenv("ENVIRONMENT") == "stage":
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
         pool_size=10,
