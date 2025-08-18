@@ -73,3 +73,5 @@ class Event_DB(BaseModel_DB):
     dot: Mapped[EVENT_DOT_TYPES] = mapped_column(default="None")
 
     lottery: Mapped[bool] = mapped_column(default=False)
+
+    event_users_confirmed: Mapped[bool] = mapped_column(init=False, default=False)

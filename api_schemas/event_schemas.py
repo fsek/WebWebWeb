@@ -37,6 +37,7 @@ class EventRead(BaseSchema):
     signup_count: int
     dot: str
     lottery: bool
+    event_user_confirmed: bool
 
 
 # we dont need to be as strict about out data as in data.
