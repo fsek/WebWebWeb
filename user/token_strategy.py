@@ -10,11 +10,34 @@ from fastapi_users_pelicanq.authentication import RedisStrategy, Strategy
 from fastapi_users_pelicanq import models
 from database import get_redis
 
-JWT_SECRET = (
-    secrets.token_urlsafe(32)  # Generate a secure random secret key for JWT
-    if os.getenv("ENVIRONMENT") == "production"
-    else "this_is_a_very_long_secret_key_for_development_purposes"
-)
+
+JWT_SECRET_KEY = "secret:jwt_secret"
+
+
+async def get_jwt_secret() -> str:
+    if os.getenv("ENVIRONMENT") in ("testing", "development"):
+        return "this_is_a_very_long_secret_key_for_development_purposes"
+
+    async for redis_client in get_redis():
+        # Try to fetch existing secret
+        secret = await redis_client.get(JWT_SECRET_KEY)
+        if secret:
+            return str(secret)
+
+        # Generate and set atomically
+        new_secret = secrets.token_urlsafe(32)
+        was_set = await redis_client.setnx(JWT_SECRET_KEY, new_secret)
+        if was_set:  # we won the race
+            return new_secret
+
+        # Someone else already set it, so fetch again
+        secret = await redis_client.get(JWT_SECRET_KEY)
+        if secret:
+            return str(secret)
+
+    raise RuntimeError("Failed to initialize JWT secret")
+
+
 JWT_TOKEN_LIFETIME_SECONDS = 3600 * 6 if os.getenv("ENVIRONMENT") == "development" else 900
 
 # Timeout for refresh token, user has to log in again after expiry
@@ -102,8 +125,10 @@ class CustomRedisRefreshStrategy(
         return token
 
 
-def get_jwt_strategy() -> JWTStrategy[User_DB, int]:
-    strat = CustomTokenStrategy(secret=JWT_SECRET, lifetime_seconds=JWT_TOKEN_LIFETIME_SECONDS)
+def get_jwt_strategy(
+    secret: str = Depends(get_jwt_secret),
+) -> JWTStrategy[User_DB, int]:
+    strat = CustomTokenStrategy(secret=secret, lifetime_seconds=JWT_TOKEN_LIFETIME_SECONDS)
     return strat
 
 

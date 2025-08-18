@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi_users_pelicanq import jwt
 from db_models.permission_model import PERMISSION_TYPE, PERMISSION_TARGET
 from db_models.user_model import User_DB
-from user.token_strategy import JWT_SECRET, AccessTokenData, CustomTokenStrategy
+from user.token_strategy import AccessTokenData, CustomTokenStrategy, get_jwt_secret
 from user.user_stuff import (
     current_user,
     current_verified_user,
@@ -65,7 +65,10 @@ class Permission:
     @classmethod
     def require(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
         # Use this dependency on routes which require specific permissions
-        def dependency(user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token)):
+        def dependency(
+            user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token),
+            jwt_secret: str = Depends(get_jwt_secret),
+        ):
             user, token = user_and_token
             if user is None or token is None:
                 # We can raise here unlike in "check" because this is supposed to be an absolute requirement
@@ -75,7 +78,7 @@ class Permission:
                 for perm in post.permissions:
                     permissions.append(f"{perm.action}:{perm.target}")
 
-            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, JWT_SECRET, audience=["fastapi-users:auth"]))
+            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, jwt_secret, audience=["fastapi-users:auth"]))
 
             # see if user has a permission matching the required permission
             for perm in decoded_token["permissions"]:
@@ -114,7 +117,10 @@ class Permission:
     @classmethod
     def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
         # Use this dependency on routes which work differently if the user has specific permissions
-        def dependency(user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token)):
+        def dependency(
+            user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token),
+            jwt_secret: str = Depends(get_jwt_secret),
+        ):
             user, token = user_and_token
             if user is None or token is None:
                 # If we raise an exception here, it would cause the whole calling function to get an exception
@@ -126,7 +132,7 @@ class Permission:
                 for perm in post.permissions:
                     permissions.append(f"{perm.action}:{perm.target}")
 
-            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, JWT_SECRET, audience=["fastapi-users:auth"]))
+            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, jwt_secret, audience=["fastapi-users:auth"]))
 
             # see if user has a permission matching the required permission
             for perm in decoded_token["permissions"]:
