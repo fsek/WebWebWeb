@@ -153,7 +153,7 @@ def get_all_event_signups(event_id: int, db: DB_dependency):
 @event_router.get(
     "/event-signups/random/{event_id}",
     dependencies=[Permission.require("manage", "Event")],
-    response_model=list[UserRead],
+    response_model=list[EventSignupRead],
 )
 def get_random_event_signup(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
@@ -193,14 +193,12 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
 
     unique_prioritized_people.extend(people_signups[:places_left])
 
-    users = [event_user.user for event_user in unique_prioritized_people]
-
     for event_user in unique_prioritized_people:
         event_user.confirmed_status = True
 
     db.commit()
 
-    return users
+    return unique_prioritized_people
 
 
 @event_router.patch(
