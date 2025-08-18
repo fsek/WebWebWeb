@@ -17,7 +17,7 @@ from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
 from typing import List
-from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH, MEMBER_ROLES
+from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
 from pathlib import Path
 
 
@@ -42,7 +42,9 @@ def get_event_priorities(db: DB_dependency):
     for post in posts:
         priorities.add(post.name_sv)
 
-    priorities.add("Fadder")
+    priorities.add("Gruppfadder")
+
+    priorities.add("Uppdragsfadder")
 
     priorities.add("Nolla")
 
