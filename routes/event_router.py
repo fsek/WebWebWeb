@@ -49,6 +49,25 @@ def get_event_priorities(db: DB_dependency):
     return list(priorities)
 
 
+@event_router.patch("/confirmed/{event_id}", response_model=EventRead)
+def confirm_places(
+    db: DB_dependency,
+    event_id: int,
+):
+    event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+    if event.event_users_confirmed:
+        raise HTTPException(400, detail="Event users already confirmed")
+
+    event.event_users_confirmed = True
+
+    db.commit()
+    db.refresh(event)
+
+    return event
+
+
 @event_router.get("/{eventId}", response_model=EventRead)
 def get_single_event(db: DB_dependency, eventId: int):
     event = db.query(Event_DB).filter(Event_DB.id == eventId).one_or_none()
@@ -135,14 +154,6 @@ def create_event(
 @event_router.delete("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
 def event_remove(event_id: int, db: DB_dependency):
     return delete_event(event_id, db)
-
-
-@event_router.get("/confirmed/{event_id}", dependencies=[Permission.member()], response_model=bool)
-def is_event_confirmed(event_id: int, db: DB_dependency):
-    count = db.query(EventUser_DB).filter_by(event_id=event_id, confirmed_status=True).count()
-    if count > 0:
-        return True
-    return False
 
 
 @event_router.patch("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
