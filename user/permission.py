@@ -63,7 +63,7 @@ class Permission:
         return Depends(dependency)
 
     @classmethod
-    def require(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
+    def require(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET, jwt_secret: str = Depends(get_jwt_secret)):
         # Use this dependency on routes which require specific permissions
         def dependency(user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token)):
             user, token = user_and_token
@@ -75,9 +75,7 @@ class Permission:
                 for perm in post.permissions:
                     permissions.append(f"{perm.action}:{perm.target}")
 
-            decoded_token = cast(
-                AccessTokenData, jwt.decode_jwt(token, Depends(get_jwt_secret), audience=["fastapi-users:auth"])
-            )
+            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, jwt_secret, audience=["fastapi-users:auth"]))
 
             # see if user has a permission matching the required permission
             for perm in decoded_token["permissions"]:
@@ -114,7 +112,7 @@ class Permission:
         return False
 
     @classmethod
-    def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
+    def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET, jwt_secret: str = Depends(get_jwt_secret)):
         # Use this dependency on routes which work differently if the user has specific permissions
         def dependency(user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token)):
             user, token = user_and_token
@@ -128,9 +126,7 @@ class Permission:
                 for perm in post.permissions:
                     permissions.append(f"{perm.action}:{perm.target}")
 
-            decoded_token = cast(
-                AccessTokenData, jwt.decode_jwt(token, Depends(get_jwt_secret), audience=["fastapi-users:auth"])
-            )
+            decoded_token = cast(AccessTokenData, jwt.decode_jwt(token, jwt_secret, audience=["fastapi-users:auth"]))
 
             # see if user has a permission matching the required permission
             for perm in decoded_token["permissions"]:
