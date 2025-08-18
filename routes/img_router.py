@@ -32,11 +32,11 @@ async def get_album_images(
     db: DB_dependency,
     redis: aioredis.Redis = Depends(get_redis),
 ):
+    ids: list[int] = []
+
     images = db.query(Img_DB).filter(Img_DB.album_id == album_id).all()
     if not images:
-        raise HTTPException(status_code=404, detail="Album not found or no images")
-
-    ids: list[int] = []
+        return ids
 
     pipe = redis.pipeline()
     for img in images:
