@@ -8,7 +8,6 @@ from db_models import *
 import os
 
 
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./database.sqlite"
 if os.getenv("ENVIRONMENT") == "testing":
     SQLALCHEMY_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
     REDIS_URL = os.getenv("TEST_REDIS_URL")
@@ -18,7 +17,7 @@ else:
 
 
 if os.getenv("ENVIRONMENT") == "production":
-    engine = engine = create_engine(
+    engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
         pool_size=10,
         max_overflow=20,
@@ -31,10 +30,7 @@ else:
 
 session_factory = sessionmaker(engine, expire_on_commit=False)
 
-redis_client = redis.asyncio.from_url(REDIS_URL, decode_responses=True)
 
-
-# A route accesses DB by "Depends()"ing on this:
 def get_db():
     with session_factory() as session:
         yield session
@@ -42,9 +38,16 @@ def get_db():
 
 DB_dependency = Annotated[Session, Depends(get_db)]
 
+if os.getenv("ENVIRONMENT") == "testing":
 
-def get_redis():
-    return redis_client
+    def get_redis():
+        return redis.from_url(REDIS_URL, decode_responses=True)
+
+else:
+    redis_client = redis.from_url(REDIS_URL, decode_responses=True)
+
+    def get_redis():
+        return redis_client
 
 
 def init_db():
