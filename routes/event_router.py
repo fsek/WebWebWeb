@@ -161,7 +161,7 @@ def get_all_event_signups(event_id: int, db: DB_dependency):
 
 
 @event_router.get(
-    "/event-signups/random/{event_id}",
+    "/event-signups/{event_id}",
     dependencies=[Permission.require("manage", "Event")],
     response_model=list[EventSignupRead],
 )
@@ -177,9 +177,11 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
     users: list[User_DB] = []
     if len(people_signups) == 0:
         return users
-    if len(people_signups) <= event.max_event_users:
-        users = [event_user.user for event_user in people_signups]
-        return users
+    if len(people_signups) <= event.max_event_users or event.max_event_users == 0:
+        for event_user in people_signups:
+            event_user.confirmed_status = True
+        db.commit()
+        return people_signups
 
     priorites: set[str] = set()
 
@@ -193,10 +195,20 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
             prioritized_people.append(person)
 
     places_left = event.max_event_users - len(prioritized_people)
-    random.seed(event_id)
-    random.shuffle(people_signups)
 
-    prioritized_people.extend(people_signups[:places_left])
+    if event.lottery:
+        # Random fill
+        non_prioritized = [p for p in people_signups if p not in prioritized_people]
+        random.seed(event_id)
+        random.shuffle(non_prioritized)
+        prioritized_people.extend(non_prioritized[:places_left])
+    else:
+        # FIFO fill
+        non_prioritized = (
+            db.query(EventUser_DB).filter_by(event_id=event_id).order_by(EventUser_DB.created_at.asc()).all()
+        )
+        non_prioritized = [p for p in non_prioritized if p not in prioritized_people]
+        prioritized_people.extend(non_prioritized[:places_left])
 
     for event_user in prioritized_people:
         event_user.confirmed_status = True
