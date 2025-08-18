@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import Depends
-import redis
+import redis.asyncio as redis
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from db_models import base_model
@@ -50,6 +50,7 @@ else:
 
     def get_redis():
         return redis_client
+
 
 def init_db():
     base_model.BaseModel_DB.metadata.create_all(bind=engine)
