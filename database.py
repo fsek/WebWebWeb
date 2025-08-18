@@ -38,14 +38,14 @@ def get_db():
 
 DB_dependency = Annotated[Session, Depends(get_db)]
 
-redis_client: redis.Redis | None = None
+if os.getenv("ENVIRONMENT") == "testing":
+    redis_client: redis.Redis | None = None
 
-
-# Dependency wrapper
-async def get_redis():
-    if redis_client is None:
-        raise RuntimeError("Redis client not initialized")
-    yield redis_client
+    # Dependency wrapper
+    async def get_redis():
+        if redis_client is None:
+            raise RuntimeError("Redis client not initialized")
+        yield redis_client
 
 
 def init_db():
