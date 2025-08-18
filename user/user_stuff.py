@@ -23,7 +23,7 @@ if os.getenv("ENVIRONMENT") == "production":
         # Secure cookie for production, with __Secure- prefix to ensure it is only sent over HTTPS
         cookie_name="__Secure-fsek_refresh_token",
         cookie_max_age=LOGIN_TIMEOUT,
-        cookie_samesite="strict",
+        cookie_samesite="lax",
         cookie_domain="fsektionen.se",
         cookie_path="/auth",  # Server path where the cookie is sent
         cookie_secure=True,  # Secure cookie for production
