@@ -21,11 +21,12 @@ def generate_unique_id(route: APIRoute):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    database.redis_client = redis.from_url(
-        os.getenv("REDIS_URL"),
-        decode_responses=True,
-    )
-    await database.redis_client.ping()
+    if not os.getenv("ENVIRONMENT") == "testing":
+        database.redis_client = redis.from_url(
+            os.getenv("REDIS_URL"),
+            decode_responses=True,
+        )
+        await database.redis_client.ping()
 
     if os.getenv("ENVIRONMENT") == "development":
         # Not needed if you setup a migration system like Alembic
