@@ -12,6 +12,7 @@ from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from db_models.event_tag_model import EventTag_DB
 from helpers.image_checker import validate_image
+from db_models.post_model import Post_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
@@ -32,9 +33,20 @@ def get_all_events(db: DB_dependency):
 
 
 @event_router.get("/priorities", response_model=list[str])
-def get_event_priorities():
-    # Return the values of the MEMBER_ROLES Enum
-    return [role.value for role in MEMBER_ROLES]
+def get_event_priorities(db: DB_dependency):
+
+    posts = db.query(Post_DB).all()
+
+    priorities: set[str] = set()
+
+    for post in posts:
+        priorities.add(post.name_sv)
+
+    priorities.add("Fadder")
+
+    priorities.add("Nolla")
+
+    return list(priorities)
 
 
 @event_router.get("/{eventId}", response_model=EventRead)
@@ -164,29 +176,24 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
         users = [event_user.user for event_user in people_signups]
         return users
 
-    prioritized_people: List[EventUser_DB] = []
+    priorites: set[str] = set()
+
+    prioritized_people: list[EventUser_DB] = []
+
     for priority in event.priorities:
-        # Assuming 'people' is a list of objects and each object has a 'priority' attribute
-        prioritized_people.extend([person for person in people_signups if person.priority == priority])
+        priorites.add(priority.priority)
 
-    # Ensure no duplicates, maintain order
-    seen: set[EventUser_DB] = set()
-    unique_prioritized_people: List[EventUser_DB] = []
-    for person in prioritized_people:
-        if person not in seen:  # Make sure to check person.id since that's what you add to 'seen'
-            seen.add(person)  # Adding person.id to the set
-            people_signups.remove(person)
-            unique_prioritized_people.append(person)
+    for person in people_signups:
+        if person.priority in priorites:
+            prioritized_people.append(person)
 
-    # Now 'unique_prioritized_people' will have unique persons according to their id, preserving order
-
-    places_left = event.max_event_users - len(unique_prioritized_people)
+    places_left = event.max_event_users - len(prioritized_people)
     random.seed(event_id)
     random.shuffle(people_signups)
 
-    unique_prioritized_people.extend(people_signups[:places_left])
+    prioritized_people.extend(people_signups[:places_left])
 
-    users = [event_user.user for event_user in unique_prioritized_people]
+    users = [event_user.user for event_user in prioritized_people]
 
     return users
 
