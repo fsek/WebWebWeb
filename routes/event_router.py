@@ -173,7 +173,7 @@ def get_all_event_signups(event_id: int, db: DB_dependency):
     dependencies=[Permission.require("manage", "Event")],
     response_model=list[EventSignupRead],
 )
-def get_random_event_signup(event_id: int, db: DB_dependency):
+def create_event_signup_list(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No event exist")
@@ -182,6 +182,11 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
         raise HTTPException(400, detail="Event signups are not closed yet")
 
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
+
+    for event_user in people_signups:
+        if event_user.confirmed_status:
+            raise HTTPException(400, detail="Event signups are already confirmed")
+
     users: list[User_DB] = []
     if len(people_signups) == 0:
         return users
