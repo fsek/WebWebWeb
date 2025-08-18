@@ -38,9 +38,10 @@ async def lifespan(app: FastAPI):
 
     yield
     # after yield comes shutdown logic
-    if database.redis_client:
-        await database.redis_client.close()
-        database.redis_client = None
+    if os.getenv("ENVIRONMENT") != "testing":
+        if database.redis_client:
+            await database.redis_client.close()
+            database.redis_client = None
 
 
 # No Swagger/OpenAPI page for production
