@@ -1,4 +1,5 @@
 from typing import Annotated
+import fakeredis
 from fastapi import Depends
 import redis.asyncio as redis
 from sqlalchemy import create_engine
@@ -39,13 +40,15 @@ def get_db():
 DB_dependency = Annotated[Session, Depends(get_db)]
 
 if os.getenv("ENVIRONMENT") == "testing":
+    redis_client: redis.Redis | None = fakeredis.aioredis.FakeRedis(decode_responses=True)
+else:
     redis_client: redis.Redis | None = None
 
-    # Dependency wrapper
-    async def get_redis():
-        if redis_client is None:
-            raise RuntimeError("Redis client not initialized")
-        yield redis_client
+
+async def get_redis():
+    if redis_client is None:
+        raise RuntimeError("Redis client not initialized")
+    yield redis_client
 
 
 def init_db():
