@@ -34,9 +34,6 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     for var, value in vars(data).items():
         setattr(signup, var, value) if value else None
 
-    if not event.lottery:
-        signup.confirmed_status = True
-
     if not event.drink_package:
         signup.drinkPackage = "None"
 
