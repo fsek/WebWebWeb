@@ -4,6 +4,7 @@ import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse, StreamingResponse
 from psycopg import IntegrityError
+from api_schemas.event_signup_schemas import EventSignupRead
 from api_schemas.tag_schema import EventTagRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
@@ -137,15 +138,16 @@ def event_update(
 
 
 @event_router.get(
-    "/event-signups/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
+    "/event-signups/all/{event_id}",
+    dependencies=[Permission.require("manage", "Event")],
+    response_model=list[EventSignupRead],
 )
 def get_all_event_signups(event_id: int, db: DB_dependency):
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
-    users: list[User_DB] = []
+    empty: list[EventUser_DB] = []
     if len(people_signups) == 0:
-        return users
-    users = [event_user.user for event_user in people_signups]
-    return users
+        return empty
+    return people_signups
 
 
 @event_router.get(
@@ -206,7 +208,7 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
     dependencies=[Permission.require("manage", "Event")],
     response_model=EventRead,
 )
-def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[UserRead]):
+def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[int]):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
 
     if not event:
@@ -215,7 +217,7 @@ def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[
     if len(confirmed_users) > event.max_event_users:
         raise HTTPException(400, detail="Too many users for chosen event")
 
-    confirmed_user_ids = [user.id for user in confirmed_users]
+    confirmed_user_ids = [id for id in confirmed_users]
 
     for event_user in event.event_users:
         if event_user.user_id in confirmed_user_ids:
@@ -232,13 +234,13 @@ def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[
     dependencies=[Permission.require("manage", "Event")],
     response_model=EventRead,
 )
-def unconfirm_event_users(db: DB_dependency, event_id: int, unconfirmed_users: list[UserRead]):
+def unconfirm_event_users(db: DB_dependency, event_id: int, unconfirmed_users: list[int]):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
 
     if not event:
         raise HTTPException(404, detail="Event not found")
 
-    unconfirmed_user_ids = [user.id for user in unconfirmed_users]
+    unconfirmed_user_ids = [id for id in unconfirmed_users]
 
     for event_user in event.event_users:
         if event_user.user_id in unconfirmed_user_ids:
