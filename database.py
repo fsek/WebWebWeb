@@ -30,7 +30,7 @@ else:
 
 session_factory = sessionmaker(engine, expire_on_commit=False)
 
-redis_client = redis.asyncio.from_url(REDIS_URL, decode_responses=True)
+redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 
 
 def get_db():
