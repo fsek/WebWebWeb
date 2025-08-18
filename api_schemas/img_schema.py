@@ -8,3 +8,8 @@ class ImgCreate(BaseSchema):
 
 class ImgInAlbum(BaseSchema):
     id: int
+
+
+class ImgRead(BaseSchema):
+    id: int
+    path: str

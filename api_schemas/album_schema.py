@@ -30,7 +30,6 @@ class AlbumRead(BaseSchema):
     date: datetime_utc
     location: str
     photographer: list[PhotographerInAlbumRead]
-    imgs: list[ImgInAlbum]
 
 
 class AlbumPhotographerAdd(BaseSchema):
