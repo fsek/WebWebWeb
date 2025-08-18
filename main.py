@@ -2,12 +2,14 @@ from fastapi import FastAPI
 from fastapi.concurrency import asynccontextmanager
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
+import database
 from database import init_db, session_factory
 from seed import seed_if_empty
 from routes import main_router
 from user.permission import Permission
 import os
 from fastapi.openapi.utils import get_openapi
+import redis.asyncio as redis
 
 
 def generate_unique_id(route: APIRoute):
@@ -19,6 +21,12 @@ def generate_unique_id(route: APIRoute):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    database.redis_client = redis.from_url(
+        os.getenv("REDIS_URL"),
+        decode_responses=True,
+    )
+    await database.redis_client.ping()
+
     if os.getenv("ENVIRONMENT") == "development":
         # Not needed if you setup a migration system like Alembic
         init_db()
@@ -29,6 +37,9 @@ async def lifespan(app: FastAPI):
 
     yield
     # after yield comes shutdown logic
+    if database.redis_client:
+        await database.redis_client.close()
+        database.redis_client = None
 
 
 # No Swagger/OpenAPI page for production

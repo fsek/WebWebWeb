@@ -30,8 +30,6 @@ else:
 
 session_factory = sessionmaker(engine, expire_on_commit=False)
 
-redis_client = redis.from_url(REDIS_URL, decode_responses=True)
-
 
 def get_db():
     with session_factory() as session:
@@ -40,16 +38,14 @@ def get_db():
 
 DB_dependency = Annotated[Session, Depends(get_db)]
 
-if os.getenv("ENVIRONMENT") == "testing":
+redis_client: redis.Redis | None = None
 
-    def get_redis():
-        return redis.from_url(REDIS_URL, decode_responses=True)
 
-else:
-    redis_client = redis.from_url(REDIS_URL, decode_responses=True)
-
-    def get_redis():
-        return redis_client
+# Dependency wrapper
+async def get_redis():
+    if redis_client is None:
+        raise RuntimeError("Redis client not initialized")
+    yield redis_client
 
 
 def init_db():

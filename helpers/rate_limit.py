@@ -16,7 +16,7 @@ def rate_limit(
         request: Request,
         redis: aioredis.Redis = Depends(get_redis),
     ):
-        if os.getenv("ENVIRONMENT") == "testing":
+        if os.getenv("ENVIRONMENT") == "testing" or os.getenv("ENVIRONMENT") == "development":
             return
 
         client_signature = request.client.host
