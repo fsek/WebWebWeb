@@ -39,7 +39,7 @@ def get_image(db: DB_dependency, img_id: int, size: ALLOWED_IMG_TYPES, response:
 
     if img is None:
         raise HTTPException(status_code=404, detail="Not found")
-    internal = f"/internal{dims}/{img.path.lstrip('/')}"
+    internal = f"/internal/{dims}/{img.path.lstrip('/')}"
     return Response(
         status_code=status.HTTP_200_OK,
         headers={"X-Accel-Redirect": internal},

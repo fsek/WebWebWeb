@@ -23,14 +23,24 @@ def rate_limit(
         key = f"rate:{client_signature}:{request.url.path}"
 
         count = await redis.incr(key)
+
         if count == 1:
-            # only on first call set the TTL
+            # first call: set TTL
             await redis.expire(key, window_seconds)
+        else:
+            # ensure TTL is always set
+            ttl = await redis.ttl(key)
+            if ttl == -1:  # key exists but no expire
+                await redis.expire(key, window_seconds)
 
         if count > limit:
             ttl = await redis.ttl(key)
+            # if somehow still -1, fall back to full window
+            if ttl < 0:
+                ttl = window_seconds
             raise HTTPException(
-                status_code=status.HTTP_429_TOO_MANY_REQUESTS, detail=f"Rate limit exceeded. Try again in {ttl}s."
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=f"Rate limit exceeded. Try again in {ttl}s.",
             )
 
     return _rate_limiter
