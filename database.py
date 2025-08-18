@@ -30,6 +30,8 @@ else:
 
 session_factory = sessionmaker(engine, expire_on_commit=False)
 
+redis_client = redis.asyncio.from_url(REDIS_URL, decode_responses=True)
+
 
 def get_db():
     with session_factory() as session:
@@ -48,7 +50,6 @@ else:
 
     def get_redis():
         return redis_client
-
 
 def init_db():
     base_model.BaseModel_DB.metadata.create_all(bind=engine)
