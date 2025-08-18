@@ -1,13 +1,14 @@
+from datetime import datetime
 from io import StringIO
 import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse, StreamingResponse
 from psycopg import IntegrityError
+from api_schemas.event_signup_schemas import EventSignupRead
 from api_schemas.tag_schema import EventTagRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
 from api_schemas.event_schemas import AddEventTag, EventCreate, EventRead, EventUpdate
-from api_schemas.user_schemas import UserRead
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from db_models.event_tag_model import EventTag_DB
@@ -16,7 +17,6 @@ from db_models.post_model import Post_DB
 from services.event_service import create_new_event, delete_event, update_event
 from user.permission import Permission
 import random
-from typing import List
 from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
 from pathlib import Path
 
@@ -49,6 +49,25 @@ def get_event_priorities(db: DB_dependency):
     priorities.add("Nolla")
 
     return list(priorities)
+
+
+@event_router.patch("/confirmed/{event_id}", response_model=EventRead)
+def confirm_places(
+    db: DB_dependency,
+    event_id: int,
+):
+    event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+    if event.event_users_confirmed:
+        raise HTTPException(400, detail="Event users already confirmed")
+
+    event.event_users_confirmed = True
+
+    db.commit()
+    db.refresh(event)
+
+    return event
 
 
 @event_router.get("/{eventId}", response_model=EventRead)
@@ -150,33 +169,45 @@ def event_update(
 
 
 @event_router.get(
-    "/event-signups/all/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=list[UserRead]
+    "/event-signups/all/{event_id}",
+    dependencies=[Permission.require("manage", "Event")],
+    response_model=list[EventSignupRead],
 )
 def get_all_event_signups(event_id: int, db: DB_dependency):
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
-    users: list[User_DB] = []
+    empty: list[EventUser_DB] = []
     if len(people_signups) == 0:
-        return users
-    users = [event_user.user for event_user in people_signups]
-    return users
+        return empty
+    return people_signups
 
 
 @event_router.get(
-    "/event-signups/random/{event_id}",
+    "/event-signups/{event_id}",
     dependencies=[Permission.require("manage", "Event")],
-    response_model=list[UserRead],
+    response_model=list[EventSignupRead],
 )
-def get_random_event_signup(event_id: int, db: DB_dependency):
+def create_event_signup_list(event_id: int, db: DB_dependency):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No event exist")
+
+    if event.signup_end > datetime.now():
+        raise HTTPException(400, detail="Event signups are not closed yet")
+
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
+
+    for event_user in people_signups:
+        if event_user.confirmed_status:
+            raise HTTPException(400, detail="Event signups are already confirmed")
+
     users: list[User_DB] = []
     if len(people_signups) == 0:
         return users
-    if len(people_signups) <= event.max_event_users:
-        users = [event_user.user for event_user in people_signups]
-        return users
+    if len(people_signups) <= event.max_event_users or event.max_event_users == 0:
+        for event_user in people_signups:
+            event_user.confirmed_status = True
+        db.commit()
+        return people_signups
 
     priorites: set[str] = set()
 
@@ -190,14 +221,27 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
             prioritized_people.append(person)
 
     places_left = event.max_event_users - len(prioritized_people)
-    random.seed(event_id)
-    random.shuffle(people_signups)
 
-    prioritized_people.extend(people_signups[:places_left])
+    if event.lottery:
+        # Random fill
+        non_prioritized = [p for p in people_signups if p not in prioritized_people]
+        random.seed(event_id)
+        random.shuffle(non_prioritized)
+        prioritized_people.extend(non_prioritized[:places_left])
+    else:
+        # FIFO fill
+        non_prioritized = (
+            db.query(EventUser_DB).filter_by(event_id=event_id).order_by(EventUser_DB.created_at.asc()).all()
+        )
+        non_prioritized = [p for p in non_prioritized if p not in prioritized_people]
+        prioritized_people.extend(non_prioritized[:places_left])
 
-    users = [event_user.user for event_user in prioritized_people]
+    for event_user in prioritized_people:
+        event_user.confirmed_status = True
 
-    return users
+    db.commit()
+
+    return prioritized_people
 
 
 @event_router.patch(
@@ -205,7 +249,7 @@ def get_random_event_signup(event_id: int, db: DB_dependency):
     dependencies=[Permission.require("manage", "Event")],
     response_model=EventRead,
 )
-def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[UserRead]):
+def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[int]):
     event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
 
     if not event:
@@ -214,11 +258,34 @@ def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[
     if len(confirmed_users) > event.max_event_users:
         raise HTTPException(400, detail="Too many users for chosen event")
 
-    confirmed_user_ids = [user.id for user in confirmed_users]
+    confirmed_user_ids = [id for id in confirmed_users]
 
     for event_user in event.event_users:
         if event_user.user_id in confirmed_user_ids:
             event_user.confirmed_status = True
+
+    db.commit()
+    db.refresh(event)
+
+    return event
+
+
+@event_router.patch(
+    "/event-unconfirm-event-users/{event_id}",
+    dependencies=[Permission.require("manage", "Event")],
+    response_model=EventRead,
+)
+def unconfirm_event_users(db: DB_dependency, event_id: int, unconfirmed_users: list[int]):
+    event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
+
+    if not event:
+        raise HTTPException(404, detail="Event not found")
+
+    unconfirmed_user_ids = [id for id in unconfirmed_users]
+
+    for event_user in event.event_users:
+        if event_user.user_id in unconfirmed_user_ids:
+            event_user.confirmed_status = False
 
     db.commit()
     db.refresh(event)
