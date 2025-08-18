@@ -29,7 +29,7 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     ):
         raise HTTPException(400, detail="User already signed up to chosen event")
 
-    signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
+    signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id, email=user.email)
 
     for var, value in vars(data).items():
         setattr(signup, var, value) if value else None

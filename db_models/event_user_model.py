@@ -26,5 +26,7 @@ class EventUser_DB(BaseModel_DB):
     priority: Mapped[str] = mapped_column(default="Övrigt")
     drinkPackage: Mapped[DRINK_PACKAGES] = mapped_column(default="None")
 
+    email: Mapped[str] = mapped_column(default="")
+
     created_at: Mapped[datetime_utc] = created_at_column()
     latest_modified: Mapped[datetime_utc] = latest_modified_column()
