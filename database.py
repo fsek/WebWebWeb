@@ -9,6 +9,12 @@ from db_models import *
 import os
 
 
+redis_client: redis.Redis | None = None
+
+if os.getenv("ENVIRONMENT") == "testing":
+    redis_client = fakeredis.aioredis.FakeRedis(decode_responses=True)
+
+
 if os.getenv("ENVIRONMENT") == "testing":
     SQLALCHEMY_DATABASE_URL = os.getenv("TEST_DATABASE_URL")
     REDIS_URL = os.getenv("TEST_REDIS_URL")
@@ -38,11 +44,6 @@ def get_db():
 
 
 DB_dependency = Annotated[Session, Depends(get_db)]
-
-if os.getenv("ENVIRONMENT") == "testing":
-    redis_client: redis.Redis | None = fakeredis.aioredis.FakeRedis(decode_responses=True)
-else:
-    redis_client: redis.Redis | None = None
 
 
 async def get_redis():
