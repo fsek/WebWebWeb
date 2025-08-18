@@ -63,9 +63,12 @@ class Permission:
         return Depends(dependency)
 
     @classmethod
-    def require(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET, jwt_secret: str = Depends(get_jwt_secret)):
+    def require(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
         # Use this dependency on routes which require specific permissions
-        def dependency(user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token)):
+        def dependency(
+            user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token),
+            jwt_secret: str = Depends(get_jwt_secret),
+        ):
             user, token = user_and_token
             if user is None or token is None:
                 # We can raise here unlike in "check" because this is supposed to be an absolute requirement
@@ -112,9 +115,12 @@ class Permission:
         return False
 
     @classmethod
-    def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET, jwt_secret: str = Depends(get_jwt_secret)):
+    def check(cls, action: PERMISSION_TYPE, target: PERMISSION_TARGET):
         # Use this dependency on routes which work differently if the user has specific permissions
-        def dependency(user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token)):
+        def dependency(
+            user_and_token: tuple[User_DB | None, str | None] = Depends(current_verified_user_token),
+            jwt_secret: str = Depends(get_jwt_secret),
+        ):
             user, token = user_and_token
             if user is None or token is None:
                 # If we raise an exception here, it would cause the whole calling function to get an exception
