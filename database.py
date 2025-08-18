@@ -17,8 +17,21 @@ else:
     REDIS_URL = os.getenv("REDIS_URL")
 
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+if os.getenv("ENVIRONMENT") == "production":
+    engine = engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        pool_size=10,
+        max_overflow=20,
+        pool_pre_ping=True,
+        pool_recycle=1800,
+    )
+
+else:
+    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+
 session_factory = sessionmaker(engine, expire_on_commit=False)
+
+redis_client = redis.asyncio.from_url(REDIS_URL, decode_responses=True)
 
 
 # A route accesses DB by "Depends()"ing on this:
@@ -31,7 +44,7 @@ DB_dependency = Annotated[Session, Depends(get_db)]
 
 
 def get_redis():
-    return redis.asyncio.from_url(REDIS_URL, decode_responses=True)
+    return redis_client
 
 
 def init_db():
