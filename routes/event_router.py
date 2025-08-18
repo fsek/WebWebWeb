@@ -137,6 +137,14 @@ def event_remove(event_id: int, db: DB_dependency):
     return delete_event(event_id, db)
 
 
+@event_router.get("/confirmed/{event_id}", dependencies=[Permission.member()], response_model=bool)
+def is_event_confirmed(event_id: int, db: DB_dependency):
+    count = db.query(EventUser_DB).filter_by(event_id=event_id, confirmed_status=True).count()
+    if count > 0:
+        return True
+    return False
+
+
 @event_router.patch("/{event_id}", dependencies=[Permission.require("manage", "Event")], response_model=EventRead)
 def event_update(
     event_id: int,
