@@ -42,7 +42,9 @@ def get_event_priorities(db: DB_dependency):
     for post in posts:
         priorities.add(post.name_sv)
 
-    priorities.add("Fadder")
+    priorities.add("Gruppfadder")
+
+    priorities.add("Uppdragsfadder")
 
     priorities.add("Nolla")
 
