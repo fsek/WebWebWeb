@@ -20,6 +20,8 @@ else:
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 session_factory = sessionmaker(engine, expire_on_commit=False)
 
+redis_client = redis.asyncio.from_url(REDIS_URL, decode_responses=True)
+
 
 # A route accesses DB by "Depends()"ing on this:
 def get_db():
@@ -31,7 +33,7 @@ DB_dependency = Annotated[Session, Depends(get_db)]
 
 
 def get_redis():
-    return redis.asyncio.from_url(REDIS_URL, decode_responses=True)
+    return redis_client
 
 
 def init_db():
