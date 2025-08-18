@@ -42,7 +42,9 @@ def get_event_priorities(db: DB_dependency):
     for post in posts:
         priorities.add(post.name_sv)
 
-    priorities.add("Fadder")
+    priorities.add("Gruppfadder")
+
+    priorities.add("Uppdragsfadder")
 
     priorities.add("Nolla")
 
@@ -253,7 +255,7 @@ def confirm_event_users(db: DB_dependency, event_id: int, confirmed_users: list[
     if not event:
         raise HTTPException(404, detail="Event not found")
 
-    if len(confirmed_users) > event.max_event_users:
+    if event.max_event_users != 0 and len(confirmed_users) > event.max_event_users:
         raise HTTPException(400, detail="Too many users for chosen event")
 
     confirmed_user_ids = [id for id in confirmed_users]
