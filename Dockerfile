@@ -26,8 +26,8 @@ RUN python3 -m venv venv
 COPY . .
 
 # installing psycopg2-binary is perhaps not needed since we try to use psycopg3 (called "psycopg")
-RUN . venv/bin/activate && pip install --no-cache-dir -r requirements.txt && pip install psycopg2-binary
+RUN . venv/bin/activate && pip install --no-cache-dir -r requirements.txt && pip install psycopg2-binary gunicorn
 
 EXPOSE 8000
 
-CMD ["bash", "-c", ". venv/bin/activate && alembic upgrade head && uvicorn main:app --host 0.0.0.0 --port 8000"]
+CMD ["bash", "-c", ". venv/bin/activate && alembic upgrade head && gunicorn -k uvicorn.workers.UvicornWorker main:app -w 8 -t 30 -b 0.0.0.0:8000"]
