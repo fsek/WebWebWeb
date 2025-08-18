@@ -6,3 +6,4 @@ dev_db/
 **/.DS_Store
 dump.rdb
 test-assets/*
+pytest-assets/*

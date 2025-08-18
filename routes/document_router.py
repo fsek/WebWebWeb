@@ -18,12 +18,10 @@ from pathlib import Path
 
 document_router = APIRouter()
 
-base_path = os.getenv("DOCUMENT_BASE_PATH")
-
 
 @document_router.get("/", response_model=list[DocumentRead])
-def get_all_documents(db: DB_dependency, manage_permission: Annotated[bool, Permission.check("manage", "Document")]):
-    if manage_permission:
+def get_all_documents(db: DB_dependency, member_permission: Annotated[bool, Permission.check_member()]):
+    if member_permission:
         documents = db.query(Document_DB).all()
     else:
         documents = db.query(Document_DB).filter(Document_DB.is_private == False).all()
@@ -37,6 +35,8 @@ async def upload_document(
     data: DocumentCreate = Depends(document_create_form),
     file: UploadFile = File(),
 ):
+    base_path = os.getenv("DOCUMENT_BASE_PATH")
+
     await validate_pdf_header(file)
 
     if file.filename is None:
@@ -83,28 +83,30 @@ async def upload_document(
 
 @document_router.get("/document_data/{document_id}", response_model=DocumentRead)
 def get_document_data_by_id(
-    document_id: int, db: DB_dependency, manage_permission: Annotated[bool, Permission.check("manage", "Document")]
+    document_id: int, db: DB_dependency, member_permission: Annotated[bool, Permission.check_member()]
 ):
     document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
     if document is None:
         raise HTTPException(404, detail="Document not found")
 
-    if document.is_private and not manage_permission:
-        raise HTTPException(401, detail="Document is private, check your permissions m8")
+    if document.is_private and not member_permission:
+        raise HTTPException(401, detail="Document is for members only")
 
     return document
 
 
 @document_router.get("/document_file/{document_id}")
 def get_document_file_by_id(
-    document_id: int, db: DB_dependency, manage_permission: Annotated[bool, Permission.check("manage", "Document")]
+    document_id: int, db: DB_dependency, member_permission: Annotated[bool, Permission.check_member()]
 ):
+    base_path = os.getenv("DOCUMENT_BASE_PATH")
+
     document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
     if document is None:
         raise HTTPException(404, detail="Document not found")
 
-    if document.is_private and not manage_permission:
-        raise HTTPException(401, detail="Document is private, check your permissions m8")
+    if document.is_private and not member_permission:
+        raise HTTPException(401, detail="Document is for members only")
 
     file_path = Path(f"{base_path}/{document.file_name}")
     if not file_path.exists():
@@ -117,22 +119,27 @@ def get_document_file_by_id(
 def get_document_file(
     document_id: int,
     db: DB_dependency,
-    manage_permission: Annotated[bool, Permission.check("manage", "Document")],
+    member_permission: Annotated[bool, Permission.check_member()],
     response: Response,
 ):
+    base_path = os.getenv("DOCUMENT_BASE_PATH")
+
     document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
     if document is None:
         raise HTTPException(404, detail="Document not found")
 
-    if document.is_private and not manage_permission:
-        raise HTTPException(401, detail="Document is private, check your permissions m8")
+    if document.is_private and not member_permission:
+        raise HTTPException(401, detail="Document is for members only")
 
-    file_path = Path(f"{base_path}/{document.file_name}")
+    file_path = Path(f"/internal/document{base_path}/{document.file_name}")
     if not file_path.exists():
         raise HTTPException(418, detail="Something is very cooked, contact the Webmasters pls!")
 
     response.headers["X-Accel-Redirect"] = str(file_path)
 
+    # I got an error in swagger if these were not included
+    response.status_code = 200
+    response.body = b""
     return response
 
 
@@ -142,6 +149,8 @@ def get_document_file(
     dependencies=[Permission.require("manage", "Document")],
 )
 def delete_document(document_id: int, db: DB_dependency):
+    base_path = os.getenv("DOCUMENT_BASE_PATH")
+
     document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
     if document is None:
         raise HTTPException(404, detail="Document not found")
@@ -158,7 +167,9 @@ def delete_document(document_id: int, db: DB_dependency):
 
 
 @document_router.patch(
-    "patch_document/{document_id}", response_model=DocumentRead, dependencies=[Permission.require("manage", "Document")]
+    "/patch_document/{document_id}",
+    response_model=DocumentRead,
+    dependencies=[Permission.require("manage", "Document")],
 )
 def update_document(document_id: int, db: DB_dependency, data: DocumentUpdate):
     document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()

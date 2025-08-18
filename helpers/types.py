@@ -21,6 +21,10 @@ MEMBER_TYPE = Literal["member", "novice", "mentor, photographer"]
 
 ALLOWED_EXT = {".png", ".jpg", ".jpeg", ".gif"}
 
+ALLOWED_IMG_TYPES = Literal["small", "medium", "large", "original"]
+
+ALLOWED_IMG_SIZES = {"small": "200x200", "medium": "500x500", "large": "1000x1000", "original": "0x0"}
+
 
 # With these we define special permissions beyond being just a logged-in and verified user
 # Action/Target division is just for our convenience.

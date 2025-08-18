@@ -13,7 +13,7 @@ from db_models.user_model import User_DB
 from helpers.constants import NEWS_PER_PAGE
 from helpers.image_checker import validate_image
 from helpers.rate_limit import rate_limit
-from helpers.types import ALLOWED_EXT, ASSETS_BASE_PATH
+from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
 from services.news_service import create_new_news, update_existing_news, bump_existing_news
 from user.permission import Permission
 
@@ -64,25 +64,6 @@ async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = F
         dest_path.write_bytes(image.file.read())
 
 
-@news_router.get("/{news_id}/image", dependencies=[Depends(rate_limit(limit=100))])
-def get_news_image(news_id: int, db: DB_dependency):
-    news = db.query(News_DB).get(news_id)
-    if not news:
-        raise HTTPException(404, "No image for this news")
-
-    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "news"
-
-    matches = list(asset_dir.glob(f"{news.id}.*"))
-    if not matches:
-        raise HTTPException(404, "Image not found")
-
-    filename = matches[0].name
-
-    internal = f"/{ASSETS_BASE_PATH}/news/{filename}"
-
-    return Response(status_code=200, headers={"X-Accel-Redirect": internal})
-
-
 @news_router.get("/{news_id}/image/stream", dependencies=[Depends(rate_limit(limit=100))])
 def get_news_image_stream(news_id: int, db: DB_dependency):
     news = db.query(News_DB).get(news_id)
@@ -100,6 +81,28 @@ def get_news_image_stream(news_id: int, db: DB_dependency):
     internal = f"/{ASSETS_BASE_PATH}/news/{filename}"
 
     return FileResponse(internal)
+
+
+@news_router.get("/{news_id}/image/{size}", dependencies=[Depends(rate_limit(limit=100))])
+def get_news_image(news_id: int, size: ALLOWED_IMG_TYPES, db: DB_dependency):
+
+    dims = ALLOWED_IMG_SIZES[size]
+
+    news = db.query(News_DB).get(news_id)
+    if not news:
+        raise HTTPException(404, "No image for this news")
+
+    asset_dir = Path(f"{ASSETS_BASE_PATH}") / "news"
+
+    matches = list(asset_dir.glob(f"{news.id}.*"))
+    if not matches:
+        raise HTTPException(404, "Image not found")
+
+    filename = matches[0].name
+
+    internal = f"/internal/{dims}{ASSETS_BASE_PATH}/news/{filename}"
+
+    return Response(status_code=200, headers={"X-Accel-Redirect": internal})
 
 
 @news_router.delete(
