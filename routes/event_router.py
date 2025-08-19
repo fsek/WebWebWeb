@@ -181,7 +181,7 @@ def get_all_event_signups(event_id: int, db: DB_dependency):
     return people_signups
 
 
-@event_router.get(
+@event_router.post(
     "/event-signups/{event_id}",
     dependencies=[Permission.require("manage", "Event")],
     response_model=list[EventSignupRead],
@@ -191,7 +191,7 @@ def create_event_signup_list(event_id: int, db: DB_dependency):
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No event exist")
 
-    if event.signup_end > datetime.now():
+    if event.signup_end > datetime.now(tz=event.signup_end.tzinfo):
         raise HTTPException(400, detail="Event signups are not closed yet")
 
     people_signups = db.query(EventUser_DB).filter_by(event_id=event_id).all()
@@ -330,21 +330,42 @@ def get_event_csv(db: DB_dependency, event_id: int):
     event_users = event.event_users
     event_users.sort(key=lambda e_user: e_user.user.last_name)
 
-    # Down the line, this should also include email address, food preference and other important information about event signups.
     names: list[str] = []
-    stil_ids: list[str] = []
     telephone_numbers: list[str] = []
+    email_addresses: list[str] = []
+    food_preferences: list[str] = []
+    drink_packages: list[str] = []
+    groups: list[str] = []
+    priorities: list[str] = []
 
     for event_user in event_users:
-        user = event_user.user
-        names.append(f"{user.first_name} {user.last_name}")
-        if user.stil_id is None:
-            stil_ids.append("")
-        else:
-            stil_ids.append(user.stil_id)
-        telephone_numbers.append(user.telephone_number)
+        if event_user.confirmed_status is True:
+            user = event_user.user
+            names.append(f"{user.first_name} {user.last_name}")
+            telephone_numbers.append(user.telephone_number)
+            email_addresses.append(user.email)
+            if user.standard_food_preferences and user.other_food_preferences:
+                user_food_prefs = ", ".join(user.standard_food_preferences) + ", " + user.other_food_preferences
+            elif user.standard_food_preferences:
+                user_food_prefs = ", ".join(user.standard_food_preferences)
+            elif user.other_food_preferences:
+                user_food_prefs = user.other_food_preferences
+            else:
+                user_food_prefs = ""
+            food_preferences.append(user_food_prefs)
+            drink_packages.append(event_user.drinkPackage or "None")
+            groups.append(event_user.group_name or "")
+            priorities.append(event_user.priority)
 
-    d = {"Name": names, "Stil-id": stil_ids, "Telephone number": telephone_numbers}
+    d = {
+        "Namn": names,
+        "Telefonnummer": telephone_numbers,
+        "E-post": email_addresses,
+        "Matpreferens": food_preferences,
+        "Dryckespaket": drink_packages,
+        "Grupp": groups,
+        "Prioritet": priorities,
+    }
 
     df = pd.DataFrame(data=d)
     csv_file = StringIO()

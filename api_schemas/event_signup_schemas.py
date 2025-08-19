@@ -4,7 +4,7 @@ from helpers.types import DRINK_PACKAGES
 
 
 class EventSignupCreate(BaseSchema):
-    user_id: int | None = None
+    user_id: int
     priority: str | None = None
     group_name: str | None = None
     drinkPackage: DRINK_PACKAGES | None = "None"

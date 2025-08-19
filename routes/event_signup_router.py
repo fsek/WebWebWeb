@@ -24,7 +24,7 @@ def event_signup_route(
     if event is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Event not found")
 
-    if data.user_id is None or data.user_id == me.id:
+    if data.user_id == me.id:
         return signup_to_event(event, me, data, manage_permission, db)
 
     if manage_permission == False:
