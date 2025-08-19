@@ -13,6 +13,7 @@ from api_schemas.cafe_schemas import (
     CafeShiftUpdate,
     CafeViewBetweenDates,
     CafeShiftCreateMulti,
+    AdminCafeShiftRead,
 )
 from user.permission import Permission
 
@@ -23,6 +24,16 @@ cafe_shift_router = APIRouter()
 def view_all_shifts(db: DB_dependency):
     shifts = db.query(CafeShift_DB).all()
     return shifts
+
+
+@cafe_shift_router.get(
+    "/admin/{shift_id}", dependencies=[Permission.require("manage", "Cafe")], response_model=AdminCafeShiftRead
+)
+def admin_view_shift(shift_id: int, db: DB_dependency):
+    shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
+    if shift is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    return shift
 
 
 @cafe_shift_router.get("/{shift_id}", dependencies=[Permission.member()], response_model=CafeShiftRead)

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from api_schemas.car_booking_schema import CarBookingCreate, CarBookingRead, CarBookingUpdate
+from api_schemas.car_booking_schema import CarBookingCreate, CarBookingRead, CarBookingUpdate, AdminCarBookingRead
 from database import DB_dependency
 from typing import Annotated
 from services.car_renting_service import create_new_booking, booking_update, is_user_blocked
@@ -14,6 +14,16 @@ car_router = APIRouter()
 def get_all_car_bookings(db: DB_dependency):
     bookings = db.query(CarBooking_DB).all()
     return bookings
+
+
+@car_router.get(
+    "/admin/{booking_id}", response_model=AdminCarBookingRead, dependencies=[Permission.require("manage", "Car")]
+)
+def admin_get_car_booking(booking_id: int, db: DB_dependency):
+    booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
+    if booking:
+        return booking
+    raise HTTPException(status.HTTP_404_NOT_FOUND)
 
 
 @car_router.get("/{booking_id}", response_model=CarBookingRead, dependencies=[Permission.member()])
