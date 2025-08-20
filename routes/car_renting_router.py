@@ -23,7 +23,7 @@ def admin_get_car_booking(booking_id: int, db: DB_dependency):
     booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
     if booking:
         return booking
-    raise HTTPException(status.HTTP_404_NOT_FOUND)
+    raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
 
 @car_router.get("/{booking_id}", response_model=CarBookingRead, dependencies=[Permission.member()])
@@ -31,7 +31,7 @@ def get_car_booking(booking_id: int, db: DB_dependency):
     booking = db.query(CarBooking_DB).filter(CarBooking_DB.booking_id == booking_id).first()
     if booking:
         return booking
-    raise HTTPException(status.HTTP_404_NOT_FOUND)
+    raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Booking not found")
 
 
 @car_router.post("/", response_model=CarBookingRead, dependencies=[Permission.member()])

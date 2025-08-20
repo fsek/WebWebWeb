@@ -32,7 +32,7 @@ def view_all_shifts(db: DB_dependency):
 def admin_view_shift(shift_id: int, db: DB_dependency):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Shift not found")
     return shift
 
 
@@ -40,7 +40,7 @@ def admin_view_shift(shift_id: int, db: DB_dependency):
 def view_shift(shift_id: int, db: DB_dependency):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Shift not found")
     return shift
 
 
