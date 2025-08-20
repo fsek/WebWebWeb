@@ -97,6 +97,18 @@ class UserInEventRead(SimpleUserRead):
     email: str
 
 
+class AdminUserReadForCarBookings(SimpleUserRead):
+    email: str
+    telephone_number: PhoneNumber
+    stil_id: str | None
+
+
+class AdminUserReadForCafeShifts(SimpleUserRead):
+    email: str
+    telephone_number: PhoneNumber
+    stil_id: str | None
+
+
 class UserInGroupRead(BaseSchema):
     id: int
     email: str

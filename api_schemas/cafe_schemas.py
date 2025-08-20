@@ -1,14 +1,21 @@
 from api_schemas.base_schema import BaseSchema
-from api_schemas.user_schemas import SimpleUserRead
+from api_schemas.user_schemas import SimpleUserRead, AdminUserReadForCafeShifts
 from helpers.types import datetime_utc
 
 
-class CafeShiftRead(BaseSchema):
+class BaseCafeShiftRead(BaseSchema):
     id: int
     user_id: int | None
-    user: SimpleUserRead | None
     starts_at: datetime_utc
     ends_at: datetime_utc
+
+
+class CafeShiftRead(BaseCafeShiftRead):
+    user: SimpleUserRead | None
+
+
+class AdminCafeShiftRead(BaseCafeShiftRead):
+    user: AdminUserReadForCafeShifts | None
 
 
 class CafeShiftCreate(BaseSchema):
