@@ -5,6 +5,7 @@ from db_models.event_model import Event_DB
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
+from helpers.constants import DEFAULT_USER_PRIORITY
 
 
 def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
@@ -76,7 +77,12 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     for var, value in vars(data).items():
-        setattr(signup, var, value) if value else None
+        if var == "priority" and not value:
+            setattr(signup, "priority", DEFAULT_USER_PRIORITY)
+        elif var == "group_name" and not value:
+            setattr(signup, "group_name", None)
+        else:
+            setattr(signup, var, value) if value else None
 
     if not event.drink_package:
         signup.drinkPackage = "None"

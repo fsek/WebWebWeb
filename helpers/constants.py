@@ -91,3 +91,6 @@ MAX_POST_DESC = 2000
 MAX_ROOM_DESC = 1000
 MAX_RECURSION_TIME = 365  # In days, after this time the recursion will stop
 MAX_RECURSION_STEPS = 50  # Maximum number of recursions allowed, to prevent infinite loops
+
+# Event User
+DEFAULT_USER_PRIORITY = "Övrigt"

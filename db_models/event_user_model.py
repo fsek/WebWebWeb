@@ -5,6 +5,7 @@ from .base_model import BaseModel_DB
 from helpers.types import DRINK_PACKAGES, datetime_utc
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from helpers.db_util import created_at_column, latest_modified_column
+from helpers.constants import DEFAULT_USER_PRIORITY
 
 if TYPE_CHECKING:
     from user_model import User_DB
@@ -23,7 +24,7 @@ class EventUser_DB(BaseModel_DB):
     confirmed_status: Mapped[bool] = mapped_column(init=False, default=False)
 
     group_name: Mapped[Optional[str]] = mapped_column(default=None)
-    priority: Mapped[str] = mapped_column(default="Övrigt")
+    priority: Mapped[str] = mapped_column(default=DEFAULT_USER_PRIORITY)
     drinkPackage: Mapped[DRINK_PACKAGES] = mapped_column(default="None")
 
     created_at: Mapped[datetime_utc] = created_at_column()
