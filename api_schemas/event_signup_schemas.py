@@ -1,6 +1,6 @@
 from api_schemas.base_schema import BaseSchema
 from api_schemas.user_schemas import UserInEventRead
-from helpers.types import DRINK_PACKAGES
+from helpers.types import DRINK_PACKAGES, datetime_utc
 
 
 class EventSignupCreate(BaseSchema):
@@ -17,6 +17,7 @@ class EventSignupRead(BaseSchema):
     group_name: str | None
     drinkPackage: DRINK_PACKAGES
     confirmed_status: bool
+    created_at: datetime_utc
 
 
 class EventSignupUpdate(BaseSchema):
