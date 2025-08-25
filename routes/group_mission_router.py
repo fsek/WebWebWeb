@@ -161,7 +161,7 @@ def delete_group_mission(db: DB_dependency, data: GroupMissionDelete, nollning_g
 
 
 @group_mission_router.get(
-    "/{nollning_group_id}", dependencies=[Permission.require("view", "Nollning")], response_model=list[GroupMissionRead]
+    "/{nollning_group_id}", dependencies=[Permission.member()], response_model=list[GroupMissionRead]
 )
 def get_group_missions_from_nollning_group(db: DB_dependency, nollning_group_id: int):
     return db.query(GroupMission_DB).filter(GroupMission_DB.nollning_group_id == nollning_group_id).all()
