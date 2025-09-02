@@ -9,13 +9,13 @@ from api_schemas.election_schema import ElectionAddPosts, ElectionRead, Election
 election_router = APIRouter()
 
 
-@election_router.get("/", response_model=list[ElectionRead], dependencies=[Permission.require("manage", "Election")])
+@election_router.get("/", response_model=list[ElectionRead], dependencies=[Permission.require("view", "Election")])
 def get_all_elections(db: DB_dependency):
     return db.query(Election_DB).all()
 
 
 @election_router.get(
-    "/{election_id}", response_model=ElectionRead, dependencies=[Permission.require("manage", "Election")]
+    "/{election_id}", response_model=ElectionRead, dependencies=[Permission.require("view", "Election")]
 )
 def get_election(election_id: int, db: DB_dependency):
     election = db.query(Election_DB).filter(Election_DB.election_id == election_id).one_or_none()
@@ -29,9 +29,27 @@ def create_election(data: ElectionCreate, db: DB_dependency):
     if data.end_time < data.start_time:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
     election = Election_DB(
-        title=data.title, start_time=data.start_time, end_time=data.end_time, description=data.description
+        title_sv=data.title_sv,
+        title_en=data.title_en,
+        start_time=data.start_time,
+        end_time=data.end_time,
+        description_sv=data.description_sv,
+        description_en=data.description_en,
     )
     db.add(election)
+    db.commit()
+    return election
+
+
+@election_router.patch("/", response_model=ElectionRead, dependencies=[Permission.require("manage", "Election")])
+def update_election(election_id: int, data: ElectionCreate, db: DB_dependency):
+    election = db.query(Election_DB).filter(Election_DB.election_id == election_id).one_or_none()
+    if election is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    if data.end_time < data.start_time:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
+    for var, value in vars(data).items():
+        setattr(election, var, value)
     db.commit()
     return election
 

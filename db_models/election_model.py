@@ -21,13 +21,17 @@ class Election_DB(BaseModel_DB):
 
     election_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    title: Mapped[str] = mapped_column(String(MAX_ELECTION_TITLE))
+    title_sv: Mapped[str] = mapped_column(String(MAX_ELECTION_TITLE))
+
+    title_en: Mapped[str] = mapped_column(String(MAX_ELECTION_TITLE))
 
     start_time: Mapped[datetime_utc] = mapped_column()
 
     end_time: Mapped[datetime_utc] = mapped_column()
 
-    description: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)
+    description_sv: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)
+
+    description_en: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)
 
     election_posts: Mapped[list["ElectionPost_DB"]] = relationship(
         back_populates="election", cascade="all, delete-orphan", init=False

@@ -11,19 +11,23 @@ class ElectionPostRead(BaseSchema):
 
 class ElectionRead(BaseSchema):
     election_id: int
-    title: str
+    title_sv: str
+    title_en: str
     start_time: datetime_utc
     end_time: datetime_utc
-    description: str | None
+    description_sv: str | None
+    description_en: str | None
     posts: list[ElectionPostRead]
     candidates: list[CandidateElectionRead]
 
 
 class ElectionCreate(BaseSchema):
-    title: str
+    title_sv: str
+    title_en: str
     start_time: datetime_utc
     end_time: datetime_utc
-    description: str
+    description_sv: str | None
+    description_en: str | None
 
 
 class ElectionPostCreate(BaseSchema):
