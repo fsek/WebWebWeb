@@ -330,8 +330,22 @@ def seed_election(db: Session):
     signup_start = starts_at + datetime.timedelta(hours=24)
     signup_end = signup_start + datetime.timedelta(hours=24)
     elections = [
-        Election_DB(title="bajsval1928", start_time=signup_start, end_time=signup_end, description="Snälla bajs"),
-        Election_DB(title="360noscope", start_time=signup_start, end_time=signup_end, description="lol get wrekt"),
+        Election_DB(
+            title_sv="bajsval1928",
+            title_en="poopelection1928",
+            start_time=signup_start,
+            end_time_all=signup_end,
+            description_sv="Snälla bajs",
+            description_en="Please work",
+        ),
+        Election_DB(
+            title_sv="360noscope",
+            title_en="360noscope but in english",
+            start_time=signup_start,
+            end_time_all=signup_end,
+            description_sv="lol get wrekt (in swedish)",
+            description_en="lol get wrecked but in english",
+        ),
     ]
     db.add_all(elections)  # Use add_all to add multiple instances
     db.commit()
