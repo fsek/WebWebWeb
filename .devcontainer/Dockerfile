@@ -21,6 +21,7 @@ RUN apt-get install -y python3.11 python3.11-venv sudo git
 ENV ENVIRONMENT=development
 ENV DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres"
 ENV REDIS_URL="redis://localhost:6379/0"
+ENV TEST_REDIS_URL="redis://localhost:6379/0"
 ENV TEST_DATABASE_URL="postgresql+psycopg://postgres:password@localhost:5432/postgres_test"
 ENV USER_MANAGER_SECRET="debug_secret_dont_use_in_prod"
 ENV DOCUMENT_BASE_PATH="/workspaces/WebWebWeb/test-assets/documents"
