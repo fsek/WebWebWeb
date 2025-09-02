@@ -70,7 +70,8 @@ def create_candidations(
         )
 
     candidations = [
-        Candidation_DB(candidate_id=candidate.candidate_id, election_post_id=ep_id) for ep_id in new_election_post_ids
+        Candidation_DB(candidate_id=candidate.candidate_id, election_post_id=ep_id, election_id=election_id)
+        for ep_id in new_election_post_ids
     ]
 
     db.add_all(candidations)
@@ -126,7 +127,7 @@ def create_candidation(election_id: int, post_id: int, me: Annotated[User_DB, Pe
         )
 
     new_candidation = Candidation_DB(
-        candidate_id=candidate.candidate_id, election_post_id=election_post.election_post_id
+        candidate_id=candidate.candidate_id, election_post_id=election_post.election_post_id, election_id=election_id
     )
     db.add(new_candidation)
     db.commit()

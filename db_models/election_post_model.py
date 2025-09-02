@@ -15,7 +15,7 @@ class ElectionPost_DB(BaseModel_DB):
 
     election_post_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
-    election_id: Mapped[int] = mapped_column(ForeignKey("election_table.election_id"))
+    election_id: Mapped[int] = mapped_column(ForeignKey("election_table.election_id"), init=False)
     election: Mapped["Election_DB"] = relationship(back_populates="election_posts", init=False)
 
     post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"))

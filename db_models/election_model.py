@@ -30,6 +30,10 @@ class Election_DB(BaseModel_DB):
 
     end_time_all: Mapped[datetime_utc] = mapped_column()
 
+    election_posts: Mapped[list["ElectionPost_DB"]] = relationship(
+        back_populates="election", cascade="all, delete-orphan"
+    )
+
     # guild meeting = Sektionsmöte
     end_time_guild_meeting: Mapped[Optional[datetime_utc]] = mapped_column(default=None)
 
@@ -39,10 +43,6 @@ class Election_DB(BaseModel_DB):
     description_sv: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)
 
     description_en: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)
-
-    election_posts: Mapped[list["ElectionPost_DB"]] = relationship(
-        back_populates="election", cascade="all, delete-orphan", init=False
-    )
 
     candidates: Mapped[list["Candidate_DB"]] = relationship(
         back_populates="election", cascade="all, delete-orphan", init=False

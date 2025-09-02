@@ -1,4 +1,6 @@
 # type: ignore
+import datetime
+from datetime import timezone
 
 
 def user_data_factory(**kwargs):
@@ -64,3 +66,34 @@ def create_council(client, token=None, **kwargs):
     data = council_data_factory(**kwargs)
     headers = auth_headers(token) if token else {}
     return client.post("/councils/", json=data, headers=headers)
+
+
+def election_data_factory(**kwargs):
+    """Factory for creating election payloads with sensible default times."""
+    now = datetime.datetime.now(timezone.utc)
+    default_data = {
+        "title_sv": "Testval SV",
+        "title_en": "Test Election EN",
+        "start_time": (now + datetime.timedelta(days=1)).isoformat(),
+        "end_time_guild_meeting": (now + datetime.timedelta(days=2)).isoformat(),
+        "end_time_middle_meeting": None,
+        "end_time_all": (now + datetime.timedelta(days=3)).isoformat(),
+        "description_sv": "Beskrivning",
+        "description_en": "Description",
+        "post_ids": [],
+    }
+    return {**default_data, **kwargs}
+
+
+def create_election(client, token=None, **kwargs):
+    """Helper to POST /election with optional token and payload overrides."""
+    data = election_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.post("/election", json=data, headers=headers)
+
+
+def patch_election(client, election_id, token=None, **kwargs):
+    """Helper to PATCH /election/{id} with optional token and payload overrides."""
+    data = election_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.patch(f"/election/{election_id}", json=data, headers=headers)

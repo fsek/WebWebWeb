@@ -68,6 +68,7 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="Gallery"),
         Permission_DB(action="manage", target="Ads"),
         Permission_DB(action="manage", target="Car"),
+        Permission_DB(action="view", target="Election"),
         Permission_DB(action="manage", target="Election"),
         Permission_DB(action="manage", target="Cafe"),
         Permission_DB(action="manage", target="Groups"),

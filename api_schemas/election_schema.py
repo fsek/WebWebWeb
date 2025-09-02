@@ -5,7 +5,8 @@ from helpers.types import datetime_utc
 
 class ElectionPostRead(BaseSchema):
     id: int
-    name: str
+    name_sv: str
+    name_en: str
     council_id: int
 
 
@@ -46,6 +47,7 @@ class ElectionCreate(BaseSchema):
     end_time_all: datetime_utc
     description_sv: str | None
     description_en: str | None
+    post_ids: list[int] | None = []
 
 
 class ElectionUpdate(BaseSchema):
@@ -57,12 +59,4 @@ class ElectionUpdate(BaseSchema):
     end_time_all: datetime_utc | None
     description_sv: str | None
     description_en: str | None
-
-
-class ElectionPostCreate(BaseSchema):
-    post_id: int
-    description: str | None = None
-
-
-class ElectionAddPosts(BaseSchema):
-    posts: list[ElectionPostCreate]
+    post_ids: list[int] | None = []
