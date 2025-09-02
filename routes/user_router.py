@@ -26,13 +26,13 @@ import datetime
 user_router = APIRouter()
 
 
-@user_router.get("/admin/all/", response_model=list[AdminUserRead], dependencies=[Permission.require("manage", "User")])
+@user_router.get("/admin/all/", response_model=list[AdminUserRead], dependencies=[Permission.require("view", "User")])
 def admin_get_all_users(db: DB_dependency):
     all_users = db.query(User_DB).all()
     return all_users
 
 
-@user_router.get("/admin/{user_id}", response_model=AdminUserRead, dependencies=[Permission.require("manage", "User")])
+@user_router.get("/admin/{user_id}", response_model=AdminUserRead, dependencies=[Permission.require("view", "User")])
 def admin_get_user(user_id: int, db: DB_dependency):
     user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
     if not user:
