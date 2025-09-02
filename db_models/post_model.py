@@ -1,8 +1,9 @@
-from typing import TYPE_CHECKING, Callable
+from typing import TYPE_CHECKING, Callable, Optional
 from sqlalchemy import ForeignKey, String
 
 from db_models.election_post_model import ElectionPost_DB
 from helpers.constants import MAX_POST_DESC, MAX_POST_NAME
+from helpers.types import ELECTION_TIMES, ELECTION_ELECTORS
 from .post_door_access_model import PostDoorAccess_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
@@ -33,10 +34,16 @@ class Post_DB(BaseModel_DB):
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped["Council_DB"] = relationship(back_populates="posts", init=False)
 
+    elected_at_election_time: Mapped[Optional[ELECTION_TIMES]] = mapped_column()
+    elected_by: Mapped[Optional[ELECTION_ELECTORS]] = mapped_column()
+
     description_sv: Mapped[str] = mapped_column(String(MAX_POST_DESC), nullable=False, default="")
     description_en: Mapped[str] = mapped_column(String(MAX_POST_DESC), nullable=False, default="")
 
     email: Mapped[str] = mapped_column(nullable=False, default="")
+
+    elected_user_recommended_limit: Mapped[int] = mapped_column(default=0)
+    elected_user_max_limit: Mapped[int] = mapped_column(default=0)
 
     post_permissions: Mapped[list["PostPermission_DB"]] = relationship(
         back_populates="post", cascade="all, delete-orphan", init=False

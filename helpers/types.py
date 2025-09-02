@@ -98,3 +98,10 @@ ROOMS = Literal["LC", "Alumni", "SK"]
 MISSION_CONFIRMED_TYPES = Literal["Accepted", "Failed", "Review"]
 
 ASSETS_BASE_PATH = os.getenv("ASSETS_BASE_PATH")
+
+# Election timing types
+
+ELECTION_TIMES = Literal["HT", "VT", "HT and VT"]
+
+# Guild = sektionsmöte, Board = styrelsen, Educational Council = studierådet, Middle Guild = mellanliggande sektionsmöte
+ELECTION_ELECTORS = Literal["Guild Meeting", "Board", "Educational Council", "Middle Guild Meeting"]
