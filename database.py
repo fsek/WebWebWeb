@@ -48,7 +48,10 @@ DB_dependency = Annotated[Session, Depends(get_db)]
 
 async def get_redis():
     if redis_client is None:
-        raise RuntimeError("Redis client not initialized")
+        if os.getenv("ENVIRONMENT") == "testing":
+            yield fakeredis.aioredis.FakeRedis(decode_responses=True)
+        else:
+            raise RuntimeError("Redis client not initialized")
     yield redis_client
 
 
