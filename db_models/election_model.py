@@ -1,5 +1,6 @@
 from helpers.types import datetime_utc
 from db_models.candidate_model import Candidate_DB
+from db_models.candidate_post_model import Candidation_DB
 from db_models.election_post_model import ElectionPost_DB
 from db_models.post_model import Post_DB
 from helpers.constants import MAX_ELECTION_DESC, MAX_ELECTION_TITLE
@@ -38,6 +39,11 @@ class Election_DB(BaseModel_DB):
     )
 
     candidates: Mapped[list["Candidate_DB"]] = relationship(
+        back_populates="election", cascade="all, delete-orphan", init=False
+    )
+
+    # We need this because we sometimes want to not show what candidate made a candidation
+    candidations: Mapped[list["Candidation_DB"]] = relationship(
         back_populates="election", cascade="all, delete-orphan", init=False
     )
 
