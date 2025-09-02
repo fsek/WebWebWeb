@@ -4,7 +4,13 @@ from db_models.election_model import Election_DB
 from db_models.election_post_model import ElectionPost_DB
 from db_models.post_model import Post_DB
 from user.permission import Permission
-from api_schemas.election_schema import ElectionAddPosts, ElectionRead, ElectionCreate, ElectionMemberRead
+from api_schemas.election_schema import (
+    ElectionAddPosts,
+    ElectionRead,
+    ElectionCreate,
+    ElectionMemberRead,
+    ElectionUpdate,
+)
 
 election_router = APIRouter()
 
@@ -39,13 +45,19 @@ def get_election_member(election_id: int, db: DB_dependency):
 
 @election_router.post("/", response_model=ElectionRead, dependencies=[Permission.require("manage", "Election")])
 def create_election(data: ElectionCreate, db: DB_dependency):
-    if data.end_time < data.start_time:
+    if data.end_time_guild_meeting != None and data.end_time_guild_meeting < data.start_time:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
+    if data.end_time_middle_meeting != None and data.end_time_middle_meeting < data.start_time:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
+    if data.end_time_all < data.start_time:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
     election = Election_DB(
         title_sv=data.title_sv,
         title_en=data.title_en,
         start_time=data.start_time,
-        end_time=data.end_time,
+        end_time_guild_meeting=data.end_time_guild_meeting,
+        end_time_middle_meeting=data.end_time_middle_meeting,
+        end_time_all=data.end_time_all,
         description_sv=data.description_sv,
         description_en=data.description_en,
     )
@@ -55,12 +67,17 @@ def create_election(data: ElectionCreate, db: DB_dependency):
 
 
 @election_router.patch("/", response_model=ElectionRead, dependencies=[Permission.require("manage", "Election")])
-def update_election(election_id: int, data: ElectionCreate, db: DB_dependency):
+def update_election(election_id: int, data: ElectionUpdate, db: DB_dependency):
     election = db.query(Election_DB).filter(Election_DB.election_id == election_id).one_or_none()
     if election is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-    if data.end_time < data.start_time:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
+    if data.start_time is not None:
+        if data.end_time_guild_meeting is not None and data.end_time_guild_meeting < data.start_time:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
+        if data.end_time_middle_meeting is not None and data.end_time_middle_meeting < data.start_time:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
+        if data.end_time_all is not None and data.end_time_all < data.start_time:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Starttime is after endtime")
     for var, value in vars(data).items():
         setattr(election, var, value)
     db.commit()

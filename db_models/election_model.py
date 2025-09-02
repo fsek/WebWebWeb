@@ -28,7 +28,13 @@ class Election_DB(BaseModel_DB):
 
     start_time: Mapped[datetime_utc] = mapped_column()
 
-    end_time: Mapped[datetime_utc] = mapped_column()
+    # guild meeting = Sektionsmöte
+    end_time_guild_meeting: Mapped[Optional[datetime_utc]] = mapped_column()
+
+    # middle meeting = Mellanliggande valmöte
+    end_time_middle_meeting: Mapped[Optional[datetime_utc]] = mapped_column()
+
+    end_time_all: Mapped[datetime_utc] = mapped_column()
 
     description_sv: Mapped[Optional[str]] = mapped_column(String(MAX_ELECTION_DESC), default=None)
 

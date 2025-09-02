@@ -14,7 +14,9 @@ class ElectionRead(BaseSchema):
     title_sv: str
     title_en: str
     start_time: datetime_utc
-    end_time: datetime_utc
+    end_time_guild_meeting: datetime_utc | None
+    end_time_middle_meeting: datetime_utc | None
+    end_time_all: datetime_utc
     description_sv: str | None
     description_en: str | None
     posts: list[ElectionPostRead]
@@ -26,7 +28,9 @@ class ElectionMemberRead(BaseSchema):
     title_sv: str
     title_en: str
     start_time: datetime_utc
-    end_time: datetime_utc
+    end_time_guild_meeting: datetime_utc | None
+    end_time_middle_meeting: datetime_utc | None
+    end_time_all: datetime_utc
     description_sv: str | None
     description_en: str | None
     posts: list[ElectionPostRead]
@@ -37,7 +41,20 @@ class ElectionCreate(BaseSchema):
     title_sv: str
     title_en: str
     start_time: datetime_utc
-    end_time: datetime_utc
+    end_time_guild_meeting: datetime_utc | None
+    end_time_middle_meeting: datetime_utc | None
+    end_time_all: datetime_utc
+    description_sv: str | None
+    description_en: str | None
+
+
+class ElectionUpdate(BaseSchema):
+    title_sv: str | None
+    title_en: str | None
+    start_time: datetime_utc | None
+    end_time_guild_meeting: datetime_utc | None
+    end_time_middle_meeting: datetime_utc | None
+    end_time_all: datetime_utc | None
     description_sv: str | None
     description_en: str | None
 
