@@ -51,6 +51,8 @@ def admin_post(db_session):
         description_en="AdminDescriptionEn",
         description_sv="AdminDescriptionSv",
         council_id=council.id,
+        elected_user_recommended_limit=1,
+        elected_user_max_limit=2,
     )
     db_session.add(post)
     db_session.commit()

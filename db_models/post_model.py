@@ -34,8 +34,8 @@ class Post_DB(BaseModel_DB):
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped["Council_DB"] = relationship(back_populates="posts", init=False)
 
-    elected_at_election_time: Mapped[Optional[ELECTION_TIMES]] = mapped_column()
-    elected_by: Mapped[Optional[ELECTION_ELECTORS]] = mapped_column()
+    elected_at_election_time: Mapped[Optional[ELECTION_TIMES]] = mapped_column(default=None)
+    elected_by: Mapped[Optional[ELECTION_ELECTORS]] = mapped_column(default=None)
 
     description_sv: Mapped[str] = mapped_column(String(MAX_POST_DESC), nullable=False, default="")
     description_en: Mapped[str] = mapped_column(String(MAX_POST_DESC), nullable=False, default="")
