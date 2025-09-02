@@ -337,6 +337,7 @@ def seed_election(db: Session):
             end_time_all=signup_end,
             description_sv="Snälla bajs",
             description_en="Please work",
+            election_posts=[],
         ),
         Election_DB(
             title_sv="360noscope",
@@ -345,6 +346,7 @@ def seed_election(db: Session):
             end_time_all=signup_end,
             description_sv="lol get wrekt (in swedish)",
             description_en="lol get wrecked but in english",
+            election_posts=[],
         ),
     ]
     db.add_all(elections)  # Use add_all to add multiple instances
