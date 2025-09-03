@@ -97,3 +97,12 @@ def patch_election(client, election_id, token=None, **kwargs):
     data = election_data_factory(**kwargs)
     headers = auth_headers(token) if token else {}
     return client.patch(f"/election/{election_id}", json=data, headers=headers)
+
+
+def create_candidation(client, election_id: int, post_id: int, token=None, user_id: int | None = None):
+    """Helper to POST /candidate/{election_id}?post_id=...&user_id=..."""
+    headers = auth_headers(token) if token else {}
+    url = f"/candidate/{election_id}?post_id={post_id}"
+    if user_id is not None:
+        url += f"&user_id={user_id}"
+    return client.post(url, headers=headers)

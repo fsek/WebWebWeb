@@ -1,6 +1,6 @@
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from api_schemas.base_schema import BaseSchema
-from helpers.types import datetime_utc
+from helpers.types import datetime_utc, PROGRAM_TYPE
 
 
 class CandidateUserRead(BaseSchema):
@@ -9,8 +9,7 @@ class CandidateUserRead(BaseSchema):
     email: str
     telephone_number: PhoneNumber
     start_year: int
-    account_created: datetime_utc
-    want_notifications: bool
+    program: PROGRAM_TYPE
 
 
 class CandidatePostRead(BaseSchema):
