@@ -2,7 +2,7 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Nominering till rådspost / Council Post Nomination</title>
+  <title>Nominering till post / Council Post Nomination</title>
 </head>
 <body style="font-family: sans-serif; color: #333; line-height: 1.5; margin:0; padding:0;">
   <div style="text-align: center; padding: 10px; background-color: #f5f5f5; font-size: 14px; color: #666;">
@@ -23,40 +23,39 @@
     <tr>
       <td align="center">
         <p><strong>Grattis {{ user.name }}!</strong></p>
-        <p>Du har blivit <strong>nominerad till rådspost</strong> inom F-sektionen!</p>
+        <p>Du har blivit <strong>nominerad till en post</strong> inom F-sektionen!</p>
         <p><strong>Post:</strong> {{ position_name }}</p>
-        <p>Någon inom sektionen har nominerat dig för denna post. Nomineringen är anonym och endast valadministratörer kan se vem som nominerat dig.</p>
+        <p>Någon inom sektionen har nominerat dig för denna post. Nomineringen är anonym och ingen kan se vem som nominerat dig. Endast valadministratörer kan se nomineringen.</p>
         
         <!-- Motivation Box -->
         <div style="background-color: #f8f9fa; border-left: 4px solid #FF6600; padding: 15px; margin: 20px 0; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
           <p style="margin: 0; font-weight: bold; color: #FF6600;">Motivering från nomineraren:</p>
           <p style="margin: 10px 0 0 0; font-style: italic;">"{{ nomination_motivation }}"</p>
         </div>
-        
-        <p>För att bekräfta din kandidatur och ställa upp i valet behöver du skicka in din ansökan med samma e-postadress som denna nominering skickades till.</p>
-        
+
+        <p>För att bekräfta din kandidatur och ställa upp i valet måste du nu kandidera till denna post genom hemsidan, med ett konto som använder detta mejl.</p>
+
         <!-- Button -->
         <p style="text-align: center; margin: 30px 0;">
           <a href="{{ candidacy_link }}"
             style="display: inline-block; padding: 14px 28px; background-color: #FF6600; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
-            Bekräfta kandidatur
+            Gå till valet
           </a>
         </p>
         <p>
           Om ovanstående knapp inte fungerar, kopiera och klistra in följande länk i din webbläsare:<br>
           <a href="{{ candidacy_link }}" style="word-break: break-all;">{{ candidacy_link }}</a>
         </p>
-        <p><strong>Viktigt:</strong> Du måste använda samma e-postadress ({{ user.email }}) när du skickar in din kandidatur för att den ska godkännas.</p>
+        <p><strong>Viktigt:</strong> Du måste använda samma e-postadress ({{ user.email }}) på ditt konto för att nomineringen ska kunna kopplas till din kandidatur.</p>
         <p>Sista datum för att skicka in kandidatur: <strong>{{ deadline_date }}</strong></p>
-        <p>Om du har frågor om valet eller nomineringsprocessen, kontakta valadministratörerna på
+        <p>Om du har frågor om valet eller nomineringsprocessen, kontakta Valberedningen på
           <a href="mailto:{{ election_admin_email }}">{{ election_admin_email }}</a>.
         </p>
         <p>Lycka till!<br>
-          Valadministrationen, F-sektionen inom TLTH</p>
+          Valberedningen, F-sektionen inom TLTH</p>
         <hr style="border:none; border-top:1px solid #ddd; margin: 40px 0 20px;">
         <p style="font-size: 12px; color: #888;">
-          Du får detta mail eftersom någon har nominerat dig till en post inom F-sektionen.<br>
-          Nomineringar är anonyma och endast valadministratörer kan se nomineringsuppgifter.
+          Du får detta mail eftersom någon har nominerat dig till en post inom F-sektionen.
         </p>
       </td>
     </tr>
@@ -81,38 +80,37 @@
         <p><strong>Congratulations {{ user.name }}!</strong></p>
         <p>You have been <strong>nominated for a council post</strong> within the F-Guild!</p>
         <p><strong>Position:</strong> {{ position_name }}</p>
-        <p>Someone within the guild has nominated you for this position. The nomination is anonymous and only election administrators can see who nominated you.</p>
-        
+        <p>Someone within the guild has nominated you for this position. The nomination is anonymous and no one can see who nominated you. Only election administrators can see nomination details.</p>
+
         <!-- Motivation Box -->
         <div style="background-color: #f8f9fa; border-left: 4px solid #FF6600; padding: 15px; margin: 20px 0; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
           <p style="margin: 0; font-weight: bold; color: #FF6600;">Motivation from the nominator:</p>
           <p style="margin: 10px 0 0 0; font-style: italic;">"{{ nomination_motivation }}"</p>
         </div>
-        
-        <p>To confirm your candidacy and run in the election, you need to submit your application using the same email address this nomination was sent to.</p>
-        
+
+        <p>To confirm your candidacy and run in the election, you need to candidate for this position via the website, with an account using the same email this nomination was sent to.</p>
+
         <!-- Button -->
         <p style="text-align: center; margin: 30px 0;">
           <a href="{{ candidacy_link }}"
             style="display: inline-block; padding: 14px 28px; background-color: #FF6600; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold;">
-            Confirm Candidacy
+            Go to the election
           </a>
         </p>
         <p>
           If the button above does not work, please copy and paste the following link into your browser:<br>
           <a href="{{ candidacy_link }}" style="word-break: break-all;">{{ candidacy_link }}</a>
         </p>
-        <p><strong>Important:</strong> You must use the same email address ({{ user.email }}) when submitting your candidacy for it to be approved.</p>
+        <p><strong>Important:</strong> You must use the same email address ({{ user.email }}) on your account for the nomination to be linked to your candidacy.</p>
         <p>Deadline for candidacy submission: <strong>{{ deadline_date }}</strong></p>
-        <p>If you have questions about the election or nomination process, contact the election administrators at
+        <p>If you have questions about the election or nomination process, contact the Nomination Committée at
           <a href="mailto:{{ election_admin_email }}">{{ election_admin_email }}</a>.
         </p>
         <p>Good luck!<br>
-          Election Administration, F-Guild at TLTH</p>
+          Nomination Committée, F-Guild at TLTH</p>
         <hr style="border:none; border-top:1px solid #ddd; margin: 40px 0 20px;">
         <p style="font-size: 12px; color: #888;">
-          You are receiving this email because someone has nominated you for a position within the F-Guild.<br>
-          Nominations are anonymous and only election administrators can see nomination details.
+          You are receiving this email because someone has nominated you for a position within the F-Guild.
         </p>
       </td>
     </tr>

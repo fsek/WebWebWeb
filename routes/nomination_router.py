@@ -5,7 +5,9 @@ from database import DB_dependency
 from db_models.nomination_model import Nomination_DB
 from db_models.sub_election_model import SubElection_DB
 from db_models.election_post_model import ElectionPost_DB
+from db_models.user_model import User_DB
 from user.permission import Permission
+from mailer.nomination_mailer import nomination_mailer
 
 nomination_router = APIRouter()
 
@@ -67,6 +69,13 @@ def create_nomination(sub_election_id: int, nomination: NominationCreate, db: DB
     )
     db.add(new_nomination)
     db.commit()
+
+    db.refresh(new_nomination)
+
+    # Send email if user exists
+    user = db.query(User_DB).filter_by(email=nomination.nominee_email).one_or_none()
+    if user:
+        nomination_mailer(user, new_nomination)
     return
 
 
