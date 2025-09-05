@@ -4,7 +4,7 @@ from helpers.types import datetime_utc
 
 class NominationRead(BaseSchema):
     nomination_id: int
-    election_id: int
+    sub_election_id: int
     nominee_name: str
     nominee_email: str
     motivation: str
@@ -14,7 +14,7 @@ class NominationRead(BaseSchema):
 
 
 class NominationCreate(BaseSchema):
-    election_id: int
+    sub_election_id: int
     nominee_name: str
     nominee_email: str
     motivation: str

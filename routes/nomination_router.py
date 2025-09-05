@@ -66,6 +66,7 @@ def create_nomination(sub_election_id: int, nomination: NominationCreate, db: DB
         nominee_email=nomination.nominee_email,
         motivation=nomination.motivation,
         election_post_id=nomination.election_post_id,
+        post_id=election_post.post_id,
     )
     db.add(new_nomination)
     db.commit()

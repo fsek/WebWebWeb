@@ -6,6 +6,7 @@ from helpers.types import datetime_utc
 from helpers.db_util import created_at_column
 
 if TYPE_CHECKING:
+    from db_models.post_model import Post_DB
     from .sub_election_model import SubElection_DB
     from db_models.election_post_model import ElectionPost_DB
 
@@ -26,6 +27,9 @@ class Nomination_DB(BaseModel_DB):
     motivation: Mapped[str] = mapped_column()
 
     election_post_id: Mapped[int] = mapped_column(ForeignKey("election_post_table.election_post_id"))
+
+    post_id: Mapped[int] = mapped_column(ForeignKey("post_table.id"))
+    post: Mapped["Post_DB"] = relationship(init=False)
 
     created_at: Mapped[datetime_utc] = created_at_column()
 
