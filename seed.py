@@ -17,6 +17,8 @@ from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
 from db_models.document_model import Document_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
+from db_models.sub_election_model import SubElection_DB
+from db_models.election_post_model import ElectionPost_DB
 
 
 def seed_users(db: Session, app: FastAPI):
@@ -334,22 +336,54 @@ def seed_election(db: Session):
             title_sv="bajsval1928",
             title_en="poopelection1928",
             start_time=signup_start,
-            end_time_all=signup_end,
             description_sv="Snälla bajs",
             description_en="Please work",
-            election_posts=[],
         ),
         Election_DB(
             title_sv="360noscope",
             title_en="360noscope but in english",
             start_time=signup_start,
-            end_time_all=signup_end,
             description_sv="lol get wrekt (in swedish)",
             description_en="lol get wrecked but in english",
-            election_posts=[],
         ),
     ]
     db.add_all(elections)  # Use add_all to add multiple instances
+    db.commit()
+    db.refresh(elections[0])
+    db.refresh(elections[1])
+
+    # Election posts
+    election_posts = [
+        ElectionPost_DB(
+            post_id=1,
+        ),
+        ElectionPost_DB(
+            post_id=2,
+        ),
+        ElectionPost_DB(
+            post_id=3,
+        ),
+    ]
+
+    # Now add subelections
+    sub_election_1 = SubElection_DB(
+        election_id=elections[0].election_id,
+        title_sv="bajsval1928 - Alla coola poster",
+        title_en="poopelection1928 - All the cool posts",
+        end_time=signup_end,
+        election_posts=[election_posts[0], election_posts[1]],
+    )
+
+    sub_election_2 = SubElection_DB(
+        election_id=elections[1].election_id,
+        title_sv="360noscope - Bara dåliga poster",
+        title_en="360noscope but in english - Only the lame posts",
+        end_time=signup_end,
+        election_posts=[election_posts[2]],
+    )
+
+    db.add(sub_election_1)
+    db.add(sub_election_2)
     db.commit()
 
 
