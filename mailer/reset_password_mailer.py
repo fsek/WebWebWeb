@@ -25,7 +25,7 @@ def reset_password_mailer(user: User_DB, token: str):
     else:
         reset_password_url = f"{URL}{RESET_PASSWORD_LINK}{token}"
 
-    html = html.replace("{{ user.name }}", python_html.escape(user.first_name))
+    html = html.replace("{{ user.name }}", python_html.escape(user.first_name, quote=True))
     html = html.replace("{{ reset_link }}", reset_password_url)
     html = html.replace("{{ support_link }}", SUPPORT_LINK)
 

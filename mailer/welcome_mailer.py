@@ -18,7 +18,7 @@ def welcome_mailer(user: User_DB):
     else:
         verification_link = f"{URL}{WELCOME_LINK}"
 
-    html = html.replace("{{ user.name }}", python_html.escape(user.first_name))
+    html = html.replace("{{ user.name }}", python_html.escape(user.first_name, quote=True))
     html = html.replace("{{ verification_link }}", verification_link)
     html = html.replace("{{ support_link }}", SUPPORT_LINK)
 

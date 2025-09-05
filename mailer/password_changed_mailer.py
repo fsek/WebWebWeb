@@ -17,7 +17,7 @@ def password_changed_mailer(user: User_DB):
     with open(f"{path}/mailer/password-changed-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    html = html.replace("{{ user.name }}", python_html.escape(user.first_name))
+    html = html.replace("{{ user.name }}", python_html.escape(user.first_name, quote=True))
     html = html.replace("{{ support_link }}", SUPPORT_LINK)
 
     msg = MIMEText(html, "html", "utf-8")
