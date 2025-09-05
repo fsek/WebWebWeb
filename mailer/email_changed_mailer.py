@@ -8,6 +8,7 @@ from mailer.mail_constants import (
 )
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB
+import html as python_html
 
 
 def mask_email(email: Optional[str]) -> str:
@@ -30,8 +31,8 @@ def email_changed_mailer(user: User_DB, new_email: str, old_email: str):
     with open(f"{path}/mailer/email-changed-mail.html", "r", encoding="utf-8") as f:
         html = f.read()
 
-    html = html.replace("{{ user.name }}", user.first_name)
-    html = html.replace("{{ new_email_masked }}", mask_email(new_email))
+    html = html.replace("{{ user.name }}", python_html.escape(user.first_name, quote=True))
+    html = html.replace("{{ new_email_masked }}", mask_email(python_html.escape(new_email, quote=True)))
     html = html.replace("{{ support_link }}", SUPPORT_LINK)
 
     msg = MIMEText(html, "html", "utf-8")
