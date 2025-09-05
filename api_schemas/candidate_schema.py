@@ -24,4 +24,4 @@ class CandidateRead(BaseSchema):
     sub_election_id: int
     user_id: int
     user: CandidateUserRead
-    election_posts: list[CandidatePostRead]
+    candidations: list[CandidatePostRead]

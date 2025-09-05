@@ -1,6 +1,6 @@
 from email.mime.text import MIMEText
 
-from nomination_model import Nomination_DB
+from db_models.nomination_model import Nomination_DB
 from .mail_constants import STANDARD_SENDER, ELECTION_SUPPORT_LINK, CANDIDACY_LINK, CANDIDACY_SUBJECT, URL, STAGE_URL
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB

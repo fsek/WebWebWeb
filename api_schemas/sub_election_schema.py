@@ -12,6 +12,8 @@ class ElectionPostRead(BaseSchema):
 
 class BaseSubElectionRead(BaseSchema):
     sub_election_id: int
+    title_sv: str
+    title_en: str
     end_time: datetime_utc
     posts: list[ElectionPostRead]
 

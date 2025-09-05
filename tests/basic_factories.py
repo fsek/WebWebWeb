@@ -74,13 +74,10 @@ def election_data_factory(**kwargs):
     default_data = {
         "title_sv": "Testval SV",
         "title_en": "Test Election EN",
-        "start_time": (now + datetime.timedelta(days=1)).isoformat(),
-        "end_time_guild_meeting": (now + datetime.timedelta(days=2)).isoformat(),
-        "end_time_middle_meeting": None,
-        "end_time_all": (now + datetime.timedelta(days=3)).isoformat(),
+        "start_time": (now - datetime.timedelta(days=1)).isoformat(),
         "description_sv": "Beskrivning",
         "description_en": "Description",
-        "post_ids": [],
+        "visible": True,
     }
     return {**default_data, **kwargs}
 
@@ -99,10 +96,35 @@ def patch_election(client, election_id, token=None, **kwargs):
     return client.patch(f"/election/{election_id}", json=data, headers=headers)
 
 
-def create_candidation(client, election_id: int, post_id: int, token=None, user_id: int | None = None):
+def create_candidation(client, sub_election_id: int, post_id: int, token=None, user_id: int | None = None):
     """Helper to POST /candidate/{election_id}?post_id=...&user_id=..."""
     headers = auth_headers(token) if token else {}
-    url = f"/candidate/{election_id}?post_id={post_id}"
+    url = f"/candidate/{sub_election_id}?post_id={post_id}"
     if user_id is not None:
         url += f"&user_id={user_id}"
     return client.post(url, headers=headers)
+
+
+def sub_election_data_factory(**kwargs):
+    """Factory for creating sub-election payloads with sensible default times."""
+    now = datetime.datetime.now(timezone.utc)
+    default_data = {
+        "title_sv": "Val av poster",
+        "title_en": "Election of Posts",
+        "end_time": (now + datetime.timedelta(days=1)).isoformat(),
+    }
+    return {**default_data, **kwargs}
+
+
+def create_sub_election(client, election_id, token=None, **kwargs):
+    """Helper to POST /sub-election with optional token and payload overrides."""
+    data = sub_election_data_factory(election_id=election_id, **kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.post("/sub-election/", json=data, headers=headers)
+
+
+def patch_sub_election(client, sub_election_id, token=None, **kwargs):
+    """Helper to PATCH /sub-election/{id} with optional token and payload overrides."""
+    data = sub_election_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.patch(f"/sub-election/{sub_election_id}", json=data, headers=headers)

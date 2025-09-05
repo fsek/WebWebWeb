@@ -55,7 +55,8 @@ def get_my_candidations(election_id: int, db: DB_dependency, me: Annotated[User_
     candidations = [c for sublist in candidations for c in sublist]
 
     candidations = [
-        CandidatePostRead(post_id=c.election_post.post_id, election_post_id=c.election_post_id) for c in candidations
+        CandidatePostRead(post_id=c.election_post.post_id, election_post_id=c.election_post_id, created_at=c.created_at)
+        for c in candidations
     ]
 
     return candidations
@@ -136,6 +137,7 @@ def create_candidation(
         candidate_id=candidate.candidate_id,
         election_post_id=election_post.election_post_id,
         sub_election_id=sub_election_id,
+        post_id=post_id,
     )
     db.add(new_candidation)
     db.commit()

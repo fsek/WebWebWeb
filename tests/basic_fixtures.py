@@ -222,3 +222,52 @@ def example_file():
     # Return as (filename, file_object, content_type)
     f = open(pdf_file, "rb")
     return (pdf_file, f, "application/pdf")
+
+
+@pytest.fixture()
+def open_election(db_session):
+    """Create and return an election that is currently open."""
+    from datetime import datetime, timedelta
+    from db_models.election_model import Election_DB
+
+    now = datetime.now(timezone.utc)
+    start_time = (now - timedelta(days=1)).isoformat()
+
+    election = Election_DB(
+        title_sv="Öppen val",
+        title_en="Open Election",
+        description_sv="Ett val som är öppet",
+        description_en="An election that is open",
+        start_time=start_time,
+        visible=True,
+    )
+    db_session.add(election)
+    db_session.commit()
+    db_session.refresh(election)
+    return election
+
+
+@pytest.fixture()
+def open_sub_election(db_session, open_election, admin_post, member_post):
+    """Create and return a sub-election that is currently open with two posts."""
+    from db_models.sub_election_model import SubElection_DB
+    from db_models.election_post_model import ElectionPost_DB
+    from datetime import datetime, timedelta
+
+    now = datetime.now(timezone.utc)
+    end_time = (now + timedelta(days=1)).isoformat()
+
+    admin_election_post = ElectionPost_DB(post_id=admin_post.id)
+    member_election_post = ElectionPost_DB(post_id=member_post.id)
+
+    sub_election = SubElection_DB(
+        election_id=open_election.election_id,
+        title_sv="Öppen delval",
+        title_en="Open Sub Election",
+        end_time=end_time,
+        election_posts=[admin_election_post, member_election_post],
+    )
+    db_session.add(sub_election)
+    db_session.commit()
+    db_session.refresh(sub_election)
+    return sub_election
