@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey, String
 
 from db_models.election_post_model import ElectionPost_DB
 from helpers.constants import MAX_POST_DESC, MAX_POST_NAME
-from helpers.types import ELECTION_TIMES, ELECTION_ELECTORS
+from helpers.types import POST_ELECTION_SEMESTERS, ELECTION_ELECTORS
 from .post_door_access_model import PostDoorAccess_DB
 from .base_model import BaseModel_DB
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
@@ -34,7 +34,7 @@ class Post_DB(BaseModel_DB):
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
     council: Mapped["Council_DB"] = relationship(back_populates="posts", init=False)
 
-    elected_at_election_time: Mapped[Optional[ELECTION_TIMES]] = mapped_column(default=None)
+    elected_at_semester: Mapped[Optional[POST_ELECTION_SEMESTERS]] = mapped_column(default=None)
     elected_by: Mapped[Optional[ELECTION_ELECTORS]] = mapped_column(default=None)
 
     description_sv: Mapped[str] = mapped_column(String(MAX_POST_DESC), nullable=False, default="")

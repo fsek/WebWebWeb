@@ -1,5 +1,8 @@
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
+
+from helpers.db_util import created_at_column
+from helpers.types import datetime_utc
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -7,7 +10,7 @@ from sqlalchemy.orm import relationship, Mapped, mapped_column
 if TYPE_CHECKING:
     from db_models.election_post_model import ElectionPost_DB
     from db_models.candidate_model import Candidate_DB
-    from db_models.election_model import Election_DB
+    from db_models.sub_election_model import SubElection_DB
 
 
 class Candidation_DB(BaseModel_DB):
@@ -20,6 +23,8 @@ class Candidation_DB(BaseModel_DB):
     election_post: Mapped["ElectionPost_DB"] = relationship(back_populates="candidations", init=False)
 
     # We need to save the election here because we sometimes want to not show what candidate made a candidation
-    election_id: Mapped[int] = mapped_column(ForeignKey("election_table.election_id"))
+    sub_election_id: Mapped[int] = mapped_column(ForeignKey("sub_election_table.sub_election_id"))
 
-    election: Mapped["Election_DB"] = relationship(back_populates="candidations", init=False)
+    sub_election: Mapped["SubElection_DB"] = relationship(back_populates="candidations", init=False)
+
+    created_at: Mapped[datetime_utc] = created_at_column()

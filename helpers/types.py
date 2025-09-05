@@ -99,9 +99,11 @@ MISSION_CONFIRMED_TYPES = Literal["Accepted", "Failed", "Review"]
 
 ASSETS_BASE_PATH = os.getenv("ASSETS_BASE_PATH")
 
+
 # Election timing types
+POST_ELECTION_SEMESTERS = Literal["HT", "VT", "HT and VT", "Other"]
 
-ELECTION_TIMES = Literal["HT", "VT", "HT and VT"]
+# Guild = sektionsmöte, Board = styrelsen vid valmöte för funktionärer, Educational Council = studierådet, Board Intermediate = mellanliggande valmöte
+ELECTION_ELECTORS = Literal["Guild", "Board", "Educational Council", "Board Intermediate", "Other"]
 
-# Guild = sektionsmöte, Board = styrelsen, Educational Council = studierådet, Middle Guild = mellanliggande sektionsmöte
-ELECTION_ELECTORS = Literal["Guild Meeting", "Board", "Educational Council", "Middle Guild Meeting"]
+ELECTION_SEMESTERS = Literal["HT", "VT", "Other"]
