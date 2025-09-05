@@ -10,6 +10,7 @@ from mailer.mail_constants import (
 )
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB
+import html as python_html
 
 
 def reset_password_mailer(user: User_DB, token: str):
@@ -24,7 +25,7 @@ def reset_password_mailer(user: User_DB, token: str):
     else:
         reset_password_url = f"{URL}{RESET_PASSWORD_LINK}{token}"
 
-    html = html.replace("{{ user.name }}", user.first_name)
+    html = html.replace("{{ user.name }}", python_html.escape(user.first_name))
     html = html.replace("{{ reset_link }}", reset_password_url)
     html = html.replace("{{ support_link }}", SUPPORT_LINK)
 

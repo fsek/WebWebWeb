@@ -10,6 +10,7 @@ from .mail_constants import (
 )
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB
+import html as python_html
 
 
 def verification_mailer(user: User_DB, token: str):
@@ -24,7 +25,7 @@ def verification_mailer(user: User_DB, token: str):
     else:
         verification_link = f"{URL}{VERIFICATION_LINK}{token}"
 
-    html = html.replace("{{ user.name }}", user.first_name)
+    html = html.replace("{{ user.name }}", python_html.escape(user.first_name))
     html = html.replace("{{ verification_link }}", verification_link)
     html = html.replace("{{ support_link }}", SUPPORT_LINK)
 
