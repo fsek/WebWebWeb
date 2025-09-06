@@ -1,6 +1,14 @@
 # type: ignore
 import pytest
 from .basic_factories import *
+from datetime import datetime, timedelta
+
+from db_models.sub_election_model import SubElection_DB
+from db_models.election_post_model import ElectionPost_DB
+from db_models.post_model import Post_DB
+from db_models.council_model import Council_DB
+from db_models.permission_model import Permission_DB
+from db_models.election_model import Election_DB
 
 
 @pytest.fixture
@@ -33,9 +41,6 @@ def registered_users(client, user1_data, user2_data):
 @pytest.fixture
 def admin_post(db_session):
     """Create and return an admin post."""
-    from db_models.post_model import Post_DB
-    from db_models.council_model import Council_DB
-    from db_models.permission_model import Permission_DB
 
     council = Council_DB(
         name_sv="AdminCouncilSV",
@@ -99,7 +104,6 @@ def admin_post(db_session):
 @pytest.fixture
 def admin_user(client, db_session, admin_post):
     """Create and return a full admin user with the admin post and permissions."""
-    from db_models.user_model import User_DB
 
     user_data = user_data_factory(
         email="admin@example.com", first_name="Admin", last_name="User", password="Password123"
@@ -143,8 +147,6 @@ def member_token(client, membered_user):
 @pytest.fixture()
 def member_council_id(client, db_session, membered_user):
     """Create a useless council with a member user and return its ID."""
-    from db_models.council_model import Council_DB
-    from db_models.post_model import Post_DB
 
     council = Council_DB(
         name_sv="MemberCouncilSV",
@@ -170,7 +172,6 @@ def member_council_id(client, db_session, membered_user):
 @pytest.fixture()
 def member_post(db_session, member_council_id):
     """Return the post DB object just created for the member council."""
-    from db_models.post_model import Post_DB
 
     post = db_session.query(Post_DB).filter_by(council_id=member_council_id).first()
     assert post is not None, "No post found for the member council"
@@ -227,8 +228,6 @@ def example_file():
 @pytest.fixture()
 def open_election(db_session):
     """Create and return an election that is currently open."""
-    from datetime import datetime, timedelta
-    from db_models.election_model import Election_DB
 
     now = datetime.now(timezone.utc)
     start_time = (now - timedelta(days=1)).isoformat()
@@ -250,9 +249,6 @@ def open_election(db_session):
 @pytest.fixture()
 def open_sub_election(db_session, open_election, admin_post, member_post):
     """Create and return a sub-election that is currently open with two posts."""
-    from db_models.sub_election_model import SubElection_DB
-    from db_models.election_post_model import ElectionPost_DB
-    from datetime import datetime, timedelta
 
     now = datetime.now(timezone.utc)
     end_time = (now + timedelta(days=1)).isoformat()

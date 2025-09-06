@@ -11,10 +11,10 @@ from typing import List
 
 def service_populate_election(db: DB_dependency, election: Election_DB, data: ElectionPopulate):
     if election.sub_elections:
-        raise ValueError("Election already populated")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Election already populated")
 
     if data.semester not in ("VT", "HT"):
-        raise ValueError("Invalid semester")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid semester")
     year = data.end_time_guild.year
     if data.semester == "HT":
         year -= 1
