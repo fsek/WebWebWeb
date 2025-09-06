@@ -58,6 +58,8 @@ def admin_post(db_session):
         council_id=council.id,
         elected_user_recommended_limit=1,
         elected_user_max_limit=2,
+        elected_at_semester="HT",
+        elected_by="Guild",
     )
     db_session.add(post)
     db_session.commit()
@@ -158,7 +160,15 @@ def member_council_id(client, db_session, membered_user):
     db_session.commit()
 
     post = Post_DB(
-        name_en="rkngkr", name_sv="kejfk", description_en="jrv", description_sv="rekngvrjn", council_id=council.id
+        name_en="rkngkr",
+        name_sv="kejfk",
+        description_en="jrv",
+        description_sv="rekngvrjn",
+        council_id=council.id,
+        elected_user_recommended_limit=1,
+        elected_user_max_limit=2,
+        elected_at_semester="HT and VT",
+        elected_by="Board",
     )
     db_session.add(post)
     db_session.commit()

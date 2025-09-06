@@ -7,6 +7,7 @@ from .basic_factories import (
     create_sub_election,
     patch_sub_election,
 )
+from datetime import datetime, timedelta, timezone
 
 
 def test_create_election(admin_token, client):
@@ -317,3 +318,47 @@ def test_admin_can_delete_candidate(admin_token, member_token, client, admin_pos
         f"/candidate/election/{open_sub_election.election_id}", headers=auth_headers(admin_token)
     ).json()
     assert not any(c.get("user_id") == membered_user.id for c in cand_list)
+
+
+def test_populate_election_admin_can_populate_and_creates_subelections(admin_token, client, open_election):
+    now = datetime.now(timezone.utc)
+    payload = {
+        "semester": "HT",
+        "end_time_guild": (now + timedelta(days=5)).isoformat(),
+        "end_time_board": (now + timedelta(days=4)).isoformat(),
+        "end_time_board_intermediate": (now + timedelta(days=3)).isoformat(),
+        "end_time_educational_council": (now + timedelta(days=2)).isoformat(),
+    }
+    resp = client.post(
+        f"/election/{open_election.election_id}/populate",
+        json=payload,
+        headers=auth_headers(admin_token),
+    )
+    assert resp.status_code in (200, 201), resp.text
+    data = resp.json()
+    assert "sub_elections" in data
+    assert isinstance(data["sub_elections"], list)
+    assert len(data["sub_elections"]) > 0
+
+
+def test_populate_election_member_and_non_member_forbidden(member_token, non_member_token, client, open_election):
+    now = datetime.now(timezone.utc)
+    payload = {
+        "semester": "HT",
+        "end_time_guild": (now + timedelta(days=5)).isoformat(),
+        "end_time_board": (now + timedelta(days=4)).isoformat(),
+        "end_time_board_intermediate": (now + timedelta(days=3)).isoformat(),
+        "end_time_educational_council": (now + timedelta(days=2)).isoformat(),
+    }
+
+    resp_member = client.post(
+        f"/election/{open_election.election_id}/populate", json=payload, headers=auth_headers(member_token)
+    )
+    assert resp_member.status_code == 403, resp_member.text
+
+    resp_non_member = client.post(
+        f"/election/{open_election.election_id}/populate",
+        json=payload,
+        headers=auth_headers(non_member_token),
+    )
+    assert resp_non_member.status_code == 403, resp_non_member.text

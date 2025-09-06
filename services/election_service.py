@@ -15,9 +15,6 @@ def service_populate_election(db: DB_dependency, election: Election_DB, data: El
 
     if data.semester not in ("VT", "HT"):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid semester")
-    year = data.end_time_guild.year
-    if data.semester == "HT":
-        year -= 1
 
     # Query all posts
     all_posts = db.query(Post_DB).all()
