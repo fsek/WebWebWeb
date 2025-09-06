@@ -1,6 +1,14 @@
 # type: ignore
 import pytest
 from .basic_factories import *
+from datetime import datetime, timedelta
+
+from db_models.sub_election_model import SubElection_DB
+from db_models.election_post_model import ElectionPost_DB
+from db_models.post_model import Post_DB
+from db_models.council_model import Council_DB
+from db_models.permission_model import Permission_DB
+from db_models.election_model import Election_DB
 
 
 @pytest.fixture
@@ -33,9 +41,6 @@ def registered_users(client, user1_data, user2_data):
 @pytest.fixture
 def admin_post(db_session):
     """Create and return an admin post."""
-    from db_models.post_model import Post_DB
-    from db_models.council_model import Council_DB
-    from db_models.permission_model import Permission_DB
 
     council = Council_DB(
         name_sv="AdminCouncilSV",
@@ -51,6 +56,10 @@ def admin_post(db_session):
         description_en="AdminDescriptionEn",
         description_sv="AdminDescriptionSv",
         council_id=council.id,
+        elected_user_recommended_limit=1,
+        elected_user_max_limit=2,
+        elected_at_semester="HT",
+        elected_by="Guild",
     )
     db_session.add(post)
     db_session.commit()
@@ -66,6 +75,7 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="Gallery"),
         Permission_DB(action="manage", target="Ads"),
         Permission_DB(action="manage", target="Car"),
+        Permission_DB(action="view", target="Election"),
         Permission_DB(action="manage", target="Election"),
         Permission_DB(action="manage", target="Cafe"),
         Permission_DB(action="manage", target="Groups"),
@@ -96,7 +106,6 @@ def admin_post(db_session):
 @pytest.fixture
 def admin_user(client, db_session, admin_post):
     """Create and return a full admin user with the admin post and permissions."""
-    from db_models.user_model import User_DB
 
     user_data = user_data_factory(
         email="admin@example.com", first_name="Admin", last_name="User", password="Password123"
@@ -140,8 +149,6 @@ def member_token(client, membered_user):
 @pytest.fixture()
 def member_council_id(client, db_session, membered_user):
     """Create a useless council with a member user and return its ID."""
-    from db_models.council_model import Council_DB
-    from db_models.post_model import Post_DB
 
     council = Council_DB(
         name_sv="MemberCouncilSV",
@@ -153,7 +160,15 @@ def member_council_id(client, db_session, membered_user):
     db_session.commit()
 
     post = Post_DB(
-        name_en="rkngkr", name_sv="kejfk", description_en="jrv", description_sv="rekngvrjn", council_id=council.id
+        name_en="rkngkr",
+        name_sv="kejfk",
+        description_en="jrv",
+        description_sv="rekngvrjn",
+        council_id=council.id,
+        elected_user_recommended_limit=1,
+        elected_user_max_limit=2,
+        elected_at_semester="HT and VT",
+        elected_by="Board",
     )
     db_session.add(post)
     db_session.commit()
@@ -167,7 +182,6 @@ def member_council_id(client, db_session, membered_user):
 @pytest.fixture()
 def member_post(db_session, member_council_id):
     """Return the post DB object just created for the member council."""
-    from db_models.post_model import Post_DB
 
     post = db_session.query(Post_DB).filter_by(council_id=member_council_id).first()
     assert post is not None, "No post found for the member council"
@@ -219,3 +233,47 @@ def example_file():
     # Return as (filename, file_object, content_type)
     f = open(pdf_file, "rb")
     return (pdf_file, f, "application/pdf")
+
+
+@pytest.fixture()
+def open_election(db_session):
+    """Create and return an election that is currently open."""
+
+    now = datetime.now(timezone.utc)
+    start_time = (now - timedelta(days=1)).isoformat()
+
+    election = Election_DB(
+        title_sv="Öppen val",
+        title_en="Open Election",
+        description_sv="Ett val som är öppet",
+        description_en="An election that is open",
+        start_time=start_time,
+        visible=True,
+    )
+    db_session.add(election)
+    db_session.commit()
+    db_session.refresh(election)
+    return election
+
+
+@pytest.fixture()
+def open_sub_election(db_session, open_election, admin_post, member_post):
+    """Create and return a sub-election that is currently open with two posts."""
+
+    now = datetime.now(timezone.utc)
+    end_time = (now + timedelta(days=1)).isoformat()
+
+    admin_election_post = ElectionPost_DB(post_id=admin_post.id)
+    member_election_post = ElectionPost_DB(post_id=member_post.id)
+
+    sub_election = SubElection_DB(
+        election_id=open_election.election_id,
+        title_sv="Öppen delval",
+        title_en="Open Sub Election",
+        end_time=end_time,
+        election_posts=[admin_election_post, member_election_post],
+    )
+    db_session.add(sub_election)
+    db_session.commit()
+    db_session.refresh(sub_election)
+    return sub_election

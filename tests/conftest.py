@@ -7,14 +7,13 @@ from sqlalchemy.pool import StaticPool
 from sqlalchemy_utils import database_exists, create_database, drop_database
 from fastapi.testclient import TestClient
 from db_models.base_model import BaseModel_DB
+
+# Ensure we're in testing mode before importing important modules
+os.environ["ENVIRONMENT"] = "testing"
 from main import app
 from database import get_db
 from .basic_fixtures import *
 
-# You can add an empty __init__.py if the error above is annoying
-
-# Ensure we're in testing mode
-os.environ["ENVIRONMENT"] = "testing"
 # Set test database URL if not already set
 TEST_DATABASE_URL = os.environ.setdefault(
     "TEST_DATABASE_URL", "postgresql+psycopg://postgres:password@localhost:5432/postgres_test"

@@ -30,3 +30,8 @@ PASSWORD_CHANGED_SUBJECT = "Lösenordet ändrat / Your Password Changed"
 ## Email changed constants
 
 EMAIL_CHANGED_SUBJECT = "E-postadressen ändrad / Your Email Address Changed"
+
+## Candidacy nomination constants
+CANDIDACY_SUBJECT = "Nominering mottagen / Nomination Received"
+CANDIDACY_LINK = "/election"
+ELECTION_SUPPORT_LINK = "valleb@fsektionen.se"
