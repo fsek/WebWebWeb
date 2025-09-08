@@ -142,6 +142,8 @@ def seed_posts(db: Session, some_councils: list[Council_DB]):
             description_sv="buggmästare",
             description_en="bugmaster",
             email="buggmastare@fsektionen.se",
+            elected_at_semester="HT and VT",
+            elected_by="Board",
         ),
         Post_DB(
             name_sv="Lallare",
@@ -150,6 +152,8 @@ def seed_posts(db: Session, some_councils: list[Council_DB]):
             description_sv="lallare",
             description_en="laller",
             email="lallare@fsektionen.se",
+            elected_at_semester="HT and VT",
+            elected_by="Guild",
         ),
         Post_DB(
             name_sv="Mytoman",
@@ -158,6 +162,8 @@ def seed_posts(db: Session, some_councils: list[Council_DB]):
             description_sv="mytoman",
             description_en="liar",
             email="mytoman@fsektionen.se",
+            elected_at_semester="VT",
+            elected_by="Guild",
         ),
     ]
     db.add_all(posts)
@@ -368,16 +374,16 @@ def seed_election(db: Session):
     # Now add subelections
     sub_election_1 = SubElection_DB(
         election_id=elections[0].election_id,
-        title_sv="bajsval1928 - Alla coola poster",
-        title_en="poopelection1928 - All the cool posts",
+        title_sv="Alla coola poster",
+        title_en="All the cool posts",
         end_time=signup_end,
         election_posts=[election_posts[0], election_posts[1]],
     )
 
     sub_election_2 = SubElection_DB(
         election_id=elections[1].election_id,
-        title_sv="360noscope - Bara dåliga poster",
-        title_en="360noscope but in english - Only the lame posts",
+        title_sv="Bara dåliga poster",
+        title_en="Only the lame posts",
         end_time=signup_end,
         election_posts=[election_posts[2]],
     )

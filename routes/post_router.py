@@ -25,7 +25,8 @@ def get_all_doors():
     return [access for access in accesses]
 
 
-@post_router.get("/", response_model=list[PostRead])
+# Surely this should only be for members?
+@post_router.get("/", response_model=list[PostRead], dependencies=[Permission.member()])
 def get_all_posts(db: DB_dependency):
     posts = db.query(Post_DB).all()
     return posts
@@ -36,6 +37,11 @@ def create_post(data: PostCreate, db: DB_dependency):
     council = db.query(Council_DB).filter_by(id=data.council_id).one_or_none()
     if council is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+    if data.elected_user_recommended_limit < 0 or data.elected_user_max_limit < 0:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Limits cannot be negative")
+    if data.elected_user_recommended_limit > data.elected_user_max_limit:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Recommended limit cannot be higher than max limit")
     post = Post_DB(
         name_sv=data.name_sv,
         name_en=data.name_en,
@@ -43,6 +49,10 @@ def create_post(data: PostCreate, db: DB_dependency):
         email=data.email,
         description_sv=data.description_sv,
         description_en=data.description_en,
+        elected_at_semester=data.elected_at_semester,
+        elected_by=data.elected_by,
+        elected_user_recommended_limit=data.elected_user_recommended_limit,
+        elected_user_max_limit=data.elected_user_max_limit,
     )
     db.add(post)
     db.commit()
@@ -66,6 +76,30 @@ def update_post(post_id: int, updated_post: PostUpdate, db: DB_dependency):
     post = db.query(Post_DB).filter_by(id=post_id).one_or_none()
     if post is None:
         raise HTTPException(404, "Post not found")
+
+    user_max_limit = (
+        updated_post.elected_user_max_limit
+        if updated_post.elected_user_max_limit is not None
+        else post.elected_user_max_limit
+    )
+    user_recommended_limit = (
+        updated_post.elected_user_recommended_limit
+        if updated_post.elected_user_recommended_limit is not None
+        else post.elected_user_recommended_limit
+    )
+
+    if user_max_limit < 0:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Max limit cannot be negative")
+    if user_recommended_limit < 0:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Recommended limit cannot be negative")
+    if user_recommended_limit > user_max_limit:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Recommended limit cannot be higher than max limit")
+
+    if updated_post.council_id is not None:
+        council = db.query(Council_DB).filter_by(id=updated_post.council_id).one_or_none()
+        if council is None:
+            raise HTTPException(status.HTTP_404_NOT_FOUND)
+
     for var, value in vars(updated_post).items():
         if var == "doors" or value is None:
             continue

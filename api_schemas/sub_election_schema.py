@@ -4,26 +4,29 @@ from helpers.types import datetime_utc
 
 
 class ElectionPostRead(BaseSchema):
-    id: int
+    election_post_id: int
+    post_id: int
     name_sv: str
     name_en: str
+    elected_at_semester: str | None
+    elected_by: str | None
+    elected_user_recommended_limit: int
+    elected_user_max_limit: int
     council_id: int
+    candidation_count: int
 
 
-class BaseSubElectionRead(BaseSchema):
+class SubElectionMemberRead(BaseSchema):
     sub_election_id: int
+    election_id: int
     title_sv: str
     title_en: str
     end_time: datetime_utc
-    posts: list[ElectionPostRead]
+    election_posts: list[ElectionPostRead]
 
 
-class SubElectionRead(BaseSubElectionRead):
+class SubElectionRead(SubElectionMemberRead):
     candidates: list[CandidateRead]
-
-
-class SubElectionMemberRead(BaseSubElectionRead):
-    candidations: list[CandidatePostRead]
 
 
 class SubElectionCreate(BaseSchema):

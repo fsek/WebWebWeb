@@ -21,7 +21,12 @@ def service_populate_election(db: DB_dependency, election: Election_DB, data: El
 
     # Helper to filter posts for each sub-election
     def filter_posts(semester: ELECTION_SEMESTERS, elector: ELECTION_ELECTORS) -> List[Post_DB]:
-        return [post for post in all_posts if post.elected_at_semester == semester and post.elected_by == elector]
+        return [
+            post
+            for post in all_posts
+            if (post.elected_at_semester == semester or post.elected_at_semester == "HT and VT")
+            and post.elected_by == elector
+        ]
 
     # Guild election
     guild_posts = filter_posts(data.semester, "Guild")
@@ -89,6 +94,10 @@ def service_create_sub_election(
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Post ids not found: {missing_post_ids}")
 
     election_posts = [ElectionPost_DB(post_id=post_id) for post_id in post_ids] if post_ids else []
+
+    # We don't want to error(?), but we also don't want to create empty sub-elections
+    if election_posts == []:
+        return None
 
     sub_election = SubElection_DB(
         title_en=title_en,

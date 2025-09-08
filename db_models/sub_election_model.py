@@ -46,7 +46,6 @@ class SubElection_DB(BaseModel_DB):
         back_populates="sub_election", cascade="all, delete-orphan", init=False
     )
 
-    # We need this because we sometimes want to not show what candidate made a candidation
     candidations: Mapped[list["Candidation_DB"]] = relationship(
         back_populates="sub_election", cascade="all, delete-orphan", init=False
     )

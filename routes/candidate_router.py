@@ -55,11 +55,27 @@ def get_my_candidations(election_id: int, db: DB_dependency, me: Annotated[User_
     candidations = [c for sublist in candidations for c in sublist]
 
     candidations = [
-        CandidatePostRead(post_id=c.election_post.post_id, election_post_id=c.election_post_id, created_at=c.created_at)
+        CandidatePostRead(
+            candidate_id=c.candidate_id,
+            post_id=c.election_post.post_id,
+            election_post_id=c.election_post_id,
+            created_at=c.created_at,
+            sub_election_id=c.sub_election_id,
+        )
         for c in candidations
     ]
 
     return candidations
+
+
+@candidate_router.get(
+    "/{candidate_id}", response_model=CandidateRead, dependencies=[Permission.require("view", "Election")]
+)
+def get_candidate(candidate_id: int, db: DB_dependency):
+    candidate = db.query(Candidate_DB).filter(Candidate_DB.candidate_id == candidate_id).one_or_none()
+    if candidate is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    return candidate
 
 
 @candidate_router.post("/{sub_election_id}", response_model=CandidateRead, dependencies=[Permission.member()])
@@ -102,7 +118,7 @@ def create_candidation(
         sub_election.election.start_time > time_now
         or sub_election.end_time < time_now
         or not sub_election.election.visible
-    ):
+    ) and not manage_permission:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This election is not open for candidations.",
@@ -140,6 +156,8 @@ def create_candidation(
         post_id=post_id,
     )
     db.add(new_candidation)
+
+    election_post.candidation_count += 1
     db.commit()
 
     return candidate
@@ -172,11 +190,15 @@ def delete_candidate(
             sub_election.election.start_time > time_now
             or sub_election.end_time < time_now
             or not sub_election.election.visible
-        ):
+        ) and not manage_permission:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="This election is not open for deleting candidations. Contact an administrator.",
             )
+
+        election_posts = candidate.election_posts
+        for election_post in election_posts:
+            election_post.candidation_count -= 1
 
         db.delete(candidate)
         db.commit()
@@ -218,11 +240,15 @@ def delete_candidation(
         sub_election.election.start_time > time_now
         or sub_election.end_time < time_now
         or not sub_election.election.visible
-    ):
+    ) and not manage_permission:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="This election is not open for deleting candidations. Contact an administrator.",
         )
+
+    election_post = candidation.election_post
+    if election_post:
+        election_post.candidation_count -= 1
 
     db.delete(candidation)
     db.commit()

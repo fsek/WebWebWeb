@@ -1,5 +1,5 @@
 from api_schemas.base_schema import BaseSchema
-from helpers.types import DOOR_ACCESSES
+from helpers.types import DOOR_ACCESSES, POST_ELECTION_SEMESTERS, ELECTION_ELECTORS
 
 
 class _PostPermissionRead(BaseSchema):
@@ -18,6 +18,10 @@ class PostRead(BaseSchema):
     description_en: str
     email: str
     post_door_accesses: list["PostDoorAccessRead"]
+    elected_at_semester: POST_ELECTION_SEMESTERS | None
+    elected_by: ELECTION_ELECTORS | None
+    elected_user_recommended_limit: int
+    elected_user_max_limit: int
 
     class Config:
         from_attributes = True
@@ -31,6 +35,10 @@ class PostUpdate(BaseSchema):
     description_en: str | None = None
     email: str | None = None
     doors: list[DOOR_ACCESSES] | None = None
+    elected_at_semester: POST_ELECTION_SEMESTERS | None = None
+    elected_by: ELECTION_ELECTORS | None = None
+    elected_user_recommended_limit: int | None = None
+    elected_user_max_limit: int | None = None
 
 
 class PostCreate(BaseSchema):
@@ -40,6 +48,10 @@ class PostCreate(BaseSchema):
     email: str
     description_sv: str
     description_en: str
+    elected_at_semester: POST_ELECTION_SEMESTERS
+    elected_by: ELECTION_ELECTORS
+    elected_user_recommended_limit: int
+    elected_user_max_limit: int
 
 
 class PostDoorAccessRead(BaseSchema):

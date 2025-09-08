@@ -3,6 +3,7 @@ from api_schemas.base_schema import BaseSchema
 from helpers.types import PROGRAM_TYPE, datetime_utc
 
 
+# Only admins should have access to any of these three schemas
 class CandidateUserRead(BaseSchema):
     first_name: str
     last_name: str
@@ -14,8 +15,10 @@ class CandidateUserRead(BaseSchema):
 
 
 class CandidatePostRead(BaseSchema):
+    candidate_id: int
     post_id: int
     election_post_id: int
+    sub_election_id: int
     created_at: datetime_utc
 
 
