@@ -8,8 +8,8 @@ from user.permission import Permission
 from api_schemas.sub_election_schema import (
     SubElectionRead,
     SubElectionCreate,
-    SubElectionMemberRead,
     SubElectionUpdate,
+    MovePostRequest,
 )
 
 sub_election_router = APIRouter()
@@ -47,6 +47,22 @@ def create_sub_election(data: SubElectionCreate, db: DB_dependency):
     missing_post_ids = post_ids - existing_post_ids
     if missing_post_ids:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Post ids not found: {missing_post_ids}")
+
+    # Check if any of the posts are already assigned to another sub-election in the same election
+    if post_ids:
+        assigned_posts = (
+            db.query(ElectionPost_DB.post_id)
+            .join(SubElection_DB)
+            .filter(SubElection_DB.election_id == data.election_id)
+            .filter(ElectionPost_DB.post_id.in_(post_ids))
+            .all()
+        )
+        assigned_post_ids = {post.post_id for post in assigned_posts}
+        if assigned_post_ids:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Post ids already assigned to another sub-election in the same election: {assigned_post_ids}",
+            )
 
     election_posts = [ElectionPost_DB(post_id=post_id) for post_id in data.post_ids] if data.post_ids else []
 
@@ -86,6 +102,23 @@ def update_sub_election(sub_election_id: int, data: SubElectionUpdate, db: DB_de
     if missing_post_ids:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Post ids not found: {missing_post_ids}")
 
+    # Check if any of the posts are already assigned to another sub-election in the same election
+    if post_ids:
+        assigned_posts = (
+            db.query(ElectionPost_DB.post_id)
+            .join(SubElection_DB)
+            .filter(SubElection_DB.election_id == sub_election.election_id)
+            .filter(SubElection_DB.sub_election_id != sub_election.sub_election_id)
+            .filter(ElectionPost_DB.post_id.in_(post_ids))
+            .all()
+        )
+        assigned_post_ids = {post.post_id for post in assigned_posts}
+        if assigned_post_ids:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Post ids already assigned to another sub-election in the same election: {assigned_post_ids}",
+            )
+
     election_posts = [ElectionPost_DB(post_id=post_id) for post_id in data.post_ids] if data.post_ids else []
 
     for var, value in vars(data).items():
@@ -109,3 +142,53 @@ def delete_sub_election(sub_election_id: int, db: DB_dependency):
     db.delete(sub_election)
     db.commit()
     return sub_election
+
+
+@sub_election_router.patch(
+    "/{sub_election_id}/move-election-post",
+    response_model=SubElectionRead,
+    dependencies=[Permission.require("manage", "Election")],
+)
+def move_election_post(sub_election_id: int, data: MovePostRequest, db: DB_dependency):
+    sub_election = db.query(SubElection_DB).filter(SubElection_DB.sub_election_id == sub_election_id).one_or_none()
+    if sub_election is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    election_post = (
+        db.query(ElectionPost_DB)
+        .filter(ElectionPost_DB.election_post_id == data.election_post_id)
+        .filter(ElectionPost_DB.sub_election_id == sub_election_id)
+        .one_or_none()
+    )
+    if election_post is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Election post not found in this sub-election"
+        )
+
+    new_sub_election = (
+        db.query(SubElection_DB).filter(SubElection_DB.sub_election_id == data.new_sub_election_id).one_or_none()
+    )
+    if new_sub_election is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="New sub-election not found")
+
+    if new_sub_election.election_id != sub_election.election_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="New sub-election is not in the same election"
+        )
+
+    # Check if the post is already assigned to the new sub-election
+    existing_post = (
+        db.query(ElectionPost_DB)
+        .filter(ElectionPost_DB.sub_election_id == new_sub_election.sub_election_id)
+        .filter(ElectionPost_DB.post_id == election_post.post_id)
+        .one_or_none()
+    )
+    if existing_post is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Post is already assigned to the new sub-election"
+        )
+
+    # Move the post to the new sub-election
+    election_post.sub_election = new_sub_election
+    db.commit()
+    return new_sub_election

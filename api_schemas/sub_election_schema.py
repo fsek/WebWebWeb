@@ -42,3 +42,8 @@ class SubElectionUpdate(BaseSchema):
     title_en: str | None = None
     end_time: datetime_utc | None = None
     post_ids: list[int] | None = None
+
+
+class MovePostRequest(BaseSchema):
+    election_post_id: int
+    new_sub_election_id: int
