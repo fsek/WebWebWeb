@@ -54,9 +54,9 @@ def test_add_post_to_sub_election(admin_token, client, admin_post, member_post, 
     )
     response = resp.json()
     assert resp.status_code in (200, 201), resp.text
-    assert "posts" in response
-    assert len(response["posts"]) == 2
-    assert all(post.get("id") in (admin_post.id, member_post.id) for post in response["posts"])
+    assert "election_posts" in response
+    assert len(response["election_posts"]) == 2
+    assert all(ep.get("post_id") in (admin_post.id, member_post.id) for ep in response["election_posts"])
 
 
 def test_remove_post_from_election(admin_token, client, admin_post, open_sub_election):
@@ -66,9 +66,9 @@ def test_remove_post_from_election(admin_token, client, admin_post, open_sub_ele
         client, open_sub_election.sub_election_id, token=admin_token, post_ids=[admin_post.id]
     )
     assert resp_remove.status_code in (200, 204), resp_remove.text
-    assert "posts" in resp_remove.json()
-    assert len(resp_remove.json()["posts"]) == 1
-    assert resp_remove.json()["posts"][0].get("id") == admin_post.id
+    assert "election_posts" in resp_remove.json()
+    assert len(resp_remove.json()["election_posts"]) == 1
+    assert resp_remove.json()["election_posts"][0].get("post_id") == admin_post.id
 
 
 def test_member_create_candidation(member_token, client, admin_post, membered_user, open_sub_election):
