@@ -15,11 +15,6 @@ from api_schemas.sub_election_schema import (
 sub_election_router = APIRouter()
 
 
-# @sub_election_router.get("/", response_model=list[SubElectionRead], dependencies=[Permission.require("view", "Election")])
-# def get_all_sub_elections(db: DB_dependency):
-#     return db.query(Election_DB).all()
-
-
 @sub_election_router.get(
     "/{sub_election_id}", response_model=SubElectionRead, dependencies=[Permission.require("view", "Election")]
 )
@@ -28,14 +23,6 @@ def get_sub_election(sub_election_id: int, db: DB_dependency):
     if sub_election is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
     return sub_election
-
-
-# @sub_election_router.get("/member/{sub_election_id}", response_model=SubElectionMemberRead, dependencies=[Permission.member()])
-# def get_sub_election_member(sub_election_id: int, db: DB_dependency):
-#     sub_election = db.query(SubElection_DB).filter(SubElection_DB.sub_election_id == sub_election_id).one_or_none()
-#     if sub_election is None:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
-#     return sub_election
 
 
 @sub_election_router.post("/", response_model=SubElectionRead, dependencies=[Permission.require("manage", "Election")])
