@@ -17,6 +17,8 @@ from db_models.song_model import Song_DB
 from db_models.user_model import User_DB
 from db_models.document_model import Document_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
+from db_models.sub_election_model import SubElection_DB
+from db_models.election_post_model import ElectionPost_DB
 
 
 def seed_users(db: Session, app: FastAPI):
@@ -140,6 +142,8 @@ def seed_posts(db: Session, some_councils: list[Council_DB]):
             description_sv="buggmästare",
             description_en="bugmaster",
             email="buggmastare@fsektionen.se",
+            elected_at_semester="HT and VT",
+            elected_by="Board",
         ),
         Post_DB(
             name_sv="Lallare",
@@ -148,6 +152,8 @@ def seed_posts(db: Session, some_councils: list[Council_DB]):
             description_sv="lallare",
             description_en="laller",
             email="lallare@fsektionen.se",
+            elected_at_semester="HT and VT",
+            elected_by="Guild",
         ),
         Post_DB(
             name_sv="Mytoman",
@@ -156,6 +162,8 @@ def seed_posts(db: Session, some_councils: list[Council_DB]):
             description_sv="mytoman",
             description_en="liar",
             email="mytoman@fsektionen.se",
+            elected_at_semester="VT",
+            elected_by="Guild",
         ),
     ]
     db.add_all(posts)
@@ -330,10 +338,58 @@ def seed_election(db: Session):
     signup_start = starts_at + datetime.timedelta(hours=24)
     signup_end = signup_start + datetime.timedelta(hours=24)
     elections = [
-        Election_DB(title="bajsval1928", start_time=signup_start, end_time=signup_end, description="Snälla bajs"),
-        Election_DB(title="360noscope", start_time=signup_start, end_time=signup_end, description="lol get wrekt"),
+        Election_DB(
+            title_sv="bajsval1928",
+            title_en="poopelection1928",
+            start_time=signup_start,
+            description_sv="Snälla bajs",
+            description_en="Please work",
+        ),
+        Election_DB(
+            title_sv="360noscope",
+            title_en="360noscope but in english",
+            start_time=signup_start,
+            description_sv="lol get wrekt (in swedish)",
+            description_en="lol get wrecked but in english",
+        ),
     ]
     db.add_all(elections)  # Use add_all to add multiple instances
+    db.commit()
+    db.refresh(elections[0])
+    db.refresh(elections[1])
+
+    # Election posts
+    election_posts = [
+        ElectionPost_DB(
+            post_id=1,
+        ),
+        ElectionPost_DB(
+            post_id=2,
+        ),
+        ElectionPost_DB(
+            post_id=3,
+        ),
+    ]
+
+    # Now add subelections
+    sub_election_1 = SubElection_DB(
+        election_id=elections[0].election_id,
+        title_sv="Alla coola poster",
+        title_en="All the cool posts",
+        end_time=signup_end,
+        election_posts=[election_posts[0], election_posts[1]],
+    )
+
+    sub_election_2 = SubElection_DB(
+        election_id=elections[1].election_id,
+        title_sv="Bara dåliga poster",
+        title_en="Only the lame posts",
+        end_time=signup_end,
+        election_posts=[election_posts[2]],
+    )
+
+    db.add(sub_election_1)
+    db.add(sub_election_2)
     db.commit()
 
 
