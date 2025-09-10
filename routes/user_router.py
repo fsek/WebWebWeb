@@ -14,6 +14,8 @@ from api_schemas.user_schemas import (
     UserRead,
     UpdateUserPosts,
 )
+from user.user_stuff import USERS
+from fastapi_users_pelicanq.manager import BaseUserManager
 from helpers.image_checker import validate_image
 from helpers.rate_limit import rate_limit
 from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
@@ -39,6 +41,23 @@ def admin_get_user(user_id: int, db: DB_dependency):
         raise HTTPException(404, detail="User not found")
 
     return user
+
+
+@user_router.delete("/admin/{user_id}", dependencies=[Permission.require("super", "User")])
+async def admin_delete_user(
+    user_id: int,
+    db: DB_dependency,
+    user_manager: BaseUserManager[User_DB, int] = Depends(USERS.get_user_manager),
+):
+    user = db.query(User_DB).filter(User_DB.id == user_id).one_or_none()
+    if not user:
+        raise HTTPException(404, detail="User not found")
+    if user.is_member:
+        raise HTTPException(403, detail="User is member")
+    if not (len(user.posts) == 0):
+        raise HTTPException(403, detail="User has posts")
+    await user_manager.delete(user)
+    return Response(None, status.HTTP_204_NO_CONTENT)
 
 
 @user_router.get("/me", response_model=AdminUserRead)
