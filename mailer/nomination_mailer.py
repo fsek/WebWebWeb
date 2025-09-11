@@ -25,6 +25,7 @@ def nomination_mailer(user: User_DB, nomination: Nomination_DB):
     html = html.replace("{{ user.email }}", python_html.escape(user.email))
     html = html.replace("{{ position_name_sv }}", python_html.escape(nomination.election_post.post.name_sv))
     html = html.replace("{{ position_name_en }}", python_html.escape(nomination.election_post.post.name_en))
+    html = html.replace("{{ nomination_motivation }}", python_html.escape(nomination.motivation))
     html = html.replace("{{ candidacy_link }}", candidacy_link)
 
     stockholm_tz = ZoneInfo("Europe/Stockholm")
