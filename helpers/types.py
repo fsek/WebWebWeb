@@ -93,7 +93,7 @@ EVENT_DOT_TYPES = Literal["None", "Single", "Double"]
 
 PROGRAM_TYPE = Literal["Oklart", "F", "Pi", "N"]
 
-ROOMS = Literal["LC", "Alumni", "SK"]
+ROOMS = Literal["LC", "Alumni", "SK", "Hilbert Cafe"]
 
 MISSION_CONFIRMED_TYPES = Literal["Accepted", "Failed", "Review"]
 
