@@ -7,6 +7,7 @@ from .mail_constants import (
     VERIFICATION_SUBJECT,
     URL,
     STAGE_URL,
+    NEW_VERIFY_LINK,
 )
 from mailer.mail_core import send_mail
 from db_models.user_model import User_DB
@@ -28,6 +29,7 @@ def verification_mailer(user: User_DB, token: str):
     html = html.replace("{{ user.name }}", python_html.escape(user.first_name, quote=True))
     html = html.replace("{{ verification_link }}", verification_link)
     html = html.replace("{{ support_link }}", SUPPORT_LINK)
+    html = html.replace("{{ new_verify_link }}", NEW_VERIFY_LINK)
 
     msg = MIMEText(html, "html", "utf-8")
 
