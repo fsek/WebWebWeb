@@ -50,9 +50,17 @@ no_docs = os.getenv("ENVIRONMENT") == "production"
 dev_origins = [
     "http://localhost",
     "http://localhost:3000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:3000",
 ]
 
-stage_origins = ["https://stage.frontend.fsektionen.se"]
+stage_origins = [
+    "https://stage.frontend.fsektionen.se",
+    "http://localhost",
+    "http://localhost:3000",
+    "http://127.0.0.1",
+    "http://127.0.0.1:3000",
+]
 
 production_origins = ["https://fsektionen.se"]
 
