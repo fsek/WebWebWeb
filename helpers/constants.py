@@ -95,3 +95,8 @@ MAX_RECURSION_STEPS = 50  # Maximum number of recursions allowed, to prevent inf
 
 # Event User
 DEFAULT_USER_PRIORITY = "Övrigt"
+
+# Guild Meeting
+MAX_GUILD_MEETING_DATE_DESC = 500
+MAX_GUILD_MEETING_DESC = 10000
+MAX_GUILD_MEETING_TITLE = 200
