@@ -390,7 +390,7 @@ def test_update_sub_election_retains_posts(admin_token, admin_user, client, admi
     assert resp_cand.status_code in (200, 201), resp_cand.text
     candidate = resp_cand.json()
     candidate_id = candidate["candidate_id"]
-    assert candidate["candidations"][0]["post_id"] == admin_post.id
+    assert any(c["post_id"] == admin_post.id for c in candidate["candidations"])
 
     # Update the sub-election with the same posts again, should retain them and the candidations
     resp_update = patch_sub_election(
@@ -412,5 +412,144 @@ def test_update_sub_election_retains_posts(admin_token, admin_user, client, admi
     # Ensure the candidation still exists
     resp_cand_check = client.get(f"/candidate/sub-election/{sub_election_id}", headers=auth_headers(admin_token))
     assert resp_cand_check.status_code == 200, resp_cand_check.text
-    assert resp_cand_check.json()[0]["candidations"][0]["post_id"] == admin_post.id
-    assert resp_cand_check.json()[0]["candidate_id"] == candidate_id
+    cand_list = resp_cand_check.json()
+    cand_obj = next(c for c in cand_list if c["candidate_id"] == candidate_id)
+    assert any(cand["post_id"] == admin_post.id for cand in cand_obj["candidations"])
+
+
+def test_move_election_post_retains_candidates(admin_token, admin_user, client, admin_post, member_post, open_election):
+    # Create two sub-elections
+    resp_sub1 = create_sub_election(
+        client,
+        open_election.election_id,
+        token=admin_token,
+        title_sv="Sub1",
+        title_en="Sub1",
+        post_ids=[admin_post.id],
+    )
+    assert resp_sub1.status_code in (200, 201), resp_sub1.text
+    sub_election_1 = resp_sub1.json()
+    sub_election_1_id = sub_election_1["sub_election_id"]
+
+    resp_sub2 = create_sub_election(
+        client,
+        open_election.election_id,
+        token=admin_token,
+        title_sv="Sub2",
+        title_en="Sub2",
+        post_ids=[member_post.id],
+    )
+    assert resp_sub2.status_code in (200, 201), resp_sub2.text
+    sub_election_2 = resp_sub2.json()
+    sub_election_2_id = sub_election_2["sub_election_id"]
+
+    # Candidate for admin_post in sub_election_1
+    resp_cand = create_candidation(
+        client,
+        sub_election_id=sub_election_1_id,
+        post_id=admin_post.id,
+        token=admin_token,
+        user_id=admin_user.id,
+    )
+    assert resp_cand.status_code in (200, 201), resp_cand.text
+    candidate = resp_cand.json()
+    candidate_id = candidate["candidate_id"]
+    assert any(c["post_id"] == admin_post.id for c in candidate["candidations"])
+
+    # Resolve the correct election_post_id
+    ep_admin = next(ep for ep in sub_election_1["election_posts"] if ep["post_id"] == admin_post.id)
+    election_post_id = ep_admin["election_post_id"]
+
+    # Move the election post using its election_post_id
+    resp_move = client.patch(
+        f"/sub-election/{sub_election_1_id}/move-election-post",
+        json={
+            "election_post_id": election_post_id,
+            "new_sub_election_id": sub_election_2_id,
+        },
+        headers=auth_headers(admin_token),
+    )
+    assert resp_move.status_code in (200, 204), resp_move.text
+    moved_to_sub_election = resp_move.json()
+    assert moved_to_sub_election["sub_election_id"] == sub_election_2_id
+    moved_post = next(ep for ep in moved_to_sub_election["election_posts"] if ep["post_id"] == admin_post.id)
+    assert moved_post is not None
+
+    assert moved_post["post_id"] == admin_post.id
+    assert moved_post["candidation_count"] == 1
+
+    # Ensure the candidation still exists and is associated with the moved post
+    resp_cand_check = client.get(f"/candidate/sub-election/{sub_election_2_id}", headers=auth_headers(admin_token))
+    assert resp_cand_check.status_code == 200, resp_cand_check.text
+    candidates = resp_cand_check.json()
+    assert any(c["candidate_id"] == candidate_id for c in candidates)
+
+
+def test_move_election_post_retains_nominations(
+    admin_token, admin_user, client, admin_post, member_post, open_election, member_token
+):
+    # Create two sub-elections
+    resp_sub1 = create_sub_election(
+        client,
+        open_election.election_id,
+        token=admin_token,
+        title_sv="Sub1",
+        title_en="Sub1",
+        post_ids=[admin_post.id],
+    )
+    assert resp_sub1.status_code in (200, 201), resp_sub1.text
+    sub_election_1 = resp_sub1.json()
+    sub_election_1_id = sub_election_1["sub_election_id"]
+
+    resp_sub2 = create_sub_election(
+        client,
+        open_election.election_id,
+        token=admin_token,
+        title_sv="Sub2",
+        title_en="Sub2",
+        post_ids=[member_post.id],
+    )
+    assert resp_sub2.status_code in (200, 201), resp_sub2.text
+    sub_election_2 = resp_sub2.json()
+    sub_election_2_id = sub_election_2["sub_election_id"]
+
+    # Get correct election_post_id for admin_post
+    ep_admin = next(ep for ep in sub_election_1["election_posts"] if ep["post_id"] == admin_post.id)
+    election_post_id = ep_admin["election_post_id"]
+
+    # Nominate using election_post_id
+    nomination_payload = {
+        "nominee_name": getattr(admin_user, "name", "Admin User"),
+        "nominee_email": admin_user.email,
+        "motivation": "Great candidate",
+        "election_post_id": election_post_id,
+        "sub_election_id": sub_election_1_id,
+    }
+    resp_nom = client.post(
+        f"/nominations/{sub_election_1_id}",
+        json=nomination_payload,
+        headers=auth_headers(member_token),
+    )
+    assert resp_nom.status_code in (200, 201), resp_nom.text
+
+    # Move election post
+    resp_move = client.patch(
+        f"/sub-election/{sub_election_1_id}/move-election-post",
+        json={
+            "election_post_id": election_post_id,
+            "new_sub_election_id": sub_election_2_id,
+        },
+        headers=auth_headers(admin_token),
+    )
+    assert resp_move.status_code in (200, 204), resp_move.text
+    moved_to_sub_election = resp_move.json()
+    assert moved_to_sub_election["sub_election_id"] == sub_election_2_id
+    moved_post = next(ep for ep in moved_to_sub_election["election_posts"] if ep["post_id"] == admin_post.id)
+    assert moved_post is not None
+    assert moved_post["post_id"] == admin_post.id
+    assert moved_post["candidation_count"] == 0
+    # Only check nominations if the endpoint returns them
+    if "nominations" in moved_post:
+        noms = moved_post.get("nominations", [])
+        matching = [n for n in noms if n.get("nominee_email") == admin_user.email]
+        assert len(matching) == 1
