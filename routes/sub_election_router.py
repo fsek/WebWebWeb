@@ -200,5 +200,15 @@ def move_election_post(sub_election_id: int, data: MovePostRequest, db: DB_depen
 
     # Move the post to the new sub-election
     election_post.sub_election = new_sub_election
+
+    # Update all the candidations and candidates to point to the new sub-election
+    for candidation in election_post.candidations:
+        candidation.sub_election = new_sub_election
+        candidation.candidate.sub_election = new_sub_election
+
+    # Update all the nominations to point to the new sub-election
+    for nomination in election_post.nominations:
+        nomination.sub_election = new_sub_election
+
     db.commit()
     return new_sub_election
