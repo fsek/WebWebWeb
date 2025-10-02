@@ -362,3 +362,56 @@ def test_populate_election_member_and_non_member_forbidden(member_token, non_mem
         headers=auth_headers(non_member_token),
     )
     assert resp_non_member.status_code == 403, resp_non_member.text
+
+
+def test_update_subelection_retains_posts(admin_token, admin_user, client, admin_post, member_post, open_election):
+    # Create a sub-election with both posts
+    resp_create = create_sub_election(
+        client,
+        open_election.election_id,
+        token=admin_token,
+        title_sv="Initial",
+        title_en="Initial",
+        post_ids=[admin_post.id, member_post.id],
+    )
+    assert resp_create.status_code in (200, 201), resp_create.text
+    sub_election = resp_create.json()
+    sub_election_id = sub_election["sub_election_id"]
+    assert len(sub_election.get("election_posts", [])) == 2
+
+    # Candidate for one of the posts
+    resp_cand = create_candidation(
+        client,
+        sub_election_id=sub_election_id,
+        post_id=admin_post.id,
+        token=admin_token,
+        user_id=admin_user.id,
+    )
+    assert resp_cand.status_code in (200, 201), resp_cand.text
+    candidate = resp_cand.json()
+    candidate_id = candidate["candidate_id"]
+    assert candidate["candidations"][0]["post_id"] == admin_post.id
+
+    # Update the sub-election with the same posts again, should retain them and the candidations
+    resp_update = patch_sub_election(
+        client,
+        sub_election_id,
+        token=admin_token,
+        title_sv="Updated",
+        title_en="Updated",
+        post_ids=[admin_post.id, member_post.id],
+    )
+    assert resp_update.status_code in (200, 204), resp_update.text
+    updated_sub_election = resp_update.json()
+    assert updated_sub_election["title_sv"] == "Updated"
+    assert updated_sub_election["title_en"] == "Updated"
+    assert len(updated_sub_election.get("election_posts", [])) == 2
+    post_ids = {ep["post_id"] for ep in updated_sub_election["election_posts"]}
+    assert post_ids == {admin_post.id, member_post.id}
+
+    # Ensure the candidation still exists
+    resp_cand_check = client.get(f"/candidate/sub-election/{sub_election_id}", headers=auth_headers(admin_token))
+    assert resp_cand_check.status_code == 200, resp_cand_check.text
+    print(resp_cand_check.json())
+    assert resp_cand_check.json()[0]["candidations"][0]["post_id"] == admin_post.id
+    assert resp_cand_check.json()[0]["candidate_id"] == candidate_id

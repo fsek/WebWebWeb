@@ -11,6 +11,7 @@ from api_schemas.sub_election_schema import (
     SubElectionUpdate,
     MovePostRequest,
 )
+from typing import List
 
 sub_election_router = APIRouter()
 
@@ -119,7 +120,16 @@ def update_sub_election(sub_election_id: int, data: SubElectionUpdate, db: DB_de
                 detail=f"Post ids already assigned to another sub-election in the same election: {assigned_post_ids}",
             )
 
-    election_posts = [ElectionPost_DB(post_id=post_id) for post_id in data.post_ids] if data.post_ids else []
+    new_election_posts = [ElectionPost_DB(post_id=post_id) for post_id in data.post_ids] if data.post_ids else []
+
+    # We want to keep the old posts, with all their data, if they are not removed
+    election_posts: List[ElectionPost_DB] = []
+    for new_post in new_election_posts:
+        existing_post = next((ep for ep in sub_election.election_posts if ep.post_id == new_post.post_id), None)
+        if existing_post:
+            election_posts.append(existing_post)
+        else:
+            election_posts.append(new_post)
 
     for var, value in vars(data).items():
         # This should remove all the posts if [] or None is passed as post_ids
