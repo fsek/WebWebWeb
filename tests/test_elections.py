@@ -364,7 +364,7 @@ def test_populate_election_member_and_non_member_forbidden(member_token, non_mem
     assert resp_non_member.status_code == 403, resp_non_member.text
 
 
-def test_update_subelection_retains_posts(admin_token, admin_user, client, admin_post, member_post, open_election):
+def test_update_sub_election_retains_posts(admin_token, admin_user, client, admin_post, member_post, open_election):
     # Create a sub-election with both posts
     resp_create = create_sub_election(
         client,
@@ -412,6 +412,5 @@ def test_update_subelection_retains_posts(admin_token, admin_user, client, admin
     # Ensure the candidation still exists
     resp_cand_check = client.get(f"/candidate/sub-election/{sub_election_id}", headers=auth_headers(admin_token))
     assert resp_cand_check.status_code == 200, resp_cand_check.text
-    print(resp_cand_check.json())
     assert resp_cand_check.json()[0]["candidations"][0]["post_id"] == admin_post.id
     assert resp_cand_check.json()[0]["candidate_id"] == candidate_id
