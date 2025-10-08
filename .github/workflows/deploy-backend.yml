@@ -1,4 +1,5 @@
 name: Deploy WebWebWeb‑backend
+run-name: Deploy Backend to ${{ github.event.inputs.target || 'unknown' }}
 
 on:
   workflow_dispatch:
