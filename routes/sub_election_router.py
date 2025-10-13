@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+from db_models.candidate_model import Candidate_DB
 from database import DB_dependency
 from db_models.sub_election_model import SubElection_DB
 from db_models.election_model import Election_DB
@@ -186,6 +187,11 @@ def move_election_post(sub_election_id: int, data: MovePostRequest, db: DB_depen
             status_code=status.HTTP_400_BAD_REQUEST, detail="New sub-election is not in the same election"
         )
 
+    if new_sub_election.sub_election_id == sub_election.sub_election_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="You are trying to move to the same sub-election"
+        )
+
     # Check if the post is already assigned to the new sub-election
     existing_post = (
         db.query(ElectionPost_DB)
@@ -201,14 +207,38 @@ def move_election_post(sub_election_id: int, data: MovePostRequest, db: DB_depen
     # Move the post to the new sub-election
     election_post.sub_election = new_sub_election
 
-    # Update all the candidations and candidates to point to the new sub-election
+    # Update all the candidations to point to the new sub-election
     for candidation in election_post.candidations:
         candidation.sub_election = new_sub_election
-        candidation.candidate.sub_election = new_sub_election
 
     # Update all the nominations to point to the new sub-election
     for nomination in election_post.nominations:
         nomination.sub_election = new_sub_election
+
+    # Add/update candidates on the new sub-election
+    for candidate in sub_election.candidates:
+        if election_post in candidate.election_posts:
+            existing_candidate = (
+                db.query(Candidate_DB)
+                .filter(Candidate_DB.sub_election_id == new_sub_election.sub_election_id)
+                .filter(Candidate_DB.user_id == candidate.user_id)
+                .one_or_none()
+            )
+            if existing_candidate is None:
+                candidate.sub_election = new_sub_election
+                db.add(candidate)
+            else:
+                if election_post not in existing_candidate.election_posts:
+                    existing_candidate.election_posts.append(election_post)
+
+    # Update all candidates on the current sub-election to remove the election post
+    for candidate in sub_election.candidates:
+        if election_post in candidate.election_posts and len(candidate.election_posts) == 1:
+            candidate.election_posts.remove(election_post)
+            # Lets remove the candidate if they have no more election posts
+            db.delete(candidate)
+        elif election_post in candidate.election_posts:
+            candidate.election_posts.remove(election_post)
 
     db.commit()
     return new_sub_election
