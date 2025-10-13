@@ -95,3 +95,7 @@ MAX_RECURSION_STEPS = 50  # Maximum number of recursions allowed, to prevent inf
 
 # Event User
 DEFAULT_USER_PRIORITY = "Övrigt"
+
+# Tool booking
+MAX_TOOL_NAME = 100
+MAX_TOOL_DESC = 1000
