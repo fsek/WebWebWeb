@@ -296,7 +296,7 @@ def test_dst_booking_handling(client, admin_token, admin_council_id):
         start_local = _to_local(datetime.fromisoformat(booking["start_time"]), ZoneInfo("Europe/Stockholm"))
         end_local = _to_local(datetime.fromisoformat(booking["end_time"]), ZoneInfo("Europe/Stockholm"))
         assert end_local - start_local == timedelta(hours=2)
-    # Check that they dont all have the same UTC start time
+    # Check that they don't all have the same UTC start time
     start_times = {
         _to_local(datetime.fromisoformat(booking["start_time"]), ZoneInfo("Europe/Stockholm")).hour for booking in data
     }
