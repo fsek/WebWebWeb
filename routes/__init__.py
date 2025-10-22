@@ -30,6 +30,7 @@ from .room_booking_router import room_router
 from .access_serve_router import access_serve_router
 from .sub_election_router import sub_election_router
 from .nomination_router import nomination_router
+from .guild_meeting_router import guild_meeting_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -91,3 +92,5 @@ main_router.include_router(access_serve_router, prefix="/access-serve", tags=["a
 main_router.include_router(sub_election_router, prefix="/sub-election", tags=["sub-elections"])
 
 main_router.include_router(nomination_router, prefix="/nominations", tags=["nominations"])
+
+main_router.include_router(guild_meeting_router, prefix="/guild-meeting", tags=["guild meeting"])
