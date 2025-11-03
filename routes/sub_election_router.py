@@ -1,4 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
+from db_models.candidate_model import Candidate_DB
+from db_models.candidate_post_model import Candidation_DB
 from database import DB_dependency
 from db_models.sub_election_model import SubElection_DB
 from db_models.election_model import Election_DB
@@ -186,6 +188,11 @@ def move_election_post(sub_election_id: int, data: MovePostRequest, db: DB_depen
             status_code=status.HTTP_400_BAD_REQUEST, detail="New sub-election is not in the same election"
         )
 
+    if new_sub_election.sub_election_id == sub_election.sub_election_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="You are trying to move to the same sub-election"
+        )
+
     # Check if the post is already assigned to the new sub-election
     existing_post = (
         db.query(ElectionPost_DB)
@@ -201,14 +208,59 @@ def move_election_post(sub_election_id: int, data: MovePostRequest, db: DB_depen
     # Move the post to the new sub-election
     election_post.sub_election = new_sub_election
 
-    # Update all the candidations and candidates to point to the new sub-election
+    # Update all the candidations to point to the new sub-election
     for candidation in election_post.candidations:
         candidation.sub_election = new_sub_election
-        candidation.candidate.sub_election = new_sub_election
 
     # Update all the nominations to point to the new sub-election
     for nomination in election_post.nominations:
         nomination.sub_election = new_sub_election
+
+    candidations_to_move = list(election_post.candidations)
+    candidate_candidations: dict[int, list[Candidation_DB]] = {}
+    candidate_lookup: dict[int, Candidate_DB] = {}
+    for candidation in candidations_to_move:
+        key = candidation.candidate_id
+        candidate_candidations.setdefault(key, []).append(candidation)
+        candidate_lookup.setdefault(key, candidation.candidate)
+
+    # Reassign candidates while keeping candidations tied to the correct sub-election
+    for candidate_id, candidate_candidations_to_move in candidate_candidations.items():
+        candidate = candidate_lookup[candidate_id]
+
+        # Check if a candidate from the same user already exists in the target sub-election
+        existing_candidate = (
+            db.query(Candidate_DB)
+            .filter(Candidate_DB.sub_election_id == new_sub_election.sub_election_id)
+            .filter(Candidate_DB.user_id == candidate.user_id)
+            .one_or_none()
+        )
+
+        # True if all candidations are being moved
+        # candidate.candidations should be the same candidate mentioned
+        # in candidate_candidations_to_move, so if lengths match, all are being moved
+        moving_only_candidations = len(candidate.candidations) == len(candidate_candidations_to_move)
+
+        if existing_candidate is None and moving_only_candidations:
+            # Move the candidate wholesale
+            candidate.sub_election = new_sub_election
+            target_candidate = candidate
+        else:
+            if existing_candidate is None:
+                target_candidate = Candidate_DB(
+                    sub_election_id=new_sub_election.sub_election_id,
+                    user_id=candidate.user_id,
+                )
+                db.add(target_candidate)
+                db.flush()
+            else:
+                target_candidate = existing_candidate
+
+            for candidation in candidate_candidations_to_move:
+                candidation.candidate = target_candidate
+
+            if moving_only_candidations:
+                db.delete(candidate)
 
     db.commit()
     return new_sub_election
