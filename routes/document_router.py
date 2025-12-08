@@ -5,7 +5,7 @@ from database import DB_dependency
 from db_models.document_model import Document_DB
 from api_schemas.document_schema import DocumentRead, DocumentCreate, DocumentUpdate, document_create_form
 from db_models.user_model import User_DB
-from helpers.constants import MAX_DOC_TITLE
+from helpers.constants import MAX_DOC_TITLE, MAX_FILE_SIZE_MB
 from helpers.pdf_checker import validate_pdf_header
 from user.permission import Permission
 from fastapi import File, UploadFile, HTTPException
@@ -55,6 +55,14 @@ async def upload_document(
 
     if ext not in allowed_exts:
         raise HTTPException(400, "File extension not allowed")
+
+    if file.size is None:
+        raise HTTPException(400, detail="Could not determine file size")
+
+    if file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
+        raise HTTPException(
+            400, detail=f"File size is too large! Compress the file to smaller than {MAX_FILE_SIZE_MB}MB"
+        )
 
     file.filename = f"{sanitized_filename}{ext}"
 
@@ -133,6 +141,8 @@ def get_document_file(
 
     file_path = Path(f"/internal/document{base_path}/{document.file_name}")
     if not file_path.exists():
+        # This will always trigger if we are in local dev, don't worry about it
+        # If we get this in production something is very wrong
         raise HTTPException(418, detail="Something is very cooked, contact the Webmasters pls!")
 
     response.headers["X-Accel-Redirect"] = str(file_path)

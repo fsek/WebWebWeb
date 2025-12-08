@@ -2,11 +2,17 @@
 from main import app
 from datetime import datetime, timedelta, timezone
 from .basic_factories import auth_headers
+from zoneinfo import ZoneInfo
 
 # Most of this file was copied from the car booking tests, with modifications for room bookings.
 
 # Helper to get Stockholm local time (UTC+1 or UTC+2 DST, but for simplicity, use UTC+1)
 STOCKHOLM_TZ = timezone(timedelta(hours=1))
+
+
+def _to_local(dt: datetime, tz: ZoneInfo) -> datetime:
+    # Treat naive datetimes as local; convert aware datetimes to the provided local tz
+    return dt.replace(tzinfo=tz) if dt.tzinfo is None else dt.astimezone(tz)
 
 
 def stockholm_dt(year, month, day, hour, minute=0):
@@ -263,3 +269,35 @@ def test_no_unlimited_recurring_bookings(client, admin_token, admin_council_id):
     assert isinstance(data, list)
     assert len(data) < 500  # We should never have to set a limit higher than this
     assert data[-1]["start_time"] < stockholm_dt(2050, 1, 22, 12).isoformat()  # Last booking should be way before 3030
+
+
+def test_dst_booking_handling(client, admin_token, admin_council_id):
+    # Create a recurring booking that spans DST change
+    # In 2030, DST in Sweden ends on Oct 27th at 03:00 (clocks go back 1 hour)
+    start = stockholm_dt(2030, 10, 25, 10)  # Oct 25th, 10:00
+    end = stockholm_dt(2030, 10, 25, 12)  # Oct 25th, 12:00
+    resp = create_booking(
+        client,
+        admin_token,
+        start,
+        end,
+        "DST spanning booking",
+        council_id=admin_council_id,
+        room="LC",
+        recur_interval_days=1,
+        recur_until=stockholm_dt(2030, 10, 29, 12),  # Recurs until Oct 29th
+    )
+    assert resp.status_code in (200, 201)
+    data = resp.json()
+    assert isinstance(data, list)
+    assert len(data) == 5
+    # Check that each booking is 2 hours long in local time
+    for booking in data:
+        start_local = _to_local(datetime.fromisoformat(booking["start_time"]), ZoneInfo("Europe/Stockholm"))
+        end_local = _to_local(datetime.fromisoformat(booking["end_time"]), ZoneInfo("Europe/Stockholm"))
+        assert end_local - start_local == timedelta(hours=2)
+    # Check that they don't all have the same UTC start time
+    start_times = {
+        _to_local(datetime.fromisoformat(booking["start_time"]), ZoneInfo("Europe/Stockholm")).hour for booking in data
+    }
+    assert len(start_times) == 1

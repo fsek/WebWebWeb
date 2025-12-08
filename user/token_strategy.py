@@ -41,7 +41,7 @@ async def get_jwt_secret() -> str:
 JWT_TOKEN_LIFETIME_SECONDS = 3600 * 6 if os.getenv("ENVIRONMENT") == "development" else 900
 
 # Timeout for refresh token, user has to log in again after expiry
-LOGIN_TIMEOUT = 3600 * 24 * 30
+LOGIN_TIMEOUT = 3600 * 24 * 90
 
 
 # class to describe data in access token for our chosen JWT strategy

@@ -553,3 +553,93 @@ def test_move_election_post_retains_nominations(
         noms = moved_post.get("nominations", [])
         matching = [n for n in noms if n.get("nominee_email") == admin_user.email]
         assert len(matching) == 1
+
+
+def test_move_election_post_keeps_remaining_candidations_in_original_sub_election(
+    admin_token, admin_user, client, admin_post, member_post, open_election
+):
+    # Create sub-election with two posts
+    resp_sub = create_sub_election(
+        client,
+        open_election.election_id,
+        token=admin_token,
+        title_sv="Source",
+        title_en="Source",
+        post_ids=[admin_post.id, member_post.id],
+    )
+    assert resp_sub.status_code in (200, 201), resp_sub.text
+    sub_election = resp_sub.json()
+    sub_election_id = sub_election["sub_election_id"]
+
+    # Create candidations for both posts for the same user
+    resp_cand_admin = create_candidation(
+        client,
+        sub_election_id=sub_election_id,
+        post_id=admin_post.id,
+        token=admin_token,
+        user_id=admin_user.id,
+    )
+    assert resp_cand_admin.status_code in (200, 201), resp_cand_admin.text
+
+    resp_cand_member = create_candidation(
+        client,
+        sub_election_id=sub_election_id,
+        post_id=member_post.id,
+        token=admin_token,
+        user_id=admin_user.id,
+    )
+    assert resp_cand_member.status_code in (200, 201), resp_cand_member.text
+    candidate = resp_cand_member.json()
+    candidate_id = candidate["candidate_id"]
+    post_ids_before_move = {candidation["post_id"] for candidation in candidate["candidations"]}
+    assert post_ids_before_move == {admin_post.id, member_post.id}
+
+    # Destination sub-election without posts
+    resp_dest = create_sub_election(
+        client,
+        open_election.election_id,
+        token=admin_token,
+        title_sv="Destination",
+        title_en="Destination",
+    )
+    assert resp_dest.status_code in (200, 201), resp_dest.text
+    dest_sub_election = resp_dest.json()
+    dest_sub_election_id = dest_sub_election["sub_election_id"]
+
+    # Resolve election_post identifier for the admin post
+    election_post_admin = next(ep for ep in sub_election["election_posts"] if ep["post_id"] == admin_post.id)
+    election_post_id = election_post_admin["election_post_id"]
+
+    # Move election post to the destination sub-election
+    resp_move = client.patch(
+        f"/sub-election/{sub_election_id}/move-election-post",
+        json={
+            "election_post_id": election_post_id,
+            "new_sub_election_id": dest_sub_election_id,
+        },
+        headers=auth_headers(admin_token),
+    )
+    assert resp_move.status_code in (200, 204), resp_move.text
+
+    # Original sub-election should still have the candidate with the remaining post
+    resp_candidates_source = client.get(f"/candidate/sub-election/{sub_election_id}", headers=auth_headers(admin_token))
+    assert resp_candidates_source.status_code == 200, resp_candidates_source.text
+    candidates_source = resp_candidates_source.json()
+    original_candidate = next(c for c in candidates_source if c["candidate_id"] == candidate_id)
+    remaining_post_ids = {candidation["post_id"] for candidation in original_candidate["candidations"]}
+    assert remaining_post_ids == {member_post.id}
+    assert all(candidation["sub_election_id"] == sub_election_id for candidation in original_candidate["candidations"])
+
+    # Destination sub-election should have a candidate for the moved post only
+    resp_candidates_dest = client.get(
+        f"/candidate/sub-election/{dest_sub_election_id}", headers=auth_headers(admin_token)
+    )
+    assert resp_candidates_dest.status_code == 200, resp_candidates_dest.text
+    candidates_dest = resp_candidates_dest.json()
+    moved_candidate = next(c for c in candidates_dest if c["user_id"] == admin_user.id)
+    moved_post_ids = {candidation["post_id"] for candidation in moved_candidate["candidations"]}
+    assert moved_post_ids == {admin_post.id}
+    assert all(
+        candidation["sub_election_id"] == dest_sub_election_id for candidation in moved_candidate["candidations"]
+    )
+    assert moved_candidate["candidate_id"] != candidate_id

@@ -14,8 +14,15 @@ from db_models.room_booking_model import RoomBooking_DB
 from helpers.types import ROOMS
 from services.room_booking_service import create_new_room_booking
 from helpers.constants import MAX_RECURSION_TIME, MAX_RECURSION_STEPS
+from datetime import timezone
+from zoneinfo import ZoneInfo
 
 room_router = APIRouter()
+
+
+def _to_local(dt: datetime.datetime, tz: ZoneInfo) -> datetime.datetime:
+    # Treat naive datetimes as local; convert aware datetimes to the provided local tz
+    return dt.replace(tzinfo=tz) if dt.tzinfo is None else dt.astimezone(tz)
 
 
 @room_router.post(
@@ -34,28 +41,38 @@ def create_room_booking(
         if data.recur_interval_days < 1:
             raise HTTPException(400, "Invalid argument for recurring interval days")
 
-        index = 0
-        first_start = data.start_time
+        local_tz = ZoneInfo("Europe/Stockholm")
 
-        delta = datetime.timedelta(days=data.recur_interval_days)
-        current_start = data.start_time + delta
+        # We start at index 1 since the first booking is already created
+        index = 1
+        first_start_local = _to_local(data.start_time, local_tz)
+        first_end_local = _to_local(data.end_time, local_tz)
+        # This will bug if the start and end time are in different DST offsets
+        # but this will never happen :)
+        duration = first_end_local - first_start_local
 
-        while (
-            current_start <= data.recur_until
-            and current_start < first_start + datetime.timedelta(days=MAX_RECURSION_TIME)
-            and index < MAX_RECURSION_STEPS
-        ):
+        recur_until_local = _to_local(data.recur_until, local_tz)
+
+        while True:
+            next_start_local = first_start_local + datetime.timedelta(days=data.recur_interval_days * index)
+            if not (
+                next_start_local <= recur_until_local
+                and next_start_local < first_start_local + datetime.timedelta(days=MAX_RECURSION_TIME)
+                and index < MAX_RECURSION_STEPS
+            ):
+                break
+
+            next_end_local = next_start_local + duration
+
             booking_clone = data.model_copy(
                 update={
-                    "start_time": current_start,
-                    "end_time": data.end_time + delta,
+                    # Convert back to UTC for storage so UTC changes over DST while local stays constant
+                    "start_time": next_start_local.astimezone(timezone.utc),
+                    "end_time": next_end_local.astimezone(timezone.utc),
                 }
             )
             booking = create_new_room_booking(booking_clone, current_user, db)
             booking_list.append(booking)
-
-            delta += datetime.timedelta(days=data.recur_interval_days)
-            current_start = data.start_time + delta
             index += 1
 
     db.add_all(booking_list)
@@ -107,7 +124,7 @@ def get_room_bookings_between_times(db: DB_dependency, data: RoomBookingsBetween
     dependencies=[Permission.member()],
 )
 def get_bookings_by_room(room: ROOMS, db: DB_dependency):
-    bookings = db.query(RoomBooking_DB).filter(RoomBooking_DB.room == room)
+    bookings = db.query(RoomBooking_DB).filter(RoomBooking_DB.room == room).all()
     return bookings
 
 

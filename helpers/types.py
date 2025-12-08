@@ -58,6 +58,7 @@ PERMISSION_TARGET = Literal[
     "RoomBookings",
     "Moosegame",
     "MailAlias",
+    "GuildMeeting",
     "Tools",
     "ToolBookings",
 ]
