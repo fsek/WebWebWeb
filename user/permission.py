@@ -33,6 +33,20 @@ class Permission:
         return Depends(dependency)
 
     @classmethod
+    def verified(cls):
+        # Use this dependency for routes that all verified users should access
+        def dependency(user: User_DB | None = Depends(current_verified_user)):
+            if user is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+
+            if not user.is_verified:
+                raise HTTPException(status.HTTP_403_FORBIDDEN)
+
+            return user
+
+        return Depends(dependency)
+
+    @classmethod
     def member(cls):
         # Use this dependency for routes that only members should access
         # Do not use if you want to also allow users without accounts, see check_member
