@@ -10,10 +10,9 @@ from db_models.post_model import Post_DB
 
 
 def check_stil_id(s: str) -> bool:
-    if not len(s) == 10:
-        return False
-    pattern = r"^[a-z]{2}\d{4}[a-z]{2}-s$"
-    return bool(re.fullmatch(pattern, s))
+    pattern1 = r"^[a-z]{2}\d{4}[a-z]{2}-s$"   # current format: ab1234cd-s
+    pattern2 = r"^[a-z]{3}\d{2}[a-z]{3}$"     # old format:     abc12def
+    return bool(re.fullmatch(pattern1, s) or re.fullmatch(pattern2, s))
 
 
 def condition(model, asset):
