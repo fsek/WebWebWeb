@@ -176,10 +176,6 @@ def booking_update(
     else:
         booking_confirmed = car_booking.confirmed
 
-    # Automagically assume the user wants the booking confirmed, they should not have manual control unlike admins
-    if not manage_permission and booking_confirmed == False:
-        booking_confirmed = True
-
     # only check for illegal overlap if new times are provided
     # also unconfirms bookings that now fall outside of school hours
     if data.start_time is not None or data.end_time is not None:
