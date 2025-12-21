@@ -200,7 +200,7 @@ def booking_update(
         if booking_overlaps:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking overlaps with another booking.")
 
-    if not manage_permission:
+    if not manage_permission and data.personal:
         # Unconfirm booking between 17:00 and 08:00
         if data.start_time is not None:
             if data.start_time.hour < 8 or data.start_time.hour >= 17:
