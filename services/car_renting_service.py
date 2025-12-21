@@ -181,6 +181,7 @@ def booking_update(
         booking_confirmed = True
 
     # only check for illegal overlap if new times are provided
+    # also unconfirms bookings that now fall outside of school hours
     if data.start_time is not None or data.end_time is not None:
         # Use new values if provided, otherwise use existing values
         check_start_time = data.start_time if data.start_time is not None else car_booking.start_time
@@ -200,7 +201,7 @@ def booking_update(
         if booking_overlaps:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking overlaps with another booking.")
 
-    if not manage_permission and data.personal:
+    if not manage_permission and (data.personal or data.personal is None and car_booking.personal):
         # Unconfirm booking between 17:00 and 08:00
         if data.start_time is not None:
             if data.start_time.hour < 8 or data.start_time.hour >= 17:
@@ -226,7 +227,7 @@ def booking_update(
 
     # Disallow regular users from booking cars for other councils
     if not manage_permission and data.council_id is not None:
-        if data.council_id not in [post.council_id for post in current_user.posts]:
+        if data.council_id not in [post.council_id for post in current_user.posts]:S
             raise HTTPException(
                 status.HTTP_403_FORBIDDEN, detail="You do not have permission to book cars for this council."
             )
