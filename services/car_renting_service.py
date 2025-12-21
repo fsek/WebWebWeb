@@ -218,7 +218,7 @@ def booking_update(
 
     # Disallow regular users from booking cars for other councils
     if not manage_permission and data.council_id is not None:
-        if data.council_id not in [post.council_id for post in current_user.posts]:S
+        if data.council_id not in [post.council_id for post in current_user.posts]:
             raise HTTPException(
                 status.HTTP_403_FORBIDDEN, detail="You do not have permission to book cars for this council."
             )
