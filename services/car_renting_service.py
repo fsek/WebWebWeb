@@ -201,19 +201,19 @@ def booking_update(
         if booking_overlaps:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking overlaps with another booking.")
 
-    if not manage_permission and (data.personal or data.personal is None and car_booking.personal):
-        # Unconfirm booking between 17:00 and 08:00
-        if data.start_time is not None:
-            if data.start_time.hour < 8 or data.start_time.hour >= 17:
-                booking_confirmed = False
-            # Unconfirm booking on weekends
-            if data.start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
-                booking_confirmed = False
-        if data.end_time is not None:
-            if data.end_time.hour < 8 or data.end_time.hour >= 17:
-                booking_confirmed = False
-            if data.end_time.weekday() >= 5:
-                booking_confirmed = False
+        if not manage_permission and (data.personal or data.personal is None and car_booking.personal):
+            # Unconfirm booking between 17:00 and 08:00
+            if data.start_time is not None:
+                if data.start_time.hour < 8 or data.start_time.hour >= 17:
+                    booking_confirmed = False
+                # Unconfirm booking on weekends
+                if data.start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
+                    booking_confirmed = False
+            if data.end_time is not None:
+                if data.end_time.hour < 8 or data.end_time.hour >= 17:
+                    booking_confirmed = False
+                if data.end_time.weekday() >= 5:
+                    booking_confirmed = False
 
     # Remove council_id if personal booking
     if data.personal and data.council_id is not None:
