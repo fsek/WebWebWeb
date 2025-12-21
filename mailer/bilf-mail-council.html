@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Ny kollegie-bilbokning {{ booking.date }}</title>
+</head>
+<body style="font-family: sans-serif; color: #333; line-height: 1.5; margin:0; padding:0;">
+  <div style="text-align: center; padding: 10px; background-color: #f5f5f5; font-size: 14px; color: #666;">
+    This email is available in Swedish above and English below / Detta mail finns på svenska ovan och engelska nedan
+  </div>
+
+  <!-- Swedish Version -->
+  <!-- Header -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FF6600;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <img src="https://i.imgur.com/vajEXHm.png" alt="F-sektionen ikon" width="80"
+          style="display:block; height:auto; border:none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;">
+      </td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="20" cellspacing="0">
+    <tr>
+      <td align="center">
+        <p>Hej Bilf!,</p>
+        <p>En ny kollegie-bilbokning har gjorts!</p>
+        <p>F-älgen är bokad av {{ booking.name }} från {{ booking.council }} den {{ booking.date }} klockan {{ booking.time }}. Detta bör hantera sig självt men vi tänkte att du kanske vill veta./p>
+        <p>Med Vänliga hälsningar,<br>
+          De små tomtarna som sitter i sektionens SMTP-server och matar brevduvorna</p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Separator -->
+  <div style="height: 40px; background-color: #f5f5f5; border-top: 2px solid #ddd; border-bottom: 2px solid #ddd;"></div>
+
+  <!-- English Version -->
+  <!-- Header -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FF6600;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <img src="https://i.imgur.com/vajEXHm.png" alt="F-sektionen icon" width="80"
+          style="display:block; height:auto; border:none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;">
+      </td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="20" cellspacing="0">
+    <tr>
+      <td align="center">
+        <p>Hello BilF!,</p>
+        <p>A new council booking has been made!</p>
+        <p>The car is booked by {{ booking.name }} from {{ booking.council }} on {{ booking.date }} at {{ booking.time}}. It should handle itself but we though you migh want to know.</p>
+        <p>Best regards,<br>
+          The little gnomes that inhabit the guilds SMTP server and feed the carrier pidgeons</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
