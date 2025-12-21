@@ -107,15 +107,19 @@ def create_new_booking(
     if data.start_time < datetime.now(UTC):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking start time cannot be in the past.")
 
-    if not manage_permission:
-        # Unconfirm booking between 17:00 and 08:00
-        if data.start_time.hour < 8 or data.start_time.hour >= 17:
-            booking_confirmed = False
-        if data.end_time.hour < 8 or data.end_time.hour >= 17:
-            booking_confirmed = False
-        # Unconfirm booking on weekends
-        if data.start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
-            booking_confirmed = False
+    # if not manage_permission:
+    #     # Unconfirm booking between 17:00 and 08:00
+    #     if data.start_time.hour < 8 or data.start_time.hour >= 17:
+    #         booking_confirmed = False
+    #     if data.end_time.hour < 8 or data.end_time.hour >= 17:
+    #         booking_confirmed = False
+    #     # Unconfirm booking on weekends
+    #     if data.start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
+    #         booking_confirmed = False
+
+    # Unconfirm personal bookings /Vic, BilF 25/26
+    if not manage_permission and data.personal:
+        booking_confirmed = False
 
     # Require council_id if not personal booking
     if not data.personal and data.council_id is None:
