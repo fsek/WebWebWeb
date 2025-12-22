@@ -30,10 +30,10 @@ def patch_booking(client, token, booking_id, **kwargs):
     return client.patch(f"/car/{booking_id}", json=kwargs, headers=auth_headers(token))
 
 
-def test_admin_autoconfirm(client, admin_token, admin_council_id):
+def test_admin_autoconfirm_council(client, admin_token, admin_council_id):
     start = stockholm_dt(2030, 1, 8, 10)  # Tuesday
     end = stockholm_dt(2030, 1, 8, 12)
-    resp = create_booking(client, admin_token, start, end, "admin booking", council_id=admin_council_id, personal=True)
+    resp = create_booking(client, admin_token, start, end, "admin booking", council_id=admin_council_id)
     assert resp.status_code in (200, 201)
     data = resp.json()
     assert "confirmed" in data
@@ -59,7 +59,36 @@ def test_admin_autoconfirm(client, admin_token, admin_council_id):
     assert resp4.json()["confirmed"] is True
 
 
-def test_user_autoconfirm(client, member_token, member_council_id):
+def test_admin_autoconfirm_personal(client, admin_token, admin_council_id):
+    start = stockholm_dt(2030, 1, 8, 10)  # Tuesday
+    end = stockholm_dt(2030, 1, 8, 12)
+    resp = create_booking(client, admin_token, start, end, "admin booking", personal=True)
+    assert resp.status_code in (200, 201)
+    data = resp.json()
+    assert "confirmed" in data
+    assert "booking_id" in data
+    assert data["confirmed"] is True
+
+    start = stockholm_dt(2030, 1, 8, 6)  # Before office hours
+    end = stockholm_dt(2030, 1, 8, 7)
+    resp2 = create_booking(client, admin_token, start, end, "early booking", personal=True)
+    assert resp2.status_code in (200, 201)
+    assert resp2.json()["confirmed"] is True
+
+    start = stockholm_dt(2030, 1, 8, 18)  # After office hours
+    end = stockholm_dt(2030, 1, 8, 19)
+    resp3 = create_booking(client, admin_token, start, end, "late booking", personal=True)
+    assert resp3.status_code in (200, 201)
+    assert resp3.json()["confirmed"] is True
+
+    start = stockholm_dt(2030, 1, 12, 10)  # Saturday
+    end = stockholm_dt(2030, 1, 12, 12)
+    resp4 = create_booking(client, admin_token, start, end, "weekend booking", personal=True)
+    assert resp4.status_code in (200, 201)
+    assert resp4.json()["confirmed"] is True
+
+
+def test_user_autoconfirm_council(client, member_token, member_council_id):
     # Book inside hours
     start = stockholm_dt(2030, 1, 8, 10)
     end = stockholm_dt(2030, 1, 8, 12)
@@ -67,28 +96,26 @@ def test_user_autoconfirm(client, member_token, member_council_id):
     assert resp.status_code in (200, 201)
     assert resp.json()["confirmed"] is True
 
-
-def test_user_autounconfirm_outside_hours(client, member_token, member_council_id):
-    # Before 08:00
-    start = stockholm_dt(2030, 1, 8, 7)
-    end = stockholm_dt(2030, 1, 8, 9)
-    resp = create_booking(client, member_token, start, end, "early booking", council_id=member_council_id)
-    assert resp.status_code in (200, 201)
-    assert resp.json()["confirmed"] is False
-
-    # After 17:00
-    start = stockholm_dt(2030, 1, 8, 18)
-    end = stockholm_dt(2030, 1, 8, 19)
-    resp = create_booking(client, member_token, start, end, "late booking", council_id=member_council_id)
-    assert resp.status_code in (200, 201)
-    assert resp.json()["confirmed"] is False
-
-
-def test_user_autounconfirm_weekend(client, member_token, member_council_id):
     # Saturday
     start = stockholm_dt(2030, 1, 12, 10)
     end = stockholm_dt(2030, 1, 12, 12)
-    resp = create_booking(client, member_token, start, end, "weekend booking", council_id=member_council_id)
+    resp = create_booking(client, member_token, start, end, "personal booking", council_id=member_council_id)
+    assert resp.status_code in (200, 201)
+    assert resp.json()["confirmed"] is True
+
+
+def test_user_autounconfirm_personal(client, member_token, member_council_id):
+    # Book inside hours
+    start = stockholm_dt(2030, 1, 8, 10)
+    end = stockholm_dt(2030, 1, 8, 12)
+    resp = create_booking(client, member_token, start, end, "user booking", personal=True)
+    assert resp.status_code in (200, 201)
+    assert resp.json()["confirmed"] is False
+
+    # Saturday
+    start = stockholm_dt(2030, 1, 12, 10)
+    end = stockholm_dt(2030, 1, 12, 12)
+    resp = create_booking(client, member_token, start, end, "personal booking", personal=True)
     assert resp.status_code in (200, 201)
     assert resp.json()["confirmed"] is False
 
@@ -112,17 +139,74 @@ def test_admin_can_confirm_unconfirm(client, admin_token, admin_council_id):
     assert resp3.json()["confirmed"] is True
 
 
-def test_user_edit_autounconfirm(client, member_token, member_council_id):
+def test_user_edit_autounconfirm_council(client, member_token, member_council_id):
     # User books inside hours
     start = stockholm_dt(2030, 1, 10, 10)
     end = stockholm_dt(2030, 1, 10, 12)
     resp = create_booking(client, member_token, start, end, "user booking", council_id=member_council_id)
     booking_id = resp.json()["booking_id"]
+    assert resp.json()["confirmed"] is True
+
+    # Try to edit to outside hours, should stay confirmed
+    new_end = stockholm_dt(2030, 1, 10, 18)
+    resp3 = patch_booking(client, member_token, booking_id, end_time=new_end.isoformat())
+    assert resp3.status_code == 200
+    assert resp3.json()["confirmed"] is True
+
+
+def test_user_edit_autounconfirm_personal(client, member_token, member_council_id):
+    # User books inside hours
+    start = stockholm_dt(2030, 1, 10, 10)
+    end = stockholm_dt(2030, 1, 10, 12)
+    resp = create_booking(client, member_token, start, end, "user booking", personal=True)
+    booking_id = resp.json()["booking_id"]
+    assert resp.json()["confirmed"] is False
+
+    # Admin confirms
+    resp2 = patch_booking(client, member_token, booking_id, confirmed=True)
+    assert resp2.json()["confirmed"] is True
+
     # Try to edit to outside hours
     new_end = stockholm_dt(2030, 1, 10, 18)
-    resp2 = patch_booking(client, member_token, booking_id, end_time=new_end.isoformat())
-    assert resp2.status_code == 200
-    assert resp2.json()["confirmed"] is False
+    resp3 = patch_booking(client, member_token, booking_id, end_time=new_end.isoformat())
+    assert resp3.status_code == 200
+    assert resp3.json()["confirmed"] is False
+
+
+def test_user_edit_keep_confirmed_in_hours(client, member_token, member_council_id):
+    # User books inside hours
+    start = stockholm_dt(2030, 1, 10, 10)
+    end = stockholm_dt(2030, 1, 10, 12)
+    resp = create_booking(client, member_token, start, end, "user booking", council_id=member_council_id, personal=True)
+    booking_id = resp.json()["booking_id"]
+
+    assert resp.json()["confirmed"] is False
+
+    # Admin confirms
+    resp2 = patch_booking(client, member_token, booking_id, confirmed=True)
+    assert resp2.json()["confirmed"] is True
+
+    # Try to edit, keep inside hours
+    new_end = stockholm_dt(2030, 1, 10, 16)
+    resp3 = patch_booking(client, member_token, booking_id, end_time=new_end.isoformat())
+    assert resp3.status_code == 200
+    assert resp3.json()["confirmed"] is True
+
+
+def test_user_edit_keep_unconfirmed_in_hours(client, member_token, member_council_id):
+    # User books inside hours
+    start = stockholm_dt(2030, 1, 10, 10)
+    end = stockholm_dt(2030, 1, 10, 12)
+    resp = create_booking(client, member_token, start, end, "user booking", council_id=member_council_id, personal=True)
+    booking_id = resp.json()["booking_id"]
+
+    assert resp.json()["confirmed"] is False
+
+    # Try to edit, keep inside hours, should remain unconfirmed
+    new_end = stockholm_dt(2030, 1, 10, 16)
+    resp3 = patch_booking(client, member_token, booking_id, end_time=new_end.isoformat())
+    assert resp3.status_code == 200
+    assert resp3.json()["confirmed"] is False
 
 
 def test_overlapping_bookings_not_allowed(client, member_token, member_council_id):
@@ -402,4 +486,3 @@ def test_admin_delete_any_booking(client, admin_token, member_token, member_coun
     # Admin should be able to delete the member's booking
     resp2 = client.delete(f"/car/{booking_id}", headers=auth_headers(admin_token))
     assert resp2.status_code in (200, 204)
-
