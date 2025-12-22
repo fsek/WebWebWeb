@@ -8,7 +8,7 @@ from db_models.car_booking_model import CarBooking_DB
 from mailer.mail_constants import (
     STANDARD_SENDER,
 )
-from mailer.mail_core import send_mail_to_adress
+from mailer.mail_core import send_mail_to_address
 
 
 def bilf_mailer(booking: CarBooking_DB) -> None:
@@ -47,4 +47,4 @@ def bilf_mailer(booking: CarBooking_DB) -> None:
     else:
         msg["Subject"] = "Ny kollegie-bilbokning / New council car booking"
 
-    send_mail_to_adress("bil@fsektionen.se", msg)
+    send_mail_to_address("bil@fsektionen.se", msg)

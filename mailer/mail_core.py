@@ -25,7 +25,7 @@ def send_mail(user: User_DB, msg: MIMEText):
         print(f"Failed to send email: {e}")
 
 
-def send_mail_to_adress(adress: EmailStr, msg: MIMEText):
+def send_mail_to_address(adress: EmailStr, msg: MIMEText):
     env = os.getenv("ENVIRONMENT")
 
     if env != "production" and env != "stage":
