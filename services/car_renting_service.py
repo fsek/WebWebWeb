@@ -9,6 +9,7 @@ from db_models.user_model import User_DB
 from db_models.car_booking_model import CarBooking_DB
 from datetime import UTC, datetime
 from db_models.car_block_model import CarBlock_DB
+from mailer import bilf_mailer
 
 
 def is_user_blocked(user_id: int, db: DB_dependency) -> bool:
@@ -149,6 +150,8 @@ def create_new_booking(
     )
     db.add(db_booking)
     db.commit()
+
+    bilf_mailer.bilf_mailer(db_booking)
 
     return db_booking
 
