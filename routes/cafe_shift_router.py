@@ -20,7 +20,7 @@ from user.permission import Permission
 cafe_shift_router = APIRouter()
 
 
-@cafe_shift_router.get("/view-shifts", dependencies=[Permission.member()], response_model=list[CafeShiftRead])
+@cafe_shift_router.get("/view-shifts", dependencies=[Permission.verified()], response_model=list[CafeShiftRead])
 def view_all_shifts(db: DB_dependency):
     shifts = db.query(CafeShift_DB).all()
     return shifts
@@ -36,7 +36,7 @@ def admin_view_shift(shift_id: int, db: DB_dependency):
     return shift
 
 
-@cafe_shift_router.get("/{shift_id}", dependencies=[Permission.member()], response_model=CafeShiftRead)
+@cafe_shift_router.get("/{shift_id}", dependencies=[Permission.verified()], response_model=CafeShiftRead)
 def view_shift(shift_id: int, db: DB_dependency):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
@@ -45,7 +45,7 @@ def view_shift(shift_id: int, db: DB_dependency):
 
 
 # Var tvungen att göra en fuling och göra detta till en POST för att kunna skicka med en JSON body. Det var problem med att parsa datetimes om de skickades med som fält.
-@cafe_shift_router.post("/view-between-dates", dependencies=[Permission.member()], response_model=list[CafeShiftRead])
+@cafe_shift_router.post("/view-between-dates", dependencies=[Permission.verified()], response_model=list[CafeShiftRead])
 def view_shifts_between_dates(data: CafeViewBetweenDates, db: DB_dependency):
     shifts = (
         db.query(CafeShift_DB)
@@ -178,7 +178,7 @@ def update_shift(shift_id: int, data: CafeShiftUpdate, db: DB_dependency):
 
 
 @cafe_shift_router.patch("/sign-up/{shift_id}", response_model=CafeShiftRead)
-def signup_to_shift(shift_id: int, user: Annotated[User_DB, Permission.member()], db: DB_dependency):
+def signup_to_shift(shift_id: int, user: Annotated[User_DB, Permission.verified()], db: DB_dependency):
     shift = db.query(CafeShift_DB).filter_by(id=shift_id).one_or_none()
     if shift is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
@@ -194,7 +194,7 @@ def signup_to_shift(shift_id: int, user: Annotated[User_DB, Permission.member()]
 @cafe_shift_router.patch("/sign-off/{shift_id}", response_model=CafeShiftRead)
 def signoff_from_shift(
     shift_id: int,
-    user: Annotated[User_DB, Permission.member()],
+    user: Annotated[User_DB, Permission.verified()],
     manage_permission: Annotated[bool, Permission.check("manage", "Cafe")],
     db: DB_dependency,
 ):
