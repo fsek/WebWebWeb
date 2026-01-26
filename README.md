@@ -3,6 +3,18 @@
 This repo uses VSCode's Dev Containers extension to standardize the development environment and avoid headache-inducing installation. All development will happen inside a Docker container which installs the same dependencies and versions on every developer's machine.
 
 ## Installation
+
+You can either run the project locally or via Github codespaces. Since Github has way better servers than most of us and running our projects can be quite demanding for most computers, we recommend using codespaces. In either case, the actual experience when coding will be similar.
+
+### Using Codespaces
+
+1. Go to the main Github page and click the green "Code" button
+2. Go to the codespaces tab and create a new codespace
+3. Everything should set itself up automatically, wait until it says "your application running is available at...".
+4. If you want to get back to the codespace after closing it, go to the repository and once again click the green CODE button. It should show up in a list. You can also choose to open the codespace using vscode if you don't like the URL bar at the top, by clicking the three dots next to the codespace.
+
+### Running Locally
+
 0. Using Windows? First set up WSL 2.
     - Press Windows `⊞` -> "Turn Windows features on or off". Enable "Windows Subsystem for Linux", might need to enable "Virtual Machine Platform" also.
     - Open Powershell as admin.
@@ -48,4 +60,5 @@ Our project will need packages not native to Python. FastAPI is one such depende
 The file `requirements.txt` lists all pip packages and versions needed. 
 
 To add a new package, add a new line in `requirements.txt` specifiying package name and exact version. Then, in terminal, while in the `WebWebWeb` folder, run `pip install -r requirements.txt`.
+
 
