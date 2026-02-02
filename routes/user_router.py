@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Annotated, Optional
 from fastapi.responses import FileResponse
-from sqlalchemy import ColumnElement, and_, or_
+from sqlalchemy import ColumnElement, and_, or_, func
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from database import DB_dependency
 from db_models.user_model import User_DB
@@ -138,11 +138,14 @@ def search_users(
 ):
     users = db.query(User_DB)
 
+    # The idea is to not get one million results before you have even typed anything useful.
+    # However, in special cases with very short names you do get results if you type them excactly.
     if name:
         name_filters: list[ColumnElement[bool]] = []
         if len(name) < 3:
-            for term in name.split(" "):
-                name_filters.append(or_(User_DB.first_name == f"%{term}%", User_DB.last_name == f"%{term}%"))
+            name_filters.append(
+                or_(func.lower(User_DB.first_name) == name.lower(), func.lower(User_DB.last_name) == name.lower())
+            )
             users = users.filter(and_(*name_filters))
         else:
             for term in name.split(" "):
