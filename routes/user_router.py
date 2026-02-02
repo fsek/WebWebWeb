@@ -146,11 +146,10 @@ def search_users(
             name_filters.append(
                 or_(func.lower(User_DB.first_name) == name.lower(), func.lower(User_DB.last_name) == name.lower())
             )
-            users = users.filter(and_(*name_filters))
         else:
             for term in name.split(" "):
                 name_filters.append(or_(User_DB.first_name.ilike(f"%{term}%"), User_DB.last_name.ilike(f"%{term}%")))
-            users = users.filter(and_(*name_filters))
+        users = users.filter(and_(*name_filters))
 
     if program:
         users = users.filter_by(program=program)
