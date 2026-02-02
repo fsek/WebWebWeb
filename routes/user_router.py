@@ -139,6 +139,8 @@ def search_users(
     users = db.query(User_DB)
 
     if name:
+        if len(name) < 3:
+            raise HTTPException(400, "Too few characters, search string must be at least 3.")
         name_filters: list[ColumnElement[bool]] = []
         for term in name.split(" "):
             name_filters.append(or_(User_DB.first_name.ilike(f"%{term}%"), User_DB.last_name.ilike(f"%{term}%")))
