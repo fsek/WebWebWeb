@@ -12,6 +12,15 @@ class SongRead(BaseSchema):
     views: int
 
 
+class SongEdit(BaseSchema):
+    id: int
+    title: str
+    author: str | None
+    melody: str | None
+    content: str
+    category_id: int
+
+
 class SongCreate(BaseSchema):
     title: str
     author: str | None
