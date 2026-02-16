@@ -1,6 +1,10 @@
+from io import StringIO
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 from datetime import datetime, timezone
+
+from fastapi.responses import StreamingResponse
+import pandas as pd
 
 from api_schemas.candidate_schema import CandidateRead, CandidatePostRead
 from database import DB_dependency
@@ -40,6 +44,79 @@ def get_all_sub_election_candidates(sub_election_id: int, db: DB_dependency):
     candidates = db.query(Candidate_DB).filter(Candidate_DB.sub_election_id == sub_election_id).all()
 
     return candidates
+
+
+@candidate_router.get("/election/{election_id}/csv", dependencies=[Permission.require("view", "Election")])
+def get_all_election_candidations(election_id: int, db: DB_dependency):
+    election = db.query(Election_DB).filter(Election_DB.election_id == election_id).one_or_none()
+    if election is None:
+        return Response(status_code=404)
+
+    first_names: list[str] = []
+    last_names: list[str] = []
+    stil_ids: list[str | None] = []
+    emails: list[str] = []
+    post_names: list[str] = []
+
+    for se in election.sub_elections or []:
+        for c in se.candidations:
+            user = c.candidate.user
+            first_names.append(user.first_name)
+            last_names.append(user.last_name)
+            stil_ids.append(user.stil_id)
+            emails.append(user.email)
+            post_names.append(c.post.name_sv)
+
+    d = {  # type: ignore
+        "Förnamn": first_names,
+        "Efternamn": last_names,
+        "Stil-ID": stil_ids,
+        "Mailadress": emails,
+        "Post": post_names,
+    }
+
+    df = pd.DataFrame(data=d)
+    csv_file = StringIO()
+    df.to_csv(csv_file, index=False)
+    response = StreamingResponse(iter([csv_file.getvalue()]), media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=candidations.csv"
+    return response
+
+
+@candidate_router.get("/sub-election/{sub_election_id}/csv", dependencies=[Permission.require("view", "Election")])
+def get_all_sub_election_candidations(sub_election_id: int, db: DB_dependency):
+    sub_election = db.query(SubElection_DB).filter(SubElection_DB.sub_election_id == sub_election_id).one_or_none()
+    if sub_election is None:
+        return Response(status_code=404)
+
+    first_names: list[str] = []
+    last_names: list[str] = []
+    stil_ids: list[str | None] = []
+    emails: list[str] = []
+    post_names: list[str] = []
+
+    for c in sub_election.candidations:
+        user = c.candidate.user
+        first_names.append(user.first_name)
+        last_names.append(user.last_name)
+        stil_ids.append(user.stil_id)
+        emails.append(user.email)
+        post_names.append(c.post.name_sv)
+
+    d = {  # type: ignore
+        "Förnamn": first_names,
+        "Efternamn": last_names,
+        "Stil-ID": stil_ids,
+        "E-post": emails,
+        "Post": post_names,
+    }
+
+    df = pd.DataFrame(data=d)
+    csv_file = StringIO()
+    df.to_csv(csv_file, index=False)
+    response = StreamingResponse(iter([csv_file.getvalue()]), media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=candidations.csv"
+    return response
 
 
 @candidate_router.get(
