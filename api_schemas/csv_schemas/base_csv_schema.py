@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, AliasPath, BaseModel, ConfigDict, Field
 
 
 class BaseCsvSchema(BaseModel):
@@ -9,5 +9,5 @@ class BaseCsvSchema(BaseModel):
     __column_order__: Annotated[list[str] | None, Field(exclude=True)] = None
 
 
-def CsvField(name: str | None = None, exclude: bool = False):
-    return Field(serialization_alias=name, exclude=exclude)
+def CsvField(name: str | None = None, from_path: str | AliasPath | AliasChoices | None = None, exclude: bool = False):
+    return Field(serialization_alias=name, validation_alias=from_path, exclude=exclude)

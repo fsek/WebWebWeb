@@ -54,16 +54,7 @@ def get_all_sub_election_candidations(sub_election_id: int, db: DB_dependency):
     factory: CsvResponseFactory[CandidatesCsvSchema] = CsvResponseFactory()
 
     for c in sub_election.candidations:
-        user = c.candidate.user
-
-        row = CandidatesCsvSchema(
-            first_name=user.first_name,
-            last_name=user.last_name,
-            stil_id=user.stil_id,
-            email=user.email,
-            post_name=c.post.name_sv,
-            council_name=c.post.council.name_sv,
-        )
+        row = CandidatesCsvSchema.model_validate(c)
         factory.append(row)
 
     return factory.to_response("candidations.csv")
