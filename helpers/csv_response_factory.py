@@ -13,19 +13,17 @@ T = TypeVar("T", bound=BaseCsvSchema)
 class CsvResponseFactory(Generic[T]):
     def __init__(self) -> None:
         self.__columns: dict[str, list[str]] = {}
-        self.__length = 0
+        self.__headers_initialized = False
 
     def append(self, row: T) -> None:
-        if self.__length == 0:
-            self.__pre_append_first(row)
+        if not self.__headers_initialized:
+            self.__initialize_headers(row)
 
         dump = row.model_dump(by_alias=True)
-        for k, v in dump.items():
-            self.__columns[k].append(str(v))
+        for k in self.__columns.keys():
+            self.__columns[k].append(str(dump[k]))
 
-        self.__length += 1
-
-    def __pre_append_first(self, row: T) -> None:
+    def __initialize_headers(self, row: T) -> None:
         model_fields = {
             k: v.serialization_alias or v.alias or k
             for k, v in filter(lambda t: not t[1].exclude, row.model_fields.items())
@@ -40,6 +38,8 @@ class CsvResponseFactory(Generic[T]):
         for c in order:
             self.__columns[mappings[c]] = []
 
+        self.__headers_initialized = True
+
     def to_csv(self) -> StringIO:
         df = pd.DataFrame(data=self.__columns)
         csv_file = StringIO()
@@ -49,5 +49,5 @@ class CsvResponseFactory(Generic[T]):
     def to_response(self, filename: str = "data.csv") -> StreamingResponse:
         csv_file = self.to_csv()
         response = StreamingResponse(iter([csv_file.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = "attachment; filename={filename}"
+        response.headers["Content-Disposition"] = f"attachment; filename={filename}"
         return response
