@@ -1,4 +1,4 @@
-from pydantic import AliasPath, computed_field
+from pydantic import AliasPath, computed_field, field_validator, validator
 from api_schemas.csv_schemas.base_csv_schema import BaseCsvSchema, CsvField
 from helpers.types import DRINK_PACKAGES
 
@@ -24,7 +24,7 @@ class EventUserCsvSchema(BaseCsvSchema):
         from_path=AliasPath("user", "standard_food_preferences"), exclude=True
     )
     other_food_preferences: str | None = CsvField(from_path=AliasPath("user", "other_food_preferences"), exclude=True)
-    drinkPackage: DRINK_PACKAGES = CsvField("Dryckespaket")
+    drinkPackage: str = CsvField("Dryckespaket")
     group_name: str | None = CsvField("Grupp")
     priority: str = CsvField("Prioritet")
 
@@ -43,3 +43,16 @@ class EventUserCsvSchema(BaseCsvSchema):
             res.append(self.other_food_preferences)
 
         return ", ".join(res)
+
+    @field_validator("drinkPackage", mode="before")
+    @classmethod
+    def validate_drink_package(cls, value: DRINK_PACKAGES) -> str:
+        match value:
+            case "Alcohol":
+                return "Alkohol"
+            case "AlcoholFree":
+                return "Alkoholfritt"
+            case "None":
+                return "Inget"
+            case _:
+                return value
