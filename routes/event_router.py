@@ -3,7 +3,7 @@ import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse
 from psycopg import IntegrityError
-from api_schemas.csv_schemas.event_csv_schema import EventCsvSchema
+from api_schemas.csv_schemas.event_user_csv_schema import EventUserCsvSchema
 from api_schemas.event_signup_schemas import EventSignupRead
 from api_schemas.tag_schema import EventTagRead
 from database import DB_dependency
@@ -330,11 +330,11 @@ def get_event_csv(db: DB_dependency, event_id: int):
     event_users = event.event_users
     event_users.sort(key=lambda e_user: e_user.user.last_name)
 
-    factory: CsvResponseFactory[EventCsvSchema] = CsvResponseFactory()
+    factory: CsvResponseFactory[EventUserCsvSchema] = CsvResponseFactory()
 
     for event_user in event_users:
         if event_user.confirmed_status is True:
-            row = EventCsvSchema.model_validate(event_user)
+            row = EventUserCsvSchema.model_validate(event_user)
             factory.append(row)
 
     return factory.to_response("event.csv")

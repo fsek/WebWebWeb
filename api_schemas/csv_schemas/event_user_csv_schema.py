@@ -3,7 +3,7 @@ from api_schemas.csv_schemas.base_csv_schema import BaseCsvSchema, CsvField
 from helpers.types import DRINK_PACKAGES
 
 
-class EventCsvSchema(BaseCsvSchema):
+class EventUserCsvSchema(BaseCsvSchema):
     __column_order__ = [
         "stil_id",
         "last_name",
