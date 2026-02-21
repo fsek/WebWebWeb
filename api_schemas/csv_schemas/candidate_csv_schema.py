@@ -8,7 +8,7 @@ class CandidatesCsvSchema(BaseCsvSchema):
     first_name: str = CsvField("Förnamn", from_path=AliasPath("candidate", "user", "first_name"))
     last_name: str = CsvField("Efternamn", from_path=AliasPath("candidate", "user", "last_name"))
     stil_id: str | None = CsvField("Stil-ID", from_path=AliasPath("candidate", "user", "stil_id"))
-    email: str = CsvField("E-postadress", from_path=AliasPath("candidate", "user", "email"))
+    email: str = CsvField("E-post", from_path=AliasPath("candidate", "user", "email"))
     post_name: str = CsvField("Post", from_path=AliasPath("post", "name_sv"))
     council_name: str = CsvField("Utskott", from_path=AliasPath("post", "council", "name_sv"))
 

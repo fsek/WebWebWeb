@@ -4,6 +4,7 @@ import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse, StreamingResponse
 from psycopg import IntegrityError
+from api_schemas.csv_schemas.event_csv_schema import EventCsvSchema
 from api_schemas.event_signup_schemas import EventSignupRead
 from api_schemas.tag_schema import EventTagRead
 from database import DB_dependency
@@ -12,6 +13,7 @@ from api_schemas.event_schemas import AddEventTag, EventCreate, EventRead, Event
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from db_models.event_tag_model import EventTag_DB
+from helpers.csv_response_factory import CsvResponseFactory
 from helpers.image_checker import validate_image
 from db_models.post_model import Post_DB
 from services.event_service import create_new_event, delete_event, update_event
@@ -330,46 +332,11 @@ def get_event_csv(db: DB_dependency, event_id: int):
     event_users = event.event_users
     event_users.sort(key=lambda e_user: e_user.user.last_name)
 
-    names: list[str] = []
-    telephone_numbers: list[str] = []
-    email_addresses: list[str] = []
-    food_preferences: list[str] = []
-    drink_packages: list[str] = []
-    groups: list[str] = []
-    priorities: list[str] = []
+    factory: CsvResponseFactory[EventCsvSchema] = CsvResponseFactory()
 
     for event_user in event_users:
         if event_user.confirmed_status is True:
-            user = event_user.user
-            names.append(f"{user.first_name} {user.last_name}")
-            telephone_numbers.append(user.telephone_number)
-            email_addresses.append(user.email)
-            if user.standard_food_preferences and user.other_food_preferences:
-                user_food_prefs = ", ".join(user.standard_food_preferences) + ", " + user.other_food_preferences
-            elif user.standard_food_preferences:
-                user_food_prefs = ", ".join(user.standard_food_preferences)
-            elif user.other_food_preferences:
-                user_food_prefs = user.other_food_preferences
-            else:
-                user_food_prefs = ""
-            food_preferences.append(user_food_prefs)
-            drink_packages.append(event_user.drinkPackage or "None")
-            groups.append(event_user.group_name or "")
-            priorities.append(event_user.priority)
+            row = EventCsvSchema.model_validate(event_user)
+            factory.append(row)
 
-    d = {
-        "Namn": names,
-        "Telefonnummer": telephone_numbers,
-        "E-post": email_addresses,
-        "Matpreferens": food_preferences,
-        "Dryckespaket": drink_packages,
-        "Grupp": groups,
-        "Prioritet": priorities,
-    }
-
-    df = pd.DataFrame(data=d)
-    csv_file = StringIO()
-    df.to_csv(csv_file, index=False)
-    response = StreamingResponse(iter([csv_file.getvalue()]), media_type="text/csv")
-    response.headers["Content-Disposition"] = "attachment; filename=event.csv"
-    return response
+    return factory.to_response("event.csv")
