@@ -1,8 +1,7 @@
 from datetime import datetime
-from io import StringIO
 import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse
 from psycopg import IntegrityError
 from api_schemas.csv_schemas.event_csv_schema import EventCsvSchema
 from api_schemas.event_signup_schemas import EventSignupRead
@@ -22,8 +21,6 @@ import random
 from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
 from pathlib import Path
 
-
-import pandas as pd
 
 event_router = APIRouter()
 
@@ -322,7 +319,8 @@ def get_event_tags(db: DB_dependency, event_id: int):
     return event_tags
 
 
-@event_router.get("/get-event-csv/{event_id}", dependencies=[Permission.require("manage", "Event")])
+@event_router.get("/get-event-csv/{event_id}", dependencies=[Permission.require("manage", "Event")], deprecated=True)
+@event_router.get("/event-signups/confirmed/{event_id}/csv", dependencies=[Permission.require("manage", "Event")])
 def get_event_csv(db: DB_dependency, event_id: int):
     event = db.query(Event_DB).filter(Event_DB.id == event_id).one_or_none()
 
