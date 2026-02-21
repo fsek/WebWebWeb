@@ -22,7 +22,7 @@ class CsvResponseFactory(Generic[T]):
 
         dump = row.model_dump(by_alias=True)
         for k in self.__columns.keys():
-            self.__columns[k].append(str(dump[k] or self.none_str))
+            self.__columns[k].append(str(dump.get(k) or self.none_str))
 
     def __initialize_headers(self, row: T) -> None:
         model_fields = {
@@ -37,6 +37,8 @@ class CsvResponseFactory(Generic[T]):
             order = list(mappings.keys())
 
         for c in order:
+            if c not in mappings:
+                continue
             self.__columns[mappings[c]] = []
 
         self.__headers_initialized = True
