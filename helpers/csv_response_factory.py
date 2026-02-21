@@ -11,9 +11,10 @@ T = TypeVar("T", bound=BaseCsvSchema)
 
 
 class CsvResponseFactory(Generic[T]):
-    def __init__(self) -> None:
+    def __init__(self, none_str: str = "") -> None:
         self.__columns: dict[str, list[str]] = {}
         self.__headers_initialized = False
+        self.none_str = none_str
 
     def append(self, row: T) -> None:
         if not self.__headers_initialized:
@@ -21,7 +22,7 @@ class CsvResponseFactory(Generic[T]):
 
         dump = row.model_dump(by_alias=True)
         for k in self.__columns.keys():
-            self.__columns[k].append(str(dump[k]))
+            self.__columns[k].append(str(dump[k] or self.none_str))
 
     def __initialize_headers(self, row: T) -> None:
         model_fields = {
