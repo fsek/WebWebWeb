@@ -46,7 +46,7 @@ def get_all_sub_election_candidates(sub_election_id: int, db: DB_dependency):
 
 
 @candidate_router.get("/sub-election/{sub_election_id}/csv", dependencies=[Permission.require("view", "Election")])
-def get_all_sub_election_candidations(sub_election_id: int, db: DB_dependency):
+def get_all_sub_election_candidations_csv(sub_election_id: int, db: DB_dependency):
     sub_election = db.query(SubElection_DB).filter(SubElection_DB.sub_election_id == sub_election_id).one_or_none()
     if sub_election is None:
         raise HTTPException(404, detail="Sub election not found")
