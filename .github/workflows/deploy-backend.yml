@@ -34,7 +34,7 @@ jobs:
         run: echo "target=${{ github.event.inputs.target }}" >> $GITHUB_OUTPUT
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
