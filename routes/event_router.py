@@ -319,7 +319,6 @@ def get_event_tags(db: DB_dependency, event_id: int):
     return event_tags
 
 
-@event_router.get("/get-event-csv/{event_id}", dependencies=[Permission.require("manage", "Event")], deprecated=True)
 @event_router.get("/event-signups/confirmed/{event_id}/csv", dependencies=[Permission.require("manage", "Event")])
 def get_event_csv(db: DB_dependency, event_id: int):
     event = db.query(Event_DB).filter(Event_DB.id == event_id).one_or_none()
