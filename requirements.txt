@@ -11,7 +11,7 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 cryptography==42.0.1
-dnspython==2.5.0
+dnspython==2.8.0
 email-validator==2.1.0.post1
 fakeredis==2.31.0
 fastapi==0.115.0
