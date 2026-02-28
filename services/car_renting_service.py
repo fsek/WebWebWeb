@@ -1,3 +1,4 @@
+from zoneinfo import ZoneInfo
 from fastapi import HTTPException, status
 from api_schemas.car_booking_schema import CarBookingCreate, CarBookingUpdate
 from db_models.council_model import Council_DB
@@ -108,15 +109,9 @@ def create_new_booking(
     if data.start_time < datetime.now(UTC):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking start time cannot be in the past.")
 
-    if not manage_permission:
-        # Unconfirm booking between 17:00 and 08:00
-        if data.start_time.hour < 8 or data.start_time.hour >= 17:
-            booking_confirmed = False
-        if data.end_time.hour < 8 or data.end_time.hour >= 17:
-            booking_confirmed = False
-        # Unconfirm booking on weekends
-        if data.start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
-            booking_confirmed = False
+    # Unconfirm personal bookings /Vic, BilF 25/26
+    if not manage_permission and data.personal:
+        booking_confirmed = False
 
     # Require council_id if not personal booking
     if not data.personal and data.council_id is None:
@@ -175,10 +170,6 @@ def booking_update(
     else:
         booking_confirmed = car_booking.confirmed
 
-    # Automagically assume the user wants the booking confirmed, they should not have manual control unlike admins
-    if not manage_permission and booking_confirmed == False:
-        booking_confirmed = True
-
     # only check for illegal overlap if new times are provided
     if data.start_time is not None or data.end_time is not None:
         # Use new values if provided, otherwise use existing values
@@ -199,18 +190,24 @@ def booking_update(
         if booking_overlaps:
             raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking overlaps with another booking.")
 
-    if not manage_permission:
+    # unconfirms personal bookings that now fall outside of school hours
+    if not manage_permission and (data.personal or data.personal is None and car_booking.personal):
+
+        stockholm_tz = ZoneInfo("Europe/Stockholm")
+
         # Unconfirm booking between 17:00 and 08:00
         if data.start_time is not None:
-            if data.start_time.hour < 8 or data.start_time.hour >= 17:
+            sthlm_start_time = data.start_time.astimezone(stockholm_tz)
+            if sthlm_start_time.hour < 8 or sthlm_start_time.hour >= 17:
                 booking_confirmed = False
             # Unconfirm booking on weekends
-            if data.start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
+            if sthlm_start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
                 booking_confirmed = False
         if data.end_time is not None:
-            if data.end_time.hour < 8 or data.end_time.hour >= 17:
+            sthlm_end_time = data.end_time.astimezone(stockholm_tz)
+            if sthlm_end_time.hour < 8 or sthlm_end_time.hour >= 17:
                 booking_confirmed = False
-            if data.end_time.weekday() >= 5:
+            if sthlm_end_time.weekday() >= 5:
                 booking_confirmed = False
 
     # Remove council_id if personal booking
