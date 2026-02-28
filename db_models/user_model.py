@@ -19,6 +19,7 @@ import datetime
 from helpers.types import datetime_utc
 from .ad_model import BookAd_DB
 from .car_booking_model import CarBooking_DB
+from .tool_booking_model import ToolBooking_DB
 from helpers.types import datetime_utc
 
 if TYPE_CHECKING:
@@ -29,6 +30,7 @@ if TYPE_CHECKING:
     from .news_model import News_DB
     from .ad_model import BookAd_DB
     from .cafe_shift_model import CafeShift_DB
+    from .tool_booking_model import ToolBooking_DB
 
 
 # called by SQLAlchemy when user.posts.append(some_post)
@@ -90,6 +92,10 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
     )
 
     cafe_shifts: Mapped[list["CafeShift_DB"]] = relationship(back_populates="user", init=False)
+
+    tool_bookings: Mapped[list["ToolBooking_DB"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True, init=False
+    )
 
     accesses: Mapped[list["UserDoorAccess_DB"]] = relationship(
         back_populates="user", cascade="all, delete-orphan", init=False
