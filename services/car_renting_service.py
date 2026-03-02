@@ -149,9 +149,10 @@ def create_new_booking(
         council_id=data.council_id,
     )
     db.add(db_booking)
-    db.commit()
 
     bilf_mailer.bilf_mailer(db_booking)
+
+    db.commit()
 
     return db_booking
 
