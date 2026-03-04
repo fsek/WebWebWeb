@@ -150,6 +150,8 @@ def create_new_booking(
     )
     db.add(db_booking)
 
+    db.flush()
+
     bilf_mailer.bilf_mailer(db_booking)
 
     db.commit()
