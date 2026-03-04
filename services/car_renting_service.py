@@ -154,8 +154,6 @@ def create_new_booking(
 
     db.commit()
 
-    bilf_mailer.bilf_mailer(db_booking)
-
     return db_booking
 
 
