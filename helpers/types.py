@@ -108,3 +108,6 @@ POST_ELECTION_SEMESTERS = Literal["HT", "VT", "HT and VT", "Other"]
 ELECTION_ELECTORS = Literal["Guild", "Board", "Educational Council", "Board Intermediate", "Other"]
 
 ELECTION_SEMESTERS = Literal["HT", "VT", "Other"]
+
+# Course document categories, shown under different titles on the frontend
+COURSE_DOCUMENT_CATEGORIES = Literal["Notes", "Summary", "Solutions", "Other"]
