@@ -4,6 +4,8 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import TYPE_CHECKING, Optional
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
+from helpers.types import datetime_utc
+from helpers.db_util import latest_modified_column
 
 if TYPE_CHECKING:
     from .associated_img_model import AssociatedImg_DB
@@ -21,7 +23,7 @@ class Course_DB(BaseModel_DB):
 
     title: Mapped[str] = mapped_column(String(MAX_COURSE_TITLE))
 
-    course_code: Mapped[Optional[str]] = mapped_column(String(MAX_COURSE_CODE), default=None)
+    course_code: Mapped[Optional[str]] = mapped_column(String(MAX_COURSE_CODE), default=None, unique=True)
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_COURSE_DESC), default=None)
 
@@ -48,3 +50,5 @@ class Course_DB(BaseModel_DB):
     documents: Mapped[list["CourseDocument_DB"]] = relationship(
         back_populates="course", cascade="all, delete-orphan", init=False
     )
+
+    updated_at: Mapped[datetime_utc] = latest_modified_column()
