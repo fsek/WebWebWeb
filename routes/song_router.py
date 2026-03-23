@@ -31,7 +31,7 @@ def get_song(song_id: int, db: DB_dependency):
 def create_song(song_data: SongCreate, db: DB_dependency):
     num_existing = db.query(Song_DB).filter(Song_DB.title == song_data.title).count()
     if num_existing > 0:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Ths post already exists")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This song already exists")
     song = Song_DB(
         title=song_data.title,
         author=song_data.author,
