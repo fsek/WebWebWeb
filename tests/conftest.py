@@ -23,6 +23,7 @@ TEST_REDIS_URL = os.environ.setdefault("TEST_REDIS_URL", "redis://localhost:6379
 
 # Set file storage path for pytest
 os.environ["DOCUMENT_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/documents"
+os.environ["COURSE_DOCUMENT_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/course_documents"
 os.environ["ALBUM_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/albums"
 os.environ["ASSETS_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/assets"
 

@@ -9,3 +9,7 @@ class AssociatedImgRead(BaseSchema):
 
 class AssociatedImgCreate(BaseSchema):
     file: UploadFile
+    program_id: int | None = None
+    program_year_id: int | None = None
+    course_id: int | None = None
+    specialisation_id: int | None = None

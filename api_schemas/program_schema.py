@@ -1,5 +1,4 @@
 from typing import Annotated
-from fastapi import UploadFile
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_PROGRAM_DESC, MAX_PROGRAM_TITLE
@@ -23,12 +22,10 @@ class ProgramCreate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_TITLE)]
     description_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_DESC)] | None = None
-    img_file: UploadFile | None = None
 
 
 class ProgramUpdate(BaseSchema):
-    title_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_TITLE)] | None = None
-    title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_TITLE)] | None = None
+    title_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_TITLE)]
+    title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_TITLE)]
     description_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_DESC)] | None = None
-    img_file: UploadFile | None = None

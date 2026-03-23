@@ -3,7 +3,6 @@ from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from api_schemas.course_schema import CourseRead
 from helpers.constants import MAX_SPECIALISATION_DESC, MAX_SPECIALISATION_TITLE
-from fastapi import UploadFile
 
 
 class SpecialisationRead(BaseSchema):
@@ -23,13 +22,11 @@ class SpecialisationCreate(BaseSchema):
     program_id: int
     description_sv: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_DESC)] | None = None
-    img_file: UploadFile | None = None
 
 
 class SpecialisationUpdate(BaseSchema):
-    title_sv: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_TITLE)] | None = None
-    title_en: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_TITLE)] | None = None
-    program_id: int | None = None
+    title_sv: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_TITLE)]
+    title_en: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_TITLE)]
+    program_id: int
     description_sv: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_DESC)] | None = None
-    img_file: UploadFile | None = None

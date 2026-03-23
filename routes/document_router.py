@@ -5,14 +5,12 @@ from database import DB_dependency
 from db_models.document_model import Document_DB
 from api_schemas.document_schema import DocumentRead, DocumentCreate, DocumentUpdate, document_create_form
 from db_models.user_model import User_DB
-from helpers.constants import MAX_DOC_TITLE, MAX_FILE_SIZE_MB
-from helpers.pdf_checker import validate_pdf_header
 from user.permission import Permission
 from fastapi import File, UploadFile, HTTPException
 import os
 from fastapi.responses import FileResponse
-from helpers.db_util import sanitize_title
 from sqlalchemy.exc import IntegrityError
+from services.document_service import validate_file
 
 from pathlib import Path
 
@@ -36,39 +34,10 @@ async def upload_document(
     file: UploadFile = File(),
 ):
     base_path = os.getenv("DOCUMENT_BASE_PATH")
+    if base_path is None:
+        raise HTTPException(500, detail="Document base path is not configured")
 
-    await validate_pdf_header(file)
-
-    if file.filename is None:
-        raise HTTPException(400, detail="The file has no name")
-
-    filename, ext = os.path.splitext(str(file.filename))
-
-    sanitized_filename = sanitize_title(filename)
-
-    if len(sanitized_filename) > MAX_DOC_TITLE:
-        raise HTTPException(400, detail="The file name is too long")
-
-    allowed_exts = {".pdf"}
-
-    ext = ext.lower()
-
-    if ext not in allowed_exts:
-        raise HTTPException(400, "File extension not allowed")
-
-    if file.size is None:
-        raise HTTPException(400, detail="Could not determine file size")
-
-    if file.size > MAX_FILE_SIZE_MB * 1024 * 1024:
-        raise HTTPException(
-            400, detail=f"File size is too large! Compress the file to smaller than {MAX_FILE_SIZE_MB}MB"
-        )
-
-    file.filename = f"{sanitized_filename}{ext}"
-
-    file_path = Path(f"{base_path}/{sanitized_filename}{ext}")
-    if file_path.is_file():
-        raise HTTPException(409, detail="Filename is equal to already existing file")
+    sanitized_filename, ext, file_path = await validate_file(base_path, file)
 
     document = Document_DB(
         title=data.title,
@@ -168,10 +137,11 @@ def delete_document(document_id: int, db: DB_dependency):
     try:
         db.delete(document)
         db.commit()
+        # Only delete the file if the database deletion was successful
+        os.remove(f"{base_path}/{document.file_name}")
     except IntegrityError:
+        db.rollback()
         raise HTTPException(500, detail="Something went wrong trying to delete the document, contact the Webmasters")
-
-    os.remove(f"{base_path}/{document.file_name}")
 
     return document
 

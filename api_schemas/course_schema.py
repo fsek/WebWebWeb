@@ -31,15 +31,13 @@ class CourseCreate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_COURSE_TITLE)]
     course_code: Annotated[str, StringConstraints(max_length=MAX_COURSE_CODE)] | None = None
     description: Annotated[str, StringConstraints(max_length=MAX_COURSE_DESC)] | None = None
-    img_file: UploadFile | None = None
     program_year_ids: list[int] = []
     specialisation_ids: list[int] = []
 
 
 class CourseUpdate(BaseSchema):
-    title: Annotated[str, StringConstraints(max_length=MAX_COURSE_TITLE)] | None = None
+    title: Annotated[str, StringConstraints(max_length=MAX_COURSE_TITLE)]
     course_code: Annotated[str, StringConstraints(max_length=MAX_COURSE_CODE)] | None = None
     description: Annotated[str, StringConstraints(max_length=MAX_COURSE_DESC)] | None = None
-    img_file: UploadFile | None = None
-    program_year_ids: list[int] | None = None
-    specialisation_ids: list[int] | None = None
+    program_year_ids: list[int] = []
+    specialisation_ids: list[int] = []

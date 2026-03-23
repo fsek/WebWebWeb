@@ -31,6 +31,11 @@ from .access_serve_router import access_serve_router
 from .sub_election_router import sub_election_router
 from .nomination_router import nomination_router
 from .guild_meeting_router import guild_meeting_router
+from .program_router import program_router
+from .program_year_router import program_year_router
+from .specialisation_router import specialisation_router
+from .course_router import course_router
+from .course_document_router import course_document_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -94,3 +99,13 @@ main_router.include_router(sub_election_router, prefix="/sub-election", tags=["s
 main_router.include_router(nomination_router, prefix="/nominations", tags=["nominations"])
 
 main_router.include_router(guild_meeting_router, prefix="/guild-meeting", tags=["guild meeting"])
+
+main_router.include_router(program_router, prefix="/programs", tags=["programs"])
+
+main_router.include_router(program_year_router, prefix="/program-years", tags=["program years"])
+
+main_router.include_router(specialisation_router, prefix="/specialisations", tags=["specialisations"])
+
+main_router.include_router(course_router, prefix="/courses", tags=["courses"])
+
+main_router.include_router(course_document_router, prefix="/course-documents", tags=["course documents"])

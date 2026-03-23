@@ -1,5 +1,4 @@
 from typing import Annotated
-from fastapi import UploadFile
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from api_schemas.course_schema import CourseRead
@@ -23,13 +22,11 @@ class ProgramYearCreate(BaseSchema):
     program_id: int
     description_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_DESC)] | None = None
-    img_file: UploadFile | None = None
 
 
 class ProgramYearUpdate(BaseSchema):
-    title_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_TITLE)] | None = None
-    title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_TITLE)] | None = None
-    program_id: int | None = None
+    title_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_TITLE)]
+    title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_TITLE)]
+    program_id: int
     description_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_DESC)] | None = None
-    img_file: UploadFile | None = None

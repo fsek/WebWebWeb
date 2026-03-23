@@ -1,4 +1,5 @@
 from typing import Annotated
+from fastapi import UploadFile
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_COURSE_DOC_AUTHOR, MAX_COURSE_DOC_SUB_CATEGORY, MAX_DOC_FILE_NAME, MAX_DOC_TITLE
@@ -24,12 +25,12 @@ class CourseDocumentCreate(BaseSchema):
     author: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_AUTHOR)]
     category: COURSE_DOCUMENT_CATEGORIES = "Other"
     sub_category: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_SUB_CATEGORY)] | None = None
+    file: UploadFile
 
 
 class CourseDocumentUpdate(BaseSchema):
-    title: Annotated[str, StringConstraints(max_length=MAX_DOC_TITLE)] | None = None
-    file_name: Annotated[str, StringConstraints(max_length=MAX_DOC_FILE_NAME)] | None = None
-    course_id: int | None = None
-    author: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_AUTHOR)] | None = None
-    category: COURSE_DOCUMENT_CATEGORIES | None = None
+    title: Annotated[str, StringConstraints(max_length=MAX_DOC_TITLE)]
+    file_name: Annotated[str, StringConstraints(max_length=MAX_DOC_FILE_NAME)]
+    author: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_AUTHOR)]
+    category: COURSE_DOCUMENT_CATEGORIES = "Other"
     sub_category: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_SUB_CATEGORY)] | None = None
