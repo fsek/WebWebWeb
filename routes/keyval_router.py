@@ -54,3 +54,15 @@ def update_keyval(db: DB_dependency, key: str, data: KeyvalUpdate):
 
     db.commit()
     return keyval
+
+
+@keyval_router.delete("/{key}", response_model=KeyvalRead, dependencies=[Permission.require("manage", "Keyvals")])
+def delete_keyval(db: DB_dependency, key: str):
+    keyval = db.query(Keyval_DB).filter(Keyval_DB.key == key).one_or_none()
+
+    if keyval is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+
+    db.delete(keyval)
+    db.commit()
+    return keyval
