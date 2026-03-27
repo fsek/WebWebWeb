@@ -200,12 +200,26 @@ def booking_update(
             # Unconfirm booking on weekends
             if sthlm_start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
                 booking_confirmed = False
+            # Unconfirm large movements of times
+            if abs((data.start_time - car_booking.start_time).total_seconds()) >= 24 * 3600:  # 24h
+                booking_confirmed = False
         if data.end_time is not None:
             sthlm_end_time = data.end_time.astimezone(stockholm_tz)
             if sthlm_end_time.hour < 8 or sthlm_end_time.hour >= 17:
                 booking_confirmed = False
             if sthlm_end_time.weekday() >= 5:
                 booking_confirmed = False
+            if abs((data.end_time - car_booking.end_time).total_seconds()) >= 24 * 3600:  # 24h
+                booking_confirmed = False
+
+        # Unconfirm booking of > 24h, unless the previous was > 20h (allowing for a little bit of editing)
+        check_start_time = data.start_time if data.start_time is not None else car_booking.start_time
+        check_end_time = data.end_time if data.end_time is not None else car_booking.end_time
+
+        if (check_end_time - check_start_time).total_seconds() > 24 * 3600 and (
+            car_booking.end_time - car_booking.start_time
+        ).total_seconds() <= 20 * 3600:
+            booking_confirmed = False
 
     # Remove council_id if personal booking
     if data.personal and data.council_id is not None:
