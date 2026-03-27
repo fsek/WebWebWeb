@@ -193,6 +193,54 @@ def test_user_edit_keep_confirmed_in_hours(client, member_token, member_council_
     assert resp3.json()["confirmed"] is True
 
 
+# Test that movements larger than one week for a personal booking get unconfirmed
+def test_personal_booking_large_movement_unconfirms(client, member_token, member_council_id):
+    # User books inside hours
+    start = stockholm_dt(2030, 1, 10, 10)
+    end = stockholm_dt(2030, 1, 10, 12)
+    resp = create_booking(client, member_token, start, end, "user booking", council_id=member_council_id, personal=True)
+    booking_id = resp.json()["booking_id"]
+
+    assert resp.json()["confirmed"] is False
+
+    # Admin confirms
+    resp2 = patch_booking(client, member_token, booking_id, confirmed=True)
+    assert resp2.json()["confirmed"] is True
+
+    # Try to edit, move more than a week, should become unconfirmed
+    new_start = stockholm_dt(2030, 1, 17, 10)
+    new_end = stockholm_dt(2030, 1, 17, 12)
+    resp3 = patch_booking(
+        client, member_token, booking_id, end_time=new_end.isoformat(), start_time=new_start.isoformat()
+    )
+    assert resp3.status_code == 200
+    assert resp3.json()["confirmed"] is False
+
+
+# Test autounconfirm of multi day bookings
+def test_personal_booking_multi_day_unconfirms(client, member_token, member_council_id):
+    # User books inside hours
+    start = stockholm_dt(2030, 1, 10, 10)
+    end = stockholm_dt(2030, 1, 10, 12)
+    resp = create_booking(client, member_token, start, end, "user booking", council_id=member_council_id, personal=True)
+    booking_id = resp.json()["booking_id"]
+
+    assert resp.json()["confirmed"] is False
+
+    # Admin confirms
+    resp2 = patch_booking(client, member_token, booking_id, confirmed=True)
+    assert resp2.json()["confirmed"] is True
+
+    # Try to edit, really long booking, should unconfirm
+    new_start = stockholm_dt(2030, 1, 10, 10)
+    new_end = stockholm_dt(2030, 1, 11, 12)
+    resp3 = patch_booking(
+        client, member_token, booking_id, end_time=new_end.isoformat(), start_time=new_start.isoformat()
+    )
+    assert resp3.status_code == 200
+    assert resp3.json()["confirmed"] is False
+
+
 def test_user_edit_keep_unconfirmed_in_hours(client, member_token, member_council_id):
     # User books inside hours
     start = stockholm_dt(2030, 1, 10, 10)
