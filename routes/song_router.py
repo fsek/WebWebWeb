@@ -60,9 +60,12 @@ def update_song(song_id: int, song_data: SongCreate, db: DB_dependency):
     if song is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    # This does not allow one to "unset" values that could be null but aren't currently
+    # Allow for partial updates (kinda). We handle melody separately since we want to allow for None
     for var, value in vars(song_data).items():
-        setattr(song, var, value) if value else None
+        if value is not None:
+            setattr(song, var, value)
+        elif var == "melody":
+            setattr(song, var, None)
 
     db.commit()
     return song
