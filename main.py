@@ -48,18 +48,11 @@ async def lifespan(app: FastAPI):
 no_docs = os.getenv("ENVIRONMENT") == "production"
 
 dev_origins = [
-    "http://localhost",
-    "http://localhost:3000",
-    "http://127.0.0.1",
-    "http://127.0.0.1:3000",
+    "http://localhost",  # Idk if this is even needed
 ]
 
 stage_origins = [
     "https://stage.frontend.fsektionen.se",
-    "http://localhost",
-    "http://localhost:3000",
-    "http://127.0.0.1",
-    "http://127.0.0.1:3000",
 ]
 
 production_origins = ["https://fsektionen.se"]
@@ -78,6 +71,7 @@ if os.getenv("ENVIRONMENT") == "development":
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        allow_origin_regex="\bhttp://(localhost|127\.0\.0\.1):(\d+)\b",  # Allow all localhost origins with any port
     )
 
 if os.getenv("ENVIRONMENT") == "stage":
@@ -87,6 +81,7 @@ if os.getenv("ENVIRONMENT") == "stage":
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        allow_origin_regex="\bhttp://(localhost|127\.0\.0\.1):(\d+)\b",  # Allow all localhost origins with any port
     )
 
 if os.getenv("ENVIRONMENT") == "production":
