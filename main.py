@@ -48,11 +48,26 @@ async def lifespan(app: FastAPI):
 no_docs = os.getenv("ENVIRONMENT") == "production"
 
 dev_origins = [
-    "http://localhost",  # Idk if this is even needed
+    "http://localhost:3000",  # If we don't specify port, it defaults to 80
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",  # Sometimes VSCode thinks 3000 is used, so the frontend uses a higher port
+    "http://127.0.0.1:3001",  # Wildcard ports don't work with cookies so we need this cursed mess :(
+    "http://localhost:3002",
+    "http://127.0.0.1:3002",
+    "http://localhost:3003",
+    "http://127.0.0.1:3003",
 ]
 
 stage_origins = [
     "https://stage.frontend.fsektionen.se",
+    "http://localhost:3000",  # If we don't specify port, it defaults to 80
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",  # Sometimes VSCode thinks 3000 is used, so the frontend uses a higher port
+    "http://127.0.0.1:3001",
+    "http://localhost:3002",
+    "http://127.0.0.1:3002",
+    "http://localhost:3003",
+    "http://127.0.0.1:3003",
 ]
 
 production_origins = ["https://fsektionen.se"]
@@ -71,7 +86,6 @@ if os.getenv("ENVIRONMENT") == "development":
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
-        allow_origin_regex="\bhttp://(localhost|127\.0\.0\.1):(\d+)\b",  # Allow all localhost origins with any port
     )
 
 if os.getenv("ENVIRONMENT") == "stage":
@@ -81,7 +95,6 @@ if os.getenv("ENVIRONMENT") == "stage":
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
-        allow_origin_regex="\bhttp://(localhost|127\.0\.0\.1):(\d+)\b",  # Allow all localhost origins with any port
     )
 
 if os.getenv("ENVIRONMENT") == "production":
