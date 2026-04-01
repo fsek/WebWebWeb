@@ -59,6 +59,7 @@ PERMISSION_TARGET = Literal[
     "Moosegame",
     "MailAlias",
     "GuildMeeting",
+    "Contacts",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
@@ -108,3 +109,10 @@ POST_ELECTION_SEMESTERS = Literal["HT", "VT", "HT and VT", "Other"]
 ELECTION_ELECTORS = Literal["Guild", "Board", "Educational Council", "Board Intermediate", "Other"]
 
 ELECTION_SEMESTERS = Literal["HT", "VT", "Other"]
+
+
+class ContactCategory(str, Enum):
+    board = "The Board"
+    business = "For Businesses"
+    webb = "Webb-related"
+    other = "Other"

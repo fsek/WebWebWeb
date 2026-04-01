@@ -19,6 +19,7 @@ from db_models.document_model import Document_DB
 from pydantic_extra_types.phone_numbers import PhoneNumber
 from db_models.sub_election_model import SubElection_DB
 from db_models.election_post_model import ElectionPost_DB
+from db_models.contact_model import Contact_DB
 
 
 def seed_users(db: Session, app: FastAPI):
@@ -221,6 +222,8 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="UserPost", posts=["Buggmästare"]),
         Permission(action="view", target="GuildMeeting", posts=["Buggmästare"]),
         Permission(action="manage", target="GuildMeeting", posts=["Buggmästare"]),
+        Permission(action="view", target="Contacts", posts=["Buggmästare"]),
+        Permission(action="manage", target="Contacts", posts=["Buggmästare"]),
     ]
 
     [

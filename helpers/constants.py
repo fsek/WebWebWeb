@@ -3,6 +3,9 @@
 # Warning! These are used in db model definitions. Changing these will require db migration
 
 # User
+from re import M
+
+
 MAX_FIRST_NAME_LEN = 100
 MAX_LAST_NAME_LEN = 100
 MAX_TELEPHONE_LEN = 25
@@ -101,3 +104,7 @@ DEFAULT_USER_PRIORITY = "Övrigt"
 MAX_GUILD_MEETING_DATE_DESC = 500
 MAX_GUILD_MEETING_DESC = 10000
 MAX_GUILD_MEETING_TITLE = 200
+
+# Contacts
+MAX_CONTACT_NAME = 100
+MAX_EMAIL = 100
