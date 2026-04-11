@@ -173,7 +173,7 @@ def test_deny_manage_for_view(client, view_user_post, membered_user, db_session,
     user_token = resp.json()["access_token"]
 
     # Check that the admin manage user route requires manage permissions, not just view permissions
-    router_file = Path(__file__).resolve().parents[1] / "routes" // "user_router.py"
+    router_file = Path(__file__).resolve().parents[1] / "routes" / "user_router.py"
     required_permission = _extract_required_permission(router_file, "admin_update_user")
     assert required_permission == ("manage", "User")
 
