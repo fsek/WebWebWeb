@@ -13,7 +13,7 @@ click==8.1.7
 cryptography==42.0.1
 dnspython==2.8.0
 email-validator==2.1.0.post1
-fakeredis==2.31.0
+fakeredis==2.35.0
 fastapi==0.115.0
 fastapi-users-db-sqlalchemy-pelicanq==6.0.6
 fastapi-users-pelicanq==13.0.4
@@ -38,7 +38,6 @@ numpy==2.2.4
 oauthlib==3.3.1
 packaging==23.2
 pandas==2.2.3
-passlib==1.7.4
 phonenumbers==9.0.25
 pillow==10.2.0
 pluggy==1.6.0
