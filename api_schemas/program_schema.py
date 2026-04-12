@@ -5,11 +5,8 @@ from helpers.constants import MAX_PROGRAM_DESC, MAX_PROGRAM_TITLE
 from api_schemas.program_year_schema import ProgramYearRead
 from api_schemas.specialisation_schema import SpecialisationRead
 from api_schemas.course_schema import (
-    CourseRead,
-)  # pyright: ignore[reportUnusedImport] # This is not used but is needed for the model_rebuild calls below
-
-ProgramYearRead.model_rebuild()
-SpecialisationRead.model_rebuild()
+    SimpleCourseRead,  # type: ignore
+)  # Needed for pydantic forward references in ProgramYearRead and SpecialisationRead
 
 
 class ProgramRead(BaseSchema):

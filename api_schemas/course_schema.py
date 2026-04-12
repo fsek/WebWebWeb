@@ -6,13 +6,13 @@ from api_schemas.program_year_schema import ProgramYearRead
 from api_schemas.specialisation_schema import SpecialisationRead
 from helpers.constants import MAX_COURSE_CODE, MAX_COURSE_DESC, MAX_COURSE_TITLE
 from helpers.types import datetime_utc
-from fastapi import UploadFile
 
 
 class SimpleCourseRead(BaseSchema):
     course_id: int
     title: str
     course_code: str | None
+    img_id: int | None
 
 
 class CourseRead(BaseSchema):

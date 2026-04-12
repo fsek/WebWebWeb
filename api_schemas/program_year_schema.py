@@ -4,7 +4,7 @@ from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_PROGRAM_YEAR_DESC, MAX_PROGRAM_YEAR_TITLE
 
 if TYPE_CHECKING:
-    from api_schemas.course_schema import CourseRead
+    from api_schemas.course_schema import SimpleCourseRead
 
 
 class ProgramYearRead(BaseSchema):
@@ -15,7 +15,7 @@ class ProgramYearRead(BaseSchema):
     description_sv: str | None
     description_en: str | None
     img_id: int | None
-    courses: list["CourseRead"] = []
+    courses: list["SimpleCourseRead"] = []
 
 
 class ProgramYearCreate(BaseSchema):
