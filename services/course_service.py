@@ -1,7 +1,7 @@
 from sqlalchemy.exc import DataError
 
 from api_schemas.course_schema import CourseCreate, CourseUpdate
-from course_model import Course_DB
+from db_models.course_model import Course_DB
 from database import DB_dependency
 from db_models.program_year_model import ProgramYear_DB
 from db_models.specialisation_model import Specialisation_DB

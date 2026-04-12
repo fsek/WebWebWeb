@@ -1,8 +1,10 @@
-from typing import Annotated
+from typing import Annotated, TYPE_CHECKING
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
-from api_schemas.course_schema import CourseRead
 from helpers.constants import MAX_SPECIALISATION_DESC, MAX_SPECIALISATION_TITLE
+
+if TYPE_CHECKING:
+    from api_schemas.course_schema import CourseRead
 
 
 class SpecialisationRead(BaseSchema):
@@ -13,7 +15,7 @@ class SpecialisationRead(BaseSchema):
     description_sv: str | None
     description_en: str | None
     img_id: int | None
-    courses: list[CourseRead] = []
+    courses: list["CourseRead"] = []
 
 
 class SpecialisationCreate(BaseSchema):
