@@ -37,6 +37,7 @@ from .specialisation_router import specialisation_router
 from .course_router import course_router
 from .course_document_router import course_document_router
 from .associated_img_router import associated_img_router
+from .keyval_router import keyval_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -112,3 +113,5 @@ main_router.include_router(course_router, prefix="/courses", tags=["courses"])
 main_router.include_router(course_document_router, prefix="/course-documents", tags=["course documents"])
 
 main_router.include_router(associated_img_router, prefix="/associated-img", tags=["associated img"])
+
+main_router.include_router(keyval_router, prefix="/keyvals", tags=["keyvals"])

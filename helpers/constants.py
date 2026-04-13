@@ -122,3 +122,7 @@ MAX_COURSE_DESC = 10000
 # Course document
 MAX_COURSE_DOC_AUTHOR = 50
 MAX_COURSE_DOC_SUB_CATEGORY = 50
+
+# Keyval, used for example for storing the links to different very important documents (e.g. reglementet)
+MAX_KEYVAL_KEY = 100
+MAX_KEYVAL_VALUE = 1000

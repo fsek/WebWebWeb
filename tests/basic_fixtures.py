@@ -101,6 +101,8 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="Plugg"),
         Permission_DB(action="view", target="Plugg"),
         Permission_DB(action="manage", target="AssociatedImg"),
+        Permission_DB(action="view", target="Keyvals"),
+        Permission_DB(action="manage", target="Keyvals"),
     ]
     post.permissions.extend(permissions)
     db_session.commit()

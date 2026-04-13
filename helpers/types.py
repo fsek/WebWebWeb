@@ -61,6 +61,7 @@ PERMISSION_TARGET = Literal[
     "GuildMeeting",
     "Plugg",
     "AssociatedImg",
+    "Keyvals",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
