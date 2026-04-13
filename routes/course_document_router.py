@@ -1,11 +1,16 @@
 import os
 from pathlib import Path
 
-from fastapi import APIRouter, HTTPException, status, Response
+from fastapi import APIRouter, Depends, File, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.exc import IntegrityError
 
-from api_schemas.course_document_schema import CourseDocumentCreate, CourseDocumentRead, CourseDocumentUpdate
+from api_schemas.course_document_schema import (
+    CourseDocumentCreate,
+    CourseDocumentRead,
+    CourseDocumentUpdate,
+    course_document_create_form,
+)
 from database import DB_dependency
 from db_models.course_document_model import CourseDocument_DB
 from db_models.course_model import Course_DB
@@ -32,7 +37,11 @@ def get_course_document(course_document_id: int, db: DB_dependency):
 @course_document_router.post(
     "/", response_model=CourseDocumentRead, dependencies=[Permission.require("manage", "Plugg")]
 )
-async def create_course_document(data: CourseDocumentCreate, db: DB_dependency):
+async def create_course_document(
+    db: DB_dependency,
+    data: CourseDocumentCreate = Depends(course_document_create_form),
+    file: UploadFile = File(),
+):
     course = db.query(Course_DB).filter_by(course_id=data.course_id).one_or_none()
     if course is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Course not found")
@@ -41,7 +50,7 @@ async def create_course_document(data: CourseDocumentCreate, db: DB_dependency):
     if base_path is None:
         raise HTTPException(500, detail="Document base path is not configured")
 
-    sanitized_filename, ext, file_path = await validate_file(base_path, data.file)
+    sanitized_filename, ext, file_path = await validate_file(base_path, file)
 
     course_document = CourseDocument_DB(
         title=data.title,
@@ -55,7 +64,7 @@ async def create_course_document(data: CourseDocumentCreate, db: DB_dependency):
     try:
         db.add(course_document)
         db.commit()
-        file_path.write_bytes(data.file.file.read())
+        file_path.write_bytes(file.file.read())
         db.refresh(course_document)
     except IntegrityError:
         db.rollback()

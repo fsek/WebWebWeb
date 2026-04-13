@@ -25,18 +25,19 @@ def plugg_course_id(db_session):
 
 
 def test_create_course_document_success(client, admin_token, plugg_course_id, example_file):
+    payload = course_document_data_factory(course_id=plugg_course_id)
     response = create_course_document(
         client,
         token=admin_token,
         file=example_file,
-        **course_document_data_factory(course_id=plugg_course_id),
+        **payload,
     )
 
     assert response.status_code in (200, 201), response.text
     data = response.json()
-    assert data["title"] == "Lecture notes"
-    assert data["author"] == "Tester"
-    assert data["category"] == "Notes"
+    assert data["title"] == payload["title"]
+    assert data["author"] == payload["author"]
+    assert data["category"] == payload["category"]
     assert data["course_id"] == plugg_course_id
     assert data["file_name"].endswith(".pdf")
 

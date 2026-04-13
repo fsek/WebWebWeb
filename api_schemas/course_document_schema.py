@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import UploadFile
+from fastapi import Form
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_COURSE_DOC_AUTHOR, MAX_COURSE_DOC_SUB_CATEGORY, MAX_DOC_FILE_NAME, MAX_DOC_TITLE
@@ -25,7 +25,25 @@ class CourseDocumentCreate(BaseSchema):
     author: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_AUTHOR)]
     category: COURSE_DOCUMENT_CATEGORIES = "Other"
     sub_category: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_SUB_CATEGORY)] | None = None
-    file: UploadFile
+
+
+# Apparently I have to do this to be able to send JSON forms at the same time as files in the POST course document router
+def course_document_create_form(
+    title: str = Form(...),
+    file_name: str = Form(...),
+    course_id: int = Form(...),
+    author: str = Form(...),
+    category: COURSE_DOCUMENT_CATEGORIES = Form("Other"),
+    sub_category: str | None = Form(None),
+) -> CourseDocumentCreate:
+    return CourseDocumentCreate(
+        title=title,
+        file_name=file_name,
+        course_id=course_id,
+        author=author,
+        category=category,
+        sub_category=sub_category,
+    )
 
 
 class CourseDocumentUpdate(BaseSchema):
