@@ -71,7 +71,7 @@ def upload_img(
         raise HTTPException(409, detail="Filename is equal to already existing file")
 
     img = AssociatedImg_DB(path=str(file_path))
-    association.img = img
+    association.associated_img = img
 
     try:
         db.add(img)
@@ -86,19 +86,19 @@ def upload_img(
 
 
 def remove_img(db: Session, img_id: int):
-    img = db.query(AssociatedImg_DB).filter(AssociatedImg_DB.associated_image_id == img_id).one_or_none()
+    img = db.query(AssociatedImg_DB).filter(AssociatedImg_DB.associated_img_id == img_id).one_or_none()
 
     if img == None:
         raise HTTPException(404, detail="File not found")
 
     if img.program is not None:
-        img.program.img = None
+        img.program.associated_img = None
     if img.program_year is not None:
-        img.program_year.img = None
+        img.program_year.associated_img = None
     if img.course is not None:
-        img.course.img = None
+        img.course.associated_img = None
     if img.specialisation is not None:
-        img.specialisation.img = None
+        img.specialisation.associated_img = None
 
     os.remove(img.path)
     db.delete(img)
@@ -108,7 +108,7 @@ def remove_img(db: Session, img_id: int):
 
 
 def get_single_img(db: Session, img_id: int):
-    img = db.query(AssociatedImg_DB).filter(AssociatedImg_DB.associated_image_id == img_id).one_or_none()
+    img = db.query(AssociatedImg_DB).filter(AssociatedImg_DB.associated_img_id == img_id).one_or_none()
 
     if img == None:
         raise HTTPException(404, detail="File not found")

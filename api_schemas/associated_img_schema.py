@@ -3,7 +3,7 @@ from api_schemas.base_schema import BaseSchema
 
 
 class AssociatedImgRead(BaseSchema):
-    associated_image_id: int
+    associated_img_id: int
     path: str
 
 

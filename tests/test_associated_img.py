@@ -33,7 +33,7 @@ def _upload_program_image_and_get_img_id(client, admin_token, program_id, exampl
 
     program_response = client.get(f"/programs/{program_id}")
     assert program_response.status_code == 200, program_response.text
-    img_id = program_response.json()["img_id"]
+    img_id = program_response.json()["associated_img_id"]
     assert img_id is not None
     return img_id
 
@@ -78,7 +78,7 @@ def _get_img_id_from_entity(client, association_type, association_id):
 
     response = client.get(endpoint_by_type[association_type])
     assert response.status_code == 200, response.text
-    return response.json()["img_id"]
+    return response.json()["associated_img_id"]
 
 
 def test_admin_can_upload_associated_image(client, admin_token, db_session, example_image_file):
@@ -86,7 +86,7 @@ def test_admin_can_upload_associated_image(client, admin_token, db_session, exam
 
     img_id = _upload_program_image_and_get_img_id(client, admin_token, program_id, example_image_file)
 
-    image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_image_id=img_id).one_or_none()
+    image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_img_id=img_id).one_or_none()
     assert image_in_db is not None
     assert os.path.exists(image_in_db.path)
 
@@ -168,7 +168,7 @@ def test_get_associated_image_internal_redirect_success(client, admin_token, db_
     program_id = _create_program_for_image_tests(client, admin_token)
     img_id = _upload_program_image_and_get_img_id(client, admin_token, program_id, example_image_file)
 
-    image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_image_id=img_id).one_or_none()
+    image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_img_id=img_id).one_or_none()
     assert image_in_db is not None
 
     assert redis_client is not None
@@ -186,12 +186,12 @@ def test_admin_can_delete_associated_image(client, admin_token, db_session, exam
     delete_response = client.delete(f"/associated-img/{img_id}", headers=auth_headers(admin_token))
     assert delete_response.status_code == 200
 
-    image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_image_id=img_id).one_or_none()
+    image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_img_id=img_id).one_or_none()
     assert image_in_db is None
 
     program_response = client.get(f"/programs/{program_id}")
     assert program_response.status_code == 200
-    assert program_response.json()["img_id"] is None
+    assert program_response.json()["associated_img_id"] is None
 
 
 def test_member_cannot_delete_associated_image(client, admin_token, member_token, example_image_file):
@@ -220,7 +220,7 @@ def test_associated_image_linking_works_for_all_association_types(client, admin_
         img_id = _get_img_id_from_entity(client, association_type, association_id)
         assert img_id is not None
 
-        image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_image_id=img_id).one_or_none()
+        image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_img_id=img_id).one_or_none()
         assert image_in_db is not None
 
 

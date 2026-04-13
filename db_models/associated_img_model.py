@@ -16,16 +16,18 @@ if TYPE_CHECKING:
 class AssociatedImg_DB(BaseModel_DB):
     __tablename__ = "associated_img_table"
 
-    associated_image_id: Mapped[int] = mapped_column(primary_key=True, init=False)
+    associated_img_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     path: Mapped[str] = mapped_column(String(MAX_PATH_LENGTH))
 
-    program: Mapped[Optional["Program_DB"]] = relationship(back_populates="img", init=False, uselist=False)
+    program: Mapped[Optional["Program_DB"]] = relationship(back_populates="associated_img", init=False, uselist=False)
 
-    program_year: Mapped[Optional["ProgramYear_DB"]] = relationship(back_populates="img", init=False, uselist=False)
+    program_year: Mapped[Optional["ProgramYear_DB"]] = relationship(
+        back_populates="associated_img", init=False, uselist=False
+    )
 
-    course: Mapped[Optional["Course_DB"]] = relationship(back_populates="img", init=False, uselist=False)
+    course: Mapped[Optional["Course_DB"]] = relationship(back_populates="associated_img", init=False, uselist=False)
 
     specialisation: Mapped[Optional["Specialisation_DB"]] = relationship(
-        back_populates="img", init=False, uselist=False
+        back_populates="associated_img", init=False, uselist=False
     )

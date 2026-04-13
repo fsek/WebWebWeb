@@ -29,9 +29,13 @@ class Specialisation_DB(BaseModel_DB):
 
     description_en: Mapped[Optional[str]] = mapped_column(String(MAX_SPECIALISATION_DESC), default=None)
 
-    img_id: Mapped[Optional[int]] = mapped_column(ForeignKey("associated_img_table.associated_image_id"), default=None)
+    associated_img_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("associated_img_table.associated_img_id"), default=None
+    )
 
-    img: Mapped[Optional["AssociatedImg_DB"]] = relationship(back_populates="specialisation", init=False, uselist=False)
+    associated_img: Mapped[Optional["AssociatedImg_DB"]] = relationship(
+        back_populates="specialisation", init=False, uselist=False
+    )
 
     specialisation_courses: Mapped[list["SpecialisationCourse_DB"]] = relationship(
         back_populates="specialisation", cascade="all, delete-orphan", init=False

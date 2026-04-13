@@ -12,7 +12,7 @@ class SimpleCourseRead(BaseSchema):
     course_id: int
     title: str
     course_code: str | None
-    img_id: int | None
+    associated_img_id: int | None
 
 
 class CourseRead(BaseSchema):
@@ -20,7 +20,7 @@ class CourseRead(BaseSchema):
     title: str
     course_code: str | None
     description: str | None
-    img_id: int | None
+    associated_img_id: int | None
     documents: list[CourseDocumentRead] = []
     updated_at: datetime_utc
     program_years: list[ProgramYearRead] = []

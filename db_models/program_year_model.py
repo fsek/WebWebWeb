@@ -29,9 +29,13 @@ class ProgramYear_DB(BaseModel_DB):
 
     description_en: Mapped[Optional[str]] = mapped_column(String(MAX_PROGRAM_YEAR_DESC), default=None)
 
-    img_id: Mapped[Optional[int]] = mapped_column(ForeignKey("associated_img_table.associated_image_id"), default=None)
+    associated_img_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("associated_img_table.associated_img_id"), default=None
+    )
 
-    img: Mapped[Optional["AssociatedImg_DB"]] = relationship(back_populates="program_year", init=False, uselist=False)
+    associated_img: Mapped[Optional["AssociatedImg_DB"]] = relationship(
+        back_populates="program_year", init=False, uselist=False
+    )
 
     program_year_courses: Mapped[list["ProgramYearCourse_DB"]] = relationship(
         back_populates="program_year", cascade="all, delete-orphan", init=False

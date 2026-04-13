@@ -43,9 +43,13 @@ class Course_DB(BaseModel_DB):
         target_collection="specialisation_courses", attr="specialisation", init=False
     )
 
-    img_id: Mapped[Optional[int]] = mapped_column(ForeignKey("associated_img_table.associated_image_id"), default=None)
+    associated_img_id: Mapped[Optional[int]] = mapped_column(
+        ForeignKey("associated_img_table.associated_img_id"), default=None
+    )
 
-    img: Mapped[Optional["AssociatedImg_DB"]] = relationship(back_populates="course", init=False, uselist=False)
+    associated_img: Mapped[Optional["AssociatedImg_DB"]] = relationship(
+        back_populates="course", init=False, uselist=False
+    )
 
     documents: Mapped[list["CourseDocument_DB"]] = relationship(
         back_populates="course", cascade="all, delete-orphan", init=False

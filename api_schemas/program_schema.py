@@ -15,7 +15,7 @@ class ProgramRead(BaseSchema):
     title_en: str
     description_sv: str | None
     description_en: str | None
-    img_id: int | None
+    associated_img_id: int | None
     program_years: list[ProgramYearRead] = []
     specialisations: list[SpecialisationRead] = []
 

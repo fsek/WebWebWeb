@@ -14,7 +14,7 @@ class SpecialisationRead(BaseSchema):
     program_id: int
     description_sv: str | None
     description_en: str | None
-    img_id: int | None
+    associated_img_id: int | None
     courses: list["SimpleCourseRead"] = []
 
 
