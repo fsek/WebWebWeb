@@ -100,6 +100,7 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="GuildMeeting"),
         Permission_DB(action="manage", target="Plugg"),
         Permission_DB(action="view", target="Plugg"),
+        Permission_DB(action="manage", target="AssociatedImg"),
     ]
     post.permissions.extend(permissions)
     db_session.commit()
@@ -237,6 +238,27 @@ def example_file():
     # Return as (filename, file_object, content_type)
     f = open(pdf_file, "rb")
     return (pdf_file, f, "application/pdf")
+
+
+@pytest.fixture()
+def example_image_file():
+    """Creates a tiny png file and returns it as a file-like object."""
+    image_file = "simple_test_image.png"
+
+    # Might not be valid but the tests pass with this LLM generated png
+    png_bytes = (
+        b"\x89PNG\r\n\x1a\n"
+        b"\x00\x00\x00\rIHDR"
+        b"\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89"
+        b"\x00\x00\x00\x0cIDATx\x9cc\xf8\xcf\xc0\x00\x00\x03\x01\x01\x00\xc9\xfe\x92\xef"
+        b"\x00\x00\x00\x00IEND\xaeB`\x82"
+    )
+
+    with open(image_file, "wb") as f:
+        f.write(png_bytes)
+
+    f = open(image_file, "rb")
+    return (image_file, f, "image/png")
 
 
 @pytest.fixture()

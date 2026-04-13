@@ -15,6 +15,8 @@ base_path = os.getenv("ALBUM_BASE_PATH")
 
 
 def upload_img(db: Session, album_id: int, file: UploadFile = File()):
+    if base_path is None:
+        raise HTTPException(500, detail="Server configuration error: ALBUM_BASE_PATH not set")
 
     if file.filename is None:
         raise HTTPException(400, detail="The file has no name")

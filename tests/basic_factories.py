@@ -226,3 +226,15 @@ def create_course_document(client, token=None, file=None, **kwargs):
     headers = auth_headers(token) if token else {}
     files = {"file": file} if file is not None else None
     return client.post("/course-documents/", data=data, files=files, headers=headers)
+
+
+def create_associated_image(client, token=None, association_type="program", association_id=1, file=None):
+    """Helper to POST /associated-img/ with multipart data and optional auth."""
+    headers = auth_headers(token) if token else {}
+    files = {"file": file} if file is not None else None
+    return client.post(
+        "/associated-img/",
+        params={"association_type": association_type, "association_id": association_id},
+        files=files,
+        headers=headers,
+    )

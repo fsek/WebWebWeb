@@ -60,6 +60,7 @@ PERMISSION_TARGET = Literal[
     "MailAlias",
     "GuildMeeting",
     "Plugg",
+    "AssociatedImg",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
@@ -112,3 +113,6 @@ ELECTION_SEMESTERS = Literal["HT", "VT", "Other"]
 
 # Course document categories, shown under different titles on the frontend
 COURSE_DOCUMENT_CATEGORIES = Literal["Notes", "Summary", "Solutions", "Other"]
+
+# Used for associated images
+ASSOCIATION_TYPES = Literal["program", "program_year", "course", "specialisation"]

@@ -26,6 +26,7 @@ os.environ["DOCUMENT_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/document
 os.environ["COURSE_DOCUMENT_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/course_documents"
 os.environ["ALBUM_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/albums"
 os.environ["ASSETS_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/assets"
+os.environ["ASSOCIATED_IMG_BASE_PATH"] = "/workspaces/WebWebWeb/pytest-assets/associated_images"
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -74,7 +75,16 @@ def db_session(test_engine):
     transaction = connection.begin()
 
     # Create all the directories
-    directories = ["albums", "documents", "assets/events", "assets/news", "assets/posts", "assets/users"]
+    directories = [
+        "albums",
+        "documents",
+        "course_documents",
+        "associated_images",
+        "assets/events",
+        "assets/news",
+        "assets/posts",
+        "assets/users",
+    ]
     for directory in directories:
         os.makedirs(os.path.join("/workspaces/WebWebWeb/pytest-assets", directory), exist_ok=True)
 
@@ -87,6 +97,8 @@ def db_session(test_engine):
     # Clean up the test document
     if os.path.exists("simple_test_document.pdf"):
         os.remove("simple_test_document.pdf")
+    if os.path.exists("simple_test_image.png"):
+        os.remove("simple_test_image.png")
 
     # Remove all the files in the file storage
     # directories are kept as is
