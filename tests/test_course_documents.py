@@ -89,7 +89,7 @@ def test_get_course_document_by_id_public(client, admin_token, plugg_course_id, 
     assert response.json()["course_document_id"] == document_id
 
 
-def test_get_all_course_documents_public(client, admin_token, plugg_course_id, example_file):
+def test_get_all_course_documents_from_course(client, admin_token, plugg_course_id, example_file):
     create_response = create_course_document(
         client,
         token=admin_token,
@@ -99,7 +99,7 @@ def test_get_all_course_documents_public(client, admin_token, plugg_course_id, e
     assert create_response.status_code in (200, 201), create_response.text
     document_id = create_response.json()["course_document_id"]
 
-    response = client.get("/course-documents/")
+    response = client.get(f"/course-documents/course/{plugg_course_id}")
     assert response.status_code == 200
     assert any(document["course_document_id"] == document_id for document in response.json())
 

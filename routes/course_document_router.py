@@ -21,9 +21,9 @@ from user.permission import Permission
 course_document_router = APIRouter()
 
 
-@course_document_router.get("/", response_model=list[CourseDocumentRead])
-def get_all_course_documents(db: DB_dependency):
-    return db.query(CourseDocument_DB).all()
+@course_document_router.get("/course/{course_id}", response_model=list[CourseDocumentRead])
+def get_all_documents_from_course(course_id: int, db: DB_dependency):
+    return db.query(CourseDocument_DB).filter_by(course_id=course_id).all()
 
 
 @course_document_router.get("/{course_document_id}", response_model=CourseDocumentRead)
