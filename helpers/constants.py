@@ -115,8 +115,8 @@ MAX_SPECIALISATION_TITLE = 100
 MAX_SPECIALISATION_DESC = 10000
 
 # Course
-MAX_COURSE_TITLE = 100
-MAX_COURSE_CODE = 20
+MAX_COURSE_TITLE = 200  # University loves long course titles lol
+MAX_COURSE_CODE = 100  # Sometimes people might want to put multiple codes or something
 MAX_COURSE_DESC = 10000
 
 # Course document
