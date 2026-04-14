@@ -31,6 +31,14 @@ def create_course(data: CourseCreate, db: DB_dependency):
             detail="At least one program_year_id or specialisation_id must be provided to create a course",
         )
 
+    # Check for duplicate course code, since we require course codes to be unique.
+    existing_course = db.query(Course_DB).filter_by(course_code=data.course_code).one_or_none()
+    if existing_course is not None:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            detail=f"Course with course_code {data.course_code} already exists, cannot create course",
+        )
+
     # We have to validate before creating the course,
     # otherwise we might end up with orphaned courses without valid program year or specialisation associations.
     (
@@ -73,6 +81,15 @@ def update_course(course_id: int, data: CourseUpdate, db: DB_dependency):
     course = db.query(Course_DB).filter_by(course_id=course_id).one_or_none()
     if course is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+
+    # Check for duplicate course code, since we require course codes to be unique.
+    if data.course_code and data.course_code != course.course_code:
+        existing_course = db.query(Course_DB).filter_by(course_code=data.course_code).one_or_none()
+        if existing_course is not None:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                detail=f"Course with course_code {data.course_code} already exists, cannot update course",
+            )
 
     if not data.program_year_ids and not data.specialisation_ids:
         raise HTTPException(
