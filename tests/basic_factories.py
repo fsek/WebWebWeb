@@ -167,12 +167,12 @@ def create_program_year(client, token=None, **kwargs):
     return client.post("/program-years/", json=data, headers=headers)
 
 
-def specialisation_data_factory(program_id=1, **kwargs):
+def specialisation_data_factory(program_ids, **kwargs):
     """Factory for creating specialisation payloads."""
     default_data = {
         "title_sv": "Maskininlarning",
         "title_en": "Machine learning",
-        "program_id": program_id,
+        "program_ids": program_ids,
         "description_sv": "Svensk specialiseringsbeskrivning",
         "description_en": "English specialisation description",
     }

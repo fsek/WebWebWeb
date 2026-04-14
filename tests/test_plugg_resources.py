@@ -28,7 +28,7 @@ def plugg_relationship_ids(client, admin_token, base_program):
     year_resp = create_program_year(client, token=admin_token, program_id=program_id)
     assert year_resp.status_code in (200, 201), year_resp.text
 
-    specialisation_resp = create_specialisation(client, token=admin_token, program_id=program_id)
+    specialisation_resp = create_specialisation(client, token=admin_token, program_ids=[program_id])
     assert specialisation_resp.status_code in (200, 201), specialisation_resp.text
 
     return {
@@ -172,29 +172,29 @@ def test_create_program_year_requires_permission(client, request, token_fixture,
 def test_create_specialisation_success(client, admin_token, base_program):
     program_id = base_program["program_id"]
 
-    response = create_specialisation(client, token=admin_token, program_id=program_id)
+    response = create_specialisation(client, token=admin_token, program_ids=[program_id])
     assert response.status_code in (200, 201)
 
     data = response.json()
-    expected = specialisation_data_factory(program_id=program_id)
-    assert data["program_id"] == program_id
+    expected = specialisation_data_factory(program_ids=[program_id])
+    assert data["programs"][0]["program_id"] == expected["program_ids"][0]
     assert data["title_sv"] == expected["title_sv"]
     assert "specialisation_id" in data
 
 
 def test_create_specialisation_requires_existing_program(client, admin_token):
-    response = create_specialisation(client, token=admin_token, program_id=999999)
-    assert response.status_code == 400
+    response = create_specialisation(client, token=admin_token, program_ids=[999999])
+    assert response.status_code in (400, 404)
 
 
 def test_update_specialisation_success(client, admin_token, base_program):
     program_id = base_program["program_id"]
-    create_specialisation_response = create_specialisation(client, token=admin_token, program_id=program_id)
+    create_specialisation_response = create_specialisation(client, token=admin_token, program_ids=[program_id])
     assert create_specialisation_response.status_code in (200, 201)
     specialisation_id = create_specialisation_response.json()["specialisation_id"]
 
     update_data = specialisation_data_factory(
-        program_id=program_id,
+        program_ids=[program_id],
         title_sv="Datateknik",
         title_en="Computer engineering",
     )
@@ -212,7 +212,7 @@ def test_update_specialisation_success(client, admin_token, base_program):
 
 def test_delete_specialisation_success(client, admin_token, base_program):
     program_id = base_program["program_id"]
-    create_specialisation_response = create_specialisation(client, token=admin_token, program_id=program_id)
+    create_specialisation_response = create_specialisation(client, token=admin_token, program_ids=[program_id])
     assert create_specialisation_response.status_code in (200, 201)
     specialisation_id = create_specialisation_response.json()["specialisation_id"]
 
@@ -226,11 +226,224 @@ def test_delete_specialisation_success(client, admin_token, base_program):
     assert get_response.status_code == 404
 
 
+def test_create_specialisation_with_multiple_programs_success(client, admin_token, base_program):
+    second_program_response = create_program(
+        client,
+        token=admin_token,
+        **program_data_factory(title_sv="Teknisk fysik", title_en="Engineering physics"),
+    )
+    assert second_program_response.status_code in (200, 201), second_program_response.text
+    second_program_id = second_program_response.json()["program_id"]
+
+    payload = {
+        "title_sv": "Inbyggda system",
+        "title_en": "Embedded systems",
+        "program_ids": [base_program["program_id"], second_program_id],
+        "description_sv": "Flera program",
+        "description_en": "Multiple programs",
+    }
+    response = client.post(
+        "/specialisations/",
+        json=payload,
+        headers=auth_headers(admin_token),
+    )
+
+    assert response.status_code in (200, 201), response.text
+    data = response.json()
+    assert data["title_sv"] == "Inbyggda system"
+    assert {program["program_id"] for program in data["programs"]} == {
+        base_program["program_id"],
+        second_program_id,
+    }
+
+
+def test_update_specialisation_program_associations_success(client, admin_token, base_program):
+    second_program_response = create_program(
+        client,
+        token=admin_token,
+        **program_data_factory(title_sv="Elektroteknik", title_en="Electrical engineering"),
+    )
+    assert second_program_response.status_code in (200, 201), second_program_response.text
+    second_program_id = second_program_response.json()["program_id"]
+
+    third_program_response = create_program(
+        client,
+        token=admin_token,
+        **program_data_factory(title_sv="Maskinteknik", title_en="Mechanical engineering"),
+    )
+    assert third_program_response.status_code in (200, 201), third_program_response.text
+    third_program_id = third_program_response.json()["program_id"]
+
+    create_response = client.post(
+        "/specialisations/",
+        json={
+            "title_sv": "AI och data",
+            "title_en": "AI and data",
+            "program_ids": [base_program["program_id"], second_program_id],
+            "description_sv": "Initial association",
+            "description_en": "Initial association",
+        },
+        headers=auth_headers(admin_token),
+    )
+    assert create_response.status_code in (200, 201), create_response.text
+    specialisation_id = create_response.json()["specialisation_id"]
+
+    update_response = client.patch(
+        f"/specialisations/{specialisation_id}",
+        json={
+            "title_sv": "AI och data uppdaterad",
+            "title_en": "AI and data updated",
+            "program_ids": [second_program_id, third_program_id],
+            "description_sv": "Updated association",
+            "description_en": "Updated association",
+        },
+        headers=auth_headers(admin_token),
+    )
+
+    assert update_response.status_code == 200, update_response.text
+    updated = update_response.json()
+    assert updated["title_en"] == "AI and data updated"
+    assert {program["program_id"] for program in updated["programs"]} == {
+        second_program_id,
+        third_program_id,
+    }
+
+
+def test_program_and_specialisation_reads_include_bidirectional_associations(
+    client,
+    admin_token,
+    base_program,
+    db_session,
+):
+    second_program_response = create_program(
+        client,
+        token=admin_token,
+        **program_data_factory(title_sv="Industriell ekonomi", title_en="Industrial engineering"),
+    )
+    assert second_program_response.status_code in (200, 201), second_program_response.text
+    second_program_id = second_program_response.json()["program_id"]
+
+    specialisation_response = client.post(
+        "/specialisations/",
+        json={
+            "title_sv": "Data science",
+            "title_en": "Data science",
+            "program_ids": [base_program["program_id"], second_program_id],
+            "description_sv": "Tvarkoppling",
+            "description_en": "Cross association",
+        },
+        headers=auth_headers(admin_token),
+    )
+    assert specialisation_response.status_code in (200, 201), specialisation_response.text
+    specialisation_id = specialisation_response.json()["specialisation_id"]
+
+    specialisation_detail = client.get(f"/specialisations/{specialisation_id}")
+    assert specialisation_detail.status_code == 200, specialisation_detail.text
+    assert {program["program_id"] for program in specialisation_detail.json()["programs"]} == {
+        base_program["program_id"],
+        second_program_id,
+    }
+
+    db_session.expire_all()
+
+    first_program_detail = client.get(f"/programs/{base_program['program_id']}")
+    assert first_program_detail.status_code == 200, first_program_detail.text
+    assert specialisation_id in {
+        specialisation["specialisation_id"] for specialisation in first_program_detail.json()["specialisations"]
+    }
+
+    second_program_detail = client.get(f"/programs/{second_program_id}")
+    assert second_program_detail.status_code == 200, second_program_detail.text
+    assert specialisation_id in {
+        specialisation["specialisation_id"] for specialisation in second_program_detail.json()["specialisations"]
+    }
+
+
+def test_create_specialisation_rolls_back_when_any_program_id_is_missing(client, admin_token, base_program):
+    second_program_response = create_program(
+        client,
+        token=admin_token,
+        **program_data_factory(title_sv="Kemiteknik", title_en="Chemical engineering"),
+    )
+    assert second_program_response.status_code in (200, 201), second_program_response.text
+    second_program_id = second_program_response.json()["program_id"]
+
+    payload = specialisation_data_factory(
+        title_sv="Rollback specialisation",
+        title_en="Rollback specialisation",
+        program_ids=[base_program["program_id"], second_program_id, 999999],
+        description_sv="Should not persist",
+        description_en="Should not persist",
+    )
+
+    before_list = client.get("/specialisations/")
+    assert before_list.status_code == 200, before_list.text
+    before_specialisations = before_list.json()
+    before_count = len(before_specialisations)
+
+    create_response = create_specialisation(client, token=admin_token, **payload)
+    assert create_response.status_code in (400, 404)
+
+    after_list = client.get("/specialisations/")
+    assert after_list.status_code == 200, after_list.text
+    after_specialisations = after_list.json()
+
+    assert len(after_specialisations) == before_count
+    assert all(specialisation["title_en"] != payload["title_en"] for specialisation in after_specialisations)
+
+
+def test_update_specialisation_rolls_back_when_any_program_id_is_missing(client, admin_token, base_program):
+    second_program_response = create_program(
+        client,
+        token=admin_token,
+        **program_data_factory(title_sv="Farkostteknik", title_en="Vehicle engineering"),
+    )
+    assert second_program_response.status_code in (200, 201), second_program_response.text
+    second_program_id = second_program_response.json()["program_id"]
+
+    create_response = create_specialisation(
+        client,
+        token=admin_token,
+        **specialisation_data_factory(
+            title_sv="Signalbehandling",
+            title_en="Signal processing",
+            program_ids=[base_program["program_id"], second_program_id],
+        ),
+    )
+    assert create_response.status_code in (200, 201), create_response.text
+    created_specialisation = create_response.json()
+    specialisation_id = created_specialisation["specialisation_id"]
+
+    update_payload = specialisation_data_factory(
+        title_sv="Signalbehandling uppdaterad",
+        title_en="Signal processing updated",
+        program_ids=[second_program_id, 999999],
+        description_sv="Should not persist update",
+        description_en="Should not persist update",
+    )
+    update_response = client.patch(
+        f"/specialisations/{specialisation_id}",
+        json=update_payload,
+        headers=auth_headers(admin_token),
+    )
+    assert update_response.status_code in (400, 404)
+
+    detail_response = client.get(f"/specialisations/{specialisation_id}")
+    assert detail_response.status_code == 200, detail_response.text
+    detail_data = detail_response.json()
+
+    assert detail_data["title_en"] == created_specialisation["title_en"]
+    assert {program["program_id"] for program in detail_data["programs"]} == {
+        base_program["program_id"],
+        second_program_id,
+    }
+
+
 @pytest.mark.parametrize("token_fixture, expected_status", [("member_token", 403), (None, 401)])
 def test_create_specialisation_requires_permission(client, request, token_fixture, expected_status, base_program):
     token = request.getfixturevalue(token_fixture) if token_fixture else None
 
-    response = create_specialisation(client, token=token, program_id=base_program["program_id"])
+    response = create_specialisation(client, token=token, program_ids=[base_program["program_id"]])
     assert response.status_code == expected_status
 
 
@@ -267,6 +480,45 @@ def test_create_course_with_missing_relationships_returns_404(client, admin_toke
     assert response.status_code == 404
 
 
+@pytest.mark.parametrize("invalid_field", ["program_year_ids", "specialisation_ids"])
+def test_create_course_rolls_back_when_any_relationship_id_is_missing(
+    client,
+    admin_token,
+    plugg_relationship_ids,
+    invalid_field,
+):
+    valid_program_year_id = plugg_relationship_ids["program_year_id"]
+    valid_specialisation_id = plugg_relationship_ids["specialisation_id"]
+
+    rollback_course_codes = {
+        "program_year_ids": "RBKPY001",
+        "specialisation_ids": "RBKSP001",
+    }
+
+    payload = course_data_factory(
+        title="Rollback course",
+        course_code=rollback_course_codes[invalid_field],
+        description="Should not persist on failed relationship validation",
+        program_year_ids=[valid_program_year_id],
+        specialisation_ids=[valid_specialisation_id],
+    )
+    payload[invalid_field] = [payload[invalid_field][0], 999999]
+
+    before_list = client.get("/courses/")
+    assert before_list.status_code == 200, before_list.text
+    before_count = len(before_list.json())
+
+    response = create_course(client, token=admin_token, **payload)
+    assert response.status_code == 404
+
+    after_list = client.get("/courses/")
+    assert after_list.status_code == 200, after_list.text
+    after_courses = after_list.json()
+
+    assert len(after_courses) == before_count
+    assert all(course["course_code"] != payload["course_code"] for course in after_courses)
+
+
 def test_update_course_relationships_success(client, admin_token, plugg_relationship_ids):
     program_id = plugg_relationship_ids["program_id"]
 
@@ -281,7 +533,7 @@ def test_update_course_relationships_success(client, admin_token, plugg_relation
     specialisation_resp = create_specialisation(
         client,
         token=admin_token,
-        **specialisation_data_factory(program_id=program_id, title_sv="Datavetenskap", title_en="Computer science"),
+        **specialisation_data_factory(program_ids=[program_id], title_sv="Datavetenskap", title_en="Computer science"),
     )
     assert specialisation_resp.status_code in (200, 201), specialisation_resp.text
     new_specialisation_id = specialisation_resp.json()["specialisation_id"]

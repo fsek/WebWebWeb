@@ -3,10 +3,18 @@ from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_PROGRAM_DESC, MAX_PROGRAM_TITLE
 from api_schemas.program_year_schema import ProgramYearRead
-from api_schemas.specialisation_schema import SpecialisationRead
 from api_schemas.course_schema import (
     SimpleCourseRead,  # type: ignore
 )  # Needed for pydantic forward references in ProgramYearRead and SpecialisationRead
+from api_schemas.specialisation_schema import (
+    SpecialisationRead,
+)
+
+
+class SimpleProgramRead(BaseSchema):
+    program_id: int
+    title_sv: str
+    title_en: str
 
 
 class ProgramRead(BaseSchema):
@@ -17,7 +25,7 @@ class ProgramRead(BaseSchema):
     description_en: str | None
     associated_img_id: int | None
     program_years: list[ProgramYearRead] = []
-    specialisations: list[SpecialisationRead] = []
+    specialisations: list["SpecialisationRead"] = []
 
 
 class ProgramCreate(BaseSchema):

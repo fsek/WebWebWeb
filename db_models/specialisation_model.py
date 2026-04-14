@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from .program_model import Program_DB
     from .specialisation_course_model import SpecialisationCourse_DB
     from .course_model import Course_DB
+    from .program_specialisation_model import ProgramSpecialisation_DB
 
 
 class Specialisation_DB(BaseModel_DB):
@@ -21,9 +22,13 @@ class Specialisation_DB(BaseModel_DB):
 
     title_en: Mapped[str] = mapped_column(String(MAX_SPECIALISATION_TITLE))
 
-    program_id: Mapped[int] = mapped_column(ForeignKey("program_table.program_id"))
+    program_specialisations: Mapped[list["ProgramSpecialisation_DB"]] = relationship(
+        back_populates="specialisation", cascade="all, delete-orphan", init=False
+    )
 
-    program: Mapped["Program_DB"] = relationship(back_populates="specialisations", init=False)
+    programs: AssociationProxy[list["Program_DB"]] = association_proxy(
+        target_collection="program_specialisations", attr="program", init=False
+    )
 
     description_sv: Mapped[Optional[str]] = mapped_column(String(MAX_SPECIALISATION_DESC), default=None)
 
