@@ -8,6 +8,12 @@ if TYPE_CHECKING:
     from api_schemas.course_schema import SimpleCourseRead
 
 
+class SimpleSpecialisationRead(BaseSchema):
+    specialisation_id: int
+    title_sv: str
+    title_en: str
+
+
 class SpecialisationRead(BaseSchema):
     specialisation_id: int
     title_sv: str

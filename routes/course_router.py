@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
-from api_schemas.course_schema import CourseCreate, CourseRead, CourseUpdate, SimpleCourseRead
+from api_schemas.course_schema import CourseCreate, CourseRead, CourseUpdate
 from database import DB_dependency
 from db_models.course_model import Course_DB
 from services.course_service import update_course_relationships, validate_relationship_ids
@@ -10,7 +10,7 @@ from user.permission import Permission
 course_router = APIRouter()
 
 
-@course_router.get("/", response_model=list[SimpleCourseRead])
+@course_router.get("/", response_model=list[CourseRead])
 def get_all_courses(db: DB_dependency):
     return db.query(Course_DB).all()
 

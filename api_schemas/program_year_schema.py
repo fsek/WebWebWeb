@@ -7,6 +7,12 @@ if TYPE_CHECKING:
     from api_schemas.course_schema import SimpleCourseRead
 
 
+class SimpleProgramYearRead(BaseSchema):
+    program_year_id: int
+    title_sv: str
+    title_en: str
+
+
 class ProgramYearRead(BaseSchema):
     program_year_id: int
     title_sv: str

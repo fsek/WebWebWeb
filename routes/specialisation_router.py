@@ -1,6 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 
-from api_schemas.specialisation_schema import SpecialisationCreate, SpecialisationRead, SpecialisationUpdate
+from api_schemas.specialisation_schema import (
+    SpecialisationCreate,
+    SpecialisationRead,
+    SpecialisationUpdate,
+)
 from database import DB_dependency
 from db_models.specialisation_model import Specialisation_DB
 from user.permission import Permission
