@@ -13,7 +13,7 @@ associated_img_router = APIRouter()
 @associated_img_router.post(
     "/", dependencies=[Permission.require("manage", "AssociatedImg")], response_model=dict[str, str]
 )
-async def upload_image(
+async def upload_associated_image(
     db: DB_dependency, association_type: ASSOCIATION_TYPES, association_id: int, file: UploadFile = File()
 ):
     await validate_image(file)
@@ -23,12 +23,12 @@ async def upload_image(
 @associated_img_router.delete(
     "/{id}", dependencies=[Permission.require("manage", "AssociatedImg")], response_model=dict[str, str]
 )
-def delete_image(db: DB_dependency, id: int):
+def delete_associated_image(db: DB_dependency, id: int):
     return remove_img(db, id)
 
 
 @associated_img_router.get("/stream/{img_id}")
-def get_image_stream(
+def get_associated_image_stream(
     img_id: int,
     response: Response,
     db: DB_dependency,
@@ -37,7 +37,7 @@ def get_image_stream(
 
 
 @associated_img_router.get("/images/{img_id}/{size}")
-async def get_image(
+async def get_associated_image(
     img_id: int,
     size: ALLOWED_IMG_TYPES,
     response: Response,
