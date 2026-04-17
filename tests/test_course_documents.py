@@ -7,6 +7,7 @@ from .basic_factories import (
     course_document_data_factory,
     create_course_document,
 )
+from helpers.url_formatter import url_formatter
 
 
 @pytest.fixture
@@ -15,6 +16,7 @@ def plugg_course_id(db_session):
 
     course = Course_DB(
         title="Grundkurs i programmering",
+        title_urlized=url_formatter("Grundkurs i programmering"),
         course_code="EDAA01",
         description="Test course for course-document tests",
     )

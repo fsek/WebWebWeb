@@ -43,22 +43,25 @@ def _create_plugg_entities_for_image_tests(client, admin_token):
     assert program_response.status_code in (200, 201), program_response.text
     program_id = program_response.json()["program_id"]
 
-    program_year_response = create_program_year(client, token=admin_token, program_id=program_id)
-    assert program_year_response.status_code in (200, 201), program_year_response.text
-    program_year_id = program_year_response.json()["program_year_id"]
-
-    specialisation_response = create_specialisation(client, token=admin_token, program_ids=[program_id])
-    assert specialisation_response.status_code in (200, 201), specialisation_response.text
-    specialisation_id = specialisation_response.json()["specialisation_id"]
-
     course_response = create_course(
         client,
         token=admin_token,
-        program_year_ids=[program_year_id],
-        specialisation_ids=[specialisation_id],
     )
     assert course_response.status_code in (200, 201), course_response.text
     course_id = course_response.json()["course_id"]
+
+    program_year_response = create_program_year(
+        client,
+        token=admin_token,
+        program_id=program_id,
+        course_ids=[course_id],
+    )
+    assert program_year_response.status_code in (200, 201), program_year_response.text
+    program_year_id = program_year_response.json()["program_year_id"]
+
+    specialisation_response = create_specialisation(client, token=admin_token, course_ids=[course_id])
+    assert specialisation_response.status_code in (200, 201), specialisation_response.text
+    specialisation_id = specialisation_response.json()["specialisation_id"]
 
     return {
         "program_id": program_id,

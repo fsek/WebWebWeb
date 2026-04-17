@@ -20,7 +20,11 @@ class Specialisation_DB(BaseModel_DB):
 
     title_sv: Mapped[str] = mapped_column(String(MAX_SPECIALISATION_TITLE))
 
+    title_sv_urlized: Mapped[str] = mapped_column(String(MAX_SPECIALISATION_TITLE), unique=True)
+
     title_en: Mapped[str] = mapped_column(String(MAX_SPECIALISATION_TITLE))
+
+    title_en_urlized: Mapped[str] = mapped_column(String(MAX_SPECIALISATION_TITLE), unique=True)
 
     program_specialisations: Mapped[list["ProgramSpecialisation_DB"]] = relationship(
         back_populates="specialisation", cascade="all, delete-orphan", init=False

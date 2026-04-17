@@ -19,7 +19,11 @@ class Program_DB(BaseModel_DB):
 
     title_sv: Mapped[str] = mapped_column(String(MAX_PROGRAM_TITLE))
 
+    title_sv_urlized: Mapped[str] = mapped_column(String(MAX_PROGRAM_TITLE), unique=True)
+
     title_en: Mapped[str] = mapped_column(String(MAX_PROGRAM_TITLE))
+
+    title_en_urlized: Mapped[str] = mapped_column(String(MAX_PROGRAM_TITLE), unique=True)
 
     description_sv: Mapped[Optional[str]] = mapped_column(String(MAX_PROGRAM_DESC), default=None)
 

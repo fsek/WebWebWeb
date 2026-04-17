@@ -28,7 +28,7 @@ class SpecialisationRead(BaseSchema):
 class SpecialisationCreate(BaseSchema):
     title_sv: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_TITLE)]
     title_en: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_TITLE)]
-    program_ids: list[int] = []
+    course_ids: list[int] = []
     description_sv: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_DESC)] | None = None
 
@@ -36,6 +36,6 @@ class SpecialisationCreate(BaseSchema):
 class SpecialisationUpdate(BaseSchema):
     title_sv: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_TITLE)]
     title_en: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_TITLE)]
-    program_ids: list[int] = []
+    course_ids: list[int] = []
     description_sv: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_SPECIALISATION_DESC)] | None = None

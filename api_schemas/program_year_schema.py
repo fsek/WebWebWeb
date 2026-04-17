@@ -28,6 +28,7 @@ class ProgramYearCreate(BaseSchema):
     title_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_TITLE)]
     title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_TITLE)]
     program_id: int
+    course_ids: list[int] = []
     description_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_DESC)] | None = None
 
@@ -36,5 +37,6 @@ class ProgramYearUpdate(BaseSchema):
     title_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_TITLE)]
     title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_TITLE)]
     program_id: int
+    course_ids: list[int] = []
     description_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_YEAR_DESC)] | None = None

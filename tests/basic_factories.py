@@ -154,6 +154,7 @@ def program_year_data_factory(program_id=1, **kwargs):
         "title_sv": "Årskurs 1",
         "title_en": "Year 1",
         "program_id": program_id,
+        "course_ids": [],
         "description_sv": "Svensk årskursbeskrivning",
         "description_en": "English program year description",
     }
@@ -167,12 +168,12 @@ def create_program_year(client, token=None, **kwargs):
     return client.post("/program-years/", json=data, headers=headers)
 
 
-def specialisation_data_factory(program_ids, **kwargs):
+def specialisation_data_factory(**kwargs):
     """Factory for creating specialisation payloads."""
     default_data = {
         "title_sv": "Maskininlarning",
         "title_en": "Machine learning",
-        "program_ids": program_ids,
+        "course_ids": [],
         "description_sv": "Svensk specialiseringsbeskrivning",
         "description_en": "English specialisation description",
     }
@@ -186,14 +187,12 @@ def create_specialisation(client, token=None, **kwargs):
     return client.post("/specialisations/", json=data, headers=headers)
 
 
-def course_data_factory(program_year_ids=None, specialisation_ids=None, **kwargs):
+def course_data_factory(**kwargs):
     """Factory for creating course payloads."""
     default_data = {
         "title": "Lineär algebra",
         "course_code": "FMAA01",
         "description": "Hoppas du gillar matriser",
-        "program_year_ids": program_year_ids if program_year_ids is not None else [],
-        "specialisation_ids": specialisation_ids if specialisation_ids is not None else [],
     }
     return {**default_data, **kwargs}
 

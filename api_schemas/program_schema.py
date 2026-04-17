@@ -33,6 +33,7 @@ class ProgramCreate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_TITLE)]
     description_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_DESC)] | None = None
+    specialisation_ids: list[int] = []
 
 
 class ProgramUpdate(BaseSchema):
@@ -40,3 +41,4 @@ class ProgramUpdate(BaseSchema):
     title_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_TITLE)]
     description_sv: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_DESC)] | None = None
     description_en: Annotated[str, StringConstraints(max_length=MAX_PROGRAM_DESC)] | None = None
+    specialisation_ids: list[int] = []

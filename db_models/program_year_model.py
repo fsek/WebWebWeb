@@ -2,7 +2,7 @@ from helpers.constants import MAX_PROGRAM_YEAR_DESC, MAX_PROGRAM_YEAR_TITLE
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from typing import TYPE_CHECKING, Optional
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, UniqueConstraint
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 
 if TYPE_CHECKING:
@@ -14,12 +14,22 @@ if TYPE_CHECKING:
 
 class ProgramYear_DB(BaseModel_DB):
     __tablename__ = "program_year_table"
+    # See https://stackoverflow.com/questions/10059345/sqlalchemy-unique-across-multiple-columns
+    # Ensures that program_year titles are unique within the same program, so we can fetch by title
+    __table_args__ = (
+        UniqueConstraint("program_id", "title_sv_urlized", name="uq_program_year_program_sv_urlized"),
+        UniqueConstraint("program_id", "title_en_urlized", name="uq_program_year_program_en_urlized"),
+    )
 
     program_year_id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     title_sv: Mapped[str] = mapped_column(String(MAX_PROGRAM_YEAR_TITLE))
 
+    title_sv_urlized: Mapped[str] = mapped_column(String(MAX_PROGRAM_YEAR_TITLE))
+
     title_en: Mapped[str] = mapped_column(String(MAX_PROGRAM_YEAR_TITLE))
+
+    title_en_urlized: Mapped[str] = mapped_column(String(MAX_PROGRAM_YEAR_TITLE))
 
     program_id: Mapped[int] = mapped_column(ForeignKey("program_table.program_id"))
 
