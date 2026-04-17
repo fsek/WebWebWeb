@@ -11,6 +11,7 @@ class SimpleProgramYearRead(BaseSchema):
     program_year_id: int
     title_sv: str
     title_en: str
+    program_id: int
 
 
 class ProgramYearRead(BaseSchema):
