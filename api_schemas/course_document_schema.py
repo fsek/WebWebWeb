@@ -20,7 +20,6 @@ class CourseDocumentRead(BaseSchema):
 
 class CourseDocumentCreate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_DOC_TITLE)]
-    file_name: Annotated[str, StringConstraints(max_length=MAX_DOC_FILE_NAME)]
     course_id: int
     author: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_AUTHOR)]
     category: COURSE_DOCUMENT_CATEGORIES = "Other"
@@ -30,7 +29,6 @@ class CourseDocumentCreate(BaseSchema):
 # Apparently I have to do this to be able to send JSON forms at the same time as files in the POST course document router
 def course_document_create_form(
     title: str = Form(...),
-    file_name: str = Form(...),
     course_id: int = Form(...),
     author: str = Form(...),
     category: COURSE_DOCUMENT_CATEGORIES = Form("Other"),
@@ -38,7 +36,6 @@ def course_document_create_form(
 ) -> CourseDocumentCreate:
     return CourseDocumentCreate(
         title=title,
-        file_name=file_name,
         course_id=course_id,
         author=author,
         category=category,
@@ -48,7 +45,6 @@ def course_document_create_form(
 
 class CourseDocumentUpdate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_DOC_TITLE)]
-    file_name: Annotated[str, StringConstraints(max_length=MAX_DOC_FILE_NAME)]
     author: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_AUTHOR)]
     category: COURSE_DOCUMENT_CATEGORIES = "Other"
     sub_category: Annotated[str, StringConstraints(max_length=MAX_COURSE_DOC_SUB_CATEGORY)] | None = None

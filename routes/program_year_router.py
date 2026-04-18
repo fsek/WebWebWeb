@@ -18,6 +18,15 @@ def get_all_program_years(db: DB_dependency):
     return db.query(ProgramYear_DB).all()
 
 
+@program_year_router.get("/by_program/{program_id}", response_model=list[ProgramYearRead])
+def get_program_years_by_program(program_id: int, db: DB_dependency):
+    program = db.query(Program_DB).filter_by(program_id=program_id).one_or_none()
+    if program is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Program not found")
+
+    return db.query(ProgramYear_DB).filter_by(program_id=program_id).all()
+
+
 @program_year_router.get("/by_url_title/{program_title}/{program_year_title}", response_model=ProgramYearRead)
 def get_program_year_by_url_title(program_title: str, program_year_title: str, db: DB_dependency):
     normalized_program_title = url_formatter(program_title)

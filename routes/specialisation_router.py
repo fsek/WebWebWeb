@@ -8,9 +8,11 @@ from api_schemas.specialisation_schema import (
 )
 from database import DB_dependency
 from db_models.specialisation_model import Specialisation_DB
+from db_models.program_specialisation_model import ProgramSpecialisation_DB
 from user.permission import Permission
 from helpers.url_formatter import url_formatter
 from services.specialisation_service import update_specialisation_course_associations, validate_course_ids
+from db_models.program_model import Program_DB
 
 
 specialisation_router = APIRouter()
@@ -19,6 +21,20 @@ specialisation_router = APIRouter()
 @specialisation_router.get("/", response_model=list[SpecialisationRead])
 def get_all_specialisations(db: DB_dependency):
     return db.query(Specialisation_DB).all()
+
+
+@specialisation_router.get("/by_program/{program_id}", response_model=list[SpecialisationRead])
+def get_specialisations_by_program(program_id: int, db: DB_dependency):
+    program = db.query(Program_DB).filter_by(program_id=program_id).one_or_none()
+    if program is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Program not found")
+
+    return (
+        db.query(Specialisation_DB)
+        .join(Specialisation_DB.program_specialisations)
+        .filter(ProgramSpecialisation_DB.program_id == program_id)
+        .all()
+    )
 
 
 @specialisation_router.get("/by_url_title/{title}", response_model=SpecialisationRead)

@@ -5,7 +5,7 @@ from helpers.constants import MAX_SPECIALISATION_DESC, MAX_SPECIALISATION_TITLE
 
 if TYPE_CHECKING:
     from api_schemas.program_schema import SimpleProgramRead
-    from api_schemas.course_schema import SimpleCourseRead
+    from api_schemas.course_schema import CourseRead
 
 
 class SimpleSpecialisationRead(BaseSchema):
@@ -22,7 +22,7 @@ class SpecialisationRead(BaseSchema):
     description_sv: str | None
     description_en: str | None
     associated_img_id: int | None
-    courses: list["SimpleCourseRead"] = []
+    courses: list["CourseRead"] = []
 
 
 class SpecialisationCreate(BaseSchema):

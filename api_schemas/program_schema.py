@@ -4,7 +4,7 @@ from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_PROGRAM_DESC, MAX_PROGRAM_TITLE
 from api_schemas.program_year_schema import ProgramYearRead
 from api_schemas.course_schema import (
-    SimpleCourseRead,  # type: ignore
+    CourseRead,  # type: ignore
 )  # Needed for pydantic forward references in ProgramYearRead and SpecialisationRead
 from api_schemas.specialisation_schema import (
     SpecialisationRead,
