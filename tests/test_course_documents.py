@@ -1,6 +1,7 @@
 # type: ignore
 import os
 import pytest
+from pathlib import Path
 
 from .basic_factories import (
     auth_headers,
@@ -42,6 +43,38 @@ def test_create_course_document_success(client, admin_token, plugg_course_id, ex
     assert data["category"] == payload["category"]
     assert data["course_id"] == plugg_course_id
     assert data["file_name"].endswith(".pdf")
+
+
+def test_create_course_document_does_not_persist_if_file_write_fails(
+    client,
+    admin_token,
+    plugg_course_id,
+    example_file,
+    monkeypatch,
+    db_session,
+):
+    from db_models.course_document_model import CourseDocument_DB
+
+    def _raise_oserror(self, data):
+        raise OSError("Simulated file write failure")
+
+    monkeypatch.setattr(Path, "write_bytes", _raise_oserror)
+
+    payload = course_document_data_factory(course_id=plugg_course_id)
+    response = create_course_document(
+        client,
+        token=admin_token,
+        file=example_file,
+        **payload,
+    )
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Could not save document file"
+
+    persisted = (
+        db_session.query(CourseDocument_DB).filter_by(title=payload["title"], course_id=plugg_course_id).one_or_none()
+    )
+    assert persisted is None
 
 
 def test_patch_course_document_success(client, admin_token, plugg_course_id, example_file):

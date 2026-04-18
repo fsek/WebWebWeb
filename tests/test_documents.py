@@ -1,6 +1,7 @@
 # type: ignore
 from .basic_factories import auth_headers
 import pytest
+from pathlib import Path
 
 
 def create_document_object(
@@ -53,6 +54,30 @@ def test_create_document(client, admin_token, example_file):
     assert response.json()["title"] == "Test document"
     assert response.json()["category"] == "Test category"
     assert response.json()["is_private"] is False
+
+
+def test_create_document_does_not_persist_if_file_write_fails(
+    client, admin_token, example_file, monkeypatch, db_session
+):
+    from db_models.document_model import Document_DB
+
+    def _raise_oserror(self, data):
+        raise OSError("Simulated file write failure")
+
+    monkeypatch.setattr(Path, "write_bytes", _raise_oserror)
+
+    response = create_document_object(
+        client,
+        admin_token,
+        example_file,
+        title="Write fail doc",
+    )
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Could not save document file"
+
+    persisted = db_session.query(Document_DB).filter_by(title="Write fail doc").one_or_none()
+    assert persisted is None
 
 
 def test_patch_document(client, admin_token, example_file):

@@ -49,11 +49,22 @@ async def upload_document(
 
     try:
         db.add(document)
-        db.commit()
+        db.flush()
         file_path.write_bytes(file.file.read())
+        db.commit()
+        db.refresh(document)
     except IntegrityError:
+        # Something went wrong with the DB
         db.rollback()
+        if file_path.exists():
+            file_path.unlink(missing_ok=True)
         raise HTTPException(400, detail="Something is invalid")
+    except OSError:
+        # Something went wrong writing the file
+        db.rollback()
+        if file_path.exists():
+            file_path.unlink(missing_ok=True)
+        raise HTTPException(500, detail="Could not save document file")
 
     return document
 

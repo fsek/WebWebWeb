@@ -740,6 +740,28 @@ def test_create_course_with_duplicate_urlized_title_returns_409(client, admin_to
     assert second_response.status_code == 409
 
 
+def test_create_course_with_duplicate_course_code_fails(client, admin_token):
+    first_response = create_course(
+        client,
+        token=admin_token,
+        **course_data_factory(
+            title="Reglerteori grund",
+            course_code="FRTN07",
+        ),
+    )
+    assert first_response.status_code in (200, 201), first_response.text
+
+    second_response = create_course(
+        client,
+        token=admin_token,
+        **course_data_factory(
+            title="Reglerteori forts",
+            course_code="FRTN07",
+        ),
+    )
+    assert second_response.status_code in (400, 409)
+
+
 def test_update_course_with_duplicate_urlized_title_returns_409(client, admin_token):
     first_response = create_course(
         client,

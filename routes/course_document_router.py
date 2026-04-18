@@ -63,12 +63,22 @@ async def create_course_document(
 
     try:
         db.add(course_document)
-        db.commit()
+        db.flush()
         file_path.write_bytes(file.file.read())
+        db.commit()
         db.refresh(course_document)
     except IntegrityError:
+        # Something went wrong with the DB
         db.rollback()
+        if file_path.exists():
+            file_path.unlink(missing_ok=True)
         raise HTTPException(400, detail="Something is invalid")
+    except OSError:
+        # Something went wrong with the file writing
+        db.rollback()
+        if file_path.exists():
+            file_path.unlink(missing_ok=True)
+        raise HTTPException(500, detail="Could not save document file")
 
     return course_document
 
