@@ -57,7 +57,7 @@ pyparsing==3.2.3
 pytest==7.4.4
 python-dateutil==2.9.0.post0
 python-dotenv==1.2.1
-python-multipart==0.0.9
+python-multipart==0.0.26
 pytz==2025.2
 PyYAML==6.0.1
 redis==7.4.0
