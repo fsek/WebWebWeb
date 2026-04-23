@@ -50,6 +50,12 @@ async def create_course_document(
     if base_path is None:
         raise HTTPException(500, detail="Document base path is not configured")
 
+    if file.filename is None:
+        raise HTTPException(400, detail="The file has no name")
+
+    # This helps avoid unnecessary filename conflicts. The filename is not often used anyway.
+    file.filename = course.title_urlized + "_" + file.filename
+
     sanitized_filename, ext, file_path = await validate_file(base_path, file)
 
     course_document = CourseDocument_DB(
