@@ -2,11 +2,11 @@ from typing import Generic
 
 from fastapi import Response
 
-from fastapi_users_pelicanq import models
-from fastapi_users_pelicanq.authentication.strategy import (
+from fastapi_users import models
+from fastapi_users.authentication.strategy import (
     StrategyDestroyNotSupportedError,
 )
-from fastapi_users_pelicanq.authentication.backend import AuthenticationBackend
+from fastapi_users.authentication.backend import AuthenticationBackend
 
 from user.token_strategy import RefreshStrategy
 

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from api_schemas.user_schemas import UserCreate, UserRead
 from helpers.rate_limit import rate_limit
 from fastapi import APIRouter
-from fastapi_users_pelicanq.schemas import BaseUserUpdate
+from fastapi_users.schemas import BaseUserUpdate
 from user.custom_auth_router import get_auth_router, get_update_account_router
 from user.user_stuff import USERS, auth_backend, refresh_backend
 
