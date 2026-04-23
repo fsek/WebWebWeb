@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
 from api_schemas.specialisation_schema import (
     SpecialisationCreate,
@@ -13,6 +14,7 @@ from user.permission import Permission
 from helpers.url_formatter import url_formatter
 from services.specialisation_service import update_specialisation_course_associations, validate_course_ids
 from db_models.program_model import Program_DB
+from services.plugg_cleanup_service import collect_orphaned_associated_img_path_after_detach, remove_files
 
 
 specialisation_router = APIRouter()
@@ -181,6 +183,15 @@ def delete_specialisation(specialisation_id: int, db: DB_dependency):
     if specialisation is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    db.delete(specialisation)
-    db.commit()
+    files_to_remove: list[str] = []
+
+    try:
+        files_to_remove.extend(collect_orphaned_associated_img_path_after_detach(db, specialisation))
+        db.delete(specialisation)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(500, detail="Could not delete specialisation and all related resources")
+
+    remove_files(files_to_remove)
     return specialisation

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
 from api_schemas.program_year_schema import ProgramYearCreate, ProgramYearRead, ProgramYearUpdate
 from database import DB_dependency
@@ -8,6 +9,7 @@ from db_models.program_year_model import ProgramYear_DB
 from user.permission import Permission
 from helpers.url_formatter import url_formatter
 from services.program_year_service import update_program_year_course_associations, validate_course_ids
+from services.plugg_cleanup_service import collect_orphaned_associated_img_path_after_detach, remove_files
 
 
 program_year_router = APIRouter()
@@ -196,6 +198,15 @@ def delete_program_year(program_year_id: int, db: DB_dependency):
     if program_year is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    db.delete(program_year)
-    db.commit()
+    files_to_remove: list[str] = []
+
+    try:
+        files_to_remove.extend(collect_orphaned_associated_img_path_after_detach(db, program_year))
+        db.delete(program_year)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(500, detail="Could not delete program year and all related resources")
+
+    remove_files(files_to_remove)
     return program_year

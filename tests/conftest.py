@@ -117,7 +117,11 @@ def client(db_session):
     """FastAPI test client with database dependency override."""
 
     def get_test_db():
-        yield db_session
+        try:
+            yield db_session
+        finally:
+            # Clear session state to prevent stale data issues between tests
+            db_session.expire_all()
 
     # Override dependency
     app.dependency_overrides[get_db] = get_test_db

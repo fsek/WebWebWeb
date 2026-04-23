@@ -1,6 +1,7 @@
 # type: ignore
 import asyncio
 import os
+import pytest
 
 from database import redis_client
 from db_models.associated_img_model import AssociatedImg_DB
@@ -249,3 +250,61 @@ def test_deleting_associated_image_unlinks_all_association_types(client, admin_t
         assert delete_response.status_code == 200, delete_response.text
 
         assert _get_img_id_from_entity(client, association_type, association_id) is None
+
+
+# Excluding program which has associated program years which makes orphaning logic more complex than I care to implement
+@pytest.mark.parametrize(
+    "association_type",
+    ["program_year", "course", "specialisation"],
+)
+def test_deleting_plugg_entity_cleans_up_associated_image_everywhere(
+    client,
+    admin_token,
+    db_session,
+    example_image_file,
+    association_type,
+):
+    ids = _create_plugg_entities_for_image_tests(client, admin_token)
+    association_id = ids[f"{association_type}_id"]
+
+    upload_response = create_associated_image(
+        client,
+        token=admin_token,
+        association_type=association_type,
+        association_id=association_id,
+        file=example_image_file,
+    )
+    assert upload_response.status_code in (200, 201), upload_response.text
+
+    img_id = _get_img_id_from_entity(client, association_type, association_id)
+    assert img_id is not None
+
+    image_in_db = db_session.query(AssociatedImg_DB).filter_by(associated_img_id=img_id).one_or_none()
+    assert image_in_db is not None
+    assert os.path.exists(image_in_db.path)
+
+    delete_path_by_type = {
+        "program": f"/programs/{association_id}",
+        "program_year": f"/program-years/{association_id}",
+        "course": f"/courses/{association_id}",
+        "specialisation": f"/specialisations/{association_id}",
+    }
+
+    delete_response = client.delete(delete_path_by_type[association_type], headers=auth_headers(admin_token))
+    assert delete_response.status_code == 200, delete_response.text
+
+    deleted_image = db_session.query(AssociatedImg_DB).filter_by(associated_img_id=img_id).one_or_none()
+    assert deleted_image is None
+    assert not os.path.exists(image_in_db.path)
+
+
+def test_program_deletion_denied_if_program_years_exist(client, admin_token):
+    program_response = create_program(client, token=admin_token)
+    assert program_response.status_code in (200, 201), program_response.text
+    program_id = program_response.json()["program_id"]
+
+    program_year_response = create_program_year(client, token=admin_token, program_id=program_id)
+    assert program_year_response.status_code in (200, 201), program_year_response.text
+
+    delete_response = client.delete(f"/programs/{program_id}", headers=auth_headers(admin_token))
+    assert delete_response.status_code == 400

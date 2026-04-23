@@ -1,4 +1,7 @@
+import os
+
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 
 from api_schemas.course_schema import CourseCreate, CourseRead, CourseUpdate
 from database import DB_dependency
@@ -9,6 +12,11 @@ from db_models.program_year_model import ProgramYear_DB
 from db_models.specialisation_course_model import SpecialisationCourse_DB
 from db_models.specialisation_model import Specialisation_DB
 from db_models.program_year_course_model import ProgramYearCourse_DB
+from services.plugg_cleanup_service import (
+    collect_course_document_paths_and_delete_rows,
+    collect_orphaned_associated_img_path_after_detach,
+    remove_files,
+)
 
 
 course_router = APIRouter()
@@ -139,6 +147,21 @@ def delete_course(course_id: int, db: DB_dependency):
     if course is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    db.delete(course)
-    db.commit()
+    document_base_path = os.getenv("COURSE_DOCUMENT_BASE_PATH")
+    if document_base_path is None:
+        raise HTTPException(500, detail="Document base path is not configured")
+
+    files_to_remove: list[str] = []
+
+    try:
+        files_to_remove.extend(collect_course_document_paths_and_delete_rows(db, course, document_base_path))
+        files_to_remove.extend(collect_orphaned_associated_img_path_after_detach(db, course))
+
+        db.delete(course)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(500, detail="Could not delete course and all related resources")
+
+    remove_files(files_to_remove)
     return course

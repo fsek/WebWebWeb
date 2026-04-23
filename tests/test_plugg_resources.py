@@ -1,10 +1,13 @@
 # type: ignore
+import os
 import pytest
 
 from .basic_factories import (
     auth_headers,
+    create_associated_image,
     course_data_factory,
     create_course,
+    create_course_document,
     create_program,
     create_program_year,
     create_specialisation,
@@ -1143,3 +1146,79 @@ def test_delete_course_success(client, admin_token):
 
     get_response = client.get(f"/courses/{course_id}")
     assert get_response.status_code == 404
+
+
+def test_delete_course_removes_associated_images_and_course_documents_from_db_and_filesystem(
+    client,
+    admin_token,
+    db_session,
+    example_file,
+    example_image_file,
+):
+    from db_models.associated_img_model import AssociatedImg_DB
+    from db_models.course_document_model import CourseDocument_DB
+
+    create_response = create_course(
+        client,
+        token=admin_token,
+        **course_data_factory(
+            title="Databasteknik",
+            course_code="EDA216",
+        ),
+    )
+    assert create_response.status_code in (200, 201), create_response.text
+    course_id = create_response.json()["course_id"]
+
+    upload_image_response = create_associated_image(
+        client,
+        token=admin_token,
+        association_type="course",
+        association_id=course_id,
+        file=example_image_file,
+    )
+    assert upload_image_response.status_code in (200, 201), upload_image_response.text
+
+    course_response = client.get(f"/courses/{course_id}")
+    assert course_response.status_code == 200, course_response.text
+    associated_img_id = course_response.json()["associated_img_id"]
+    assert associated_img_id is not None
+
+    associated_img = db_session.query(AssociatedImg_DB).filter_by(associated_img_id=associated_img_id).one_or_none()
+    assert associated_img is not None
+    associated_img_path = associated_img.path
+    assert os.path.exists(associated_img_path)
+
+    create_document_response = create_course_document(
+        client,
+        token=admin_token,
+        file=example_file,
+        course_id=course_id,
+        title="Föreläsningsanteckningar",
+        author="Ingen",
+        category="Notes",
+        sub_category="VT26",
+    )
+    assert create_document_response.status_code in (200, 201), create_document_response.text
+    course_document_id = create_document_response.json()["course_document_id"]
+
+    course_document = db_session.query(CourseDocument_DB).filter_by(course_document_id=course_document_id).one_or_none()
+    assert course_document is not None
+
+    document_base_path = os.environ["COURSE_DOCUMENT_BASE_PATH"]
+    course_document_path = os.path.join(document_base_path, course_document.file_name)
+    assert os.path.exists(course_document_path)
+
+    delete_response = client.delete(f"/courses/{course_id}", headers=auth_headers(admin_token))
+    assert delete_response.status_code == 200, delete_response.text
+
+    deleted_associated_img = (
+        db_session.query(AssociatedImg_DB).filter_by(associated_img_id=associated_img_id).one_or_none()
+    )
+    deleted_course_document = (
+        db_session.query(CourseDocument_DB).filter_by(course_document_id=course_document_id).one_or_none()
+    )
+
+    assert deleted_associated_img is None
+    assert deleted_course_document is None
+    assert not os.path.exists(associated_img_path)
+    assert not os.path.exists(course_document_path)

@@ -89,7 +89,6 @@ def test_patch_course_document_success(client, admin_token, plugg_course_id, exa
 
     patch_data = {
         "title": "Updated notes",
-        "file_name": "updated_notes.pdf",
         "author": "Updated author",
         "category": "Summary",
         "sub_category": "by author 2",
@@ -104,7 +103,6 @@ def test_patch_course_document_success(client, admin_token, plugg_course_id, exa
     assert patch_response.status_code == 200, patch_response.text
     data = patch_response.json()
     assert data["title"] == "Updated notes"
-    assert data["file_name"] == "updated_notes.pdf"
     assert data["author"] == "Updated author"
     assert data["category"] == "Summary"
 

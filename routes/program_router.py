@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
 from api_schemas.program_schema import ProgramCreate, ProgramRead, ProgramUpdate
 from database import DB_dependency
@@ -10,6 +11,7 @@ from services.program_service import (
     update_program_specialisation_associations,
     validate_specialisation_ids,
 )
+from services.plugg_cleanup_service import collect_orphaned_associated_img_path_after_detach, remove_files
 
 
 program_router = APIRouter()
@@ -160,6 +162,23 @@ def delete_program(program_id: int, db: DB_dependency):
     if program is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    db.delete(program)
-    db.commit()
+    # Fixing proper handling of program_years is too much work so let's just forbid deletion if
+    # there are program_years associated.
+    if program.program_years:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            detail="Cannot delete program with associated program years. Delete them first.",
+        )
+
+    files_to_remove: list[str] = []
+
+    try:
+        files_to_remove.extend(collect_orphaned_associated_img_path_after_detach(db, program))
+        db.delete(program)
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(500, detail="Could not delete program and all related resources")
+
+    remove_files(files_to_remove)
     return program
