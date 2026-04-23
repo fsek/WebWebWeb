@@ -98,6 +98,8 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="Document"),
         Permission_DB(action="view", target="GuildMeeting"),
         Permission_DB(action="manage", target="GuildMeeting"),
+        Permission_DB(action="view", target="Keyvals"),
+        Permission_DB(action="manage", target="Keyvals"),
     ]
     post.permissions.extend(permissions)
     db_session.commit()

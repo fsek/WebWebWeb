@@ -101,3 +101,8 @@ DEFAULT_USER_PRIORITY = "Övrigt"
 MAX_GUILD_MEETING_DATE_DESC = 500
 MAX_GUILD_MEETING_DESC = 10000
 MAX_GUILD_MEETING_TITLE = 200
+
+
+# Keyval, used for example for storing the links to different very important documents (e.g. reglementet)
+MAX_KEYVAL_KEY = 100
+MAX_KEYVAL_VALUE = 1000

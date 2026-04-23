@@ -1,5 +1,8 @@
 from logging.config import fileConfig
 import os
+from typing import Any, Iterable, List
+
+from alembic.environment import MigrationContext
 
 from db_models.base_model import BaseModel_DB
 
@@ -40,6 +43,26 @@ database_url = os.getenv("DATABASE_URL", config.get_main_option("sqlalchemy.url"
 config.set_main_option("sqlalchemy.url", database_url or "")
 
 
+def process_revision_directives(
+    context: MigrationContext, revision: str | Iterable[str | None] | Iterable[str], directives: List[Any]
+) -> None:
+    if not directives:
+        return
+
+    script = directives[0]
+
+    # no changes to be made
+    if not script.upgrade_ops or script.upgrade_ops.is_empty():
+        # write to a github variable, currently unused
+        github_output = os.getenv("GITHUB_OUTPUT")
+        if github_output:
+            with open(github_output, "a") as f:
+                f.write("alembic_noop=1\n")
+        print("No schema changes detected.")
+        # clear all upgrades and dont create the migration file
+        directives[:] = []
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -78,7 +101,11 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection,
+            target_metadata=target_metadata,
+            process_revision_directives=process_revision_directives,
+        )
 
         with context.begin_transaction():
             context.run_migrations()
