@@ -52,7 +52,7 @@ class User_DB(BaseModel_DB, SQLAlchemyBaseUserTable[int]):
 
     program: Mapped[PROGRAM_TYPE] = mapped_column(default="Oklart", init=False)  # program at the guild
 
-    standard_food_preferences: Mapped[list[str]] = mapped_column(JSON, init=False, default=list)
+    standard_food_preferences: Mapped[list[str]] = mapped_column(JSON, init=False, default_factory=list)
 
     other_food_preferences: Mapped[Optional[str]] = mapped_column(init=False, default="")
 
