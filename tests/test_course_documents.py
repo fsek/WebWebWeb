@@ -266,3 +266,20 @@ def test_member_cannot_delete_course_document(
 
     response = client.delete(f"/course-documents/{document_id}", headers=auth_headers(member_token))
     assert response.status_code == 403
+
+
+def test_course_document_created_course_code(
+    client,
+    admin_token,
+    plugg_course_id,
+    example_file,
+):
+    response = create_course_document(
+        client,
+        token=admin_token,
+        file=example_file,
+        **course_document_data_factory(course_id=plugg_course_id),
+    )
+    assert response.status_code in (200, 201), response.text
+    data = response.json()
+    assert data["created_course_code"] == "EDAA01"

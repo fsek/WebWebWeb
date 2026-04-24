@@ -11,6 +11,7 @@ class CourseDocumentRead(BaseSchema):
     title: str
     file_name: str
     course_id: int
+    created_course_code: str
     author: str
     category: COURSE_DOCUMENT_CATEGORIES
     sub_category: str | None

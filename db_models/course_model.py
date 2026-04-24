@@ -25,7 +25,7 @@ class Course_DB(BaseModel_DB):
 
     title_urlized: Mapped[str] = mapped_column(String(MAX_COURSE_TITLE), unique=True)
 
-    course_code: Mapped[Optional[str]] = mapped_column(String(MAX_COURSE_CODE), default=None, unique=True)
+    course_code: Mapped[str] = mapped_column(String(MAX_COURSE_CODE), unique=True, nullable=False)
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_COURSE_DESC), default=None)
 

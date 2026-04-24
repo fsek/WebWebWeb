@@ -65,6 +65,7 @@ async def create_course_document(
         author=data.author,
         category=data.category,
         sub_category=data.sub_category,
+        created_course_code=course.course_code,
     )
 
     try:

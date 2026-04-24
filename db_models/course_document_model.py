@@ -22,6 +22,8 @@ class CourseDocument_DB(BaseModel_DB):
 
     course: Mapped["Course_DB"] = relationship(back_populates="documents", init=False)
 
+    created_course_code: Mapped[str] = mapped_column(String, nullable=False)
+
     author: Mapped[str] = mapped_column(String(MAX_COURSE_DOC_AUTHOR), nullable=False)
 
     category: Mapped[COURSE_DOCUMENT_CATEGORIES] = mapped_column(default="Other")
