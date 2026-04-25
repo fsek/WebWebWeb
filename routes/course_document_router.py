@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import os
 from pathlib import Path
 
@@ -74,6 +75,10 @@ async def create_course_document(
         file_path.write_bytes(file.file.read())
         db.commit()
         db.refresh(course_document)
+
+        # If everything went well, update the course last updated timestamp
+        course.updated_at = course_document.created_at
+        db.commit()
     except IntegrityError:
         # Something went wrong with the DB
         db.rollback()
@@ -106,6 +111,13 @@ def update_course_document(course_document_id: int, data: CourseDocumentUpdate, 
 
     db.commit()
     db.refresh(course_document)
+
+    # If everything went well, update the course last updated timestamp
+    course = db.query(Course_DB).filter_by(course_id=course_document.course_id).one_or_none()
+    if course is not None:
+        course.updated_at = course_document.updated_at
+        db.commit()
+
     return course_document
 
 
@@ -169,6 +181,12 @@ def delete_course_document(course_document_id: int, db: DB_dependency):
         db.delete(course_document)
         db.commit()
         os.remove(f"{base_path}/{course_document.file_name}")
+
+        # If everything went well, update the course last updated timestamp
+        course = db.query(Course_DB).filter_by(course_id=course_document.course_id).one_or_none()
+        if course is not None:
+            course.updated_at = datetime.now(timezone.utc)
+            db.commit()
     except IntegrityError:
         db.rollback()
         raise HTTPException(500, detail="Something went wrong trying to delete the document, contact the Webmasters")
