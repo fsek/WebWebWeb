@@ -27,6 +27,8 @@ class Course_DB(BaseModel_DB):
 
     course_code: Mapped[str] = mapped_column(String(MAX_COURSE_CODE), unique=True, nullable=False)
 
+    short_identifier: Mapped[Optional[str]] = mapped_column(String(MAX_COURSE_TITLE), default=None)
+
     description: Mapped[Optional[str]] = mapped_column(String(MAX_COURSE_DESC), default=None)
 
     program_year_courses: Mapped[list["ProgramYearCourse_DB"]] = relationship(

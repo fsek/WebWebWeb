@@ -86,7 +86,7 @@ def create_course(data: CourseCreate, db: DB_dependency):
 
     # Check for duplicate course code, since we require course codes to be unique.
     existing_course = db.query(Course_DB).filter_by(course_code=data.course_code).first()
-    if existing_course is not None and data.course_code is not None:
+    if existing_course is not None:
         raise HTTPException(
             status.HTTP_400_BAD_REQUEST,
             detail=f"Course with course_code {data.course_code} already exists, cannot create course",
@@ -96,6 +96,7 @@ def create_course(data: CourseCreate, db: DB_dependency):
         title=data.title,
         title_urlized=normalized_title,
         course_code=data.course_code,
+        short_identifier=data.short_identifier,
         description=data.description,
     )
     db.add(course)

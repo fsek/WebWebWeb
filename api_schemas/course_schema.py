@@ -12,12 +12,14 @@ class SimpleCourseRead(BaseSchema):
     course_id: int
     title: str
     course_code: str | None
+    short_identifier: str | None  # Kept so we can search for it
 
 
 class CourseRead(BaseSchema):
     course_id: int
     title: str
     course_code: str | None
+    short_identifier: str | None
     description: str | None
     associated_img_id: int | None
     documents: list[CourseDocumentRead] = []
@@ -28,11 +30,13 @@ class CourseRead(BaseSchema):
 
 class CourseCreate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_COURSE_TITLE)]
-    course_code: Annotated[str, StringConstraints(max_length=MAX_COURSE_CODE)] | None = None
+    course_code: Annotated[str, StringConstraints(max_length=MAX_COURSE_CODE)]
+    short_identifier: Annotated[str, StringConstraints(max_length=MAX_COURSE_TITLE)] | None = None
     description: Annotated[str, StringConstraints(max_length=MAX_COURSE_DESC)] | None = None
 
 
 class CourseUpdate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_COURSE_TITLE)]
-    course_code: Annotated[str, StringConstraints(max_length=MAX_COURSE_CODE)] | None = None
+    course_code: Annotated[str, StringConstraints(max_length=MAX_COURSE_CODE)]
+    short_identifier: Annotated[str, StringConstraints(max_length=MAX_COURSE_TITLE)] | None = None
     description: Annotated[str, StringConstraints(max_length=MAX_COURSE_DESC)] | None = None
