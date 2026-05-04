@@ -1,6 +1,5 @@
 # Used both in document_router and in course_document_router.
 
-from fastapi import HTTPException
 from helpers.constants import MAX_DOC_TITLE, MAX_FILE_SIZE_MB
 from helpers.pdf_checker import validate_pdf_header
 from fastapi import File, UploadFile, HTTPException

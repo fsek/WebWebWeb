@@ -75,12 +75,20 @@ def upload_img(
 
     try:
         db.add(img)
-        db.commit()
+        db.flush()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(400, detail="Invalid tag name")
+        raise HTTPException(
+            400, detail="Something went wrong when trying to create the associated image in the database"
+        )
 
-    file_path.write_bytes(file.file.read())
+    try:
+        file_path.write_bytes(file.file.read())
+    except OSError:
+        db.rollback()
+        raise HTTPException(500, detail="Error saving file")
+
+    db.commit()
 
     return {"message": "File saved successfully"}
 
@@ -100,7 +108,12 @@ def remove_img(db: Session, img_id: int):
     if img.specialisation is not None:
         img.specialisation.associated_img = None
 
-    os.remove(img.path)
+    try:
+        path = Path(img.path)
+        path.unlink(missing_ok=True)
+    except OSError:
+        raise HTTPException(500, detail="Error deleting file")
+
     db.delete(img)
     db.commit()
 

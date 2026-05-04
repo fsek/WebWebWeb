@@ -117,7 +117,7 @@ def test_get_course_document_by_id_public(client, admin_token, plugg_course_id, 
     assert create_response.status_code in (200, 201), create_response.text
     document_id = create_response.json()["course_document_id"]
 
-    response = client.get(f"/course-documents/{document_id}")
+    response = client.get(f"/course-documents/object/{document_id}")
     assert response.status_code == 200
     assert response.json()["course_document_id"] == document_id
 
@@ -238,13 +238,13 @@ def test_delete_course_document_success(client, admin_token, plugg_course_id, ex
     assert create_response.status_code in (200, 201), create_response.text
     document_id = create_response.json()["course_document_id"]
 
-    get_response = client.get(f"/course-documents/{document_id}")
+    get_response = client.get(f"/course-documents/object/{document_id}")
     assert get_response.status_code == 200
 
     delete_response = client.delete(f"/course-documents/{document_id}", headers=auth_headers(admin_token))
     assert delete_response.status_code == 200
 
-    get_response = client.get(f"/course-documents/{document_id}")
+    get_response = client.get(f"/course-documents/object/{document_id}")
     assert get_response.status_code == 404
 
 

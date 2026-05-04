@@ -88,6 +88,8 @@ def get_document_file_by_id(
     document_id: int, db: DB_dependency, member_permission: Annotated[bool, Permission.check_member()]
 ):
     base_path = os.getenv("DOCUMENT_BASE_PATH")
+    if base_path is None:
+        raise HTTPException(500, detail="Document base path is not configured")
 
     document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
     if document is None:
@@ -111,6 +113,8 @@ def get_document_file(
     response: Response,
 ):
     base_path = os.getenv("DOCUMENT_BASE_PATH")
+    if base_path is None:
+        raise HTTPException(500, detail="Document base path is not configured")
 
     document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
     if document is None:
@@ -140,6 +144,8 @@ def get_document_file(
 )
 def delete_document(document_id: int, db: DB_dependency):
     base_path = os.getenv("DOCUMENT_BASE_PATH")
+    if base_path is None:
+        raise HTTPException(500, detail="Document base path is not configured")
 
     document = db.query(Document_DB).filter(Document_DB.id == document_id).one_or_none()
     if document is None:
@@ -147,12 +153,23 @@ def delete_document(document_id: int, db: DB_dependency):
 
     try:
         db.delete(document)
-        db.commit()
-        # Only delete the file if the database deletion was successful
-        os.remove(f"{base_path}/{document.file_name}")
+        db.flush()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(500, detail="Something went wrong trying to delete the document, contact the Webmasters")
+        raise HTTPException(
+            500, detail="Something went wrong trying to delete the document from the database, contact the Webmasters"
+        )
+
+    try:
+        # Only delete the file if the database deletion was successful
+        os.remove(f"{base_path}/{document.file_name}")
+    except OSError:
+        db.rollback()
+        raise HTTPException(
+            500, detail="Something went wrong trying to delete the document file, contact the Webmasters"
+        )
+
+    db.commit()
 
     return document
 

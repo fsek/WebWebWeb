@@ -18,7 +18,6 @@ from db_models.course_model import Course_DB
 from services.document_service import validate_file
 from user.permission import Permission
 
-
 course_document_router = APIRouter()
 
 
@@ -27,8 +26,8 @@ def get_all_documents_from_course(course_id: int, db: DB_dependency):
     return db.query(CourseDocument_DB).filter_by(course_id=course_id).all()
 
 
-@course_document_router.get("/{course_document_id}", response_model=CourseDocumentRead)
-def get_course_document(course_document_id: int, db: DB_dependency):
+@course_document_router.get("/object/{course_document_id}", response_model=CourseDocumentRead)
+def get_course_document_object(course_document_id: int, db: DB_dependency):
     course_document = db.query(CourseDocument_DB).filter_by(course_document_id=course_document_id).one_or_none()
     if course_document is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
@@ -49,7 +48,7 @@ async def create_course_document(
 
     base_path = os.getenv("COURSE_DOCUMENT_BASE_PATH")
     if base_path is None:
-        raise HTTPException(500, detail="Document base path is not configured")
+        raise HTTPException(500, detail="Course document base path is not configured")
 
     if file.filename is None:
         raise HTTPException(400, detail="The file has no name")
@@ -124,6 +123,8 @@ def update_course_document(course_document_id: int, data: CourseDocumentUpdate, 
 @course_document_router.get("/document_file/{course_document_id}")
 def get_course_document_file_by_id(course_document_id: int, db: DB_dependency):
     base_path = os.getenv("COURSE_DOCUMENT_BASE_PATH")
+    if base_path is None:
+        raise HTTPException(500, detail="Course document base path is not configured")
 
     document = (
         db.query(CourseDocument_DB).filter(CourseDocument_DB.course_document_id == course_document_id).one_or_none()
@@ -145,6 +146,8 @@ def get_course_document_file(
     response: Response,
 ):
     base_path = os.getenv("COURSE_DOCUMENT_BASE_PATH")
+    if base_path is None:
+        raise HTTPException(500, detail="Course document base path is not configured")
 
     document = (
         db.query(CourseDocument_DB).filter(CourseDocument_DB.course_document_id == course_document_id).one_or_none()
@@ -173,21 +176,36 @@ def get_course_document_file(
 )
 def delete_course_document(course_document_id: int, db: DB_dependency):
     base_path = os.getenv("COURSE_DOCUMENT_BASE_PATH")
+    if base_path is None:
+        raise HTTPException(500, detail="Course document base path is not configured")
+
     course_document = db.query(CourseDocument_DB).filter_by(course_document_id=course_document_id).one_or_none()
     if course_document is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     try:
         db.delete(course_document)
-        db.commit()
-        os.remove(f"{base_path}/{course_document.file_name}")
-
-        # If everything went well, update the course last updated timestamp
-        course = db.query(Course_DB).filter_by(course_id=course_document.course_id).one_or_none()
-        if course is not None:
-            course.updated_at = datetime.now(timezone.utc)
-            db.commit()
+        db.flush()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(500, detail="Something went wrong trying to delete the document, contact the Webmasters")
+        raise HTTPException(
+            500,
+            detail="Something went wrong trying to delete the course document from the database, contact the Webmasters",
+        )
+
+    try:
+        os.remove(f"{base_path}/{course_document.file_name}")
+    except OSError:
+        db.rollback()
+        raise HTTPException(
+            500, detail="Something went wrong trying to delete the course document file, contact the Webmasters"
+        )
+
+    # If everything went well, update the course last updated timestamp
+    course = db.query(Course_DB).filter_by(course_id=course_document.course_id).one_or_none()
+    if course is not None:
+        course.updated_at = datetime.now(timezone.utc)
+
+    db.commit()
+
     return course_document
