@@ -221,7 +221,11 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="UserPost", posts=["Buggmästare"]),
         Permission(action="view", target="GuildMeeting", posts=["Buggmästare"]),
         Permission(action="manage", target="GuildMeeting", posts=["Buggmästare"]),
+        Permission(action="manage", target="AssociatedImg", posts=["Buggmästare"]),
         Permission(action="manage", target="Keyvals", posts=["Buggmästare"]),
+        Permission(action="manage", target="Plugg", posts=["Buggmästare"]),
+        Permission(action="manage", target="News", posts=["Buggmästare"]),
+        Permission(action="manage", target="Event", posts=["Buggmästare"]),
     ]
 
     [
