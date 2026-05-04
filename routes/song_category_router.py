@@ -4,7 +4,6 @@ from db_models.song_category_model import SongCategory_DB
 from fastapi import APIRouter, HTTPException, status
 from user.permission import Permission
 
-
 song_category_router = APIRouter()
 
 
@@ -26,7 +25,7 @@ def get_song_category(category_id: int, db: DB_dependency):
 def create_song_category(song_category_data: SongCategoryCreate, db: DB_dependency):
     num_existing = db.query(SongCategory_DB).filter(SongCategory_DB.name == song_category_data.name).count()
     if num_existing > 0:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Ths post already exists")
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This song category already exists")
     songcategory = SongCategory_DB(name=song_category_data.name)
     db.add(songcategory)
     db.commit()
