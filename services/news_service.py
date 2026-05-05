@@ -33,6 +33,7 @@ def create_new_news(data: NewsCreate, author_id: int, db: Session):
         author_id=author_id,
         pinned_from=data.pinned_from,
         pinned_to=data.pinned_to,
+        image_exist=False,
     )
     db.add(news)
     db.commit()
