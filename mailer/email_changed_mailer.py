@@ -6,7 +6,7 @@ from mailer.mail_constants import (
     STANDARD_SENDER,
     SUPPORT_LINK,
 )
-from mailer.mail_core import send_mail
+from mailer.mail_core import send_mail_to_address
 from db_models.user_model import User_DB
 import html as python_html
 
@@ -41,4 +41,4 @@ def email_changed_mailer(user: User_DB, new_email: str, old_email: str):
     msg["To"] = old_email
     msg["Subject"] = EMAIL_CHANGED_SUBJECT
 
-    send_mail(user, msg)
+    send_mail_to_address(old_email, msg)
