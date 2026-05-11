@@ -5,6 +5,7 @@ from api_schemas.post_schemas import PostRead
 from database import DB_dependency, get_db
 from db_models.permission_model import Permission_DB
 from db_models.post_model import Post_DB
+from db_models.user_model import User_DB
 from api_schemas.permission_schemas import (
     PermissionCreate,
     PermissionRead,
@@ -29,6 +30,21 @@ permission_router = APIRouter()
 def get_all_permissions(db: Annotated[Session, Depends(get_db)]):
     res = db.query(Permission_DB).all()
     return res
+
+
+@permission_router.get("/me", response_model=list[tuple[str, str]] | None)
+def get_my_permissions(member: Annotated[User_DB | None, Permission.check_member()]):
+    if not member:
+        return None
+    seen: set[tuple[str, str]] = set()
+    result: list[tuple[str, str]] = []
+    for post in member.posts:
+        for perm in post.post_permissions:
+            key: tuple[str, str] = (perm.permission.action, perm.permission.target)
+            if key not in seen:
+                seen.add(key)
+                result.append(key)
+    return result
 
 
 # Create a new permission which later can be assigned to posts

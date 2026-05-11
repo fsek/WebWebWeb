@@ -1,15 +1,39 @@
 import os
-from typing import Any
-from fastapi_users_pelicanq.authentication import AuthenticationBackend, BearerTransport, CookieTransport
-from fastapi_users_pelicanq.db import SQLAlchemyUserDatabase
+from typing import Any, cast
+from fastapi_users.authentication import AuthenticationBackend, BearerTransport, CookieTransport
+from fastapi_users.db import SQLAlchemyUserDatabase
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 from fastapi import Depends
-from fastapi_users_pelicanq import FastAPIUsers
+from fastapi_users import FastAPIUsers
 from database import get_db
 from db_models.user_model import User_DB
 from user.refresh_auth_backend import RefreshAuthenticationBackend
 from user.token_strategy import get_jwt_strategy, get_refresh_redis_strategy, LOGIN_TIMEOUT
 from user.user_manager import UserManager
+
+
+# This is such a horrible hack, but the alternative is essentially a full refactor of the code
+class _AsyncSessionProxy:
+    """Expose an async-session-like interface on top of a sync Session."""
+
+    def __init__(self, session: Session):
+        self._session = session
+
+    def add(self, instance: Any) -> None:
+        self._session.add(instance)
+
+    async def execute(self, statement: Any, *args: Any, **kwargs: Any) -> Any:
+        return self._session.execute(statement, *args, **kwargs)
+
+    async def commit(self) -> None:
+        self._session.commit()
+
+    async def refresh(self, instance: Any) -> None:
+        self._session.refresh(instance)
+
+    async def delete(self, instance: Any) -> None:
+        self._session.delete(instance)
 
 
 # Access token is sent in the Authorization header as a Bearer token.
@@ -64,7 +88,8 @@ refresh_backend = RefreshAuthenticationBackend[User_DB, int](
 
 
 async def get_user_db(session: Session = Depends(get_db)):
-    yield SQLAlchemyUserDatabase[User_DB, int](session, User_DB)
+    async_session = cast(AsyncSession, _AsyncSessionProxy(session))
+    yield SQLAlchemyUserDatabase[User_DB, int](async_session, User_DB)
 
 
 async def get_user_manager(user_db: SQLAlchemyUserDatabase[User_DB, int] = Depends(get_user_db)):
@@ -91,7 +116,3 @@ def get_enabled_backends() -> list[AuthenticationBackend[User_DB, int]]:
 current_user: Any = USERS.current_user(get_enabled_backends=get_enabled_backends, optional=True)
 
 current_verified_user: Any = USERS.current_user(verified=True, get_enabled_backends=get_enabled_backends, optional=True)
-
-current_verified_user_token: Any = USERS.current_user_token(
-    verified=True, get_enabled_backends=get_enabled_backends, optional=True
-)

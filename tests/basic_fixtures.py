@@ -39,9 +39,8 @@ def registered_users(client, user1_data, user2_data):
 
 
 @pytest.fixture
-def admin_post(db_session):
-    """Create and return an admin post."""
-
+def admin_council(db_session):
+    """Create and return a council for the admin user."""
     council = Council_DB(
         name_sv="AdminCouncilSV",
         description_sv="Svensk beskrivning för admins",
@@ -50,12 +49,18 @@ def admin_post(db_session):
     )
     db_session.add(council)
     db_session.commit()
+    return council
+
+
+@pytest.fixture
+def admin_post(db_session, admin_council):
+    """Create and return an admin post."""
     post = Post_DB(
         name_sv="AdminPostSV",
         name_en="AdminPost",
         description_en="AdminDescriptionEn",
         description_sv="AdminDescriptionSv",
-        council_id=council.id,
+        council_id=admin_council.id,
         elected_user_recommended_limit=1,
         elected_user_max_limit=2,
         elected_at_semester="HT",
@@ -100,6 +105,87 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="GuildMeeting"),
         Permission_DB(action="view", target="Keyvals"),
         Permission_DB(action="manage", target="Keyvals"),
+    ]
+    post.permissions.extend(permissions)
+    db_session.commit()
+
+    return post
+
+
+@pytest.fixture
+def super_user_post(db_session, admin_council):
+    """Create and return a post which has only the "super" - "User" permission."""
+
+    post = Post_DB(
+        name_sv="SuperUserPostSV",
+        name_en="SuperUserPostEN",
+        description_en="SuperUserDescriptionEn",
+        description_sv="SuperUserDescriptionSv",
+        council_id=admin_council.id,
+        elected_user_recommended_limit=1,
+        elected_user_max_limit=2,
+        elected_at_semester="HT",
+        elected_by="Guild",
+    )
+    db_session.add(post)
+    db_session.commit()
+
+    permissions = [
+        Permission_DB(action="super", target="User"),
+    ]
+    post.permissions.extend(permissions)
+    db_session.commit()
+
+    return post
+
+
+@pytest.fixture
+def manage_user_post(db_session, admin_council):
+    """Create and return a post which has only the "manage" - "User" permission."""
+
+    post = Post_DB(
+        name_sv="ManageUserPostSV",
+        name_en="ManageUserPostEN",
+        description_en="ManageUserDescriptionEn",
+        description_sv="ManageUserDescriptionSv",
+        council_id=admin_council.id,
+        elected_user_recommended_limit=1,
+        elected_user_max_limit=2,
+        elected_at_semester="HT",
+        elected_by="Guild",
+    )
+    db_session.add(post)
+    db_session.commit()
+
+    permissions = [
+        Permission_DB(action="manage", target="User"),
+    ]
+    post.permissions.extend(permissions)
+    db_session.commit()
+
+    return post
+
+
+@pytest.fixture
+def view_user_post(db_session, admin_council):
+    """Create and return a post which has only the "view" - "User" permission."""
+
+    post = Post_DB(
+        name_sv="ViewUserPostSV",
+        name_en="ViewUserPostEN",
+        description_en="ViewUserDescriptionEn",
+        description_sv="ViewUserDescriptionSv",
+        council_id=admin_council.id,
+        elected_user_recommended_limit=1,
+        elected_user_max_limit=2,
+        elected_at_semester="HT",
+        elected_by="Guild",
+    )
+    db_session.add(post)
+    db_session.commit()
+
+    permissions = [
+        Permission_DB(action="view", target="User"),
     ]
     post.permissions.extend(permissions)
     db_session.commit()

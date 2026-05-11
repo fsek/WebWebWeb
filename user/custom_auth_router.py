@@ -3,11 +3,11 @@ from typing import Tuple, Type, Optional
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from fastapi_users_pelicanq import models, schemas, exceptions
-from fastapi_users_pelicanq.authentication import AuthenticationBackend, Authenticator, Strategy
-from fastapi_users_pelicanq.manager import BaseUserManager, UserManagerDependency
-from fastapi_users_pelicanq.openapi import OpenAPIResponseType
-from fastapi_users_pelicanq.router.common import ErrorCode, ErrorModel
+from fastapi_users import models, schemas, exceptions
+from fastapi_users.authentication import AuthenticationBackend, Authenticator, Strategy
+from fastapi_users.manager import BaseUserManager, UserManagerDependency
+from fastapi_users.openapi import OpenAPIResponseType
+from fastapi_users.router.common import ErrorCode, ErrorModel
 from helpers.rate_limit import rate_limit
 from pydantic import EmailStr
 from user.refresh_auth_backend import RefreshAuthenticationBackend
