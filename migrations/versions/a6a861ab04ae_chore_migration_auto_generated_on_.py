@@ -26,7 +26,10 @@ def upgrade() -> None:
             'image_exist',
             sa.Boolean(),
             nullable=False,
-            server_default=sa.false()  # set default for existing rows
+            server_default=sa.true()  # set default for existing rows
+            # Set to true so we later (on frontend) fetch the image by default. 
+            # The field being true with no image is better than the opposite:
+            # missing image not found instead of real image never fetched
         )
     )
     # drop the default so future inserts must set it explicitly
