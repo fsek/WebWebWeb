@@ -40,7 +40,7 @@ packaging==23.2
 pandas==2.2.3
 passlib==1.7.4
 phonenumbers==9.0.25
-pillow==10.2.0
+pillow==12.2.0
 pluggy==1.6.0
 proto-plus==1.26.1
 protobuf==6.33.5
