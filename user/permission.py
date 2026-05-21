@@ -85,8 +85,6 @@ class Permission:
         required_action: PERMISSION_TYPE,
         required_target: PERMISSION_TARGET,
     ) -> bool:
-        # It's unlikely but possible to recieve a token with pemissions recently removed from hard-coded list
-        # not a problem though since you'll notice errors on routes still accepting what you removed
 
         if claim_target != required_target and claim_target != "all":
             return False

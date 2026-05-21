@@ -33,8 +33,8 @@ def get_all_permissions(db: Annotated[Session, Depends(get_db)]):
 
 
 @permission_router.get("/me", response_model=list[tuple[str, str]] | None)
-def get_my_permissions(member: Annotated[User_DB | None, Permission.check_member()]):
-    if not member:
+def get_my_permissions(member: Annotated[User_DB | bool | None, Permission.check_member()]):
+    if not member or isinstance(member, bool):
         return None
     seen: set[tuple[str, str]] = set()
     result: list[tuple[str, str]] = []
