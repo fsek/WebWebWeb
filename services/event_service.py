@@ -50,6 +50,7 @@ def create_new_event(data: EventCreate, db: Session):
         drink_package=data.drink_package,
         location=data.location,
         is_nollning_event=data.is_nollning_event,
+        mentor_group_types=data.mentor_group_types,
         dress_code=data.dress_code,
         price=data.price,
         alcohol_event_type=data.alcohol_event_type,
