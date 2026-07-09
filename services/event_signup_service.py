@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from typing import get_args
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 from db_models.event_model import Event_DB
@@ -6,6 +7,7 @@ from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
 from helpers.constants import DEFAULT_USER_PRIORITY
+from helpers.types import GROUP_TYPE
 
 
 def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
@@ -29,6 +31,21 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
         .one_or_none()
     ):
         raise HTTPException(400, detail="User already signed up to chosen event")
+
+    if event.is_nollning_event:
+        allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
+        is_event_allowed = False
+        for gu in user.group_users:
+            if data.group_name == gu.group.name:
+                if gu.group.group_type in allowed_group_types:
+                    is_event_allowed = True
+                # TODO
+                # if (gu.group_user_type == "Mentor") and event.allow_other_mentors:
+                #     is_event_allowed = True
+                break
+
+        if not is_event_allowed:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User cannot sign up with this group")
 
     signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
 
