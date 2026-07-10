@@ -1,5 +1,6 @@
 from typing import TYPE_CHECKING, Annotated, Literal
-from pydantic import StringConstraints
+from pydantic import StringConstraints, field_validator
+from helpers.check_stil_id import check_stil_id
 from fastapi_users_pelicanq import schemas as fastapi_users_schemas
 from api_schemas.post_schemas import PostRead
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
@@ -9,6 +10,19 @@ from helpers.types import DOOR_ACCESSES, PROGRAM_TYPE, datetime_utc
 
 if TYPE_CHECKING:
     from api_schemas.group_schema import GroupRead
+
+
+class StilIdValidationMixin:
+    stil_id: str | None = None
+
+    @field_validator("stil_id", mode="after")
+    @classmethod
+    def validate_stil_id(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if not check_stil_id(value):
+            raise ValueError("Invalid stil-id")
+        return value
 
 
 class _UserEventRead(BaseSchema):
@@ -118,25 +132,25 @@ class UserInGroupRead(BaseSchema):
 
 
 # fastapi-users will take all fields on this model and feed into the user constructor User_DB(...) when /auth/register route is called
-class UserCreate(fastapi_users_schemas.BaseUserCreate, BaseSchema):
+class UserCreate(StilIdValidationMixin, fastapi_users_schemas.BaseUserCreate, BaseSchema):
     first_name: Annotated[str, StringConstraints(max_length=MAX_FIRST_NAME_LEN)]
     last_name: Annotated[str, StringConstraints(max_length=MAX_LAST_NAME_LEN)]
     telephone_number: PhoneNumber
     start_year: int | None = None
-    pass
+    # stil_id is here, but inherited from StilIdValidationMixin
 
 
-class UserUpdate(BaseSchema):
+class UserUpdate(StilIdValidationMixin, BaseSchema):
     first_name: str | None = None
     last_name: str | None = None
     start_year: int | None = None
     program: PROGRAM_TYPE | None = None
     notifications: bool | None = None
-    stil_id: str | None = None
     standard_food_preferences: list[str] | None = None
     other_food_preferences: str | None = None
     telephone_number: PhoneNumber | None = None
     moose_game_name: str | None = None
+    # stil_id is here, but inherited from StilIdValidationMixin
 
 
 class UpdateUserMember(BaseSchema):
