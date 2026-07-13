@@ -70,6 +70,7 @@ class Event_DB(BaseModel_DB):
 
     is_nollning_event: Mapped[bool] = mapped_column(default=False)
     mentor_group_types: Mapped[list[GROUP_TYPE]] = mapped_column(JSON, default_factory=list)
+    allow_other_mentors: Mapped[bool] = mapped_column(default=False)
 
     dot: Mapped[EVENT_DOT_TYPES] = mapped_column(default="None")
 

@@ -39,9 +39,8 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
             if data.group_name == gu.group.name:
                 if gu.group.group_type in allowed_group_types:
                     is_event_allowed = True
-                # TODO
-                # if (gu.group_user_type == "Mentor") and event.allow_other_mentors:
-                #     is_event_allowed = True
+                if (gu.group_user_type == "Mentor") and event.allow_other_mentors:
+                    is_event_allowed = True
                 break
 
         if not is_event_allowed:

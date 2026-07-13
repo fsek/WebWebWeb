@@ -32,6 +32,7 @@ class EventRead(BaseSchema):
     drink_package: bool
     is_nollning_event: bool
     mentor_group_types: list[GROUP_TYPE]
+    allow_other_mentors: bool
     alcohol_event_type: str
     dress_code: str
     price: int
@@ -66,6 +67,7 @@ class EventCreate(BaseSchema):
     drink_package: bool
     is_nollning_event: bool
     mentor_group_types: list[GROUP_TYPE]
+    allow_other_mentors: bool
     alcohol_event_type: ALCOHOL_EVENT_TYPES
     dress_code: str
     price: int
@@ -93,6 +95,7 @@ class EventUpdate(BaseSchema):
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
     mentor_group_types: list[GROUP_TYPE] | None = None
+    allow_other_mentors: bool | None = None
     priorities: list[str] | None = None
     alcohol_event_type: ALCOHOL_EVENT_TYPES | None = None
     dress_code: str | None = None
