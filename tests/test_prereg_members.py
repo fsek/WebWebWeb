@@ -1,4 +1,5 @@
 # type: ignore
+from sqlalchemy.exc import IntegrityError
 from db_models.prereg_member_model import PreregMember_DB
 from tests.basic_factories import auth_headers
 
@@ -100,6 +101,20 @@ def test_update_prereg_member(client, admin_token, db_session):
     assert resp.json()["email"] == "new@test.com"
 
 
+def test_update_prereg_member_partial_update_preserves_other_fields(client, admin_token, db_session):
+    member = create_db_prereg_member(
+        db_session, telephone_number="+46701234567", stil_id="pq1234rs-s", email="old@test.com"
+    )
+    before = client.get(f"/prereg-members/{member.prereg_member_id}", headers=auth_headers(admin_token)).json()
+    payload = {"email": "new@test.com"}
+    resp = client.patch(f"/prereg-members/{member.prereg_member_id}", json=payload, headers=auth_headers(admin_token))
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["email"] == "new@test.com"
+    assert data["telephone_number"] == before["telephone_number"]
+    assert data["stil_id"] == "pq1234rs-s"
+
+
 def test_update_prereg_member_remove_all_identifiers_fails(client, admin_token, db_session):
     member = create_db_prereg_member(db_session, email="old@test.com")
     payload = {"telephone_number": None, "email": None}
@@ -122,3 +137,40 @@ def test_delete_multiple_prereg_members(client, admin_token, db_session):
     resp = client.request("DELETE", "/prereg-members/multiple", json=payload, headers=auth_headers(admin_token))
     assert resp.status_code == 200
     assert len(resp.json()) == 2
+
+
+@pytest.mark.parametrize(
+    "identifiers",
+    [
+        pytest.param({"email": "nnd@test.com"}, id="email_only"),
+        pytest.param({"telephone_number": "+46701112233"}, id="telephone_only"),
+        pytest.param({"stil_id": "ab1234cd-s"}, id="stil_id_only"),
+        pytest.param({"telephone_number": "+46701112244", "email": "nnd2@test.com"}, id="two_of_three"),
+        pytest.param(
+            {"telephone_number": "+46705556677", "stil_id": "ef5678gh-s", "email": "full@test.com"}, id="no_nulls"
+        ),
+    ],
+)
+def test_unique_all_rejects_duplicates(db_session, identifiers):
+    """
+    unique_all must reject a duplicate even when the unset identifiers are NULL.
+
+    Postgres defaults to NULLS DISTINCT, where any NULL in the key makes rows non-conflicting.
+    Without postgresql_nulls_not_distinct on the constraint, every case but no_nulls is let in.
+    """
+    db_session.add(PreregMember_DB(**identifiers))
+    db_session.flush()
+
+    with pytest.raises(IntegrityError):  # Check if a second insert has the db raise a duplicate error
+        db_session.add(PreregMember_DB(**identifiers))
+        db_session.flush()
+
+
+def test_unique_all_allows_members_differing_in_one_identifier(db_session):
+    """Guard against over-tightening: NULLS NOT DISTINCT must not collapse genuinely different rows."""
+    db_session.add(PreregMember_DB(email="distinct1@test.com"))
+    db_session.add(PreregMember_DB(email="distinct2@test.com"))
+    db_session.add(PreregMember_DB(telephone_number="+46708889900", email="distinct1@test.com"))
+    db_session.flush()
+
+    assert db_session.query(PreregMember_DB).count() == 3

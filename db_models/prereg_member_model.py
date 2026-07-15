@@ -8,13 +8,6 @@ from helpers.constants import MAX_TELEPHONE_LEN
 
 class PreregMember_DB(BaseModel_DB):
     __tablename__ = "prereg_member_table"
-    __table_args__ = (
-        CheckConstraint(
-            "telephone_number IS NOT NULL OR stil_id IS NOT NULL OR email IS NOT NULL",
-            name="at_least_one_identifier_required",
-        ),
-        UniqueConstraint("telephone_number", "stil_id", "email", name="unique_prereg_member_identifiers"),
-    )
     prereg_member_id: Mapped[int] = mapped_column(
         primary_key=True, init=False
     )  # Not the id the user will have when confirmed as member!
@@ -22,3 +15,17 @@ class PreregMember_DB(BaseModel_DB):
     telephone_number: Mapped[Optional[str]] = mapped_column(String(MAX_TELEPHONE_LEN), default=None)
     stil_id: Mapped[Optional[str]] = mapped_column(default=None)
     email: Mapped[Optional[str]] = mapped_column(default=None)
+
+    __table_args__ = (
+        CheckConstraint(
+            "telephone_number IS NOT NULL OR stil_id IS NOT NULL OR email IS NOT NULL",
+            name="at_least_one_identifier_required",
+        ),
+        UniqueConstraint(
+            "telephone_number",
+            "stil_id",
+            "email",
+            name="unique_all",
+            postgresql_nulls_not_distinct=True,  # Without this, NULL =/= NULL, failing many unique_all tests
+        ),
+    )

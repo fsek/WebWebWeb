@@ -98,6 +98,10 @@ def create_multiple_prereg_members(
 ):
     prereg_members: list[PreregMember_DB] = []
     existing_prereg_members: list[PreregMember_DB] = []
+
+    if not data:
+        raise HTTPException(400, detail="No prereg members provided")
+
     for member_data in data:
         if not (member_data.telephone_number or member_data.stil_id or member_data.email):
             raise HTTPException(
@@ -130,7 +134,7 @@ def create_multiple_prereg_members(
         db.add(prereg_member)
         prereg_members.append(prereg_member)
 
-    if len(existing_prereg_members) >= 0 and len(existing_prereg_members) == len(data):
+    if len(existing_prereg_members) == len(data):
         raise HTTPException(400, detail="All prereg members already exist")
 
     db.commit()
@@ -150,7 +154,7 @@ def update_prereg_member(prereg_member_id: int, data: PreregMemberUpdate, db: DB
     if not validate_identifiers(data):
         raise HTTPException(400, detail="Invalid identifier(s) provided")
 
-    for var, value in vars(data).items():
+    for var, value in data.model_dump(exclude_unset=True).items():
         # Update the fields even if they are being set to None so they can be cleared
         setattr(prereg_member, var, value)
 
