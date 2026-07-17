@@ -101,6 +101,7 @@ class EventUpdate(BaseSchema):
     dress_code: str | None = None
     price: int | None = None
     dot: EVENT_DOT_TYPES | None = None
+    lottery: bool | None = None
 
 
 class AddEventTag(BaseSchema):
