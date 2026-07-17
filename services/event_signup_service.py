@@ -32,19 +32,8 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     ):
         raise HTTPException(400, detail="User already signed up to chosen event")
 
-    if event.is_nollning_event:
-        allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
-        is_event_allowed = False
-        for gu in user.group_users:
-            if data.group_name == gu.group.name:
-                if gu.group.group_type in allowed_group_types:
-                    is_event_allowed = True
-                if (gu.group_user_type == "Mentor") and event.allow_other_mentors:
-                    is_event_allowed = True
-                break
-
-        if not is_event_allowed:
-            raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User cannot sign up with this group")
+    if not is_group_allowed(event, user, data.group_name):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User cannot sign up with this group")
 
     signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
 
@@ -103,6 +92,9 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     if not event.drink_package:
         signup.drinkPackage = "None"
 
+    if not is_group_allowed(event, db.query(User_DB).filter(User_DB.id == user_id).one(), data.group_name):
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="User cannot sign up with this group")
+
     db.commit()
     db.refresh(event)
     return signup
@@ -118,3 +110,21 @@ def check_me_signup(event_id: int, me: User_DB, db: Session):
         raise HTTPException(404, detail="Signup not found")
 
     return signup
+
+
+def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
+    if event.is_nollning_event:
+        allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
+        is_event_allowed = False
+        for gu in user.group_users:
+            if group_name == gu.group.name:
+                if gu.group.group_type in allowed_group_types:
+                    is_event_allowed = True
+                if (gu.group_user_type == "Mentor") and event.allow_other_mentors:
+                    is_event_allowed = True
+                break
+
+        if not is_event_allowed:
+            return False
+
+    return True
