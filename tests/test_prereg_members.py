@@ -2,6 +2,7 @@
 from sqlalchemy.exc import IntegrityError
 from db_models.prereg_member_model import PreregMember_DB
 from tests.basic_factories import auth_headers
+import pytest
 
 
 def create_db_prereg_member(db_session, telephone_number=None, stil_id=None, email=None):
