@@ -37,6 +37,9 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
         description_en=data.description_en,
         max_points=data.max_points,
         min_points=data.min_points,
+        unlock_code=data.unlock_code,
+        unlock_hint_sv=data.unlock_hint_sv,
+        unlock_hint_en=data.unlock_hint_en,
     )
 
     db.add(new_adventure_mission)
