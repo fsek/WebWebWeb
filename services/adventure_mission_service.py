@@ -28,6 +28,13 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
     if data.min_points < 0:
         raise HTTPException(400, detail="Min points has to be atleast 0")
 
+    if data.unlock_code == "":  # Easy guard against accidentally setting unlock_code to empty string
+        data.unlock_code = None
+    if data.unlock_hint_sv == "":
+        data.unlock_hint_sv = None
+    if data.unlock_hint_en == "":
+        data.unlock_hint_en = None
+
     new_adventure_mission = AdventureMission_DB(
         nollning_id=nollning_id,
         nollning_week=data.nollning_week,
@@ -85,8 +92,16 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
     if not adventure_mission:
         raise HTTPException(404, detail="Mission not found")
 
+    if data.unlock_code == "":  # Easy guard against accidentally setting unlock_code to empty string
+        data.unlock_code = None
+    if data.unlock_hint_sv == "":
+        data.unlock_hint_sv = None
+    if data.unlock_hint_en == "":
+        data.unlock_hint_en = None
+
     for var, value in vars(data).items():
-        setattr(adventure_mission, var, value) if value is not None else None
+        # Allow for clearing of code by allowing setting attributes to None
+        setattr(adventure_mission, var, value)
 
     db.commit()
     db.refresh(adventure_mission)
