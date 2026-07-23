@@ -1,5 +1,5 @@
 from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, GROUP_TYPE, datetime_utc
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, get_args
 from sqlalchemy import JSON, ForeignKey, String
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_DRESS_CODE, MAX_EVENT_LOCATION, MAX_EVENT_TITLE
@@ -69,7 +69,9 @@ class Event_DB(BaseModel_DB):
     )
 
     is_nollning_event: Mapped[bool] = mapped_column(default=False)
-    mentor_group_types: Mapped[list[GROUP_TYPE]] = mapped_column(JSON, default_factory=list)
+    mentor_group_types: Mapped[list[GROUP_TYPE]] = mapped_column(
+        JSON, default_factory=lambda: list(get_args(GROUP_TYPE))
+    )
     allow_other_mentors: Mapped[bool] = mapped_column(default=False)
 
     dot: Mapped[EVENT_DOT_TYPES] = mapped_column(default="None")

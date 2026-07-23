@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 from db_models.event_model import Event_DB
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
+from db_models.group_model import Group_DB
+from db_models.group_user_model import GroupUser_DB
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
 from helpers.constants import DEFAULT_USER_PRIORITY
 from helpers.types import GROUP_TYPE
@@ -112,15 +114,26 @@ def check_me_signup(event_id: int, me: User_DB, db: Session):
     return signup
 
 
+def get_allowed_groups(event: Event_DB, user: User_DB):
+    allowed_groups: list[Group_DB] = []
+    if event.is_nollning_event:
+        allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
+        for gu in user.group_users:
+            if __is_group_allowed(gu, event, allowed_group_types):
+                allowed_groups.append(gu.group)
+    else:
+        allowed_groups = user.groups
+
+    return allowed_groups
+
+
 def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
     if event.is_nollning_event:
         allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
         is_event_allowed = False
         for gu in user.group_users:
             if group_name == gu.group.name:
-                if gu.group.group_type in allowed_group_types:
-                    is_event_allowed = True
-                if (gu.group_user_type == "Mentor") and event.allow_other_mentors:
+                if __is_group_allowed(gu, event, allowed_group_types):
                     is_event_allowed = True
                 break
 
@@ -128,3 +141,11 @@ def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
             return False
 
     return True
+
+
+def __is_group_allowed(gu: GroupUser_DB, e: Event_DB, agt: list[GROUP_TYPE]):
+    if gu.group.group_type in agt:
+        return True
+    elif (gu.group_user_type == "Mentor") and e.allow_other_mentors:
+        return True
+    return False

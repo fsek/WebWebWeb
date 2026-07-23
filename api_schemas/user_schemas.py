@@ -97,6 +97,12 @@ class UserInEventRead(SimpleUserRead):
     email: str
 
 
+class UserForEventSignupRead(SimpleUserRead):
+    groups: list["GroupRead"]
+    standard_food_preferences: list[str] | None
+    other_food_preferences: str | None
+
+
 class AdminUserReadForCarBookings(SimpleUserRead):
     email: str
     telephone_number: PhoneNumber
