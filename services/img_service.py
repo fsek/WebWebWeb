@@ -11,10 +11,10 @@ from helpers.db_util import sanitize_title
 from sqlalchemy.exc import IntegrityError
 
 
-base_path = os.getenv("ALBUM_BASE_PATH")
-
-
 def upload_img(db: Session, album_id: int, file: UploadFile = File()):
+    base_path = os.getenv("ALBUM_BASE_PATH")
+    if base_path is None:
+        raise HTTPException(500, detail="Server configuration error: ALBUM_BASE_PATH not set")
 
     if file.filename is None:
         raise HTTPException(400, detail="The file has no name")
@@ -56,12 +56,18 @@ def upload_img(db: Session, album_id: int, file: UploadFile = File()):
 
     try:
         db.add(img)
-        db.commit()
+        db.flush()
     except IntegrityError:
         db.rollback()
-        raise HTTPException(400, detail="Invalid tag name")
+        raise HTTPException(400, detail="Error creating image in the database")
 
-    file_path.write_bytes(file.file.read())
+    try:
+        file_path.write_bytes(file.file.read())
+    except OSError:
+        db.rollback()
+        raise HTTPException(500, detail="Error saving image to disk")
+
+    db.commit()
 
     return {"message": "File saved successfully"}
 
@@ -72,7 +78,12 @@ def remove_img(db: Session, img_id: int):
     if img == None:
         raise HTTPException(404, detail="File not found")
 
-    os.remove(img.path)
+    try:
+        path = Path(img.path)
+        path.unlink(missing_ok=True)
+    except OSError:
+        raise HTTPException(500, detail="Error deleting file")
+
     db.delete(img)
     db.commit()
 

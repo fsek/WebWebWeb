@@ -128,3 +128,112 @@ def patch_sub_election(client, sub_election_id, token=None, **kwargs):
     data = sub_election_data_factory(**kwargs)
     headers = auth_headers(token) if token else {}
     return client.patch(f"/sub-election/{sub_election_id}", json=data, headers=headers)
+
+
+def program_data_factory(**kwargs):
+    """Factory for creating program payloads."""
+    default_data = {
+        "title_sv": "Tekniskt basår",
+        "title_en": "Engineering basics",
+        "description_sv": "Svensk programbeskrivning",
+        "description_en": "English program description",
+    }
+    return {**default_data, **kwargs}
+
+
+def create_program(client, token=None, **kwargs):
+    """Helper to POST /programs/ with optional token and payload overrides."""
+    data = program_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.post("/programs/", json=data, headers=headers)
+
+
+def program_year_data_factory(program_id=1, **kwargs):
+    """Factory for creating program year payloads."""
+    default_data = {
+        "title_sv": "Årskurs 1",
+        "title_en": "Year 1",
+        "program_id": program_id,
+        "course_ids": [],
+        "description_sv": "Svensk årskursbeskrivning",
+        "description_en": "English program year description",
+    }
+    return {**default_data, **kwargs}
+
+
+def create_program_year(client, token=None, **kwargs):
+    """Helper to POST /program-years/ with optional token and payload overrides."""
+    data = program_year_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.post("/program-years/", json=data, headers=headers)
+
+
+def specialisation_data_factory(**kwargs):
+    """Factory for creating specialisation payloads."""
+    default_data = {
+        "title_sv": "Maskininlarning",
+        "title_en": "Machine learning",
+        "course_ids": [],
+        "description_sv": "Svensk specialiseringsbeskrivning",
+        "description_en": "English specialisation description",
+    }
+    return {**default_data, **kwargs}
+
+
+def create_specialisation(client, token=None, **kwargs):
+    """Helper to POST /specialisations/ with optional token and payload overrides."""
+    data = specialisation_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.post("/specialisations/", json=data, headers=headers)
+
+
+def course_data_factory(**kwargs):
+    """Factory for creating course payloads."""
+    default_data = {
+        "title": "Lineär algebra",
+        "course_code": "FMAA01",
+        "description": "Hoppas du gillar matriser",
+    }
+    return {**default_data, **kwargs}
+
+
+def create_course(client, token=None, **kwargs):
+    """Helper to POST /courses/ with optional token and payload overrides."""
+    data = course_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    return client.post("/courses/", json=data, headers=headers)
+
+
+def course_document_data_factory(course_id=1, **kwargs):
+    """Factory for creating course document multipart form fields."""
+    default_data = {
+        "title": "Lecture notes week 1",
+        "file_name": "lecture_notes_w1.pdf",
+        "course_id": course_id,
+        "author": "Mr. Test",
+        "category": "Notes",
+        "sub_category": "By Mr. Test",
+    }
+    data = {**default_data, **kwargs}
+    data["course_id"] = str(data["course_id"])
+    return data
+
+
+def create_course_document(client, token=None, file=None, **kwargs):
+    """Helper to POST /course-documents/ with multipart data and optional auth."""
+    data = course_document_data_factory(**kwargs)
+    headers = auth_headers(token) if token else {}
+    files = {"file": file} if file is not None else None
+    return client.post("/course-documents/", data=data, files=files, headers=headers)
+
+
+def create_associated_image(client, token=None, association_type="program", association_id=1, file=None):
+    """Helper to POST /associated-img/ with multipart data and optional auth."""
+    headers = auth_headers(token) if token else {}
+    files = {"file": file} if file is not None else None
+    return client.post(
+        "/associated-img/",
+        params={"association_type": association_type, "association_id": association_id},
+        files=files,
+        headers=headers,
+    )

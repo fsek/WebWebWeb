@@ -102,6 +102,26 @@ MAX_GUILD_MEETING_DATE_DESC = 500
 MAX_GUILD_MEETING_DESC = 10000
 MAX_GUILD_MEETING_TITLE = 200
 
+# Program
+MAX_PROGRAM_TITLE = 100
+MAX_PROGRAM_DESC = 10000
+
+# Program Year
+MAX_PROGRAM_YEAR_TITLE = 100
+MAX_PROGRAM_YEAR_DESC = 10000
+
+# Specialisation
+MAX_SPECIALISATION_TITLE = 100
+MAX_SPECIALISATION_DESC = 10000
+
+# Course
+MAX_COURSE_TITLE = 200  # University loves long course titles lol
+MAX_COURSE_CODE = 100  # Sometimes people might want to put multiple codes or something
+MAX_COURSE_DESC = 10000
+
+# Course document
+MAX_COURSE_DOC_AUTHOR = 50
+MAX_COURSE_DOC_SUB_CATEGORY = 50
 
 # Keyval, used for example for storing the links to different very important documents (e.g. reglementet)
 MAX_KEYVAL_KEY = 100

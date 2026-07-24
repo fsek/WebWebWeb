@@ -1,5 +1,5 @@
 from typing import Annotated
-from fastapi import Form, UploadFile
+from fastapi import Form
 from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from api_schemas.user_schemas import SimpleUserRead

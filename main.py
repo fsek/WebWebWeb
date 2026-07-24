@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.concurrency import asynccontextmanager
 from fastapi.routing import APIRoute
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import database
 from database import init_db, session_factory
 from seed import seed_if_empty
@@ -78,6 +80,16 @@ app = FastAPI(
     docs_url=None if no_docs else "/docs",
     generate_unique_id_function=generate_unique_id,
 )
+
+
+# Before this was added we were only sending the detail of the error and not the status_code.
+# Why? Fastapi-users overrides the default unless we fix it like this.
+@app.exception_handler(HTTPException)
+@app.exception_handler(StarletteHTTPException)
+async def app_http_exception_handler(_: Request, exc: HTTPException | StarletteHTTPException):
+    payload: dict[str, int | str] = {"status_code": exc.status_code, "detail": exc.detail}
+    return JSONResponse(status_code=exc.status_code, content=payload, headers=exc.headers)
+
 
 if os.getenv("ENVIRONMENT") == "development":
     app.add_middleware(
