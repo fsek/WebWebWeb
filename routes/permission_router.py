@@ -39,8 +39,8 @@ def get_my_permissions(member: Annotated[User_DB | bool | None, Permission.check
     seen: set[tuple[str, str]] = set()
     result: list[tuple[str, str]] = []
     for post in member.posts:
-        for perm in post.post_permissions:
-            key: tuple[str, str] = (perm.permission.action, perm.permission.target)
+        for perm in post.permissions:
+            key: tuple[str, str] = (perm.action, perm.target)
             if key not in seen:
                 seen.add(key)
                 result.append(key)
