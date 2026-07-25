@@ -15,6 +15,19 @@ def test_register_user(client, user1_data):
     assert "id" in data
 
 
+def test_register_user_invalid_stil_id(client):
+    """Test user registration with valid data except for an invalid stil_id"""
+    user_data = user_data_factory(
+        email="test1@example.com",
+        last_name="User1",
+        program="F",
+        telephone_number="+46701234567",
+        stil_id="invalid_stil_id",
+    )
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
 def test_register_duplicate_user(client, user1_data):
     """Test registration with duplicate email fails"""
     # Register first user

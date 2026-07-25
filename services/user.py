@@ -4,16 +4,9 @@ from database import DB_dependency
 from db_models.user_model import User_DB
 from fastapi import HTTPException, status
 from sqlalchemy.exc import DataError, NoResultFound, MultipleResultsFound
-import re
 from helpers.types import FOOD_PREFERENCES
 from db_models.post_model import Post_DB
-
-
-def check_stil_id(s: str) -> bool:
-    if not len(s) == 10:
-        return False
-    pattern = r"^[a-z]{2}\d{4}[a-z]{2}-s$"
-    return bool(re.fullmatch(pattern, s))
+from helpers.check_stil_id import check_stil_id
 
 
 def condition(model, asset):

@@ -60,8 +60,10 @@ async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = F
             raise HTTPException(400, "file extension not allowed")
 
         dest_path = Path(f"{ASSETS_BASE_PATH}/news/{news.id}{ext}")
-
         dest_path.write_bytes(image.file.read())
+
+        news.image_exist = True
+        db.commit()
 
 
 @news_router.get("/{news_id}/image/stream", dependencies=[Depends(rate_limit(limit=100))])
