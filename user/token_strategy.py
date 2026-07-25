@@ -10,7 +10,6 @@ from fastapi_users.authentication import RedisStrategy, Strategy
 from fastapi_users import models
 from database import get_redis
 
-
 JWT_SECRET_KEY = "secret:jwt_secret"
 
 
@@ -42,13 +41,6 @@ JWT_TOKEN_LIFETIME_SECONDS = 3600 * 6 if os.getenv("ENVIRONMENT") == "developmen
 
 # Timeout for refresh token, user has to log in again after expiry
 LOGIN_TIMEOUT = 3600 * 24 * 90
-
-
-# class to describe data in access token for our chosen JWT strategy
-# sub and aud are defined by fastapi-users upon login and write_token
-class AccessTokenData(TypedDict):
-    sub: str
-    aud: list[str]
 
 
 class RefreshStrategy(Strategy[models.UP, models.ID]):

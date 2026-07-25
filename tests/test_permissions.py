@@ -1,5 +1,4 @@
 # type: ignore
-import pytest
 import ast
 from pathlib import Path
 from fastapi import status
