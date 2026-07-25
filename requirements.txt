@@ -15,8 +15,8 @@ dnspython==2.8.0
 email-validator==2.1.0.post1
 fakeredis==2.31.0
 fastapi==0.115.0
-fastapi-users-db-sqlalchemy==7.0.0
-fastapi-users==15.0.5
+fastapi-users-db-sqlalchemy==7.0.0 # When these two are updated, check that
+fastapi-users==15.0.5 # the async wrapper in user_stuff.py is still working
 google-api-core==2.25.1
 google-api-python-client==2.177.0
 google-auth==2.40.3

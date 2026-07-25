@@ -20,6 +20,13 @@ class _AsyncSessionProxy:
     def __init__(self, session: Session):
         self._session = session
 
+    def __getattr__(self, name: str) -> Any:  # __getattr__ is called when an attribute lookup fails
+        # Only the members SQLAlchemyUserDatabase actually uses are implemented below.
+        # If an update makes it reach for something else, fail with an explanation
+        # so the problem can be found easily.
+        raise NotImplementedError(f"_AsyncSessionProxy does not implement '{name}'.")
+
+    # add() is sync on the real AsyncSession too, so this signature is intentional
     def add(self, instance: Any) -> None:
         self._session.add(instance)
 
