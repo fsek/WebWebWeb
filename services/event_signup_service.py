@@ -119,7 +119,7 @@ def get_allowed_groups(event: Event_DB, user: User_DB):
     if event.is_nollning_event:
         allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
         for gu in user.group_users:
-            if __is_group_allowed(gu, event, allowed_group_types):
+            if _is_group_allowed(gu, event, allowed_group_types):
                 allowed_groups.append(gu.group)
     else:
         allowed_groups = user.groups
@@ -133,7 +133,7 @@ def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
         is_event_allowed = False
         for gu in user.group_users:
             if group_name == gu.group.name:
-                if __is_group_allowed(gu, event, allowed_group_types):
+                if _is_group_allowed(gu, event, allowed_group_types):
                     is_event_allowed = True
                 break
 
@@ -143,7 +143,7 @@ def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
     return True
 
 
-def __is_group_allowed(gu: GroupUser_DB, e: Event_DB, agt: list[GROUP_TYPE]):
+def _is_group_allowed(gu: GroupUser_DB, e: Event_DB, agt: list[GROUP_TYPE]):
     if gu.group.group_type in agt:
         return True
     elif (gu.group_user_type == "Mentor") and e.allow_other_mentors:
