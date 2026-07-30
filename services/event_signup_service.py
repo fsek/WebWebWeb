@@ -34,7 +34,11 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     ):
         raise HTTPException(400, detail="User already signed up to chosen event")
 
-    if not is_group_allowed(event, user, data.group_name):
+    if (
+        manage_permission == False
+        and data.group_name is not None
+        and not is_group_allowed(event, user, data.group_name)
+    ):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
     signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
@@ -83,6 +87,13 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     if signup is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
+    if (
+        manage_permission == False
+        and data.group_name is not None
+        and not is_group_allowed(event, db.query(User_DB).filter(User_DB.id == user_id).one(), data.group_name)
+    ):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
+
     for var, value in vars(data).items():
         if var == "priority" and not value:
             setattr(signup, "priority", DEFAULT_USER_PRIORITY)
@@ -93,9 +104,6 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
 
     if not event.drink_package:
         signup.drinkPackage = "None"
-
-    if not is_group_allowed(event, db.query(User_DB).filter(User_DB.id == user_id).one(), data.group_name):
-        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
     db.commit()
     db.refresh(event)
