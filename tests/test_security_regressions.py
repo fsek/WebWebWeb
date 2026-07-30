@@ -7,9 +7,45 @@ import datetime
 
 import pytest
 
+from db_models.council_model import Council_DB
+from db_models.event_model import Event_DB
 from db_models.user_door_access_model import UserDoorAccess_DB
 
 from .basic_factories import auth_headers
+
+
+@pytest.fixture()
+def simple_event(db_session):
+    """A minimal event with signups unconfirmed."""
+    council = Council_DB(
+        name_sv="EventUtskott",
+        description_sv="beskrivning",
+        name_en="EventCouncil",
+        description_en="description",
+    )
+    db_session.add(council)
+    db_session.commit()
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    event = Event_DB(
+        council_id=council.id,
+        starts_at=now + datetime.timedelta(days=2),
+        ends_at=now + datetime.timedelta(days=3),
+        signup_start=now - datetime.timedelta(days=1),
+        signup_end=now + datetime.timedelta(days=1),
+        title_sv="Testevent",
+        title_en="Test event",
+        description_sv="beskrivning",
+        description_en="description",
+        location="LC",
+        dress_code="Cool",
+        price=0,
+    )
+    db_session.add(event)
+    db_session.commit()
+    db_session.refresh(event)
+    return event
+
 
 ####################################################################
 # Posts: the member roster of a post was world-readable
