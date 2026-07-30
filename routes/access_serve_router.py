@@ -6,7 +6,6 @@ from helpers.types import DOOR_ACCESSES
 from typing import get_args
 import datetime
 
-
 access_serve_router = APIRouter()
 
 
@@ -78,9 +77,6 @@ def get_all_access_ids(door: str, db: DB_dependency) -> list[str]:
     all_access_ids = sorted(set(direct_access_ids + post_access_ids))
 
     # Remove all stil-ids which are not alphanumeric with dashes,
-    # just a failsafe if stil_id is not set properly since we will be putting these in html
-    for stil_id in all_access_ids:
-        if not stil_id or not stil_id.replace("-", "").isalnum():
-            all_access_ids.remove(stil_id)
-
-    return all_access_ids
+    # just a failsafe if stil_id is not set properly since we will be putting these in html.
+    # Build a new list to avoid bugs related to skipping elements.
+    return [stil_id for stil_id in all_access_ids if stil_id and stil_id.replace("-", "").isalnum()]
