@@ -17,12 +17,12 @@ def get_all_ads(db: DB_dependency):
 
 
 @ad_router.post("/", response_model=AdRead)
-def create_ad(data: AdCreate, db: DB_dependency):
+def create_ad(data: AdCreate, current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
     ad = BookAd_DB(
         title=data.title,
         course=data.course,
         author=data.author,
-        user_id=data.user_id,
+        user_id=current_user.id,
         selling=data.selling,
         condition=data.condition,
         price=data.price,
