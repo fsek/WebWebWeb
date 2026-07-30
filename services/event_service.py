@@ -91,6 +91,10 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
     if not event:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Event not found")
 
+    if data.lottery is not None and data.lottery != event.lottery:
+        if event.event_users_confirmed or any(eu.confirmed_status for eu in event.event_users):
+            raise HTTPException(400, detail="Cannot change lottery after signups are confirmed")
+
     if data.price is not None and data.price < 0:
         raise HTTPException(400, detail="Price cannot be lower than 0")
 
