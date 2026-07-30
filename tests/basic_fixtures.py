@@ -281,3 +281,43 @@ def open_sub_election(db_session, open_election, admin_post, member_post):
     db_session.commit()
     db_session.refresh(sub_election)
     return sub_election
+
+
+@pytest.fixture()
+def event(client, admin_token, admin_council_id):
+    """Create and return a plain event which is open for signup."""
+
+    response = client.post(
+        "/events/", json=event_data_factory(council_id=admin_council_id), headers=auth_headers(admin_token)
+    )
+    assert response.status_code in (200, 201), response.text
+
+    return response.json()
+
+
+@pytest.fixture()
+def nollning_event(client, admin_token, admin_council_id):
+    """Create and return a nollning event which only accepts groups of type "Mentor"."""
+
+    response = client.post(
+        "/events/",
+        json=event_data_factory(council_id=admin_council_id, is_nollning_event=True, mentor_group_types=["Mentor"]),
+        headers=auth_headers(admin_token),
+    )
+    assert response.status_code in (200, 201), response.text
+
+    return response.json()
+
+
+@pytest.fixture()
+def mentor_group(db_session, membered_user):
+    """Create a group of type "Mentor" with the member user as a mentee."""
+
+    return add_user_to_group(db_session, membered_user, "Fadderiet", "Mentor", "Mentee")
+
+
+@pytest.fixture()
+def mission_group(db_session, membered_user):
+    """Create a group of type "Mission" with the member user as a mentee."""
+
+    return add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentee")
