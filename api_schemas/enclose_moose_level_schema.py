@@ -1,5 +1,6 @@
 from api_schemas.base_schema import BaseSchema
-from datetime import datetime, date, UTC
+from datetime import datetime, date
+from zoneinfo import ZoneInfo
 
 
 class EncloseMooseLevelRead(BaseSchema):
@@ -18,7 +19,7 @@ class EncloseMooseLevelRead(BaseSchema):
 
 class EncloseMooseLevelCreate(BaseSchema):
     level_id: str
-    release_date: date = datetime.now(UTC).date()
+    release_date: date = datetime.now(ZoneInfo("Europe/Stockholm")).date()
     day_index: int | None = None
     name: str
 
