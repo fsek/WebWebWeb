@@ -81,4 +81,5 @@ jobs:
         TEST_REDIS_URL: redis://localhost:6379/0
         ENVIRONMENT: "testing"
         USER_MANAGER_SECRET: "test_secret"
+        ENCLOSE_MOOSE_TOKEN: "happy_secret_key"
       run: pytest -v
