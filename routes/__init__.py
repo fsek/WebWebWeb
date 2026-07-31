@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from .mail_alias_router import mail_alias_router
 from .moose_game_router import moose_game_router
+from .enclose_moose_router import enclose_moose_router
 from .council_router import council_router
 from .user_router import user_router
 from .post_router import post_router
@@ -85,6 +86,8 @@ main_router.include_router(document_router, prefix="/document", tags=["document"
 main_router.include_router(room_router, prefix="/rooms", tags=["room booking"])
 
 main_router.include_router(moose_game_router, prefix="/moose-game", tags=["moose-game"])
+
+main_router.include_router(enclose_moose_router, prefix="/enclose-moose", tags=["enclose-moose"])
 
 main_router.include_router(mail_alias_router, prefix="/mail-alias", tags=["mail-alias"])
 

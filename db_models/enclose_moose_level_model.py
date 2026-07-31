@@ -1,0 +1,29 @@
+from datetime import date
+from helpers.constants import MAX_ENCLOSE_LEVEL_ID, MAX_ENCLOSE_LEVEL_NAME, MAX_ENCLOSE_GRID
+from .base_model import BaseModel_DB
+from sqlalchemy.orm import relationship, mapped_column, Mapped
+from typing import TYPE_CHECKING, Optional
+from sqlalchemy import JSON, String, Date
+
+if TYPE_CHECKING:
+    from db_models.enclose_moose_submission_model import EncloseMooseSubmission_DB
+
+
+class EncloseMooseLevel_DB(BaseModel_DB):
+    __tablename__ = "enclose_moose_level_table"
+
+    level_id: Mapped[str] = mapped_column(String(MAX_ENCLOSE_LEVEL_ID), primary_key=True)
+    release_date: Mapped[Optional[date]] = mapped_column(Date)
+    day_index: Mapped[Optional[int]] = mapped_column()
+    name: Mapped[str] = mapped_column(String(MAX_ENCLOSE_LEVEL_NAME))
+
+    encoded_grid: Mapped[str] = mapped_column(String(MAX_ENCLOSE_GRID))
+    wall_budget: Mapped[int] = mapped_column()
+
+    optimal_score: Mapped[int] = mapped_column()
+    optimal_solution: Mapped[list[int]] = mapped_column(JSON)
+    optimal_is_unique: Mapped[Optional[bool]] = mapped_column()
+
+    submissions: Mapped[list["EncloseMooseSubmission_DB"]] = relationship(
+        back_populates="level", cascade="all, delete-orphan", init=False
+    )

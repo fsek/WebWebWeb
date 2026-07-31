@@ -28,6 +28,7 @@ ENV DOCUMENT_BASE_PATH="/workspaces/WebWebWeb/test-assets/documents"
 ENV ALBUM_BASE_PATH="/workspaces/WebWebWeb/test-assets/albums"
 ENV ASSETS_BASE_PATH="/workspaces/WebWebWeb/test-assets/assets"
 ENV MOOSE_GAME_TOKEN="sad_secret_key"
+ENV ENCLOSE_MOOSE_TOKEN="happy_secret_key"
 
 RUN mkdir -p "$DOCUMENT_BASE_PATH" \
              "$ALBUM_BASE_PATH" \
