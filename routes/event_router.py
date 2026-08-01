@@ -21,7 +21,6 @@ import random
 from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
 from pathlib import Path
 
-
 event_router = APIRouter()
 
 
@@ -50,7 +49,9 @@ def get_event_priorities(db: DB_dependency):
     return list(priorities)
 
 
-@event_router.patch("/confirmed/{event_id}", response_model=EventRead)
+@event_router.patch(
+    "/confirmed/{event_id}", response_model=EventRead, dependencies=[Permission.require("manage", "Event")]
+)
 def confirm_places(
     db: DB_dependency,
     event_id: int,
