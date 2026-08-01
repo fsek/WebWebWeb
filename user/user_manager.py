@@ -4,6 +4,10 @@ from typing import Any, Dict, Optional, Type, Union
 from fastapi import Request
 from fastapi_users_pelicanq import BaseUserManager, IntegerIDMixin, InvalidPasswordException
 from fastapi_users_pelicanq import schemas
+from fastapi_users_pelicanq.db import BaseUserDatabase
+from fastapi_users_pelicanq.password import PasswordHelper, PasswordHelperProtocol
+from pwdlib import PasswordHash
+from pwdlib.hashers.argon2 import Argon2Hasher
 
 from api_schemas.user_schemas import UserCreate
 from db_models.user_model import User_DB
@@ -14,9 +18,28 @@ if not SECRET:
     raise ValueError("USER_MANAGER_SECRET environment variable is not set. Please set it to a secure value.")
 
 
+def get_password_helper() -> Optional[PasswordHelperProtocol]:
+    """
+    Decide how expensive password hashing should be.
+
+    Test passwords are not secrets, and the default hash settings are expensive,
+    which the test suite pays on every registration and login. In testing we
+    therefore use the cheapest Argon2 settings argon2-cffi allows.
+    Everywhere else we return None, so the library keeps its secure defaults.
+    """
+    if os.getenv("ENVIRONMENT") != "testing":
+        return None
+
+    cheap_hasher = Argon2Hasher(time_cost=1, memory_cost=8, parallelism=1)
+    return PasswordHelper(PasswordHash((cheap_hasher,)))
+
+
 class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
+
+    def __init__(self, user_db: BaseUserDatabase[User_DB, int]):
+        super().__init__(user_db, password_helper=get_password_helper())
 
     # TODO: Implement password validation logic here before production
     # https://fastapi-users.github.io/fastapi-users/latest/configuration/user-manager/?h=password+valida#validate_password
