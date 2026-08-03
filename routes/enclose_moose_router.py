@@ -24,7 +24,7 @@ enclose_moose_router = APIRouter()
 
 # Admin routes
 @enclose_moose_router.post(
-    "/admin", response_model=EncloseMooseLevelRead, dependencies=[Permission.require("manage", "EncloseMoose")]
+    "/admin/levels", response_model=EncloseMooseLevelRead, dependencies=[Permission.require("manage", "EncloseMoose")]
 )
 def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
     level = level_create(data)
@@ -43,7 +43,7 @@ def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
 
 
 @enclose_moose_router.get(
-    "/admin/{level_id}",
+    "/admin/levels/{level_id}",
     response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
@@ -56,7 +56,9 @@ def admin_get_level(level_id: str, db: DB_dependency):
 
 
 @enclose_moose_router.get(
-    "/admin", response_model=list[EncloseMooseLevelRead], dependencies=[Permission.require("manage", "EncloseMoose")]
+    "/admin/levels",
+    response_model=list[EncloseMooseLevelRead],
+    dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_get_all_levels(db: DB_dependency):
     levels = db.query(EncloseMooseLevel_DB).order_by(EncloseMooseLevel_DB.release_date).all()
@@ -65,7 +67,7 @@ def admin_get_all_levels(db: DB_dependency):
 
 
 @enclose_moose_router.patch(
-    "/admin/{level_id}",
+    "/admin/levels/{level_id}",
     response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
@@ -85,7 +87,7 @@ def admin_update_level(level_id: str, data: EncloseMooseLevelUpdate, db: DB_depe
 
 
 @enclose_moose_router.delete(
-    "/admin/{level_id}",
+    "/admin/levels/{level_id}",
     response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
@@ -100,8 +102,23 @@ def admin_delete_level(level_id: str, db: DB_dependency):
     return level
 
 
+@enclose_moose_router.get(
+    "/admin/submissions",
+    response_model=list[EncloseMooseSubmissionRead],
+    dependencies=[Permission.require("manage", "EncloseMoose")],
+)
+def admin_get_all_submissions(
+    db: DB_dependency,
+):
+    submissions = db.query(EncloseMooseSubmission_DB).all()
+
+    return submissions
+
+
 # Non-admin routes
-@enclose_moose_router.get("/{level_id}", response_model=EncloseMooseLevelRead, dependencies=[Permission.member()])
+@enclose_moose_router.get(
+    "/levels/{level_id}", response_model=EncloseMooseLevelRead, dependencies=[Permission.member()]
+)
 def get_level(level_id: str, db: DB_dependency):
     date_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
     level = (
@@ -115,7 +132,7 @@ def get_level(level_id: str, db: DB_dependency):
     return level
 
 
-@enclose_moose_router.get("/", response_model=list[EncloseMooseLevelRead], dependencies=[Permission.member()])
+@enclose_moose_router.get("/levels", response_model=list[EncloseMooseLevelRead], dependencies=[Permission.member()])
 def get_all_levels(db: DB_dependency):
     date_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
 
@@ -129,7 +146,7 @@ def get_all_levels(db: DB_dependency):
     return levels
 
 
-@enclose_moose_router.post("/{level_id}/submit", response_model=EncloseMooseSubmissionRead)
+@enclose_moose_router.post("/submissions/{level_id}", response_model=EncloseMooseSubmissionRead)
 def submit_solution(
     level_id: str,
     submission: EncloseMooseSubmissionCreate,
@@ -164,7 +181,7 @@ def submit_solution(
     return db_submission
 
 
-@enclose_moose_router.get("/{level_id}/submit", response_model=EncloseMooseSubmissionRead)
+@enclose_moose_router.get("/submissions/{level_id}", response_model=EncloseMooseSubmissionRead)
 def get_submission(
     level_id: str,
     me: Annotated[User_DB, Permission.member()],
@@ -175,3 +192,13 @@ def get_submission(
         raise HTTPException(404, detail="No submission exists for this player and level")
 
     return submission
+
+
+@enclose_moose_router.get("/submissions", response_model=list[EncloseMooseSubmissionRead])
+def get_all_submissions(
+    me: Annotated[User_DB, Permission.member()],
+    db: DB_dependency,
+):
+    submissions = db.query(EncloseMooseSubmission_DB).filter(EncloseMooseSubmission_DB.player_id == me.id).all()
+
+    return submissions
