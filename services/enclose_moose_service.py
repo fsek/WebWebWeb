@@ -217,9 +217,13 @@ class EncloseGrid:
 
             for neighbor_index in self.get_neighbors(current_index):
                 is_visited = neighbor_index in visited
-                is_invalid = neighbor_index < 0 or neighbor_index > self.N - 1
+                if is_visited:
+                    continue
+
+                visited.add(neighbor_index)
+
                 is_blocked = self.grid_string[neighbor_index] == "~" or neighbor_index in solution
-                if is_visited or is_invalid or is_blocked:
+                if is_blocked:
                     continue
 
                 is_escaped = self.is_boundary(neighbor_index)
@@ -227,7 +231,6 @@ class EncloseGrid:
                     raise HTTPException(400, detail="The solution does not enclose the moose")
 
                 queue.append(neighbor_index)
-                visited.add(neighbor_index)
 
         return score  # len(visited) + bonus score
 
