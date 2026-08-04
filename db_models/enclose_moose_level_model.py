@@ -27,3 +27,11 @@ class EncloseMooseLevel_DB(BaseModel_DB):
     submissions: Mapped[list["EncloseMooseSubmission_DB"]] = relationship(
         back_populates="level", cascade="all, delete-orphan", init=False
     )
+
+    @property
+    def score_distribution(self):
+        score_distribution: dict[int, int] = {}
+        for submission in self.submissions:
+            score_distribution[submission.player_score] = score_distribution.get(submission.player_score, 0) + 1
+
+        return score_distribution

@@ -5,7 +5,8 @@ from fastapi import APIRouter, HTTPException, Request
 from typing import Annotated
 from sqlalchemy.exc import DataError, IntegrityError
 from api_schemas.enclose_moose_level_schema import (
-    EncloseMooseLevelRead,
+    EncloseMooseLevelInitialRead,
+    EncloseMooseLevelUnlockedRead,
     EncloseMooseLevelCreate,
     EncloseMooseLevelUpdate,
 )
@@ -24,7 +25,9 @@ enclose_moose_router = APIRouter()
 
 # Admin routes
 @enclose_moose_router.post(
-    "/admin/levels", response_model=EncloseMooseLevelRead, dependencies=[Permission.require("manage", "EncloseMoose")]
+    "/admin/levels",
+    response_model=EncloseMooseLevelUnlockedRead,
+    dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
     level = level_create(data)
@@ -44,7 +47,7 @@ def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
 
 @enclose_moose_router.get(
     "/admin/levels/{level_id}",
-    response_model=EncloseMooseLevelRead,
+    response_model=EncloseMooseLevelUnlockedRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_get_level(level_id: str, db: DB_dependency):
@@ -57,7 +60,7 @@ def admin_get_level(level_id: str, db: DB_dependency):
 
 @enclose_moose_router.get(
     "/admin/levels",
-    response_model=list[EncloseMooseLevelRead],
+    response_model=list[EncloseMooseLevelUnlockedRead],
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_get_all_levels(db: DB_dependency):
@@ -68,7 +71,7 @@ def admin_get_all_levels(db: DB_dependency):
 
 @enclose_moose_router.patch(
     "/admin/levels/{level_id}",
-    response_model=EncloseMooseLevelRead,
+    response_model=EncloseMooseLevelUnlockedRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_update_level(level_id: str, data: EncloseMooseLevelUpdate, db: DB_dependency):
@@ -88,7 +91,7 @@ def admin_update_level(level_id: str, data: EncloseMooseLevelUpdate, db: DB_depe
 
 @enclose_moose_router.delete(
     "/admin/levels/{level_id}",
-    response_model=EncloseMooseLevelRead,
+    response_model=EncloseMooseLevelUnlockedRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_delete_level(level_id: str, db: DB_dependency):
@@ -103,23 +106,22 @@ def admin_delete_level(level_id: str, db: DB_dependency):
 
 
 @enclose_moose_router.get(
-    "/admin/submissions",
+    "/admin/submissions/{level_id}",
     response_model=list[EncloseMooseSubmissionRead],
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
-def admin_get_all_submissions(
+def admin_get_all_level_submissions(
+    level_id: str,
     db: DB_dependency,
 ):
-    submissions = db.query(EncloseMooseSubmission_DB).all()
+    submissions = db.query(EncloseMooseSubmission_DB).filter(EncloseMooseSubmission_DB.level_id == level_id).all()
 
     return submissions
 
 
 # Non-admin routes
-@enclose_moose_router.get(
-    "/levels/{level_id}", response_model=EncloseMooseLevelRead, dependencies=[Permission.member()]
-)
-def get_level(level_id: str, db: DB_dependency):
+@enclose_moose_router.get("/levels/{level_id}", response_model=EncloseMooseLevelInitialRead)
+def get_level(level_id: str, me: Annotated[User_DB, Permission.member()], db: DB_dependency):
     date_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
     level = (
         db.query(EncloseMooseLevel_DB)
@@ -129,24 +131,37 @@ def get_level(level_id: str, db: DB_dependency):
     if level is None:
         raise HTTPException(404, detail=f'No level with level_id "{level_id}" exists')
 
+    submission = db.get(EncloseMooseSubmission_DB, (level_id, me.id))
+    level.player_submission = submission  # pyright: ignore
+
     return level
 
 
-@enclose_moose_router.get("/levels", response_model=list[EncloseMooseLevelRead], dependencies=[Permission.member()])
-def get_all_levels(db: DB_dependency):
+@enclose_moose_router.get("/levels", response_model=list[EncloseMooseLevelInitialRead])
+def get_all_levels(me: Annotated[User_DB, Permission.member()], db: DB_dependency):
     date_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
 
-    levels = (
-        db.query(EncloseMooseLevel_DB)
+    results = (
+        db.query(EncloseMooseLevel_DB, EncloseMooseSubmission_DB)
+        .outerjoin(
+            EncloseMooseSubmission_DB,
+            (EncloseMooseSubmission_DB.level_id == EncloseMooseLevel_DB.level_id)
+            & (EncloseMooseSubmission_DB.player_id == me.id),
+        )
         .filter(EncloseMooseLevel_DB.release_date <= date_today)
         .order_by(EncloseMooseLevel_DB.release_date)
         .all()
     )
 
+    levels: list[EncloseMooseLevel_DB] = []
+    for level, submission in results:
+        level.player_submission = submission
+        levels.append(level)
+
     return levels
 
 
-@enclose_moose_router.post("/submissions/{level_id}", response_model=EncloseMooseSubmissionRead)
+@enclose_moose_router.post("/submissions/{level_id}", response_model=EncloseMooseLevelUnlockedRead)
 def submit_solution(
     level_id: str,
     submission: EncloseMooseSubmissionCreate,
@@ -178,7 +193,9 @@ def submit_solution(
             detail="The player has already submitted a solution to this level",
         )
 
-    return db_submission
+    level.player_submission = db_submission  # pyright: ignore
+
+    return level
 
 
 @enclose_moose_router.get("/submissions/{level_id}", response_model=EncloseMooseSubmissionRead)

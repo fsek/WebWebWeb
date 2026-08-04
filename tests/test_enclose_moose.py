@@ -46,15 +46,15 @@ def get_submission(client, token, level_id):
     return client.get(f"/enclose-moose/submissions/{level_id}", headers=auth_headers(token))
 
 
-def admin_get_all_submissions(client, token):
-    return client.get("/enclose-moose/admin/submissions", headers=auth_headers(token))
+def admin_get_all_level_submissions(client, token, level_id):
+    return client.get(f"/enclose-moose/admin/submissions/{level_id}", headers=auth_headers(token))
 
 
-def get_all_submissions(client, token):
+def get_all_my_submissions(client, token):
     return client.get("/enclose-moose/submissions", headers=auth_headers(token))
 
 
-def test_admin_manage_level(client, admin_token):
+def test_admin_manage_level(client, member_token, admin_token):
     res_create_invalid = create_level(client, admin_token, encoded_grid=".~.")
     assert res_create_invalid.status_code == 400
 
@@ -70,6 +70,11 @@ def test_admin_manage_level(client, admin_token):
     res_get_all = admin_get_all_levels(client, admin_token)
     assert res_get_all.status_code == 200
 
+    submit_solution(client, member_token, "released_test", player_solution=[3, 5, 7])
+    res_get_submissions = admin_get_all_level_submissions(client, admin_token, "released_test")
+    assert res_get_submissions.status_code == 200
+    assert len(res_get_submissions.json()) == 1
+
     res_patch = patch_level(client, admin_token, "released_test", name="updated_name")
     assert res_patch.status_code == 200
     assert res_patch.json()["name"] == "updated_name"
@@ -79,9 +84,6 @@ def test_admin_manage_level(client, admin_token):
 
     res_get = admin_get_level(client, admin_token, "released_test")
     assert res_get.status_code == 404
-
-    res_get_submissions = admin_get_all_submissions(client, admin_token)
-    assert res_get_submissions.status_code == 200
 
 
 def test_admin_duplicate_level(
@@ -116,7 +118,7 @@ def test_member_cannot_access_admin_routes(client, member_token, admin_token):
     res_del_get = get_level(client, member_token, "released_test")
     assert res_del_get.status_code == 200
 
-    res_submissions = admin_get_all_submissions(client, member_token)
+    res_submissions = admin_get_all_level_submissions(client, member_token, "released_test")
     assert res_submissions.status_code == 403
 
 
@@ -174,7 +176,7 @@ def test_submission(client, member_token, admin_token):
     assert res_unreleased.status_code == 404
 
     submit_solution(client, admin_token, "released_test", player_solution=[3, 5, 7])
-    res_get_all = get_all_submissions(client, member_token)
+    res_get_all = get_all_my_submissions(client, member_token)
     assert res_get_all.status_code == 200
     assert len(res_get_all.json()) == 1
 
@@ -212,5 +214,5 @@ def test_non_member_cannot_access_member_routes(client, non_member_token, admin_
     res_get_submission = submit_solution(client, non_member_token, "released_test", player_solution=[3, 5, 7])
     assert res_get_submission.status_code == 403
 
-    res_get_all_submissions = get_all_submissions(client, non_member_token)
+    res_get_all_submissions = get_all_my_submissions(client, non_member_token)
     assert res_get_all_submissions.status_code == 403
