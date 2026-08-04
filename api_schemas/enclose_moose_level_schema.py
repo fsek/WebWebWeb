@@ -1,4 +1,4 @@
-from pydantic import model_validator
+from pydantic import Field, model_validator
 from datetime import datetime, date
 from zoneinfo import ZoneInfo
 from api_schemas.base_schema import BaseSchema
@@ -14,6 +14,8 @@ class EncloseMooseLevelRead(BaseSchema):
     encoded_grid: str
     wall_budget: int
 
+    show_spoilers: bool = Field(default=False, exclude=True)
+
     optimal_score: int | None = None
     optimal_solution: set[int] | None = None
     optimal_is_unique: bool | None = None
@@ -23,7 +25,7 @@ class EncloseMooseLevelRead(BaseSchema):
 
     @model_validator(mode="after")
     def redact_spoilers(self):
-        if self.player_submission is None:
+        if not self.show_spoilers:
             self.optimal_score = None
             self.optimal_solution = None
             self.optimal_is_unique = None

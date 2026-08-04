@@ -41,6 +41,8 @@ def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
         db.rollback()
         raise HTTPException(409, detail=f'A level with level_id "{data.level_id}" already exists')
 
+    level.show_spoilers = True  # pyright: ignore
+
     return level
 
 
@@ -54,6 +56,8 @@ def admin_get_level(level_id: str, db: DB_dependency):
     if level is None:
         raise HTTPException(404, detail=f'No level with level_id "{level_id}" exists')
 
+    level.show_spoilers = True  # pyright: ignore
+
     return level
 
 
@@ -64,6 +68,9 @@ def admin_get_level(level_id: str, db: DB_dependency):
 )
 def admin_get_all_levels(db: DB_dependency):
     levels = db.query(EncloseMooseLevel_DB).order_by(EncloseMooseLevel_DB.release_date).all()
+
+    for level in levels:
+        level.show_spoilers = True  # pyright: ignore
 
     return levels
 
@@ -85,6 +92,8 @@ def admin_update_level(level_id: str, data: EncloseMooseLevelUpdate, db: DB_depe
         db.rollback()
         raise HTTPException(400, detail="Some string is too long")
 
+    updated_level.show_spoilers = True  # pyright: ignore
+
     return updated_level
 
 
@@ -100,6 +109,8 @@ def admin_delete_level(level_id: str, db: DB_dependency):
 
     db.delete(level)
     db.commit()
+
+    level.show_spoilers = True  # pyright: ignore
 
     return level
 
