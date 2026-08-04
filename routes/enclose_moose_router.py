@@ -5,8 +5,7 @@ from fastapi import APIRouter, HTTPException, Request
 from typing import Annotated
 from sqlalchemy.exc import DataError, IntegrityError
 from api_schemas.enclose_moose_level_schema import (
-    EncloseMooseLevelInitialRead,
-    EncloseMooseLevelUnlockedRead,
+    EncloseMooseLevelRead,
     EncloseMooseLevelCreate,
     EncloseMooseLevelUpdate,
 )
@@ -26,7 +25,7 @@ enclose_moose_router = APIRouter()
 # Admin routes
 @enclose_moose_router.post(
     "/admin/levels",
-    response_model=EncloseMooseLevelUnlockedRead,
+    response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
@@ -47,7 +46,7 @@ def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
 
 @enclose_moose_router.get(
     "/admin/levels/{level_id}",
-    response_model=EncloseMooseLevelUnlockedRead,
+    response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_get_level(level_id: str, db: DB_dependency):
@@ -60,7 +59,7 @@ def admin_get_level(level_id: str, db: DB_dependency):
 
 @enclose_moose_router.get(
     "/admin/levels",
-    response_model=list[EncloseMooseLevelUnlockedRead],
+    response_model=list[EncloseMooseLevelRead],
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_get_all_levels(db: DB_dependency):
@@ -71,7 +70,7 @@ def admin_get_all_levels(db: DB_dependency):
 
 @enclose_moose_router.patch(
     "/admin/levels/{level_id}",
-    response_model=EncloseMooseLevelUnlockedRead,
+    response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_update_level(level_id: str, data: EncloseMooseLevelUpdate, db: DB_dependency):
@@ -91,7 +90,7 @@ def admin_update_level(level_id: str, data: EncloseMooseLevelUpdate, db: DB_depe
 
 @enclose_moose_router.delete(
     "/admin/levels/{level_id}",
-    response_model=EncloseMooseLevelUnlockedRead,
+    response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_delete_level(level_id: str, db: DB_dependency):
@@ -120,7 +119,7 @@ def admin_get_all_level_submissions(
 
 
 # Non-admin routes
-@enclose_moose_router.get("/levels/{level_id}", response_model=EncloseMooseLevelInitialRead)
+@enclose_moose_router.get("/levels/{level_id}", response_model=EncloseMooseLevelRead)
 def get_level(level_id: str, me: Annotated[User_DB, Permission.member()], db: DB_dependency):
     date_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
     level = (
@@ -137,7 +136,7 @@ def get_level(level_id: str, me: Annotated[User_DB, Permission.member()], db: DB
     return level
 
 
-@enclose_moose_router.get("/levels", response_model=list[EncloseMooseLevelInitialRead])
+@enclose_moose_router.get("/levels", response_model=list[EncloseMooseLevelRead])
 def get_all_levels(me: Annotated[User_DB, Permission.member()], db: DB_dependency):
     date_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
 
@@ -161,7 +160,7 @@ def get_all_levels(me: Annotated[User_DB, Permission.member()], db: DB_dependenc
     return levels
 
 
-@enclose_moose_router.post("/submissions/{level_id}", response_model=EncloseMooseLevelUnlockedRead)
+@enclose_moose_router.post("/submissions/{level_id}", response_model=EncloseMooseLevelRead)
 def submit_solution(
     level_id: str,
     submission: EncloseMooseSubmissionCreate,

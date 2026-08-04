@@ -1,10 +1,11 @@
-from api_schemas.base_schema import BaseSchema
+from pydantic import model_validator
 from datetime import datetime, date
 from zoneinfo import ZoneInfo
+from api_schemas.base_schema import BaseSchema
 from api_schemas.enclose_moose_submission_schema import EncloseMooseSubmissionRead
 
 
-class EncloseMooseLevelInitialRead(BaseSchema):
+class EncloseMooseLevelRead(BaseSchema):
     level_id: str
     release_date: date
     day_index: int | None
@@ -13,15 +14,22 @@ class EncloseMooseLevelInitialRead(BaseSchema):
     encoded_grid: str
     wall_budget: int
 
+    optimal_score: int | None = None
+    optimal_solution: set[int] | None = None
+    optimal_is_unique: bool | None = None
+
     player_submission: EncloseMooseSubmissionRead | None = None
+    score_distribution: dict[int, int] | None = None
 
+    @model_validator(mode="after")
+    def redact_spoilers(self):
+        if self.player_submission is None:
+            self.optimal_score = None
+            self.optimal_solution = None
+            self.optimal_is_unique = None
+            self.score_distribution = None
 
-class EncloseMooseLevelUnlockedRead(EncloseMooseLevelInitialRead):
-    optimal_score: int
-    optimal_solution: set[int]
-    optimal_is_unique: bool | None
-
-    score_distribution: dict[int, int]
+        return self
 
 
 class EncloseMooseLevelCreate(BaseSchema):
