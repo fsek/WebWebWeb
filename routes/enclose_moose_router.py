@@ -143,6 +143,7 @@ def get_level(level_id: str, me: Annotated[User_DB, Permission.member()], db: DB
 
     submission = db.get(EncloseMooseSubmission_DB, (level_id, me.id))
     level.player_submission = submission  # pyright: ignore
+    level.show_spoilers = submission is not None  # pyright: ignore
 
     return level
 
@@ -166,6 +167,7 @@ def get_all_levels(me: Annotated[User_DB, Permission.member()], db: DB_dependenc
     levels: list[EncloseMooseLevel_DB] = []
     for level, submission in results:
         level.player_submission = submission
+        level.show_spoilers = submission is not None  # pyright: ignore
         levels.append(level)
 
     return levels
@@ -204,6 +206,7 @@ def submit_solution(
         )
 
     level.player_submission = db_submission  # pyright: ignore
+    level.show_spoilers = True  # pyright: ignore
 
     return level
 
