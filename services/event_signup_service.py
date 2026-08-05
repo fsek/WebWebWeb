@@ -34,11 +34,7 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     ):
         raise HTTPException(400, detail="User already signed up to chosen event")
 
-    if (
-        manage_permission == False
-        and data.group_name is not None
-        and not is_group_allowed(event, user, data.group_name)
-    ):
+    if manage_permission == False and not is_group_allowed(event, user, data.group_name):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
     signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
@@ -87,10 +83,8 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     if signup is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    if (
-        manage_permission == False
-        and data.group_name is not None
-        and not is_group_allowed(event, db.query(User_DB).filter(User_DB.id == user_id).one(), data.group_name)
+    if manage_permission == False and not is_group_allowed(
+        event, db.query(User_DB).filter(User_DB.id == user_id).one(), data.group_name
     ):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
@@ -137,6 +131,9 @@ def get_allowed_groups(event: Event_DB, user: User_DB):
 
 def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
     if event.is_nollning_event:
+        if group_name is None:
+            return False
+
         allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
         is_event_allowed = False
         for gu in user.group_users:
