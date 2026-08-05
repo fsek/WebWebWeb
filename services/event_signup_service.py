@@ -131,6 +131,9 @@ def get_allowed_groups(event: Event_DB, user: User_DB):
 
 def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
     if event.is_nollning_event:
+        if group_name is None:
+            return False
+
         allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
         is_event_allowed = False
         for gu in user.group_users:
