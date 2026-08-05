@@ -152,6 +152,9 @@ def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
 
 
 def _is_group_allowed(gu: GroupUser_DB, e: Event_DB, agt: list[GROUP_TYPE]):
+    if not any(n.year == datetime.now().year for n in gu.group.nollnings):
+        return False
+
     if gu.group.group_type in agt:
         return True
     elif (gu.group_user_type == "Mentor") and e.allow_other_mentors:
