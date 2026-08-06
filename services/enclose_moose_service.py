@@ -240,7 +240,6 @@ def level_create(data: EncloseMooseLevelCreate):
     optimal_score, optimal_solution, optimal_is_unique = grid.find_optimal_solution()
 
     level = EncloseMooseLevel_DB(
-        level_id=data.level_id,
         release_date=data.release_date,
         day_index=data.day_index,
         name=data.name,

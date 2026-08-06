@@ -1,9 +1,9 @@
 from datetime import date
-from helpers.constants import MAX_ENCLOSE_LEVEL_ID, MAX_ENCLOSE_LEVEL_NAME, MAX_ENCLOSE_GRID
+from helpers.constants import MAX_ENCLOSE_LEVEL_NAME, MAX_ENCLOSE_GRID
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, mapped_column, Mapped
 from typing import TYPE_CHECKING, Optional
-from sqlalchemy import JSON, String, Date
+from sqlalchemy import Integer, String, Date, JSON
 
 if TYPE_CHECKING:
     from db_models.enclose_moose_submission_model import EncloseMooseSubmission_DB
@@ -12,7 +12,7 @@ if TYPE_CHECKING:
 class EncloseMooseLevel_DB(BaseModel_DB):
     __tablename__ = "enclose_moose_level_table"
 
-    level_id: Mapped[str] = mapped_column(String(MAX_ENCLOSE_LEVEL_ID), primary_key=True)
+    level_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, init=False)
     release_date: Mapped[Optional[date]] = mapped_column(Date)
     day_index: Mapped[Optional[int]] = mapped_column()
     name: Mapped[str] = mapped_column(String(MAX_ENCLOSE_LEVEL_NAME))

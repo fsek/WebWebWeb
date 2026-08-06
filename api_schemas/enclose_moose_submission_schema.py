@@ -3,7 +3,7 @@ from helpers.types import datetime
 
 
 class EncloseMooseSubmissionRead(BaseSchema):
-    level_id: str
+    level_id: int
     submission_time: datetime
 
     player_id: int

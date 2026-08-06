@@ -6,7 +6,7 @@ from api_schemas.enclose_moose_submission_schema import EncloseMooseSubmissionRe
 
 
 class EncloseMooseLevelRead(BaseSchema):
-    level_id: str
+    level_id: int
     release_date: date
     day_index: int | None
     name: str
@@ -35,7 +35,6 @@ class EncloseMooseLevelRead(BaseSchema):
 
 
 class EncloseMooseLevelCreate(BaseSchema):
-    level_id: str
     release_date: date = datetime.now(ZoneInfo("Europe/Stockholm")).date()
     day_index: int | None = None
     name: str

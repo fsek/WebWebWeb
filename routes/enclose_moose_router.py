@@ -37,9 +37,6 @@ def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
     except DataError:
         db.rollback()
         raise HTTPException(400, detail="Some string is too long")
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(409, detail=f'A level with level_id "{data.level_id}" already exists')
 
     level.show_spoilers = True  # pyright: ignore
 
@@ -51,7 +48,7 @@ def admin_create_level(data: EncloseMooseLevelCreate, db: DB_dependency):
     response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
-def admin_get_level(level_id: str, db: DB_dependency):
+def admin_get_level(level_id: int, db: DB_dependency):
     level = db.get(EncloseMooseLevel_DB, level_id)
     if level is None:
         raise HTTPException(404, detail=f'No level with level_id "{level_id}" exists')
@@ -80,7 +77,7 @@ def admin_get_all_levels(db: DB_dependency):
     response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
-def admin_update_level(level_id: str, data: EncloseMooseLevelUpdate, db: DB_dependency):
+def admin_update_level(level_id: int, data: EncloseMooseLevelUpdate, db: DB_dependency):
     level = db.get(EncloseMooseLevel_DB, level_id)
     if level is None:
         raise HTTPException(404, detail=f'No level with level_id "{level_id}" exists')
@@ -102,7 +99,7 @@ def admin_update_level(level_id: str, data: EncloseMooseLevelUpdate, db: DB_depe
     response_model=EncloseMooseLevelRead,
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
-def admin_delete_level(level_id: str, db: DB_dependency):
+def admin_delete_level(level_id: int, db: DB_dependency):
     level = db.get(EncloseMooseLevel_DB, level_id)
     if level is None:
         raise HTTPException(404, detail=f'No level with level_id "{level_id}" exists')
@@ -121,7 +118,7 @@ def admin_delete_level(level_id: str, db: DB_dependency):
     dependencies=[Permission.require("manage", "EncloseMoose")],
 )
 def admin_get_all_level_submissions(
-    level_id: str,
+    level_id: int,
     db: DB_dependency,
 ):
     submissions = db.query(EncloseMooseSubmission_DB).filter(EncloseMooseSubmission_DB.level_id == level_id).all()
@@ -131,7 +128,7 @@ def admin_get_all_level_submissions(
 
 # Non-admin routes
 @enclose_moose_router.get("/levels/{level_id}", response_model=EncloseMooseLevelRead)
-def get_level(level_id: str, me: Annotated[User_DB, Permission.member()], db: DB_dependency):
+def get_level(level_id: int, me: Annotated[User_DB, Permission.member()], db: DB_dependency):
     date_today = datetime.now(ZoneInfo("Europe/Stockholm")).date()
     level = (
         db.query(EncloseMooseLevel_DB)
@@ -175,7 +172,7 @@ def get_all_levels(me: Annotated[User_DB, Permission.member()], db: DB_dependenc
 
 @enclose_moose_router.post("/submissions/{level_id}", response_model=EncloseMooseLevelRead)
 def submit_solution(
-    level_id: str,
+    level_id: int,
     submission: EncloseMooseSubmissionCreate,
     me: Annotated[User_DB, Permission.member()],
     request: Request,
@@ -213,7 +210,7 @@ def submit_solution(
 
 @enclose_moose_router.get("/submissions/{level_id}", response_model=EncloseMooseSubmissionRead)
 def get_submission(
-    level_id: str,
+    level_id: int,
     me: Annotated[User_DB, Permission.member()],
     db: DB_dependency,
 ):

@@ -1,7 +1,6 @@
-from helpers.constants import MAX_ENCLOSE_LEVEL_ID
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, mapped_column, Mapped
-from sqlalchemy import ForeignKey, JSON, String
+from sqlalchemy import ForeignKey, JSON
 from typing import TYPE_CHECKING
 from helpers.types import datetime_utc
 
@@ -12,8 +11,7 @@ if TYPE_CHECKING:
 class EncloseMooseSubmission_DB(BaseModel_DB):
     __tablename__ = "enclose_moose_submission_table"
 
-    level_id: Mapped[str] = mapped_column(
-        String(MAX_ENCLOSE_LEVEL_ID),
+    level_id: Mapped[int] = mapped_column(
         ForeignKey("enclose_moose_level_table.level_id", ondelete="CASCADE"),
         primary_key=True,
     )
