@@ -37,10 +37,22 @@ def test_signup_with_group_the_user_is_not_in(client, member_token, membered_use
     assert response.status_code == 403
 
 
-def test_signup_without_group(client, member_token, membered_user, nollning_event, mission_group):
+def test_nollning_event_signup_without_group(client, member_token, membered_user, nollning_event, mission_group):
     """Signing up without picking a group is not restricted by the group types."""
     response = client.post(
         f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403, response.text
+    # assert response.json()["group_name"] is None
+
+
+def test_non_nollning_event_signup_without_group(client, member_token, membered_user, event, mission_group):
+    """Signing up without picking a group is not restricted by the group types."""
+    response = client.post(
+        f"/event-signup/{event['id']}",
         json={"user_id": membered_user.id},
         headers=auth_headers(member_token),
     )
