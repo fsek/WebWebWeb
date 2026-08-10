@@ -83,6 +83,20 @@ def test_register_user_bad_password(client):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
+def test_register_user_password_check_is_nice(client):
+    """Test user registration with a password which does have the name in it but the name is shorter than 4 characters, which should be allowed"""
+    user_data = user_data_factory(
+        email="test1@example.com",
+        first_name="Te",
+        last_name="Us",
+        program="F",
+        telephone_number="+46701234567",
+        password="Testisthecoolestofus1",  # Contains first name and last name but they are shorter than 4 characters
+    )
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_201_CREATED
+
+
 def test_register_duplicate_user(client, user1_data):
     """Test registration with duplicate email fails"""
     # Register first user
