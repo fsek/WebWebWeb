@@ -36,8 +36,12 @@ class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):
         if not re.search(r"[A-Za-z]", password) or not re.search(r"\d", password):
             raise InvalidPasswordException(reason="Password must contain both letters and numbers")
 
-        name = getattr(user, "name", None) or getattr(user, "username", None)
-        if name and name.lower() in password.lower():
+        first_name = getattr(user, "first_name", None)
+        if first_name and first_name.lower() in password.lower():
+            raise InvalidPasswordException(reason="Password should not contain your name")
+
+        last_name = getattr(user, "last_name", None)
+        if last_name and last_name.lower() in password.lower():
             raise InvalidPasswordException(reason="Password should not contain your name")
 
     async def on_after_register(self, user: User_DB, request: Optional[Request] = None):

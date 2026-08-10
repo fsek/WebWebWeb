@@ -49,6 +49,40 @@ def test_register_user_empty_stil_id(client, db_session):
     assert db_user.stil_id is None
 
 
+def test_register_user_bad_password(client):
+    """Test user registration with a password that doesn't meet the requirements"""
+    user_data = user_data_factory(
+        email="test1@example.com",
+        first_name="Test",
+        last_name="User1",
+        program="F",
+        telephone_number="+46701234567",
+        password="short1",  # Invalid password (too short)
+    )
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    user_data["password"] = "justsomeletters"
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    user_data["password"] = "12345678"  # No letters
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    user_data["password"] = "Testisthecoolest1"  # Contains first name
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    user_data["password"] = "User1rulez123"  # Contains last name
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    user_data["password"] = "test1@example.com"  # Contains email
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
 def test_register_duplicate_user(client, user1_data):
     """Test registration with duplicate email fails"""
     # Register first user
