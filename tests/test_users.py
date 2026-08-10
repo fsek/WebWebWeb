@@ -28,6 +28,27 @@ def test_register_user_invalid_stil_id(client):
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
+def test_register_user_empty_stil_id(client, db_session):
+    """Test user registration with valid data except for an empty stil_id, which should be allowed"""
+    user_data = user_data_factory(
+        email="test1@example.com",
+        last_name="User1",
+        program="F",
+        telephone_number="+46701234567",
+        stil_id="",
+    )
+    response = client.post("/auth/register", json=user_data)
+    assert response.status_code == status.HTTP_201_CREATED
+    data = response.json()
+
+    from db_models.user_model import User_DB
+
+    db_user = db_session.query(User_DB).filter_by(id=data["id"]).one()
+    assert db_user.first_name == user_data["first_name"]
+    assert db_user.last_name == user_data["last_name"]
+    assert db_user.stil_id is None
+
+
 def test_register_duplicate_user(client, user1_data):
     """Test registration with duplicate email fails"""
     # Register first user
