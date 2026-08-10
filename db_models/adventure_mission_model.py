@@ -36,6 +36,8 @@ class AdventureMission_DB(BaseModel_DB):
 
     min_points: Mapped[int] = mapped_column()
 
+    mission_type: Mapped[int] = mapped_column()
+
     group_missions: Mapped[list["GroupMission_DB"]] = relationship(
         back_populates="adventure_mission", cascade="all, delete-orphan", init=False
     )

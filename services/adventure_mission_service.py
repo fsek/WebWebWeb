@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from api_schemas.adventure_mission_schema import AdventureMissionCreate
 from db_models.adventure_mission_model import AdventureMission_DB
 from db_models.nollning_model import Nollning_DB
-from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
+from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME, NBR_OF_MISSION_TYPES
 
 
 def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollning_id: int):
@@ -28,6 +28,9 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
     if data.min_points < 0:
         raise HTTPException(400, detail="Min points has to be atleast 0")
 
+    if data.mission_type < 0 or data.mission_type > NBR_OF_MISSION_TYPES:
+        raise HTTPException(400, detail="Mission type must be at least 0 and at most " + str(NBR_OF_MISSION_TYPES))
+
     new_adventure_mission = AdventureMission_DB(
         nollning_id=nollning_id,
         nollning_week=data.nollning_week,
@@ -37,6 +40,7 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
         description_en=data.description_en,
         max_points=data.max_points,
         min_points=data.min_points,
+        mission_type=data.mission_type,
     )
 
     db.add(new_adventure_mission)
