@@ -2,8 +2,8 @@ import os
 import re
 from typing import Any, Dict, Optional, Type, Union
 from fastapi import Request
-from fastapi_users_pelicanq import BaseUserManager, IntegerIDMixin, InvalidPasswordException
-from fastapi_users_pelicanq import schemas
+from fastapi_users import BaseUserManager, IntegerIDMixin, InvalidPasswordException
+from fastapi_users import schemas
 
 from api_schemas.user_schemas import UserCreate
 from db_models.user_model import User_DB
