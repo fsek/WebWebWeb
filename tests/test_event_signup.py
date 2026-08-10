@@ -164,7 +164,7 @@ def test_nollning_event_update_signup_remove_group_name_is_disallowed(
 def test_non_nollning_event_update_signup_remove_group_name_is_allowed(
     client, member_token, membered_user, event, mentor_group
 ):
-    """Changing a group name to an empty string (removing the group) is allowed for nollning events"""
+    """Changing a group name to an empty string (removing the group) is allowed for non-nollning events"""
     signup = client.post(
         f"/event-signup/{event['id']}",
         json={"user_id": membered_user.id, "group_name": mentor_group.name},
