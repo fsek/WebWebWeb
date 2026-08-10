@@ -117,25 +117,71 @@ def test_non_nollning_event_ignores_group_types(client, member_token, membered_u
     assert response.status_code in (200, 201), response.text
 
 
-def test_update_signup_without_group_name_is_allowed(client, member_token, membered_user, nollning_event, mentor_group):
-    """
-    Regression: patching some other field of a signup on a nollning event used to be
-    rejected with 403, because an omitted group_name was checked as if it were a group
-    the user isn't in.
-    """
+def test_update_signup_without_changing_group_name_is_allowed(
+    client, member_token, membered_user, nollning_event, mentor_group
+):
+    """Not sending a group name with update body (or sending null) should make it stay as-is"""
     signup = client.post(
         f"/event-signup/{nollning_event['id']}",
         json={"user_id": membered_user.id, "group_name": mentor_group.name},
         headers=auth_headers(member_token),
     )
     assert signup.status_code in (200, 201), signup.text
+    assert signup.json()["group_name"] == mentor_group.name
 
     response = client.patch(
-        f"/event-signup/{nollning_event['id']}", json={"priority": "Nolla"}, headers=auth_headers(member_token)
+        f"/event-signup/{nollning_event['id']}",
+        json={"priority": "Nolla"},
+        headers=auth_headers(member_token),
     )
 
     assert response.status_code == 200, response.text
     assert response.json()["priority"] == "Nolla"
+    assert response.json()["group_name"] == mentor_group.name
+
+
+def test_nollning_event_update_signup_remove_group_name_is_disallowed(
+    client, member_token, membered_user, nollning_event, mentor_group
+):
+    """Changing a group name to an empty string (removing the group) is disallowed for nollning events"""
+    signup = client.post(
+        f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id, "group_name": mentor_group.name},
+        headers=auth_headers(member_token),
+    )
+    assert signup.status_code in (200, 201), signup.text
+    assert signup.json()["group_name"] == mentor_group.name
+
+    response = client.patch(
+        f"/event-signup/{nollning_event['id']}",
+        json={"group_name": ""},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403, response.text
+
+
+def test_non_nollning_event_update_signup_remove_group_name_is_allowed(
+    client, member_token, membered_user, event, mentor_group
+):
+    """Changing a group name to an empty string (removing the group) is allowed for nollning events"""
+    signup = client.post(
+        f"/event-signup/{event['id']}",
+        json={"user_id": membered_user.id, "group_name": mentor_group.name},
+        headers=auth_headers(member_token),
+    )
+    assert signup.status_code in (200, 201), signup.text
+    assert signup.json()["group_name"] == mentor_group.name
+
+    response = client.patch(
+        f"/event-signup/{event['id']}",
+        json={"priority": "Nolla", "group_name": ""},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["priority"] == "Nolla"
+    assert response.json()["group_name"] is None
 
 
 def test_update_signup_to_disallowed_group(

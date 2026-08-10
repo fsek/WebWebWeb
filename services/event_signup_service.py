@@ -91,9 +91,9 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
     for var, value in vars(data).items():
-        if var == "priority" and not value:
+        if var == "priority" and not value and value is not None:  # falsy but not None
             setattr(signup, "priority", DEFAULT_USER_PRIORITY)
-        elif var == "group_name" and not value:
+        elif var == "group_name" and not value and value is not None:  # falsy but not None
             setattr(signup, "group_name", None)
         else:
             setattr(signup, var, value) if value else None
