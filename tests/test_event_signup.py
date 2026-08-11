@@ -49,6 +49,28 @@ def test_nollning_event_signup_without_group(client, member_token, membered_user
     assert response.status_code == 403, response.text
 
 
+def test_nollning_event_signup_without_group_with_post_priority(
+    client, admin_token, admin_council_id, member_token, membered_user, member_post
+):
+    """A user whose post matches one of the event's priorities may sign up without a group."""
+    data = event_data_factory(
+        council_id=admin_council_id,
+        is_nollning_event=True,
+        mentor_group_types=["Mentor"],
+        priorities=[member_post.name_sv, "Nolla"],
+    )
+    event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+    response = client.post(
+        f"/event-signup/{event['id']}",
+        json={"user_id": membered_user.id},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code in (200, 201), response.text
+    assert response.json()["group_name"] is None
+
+
 def test_non_nollning_event_signup_without_group(client, member_token, membered_user, event, mission_group):
     """Signing up to non-nollning event without picking a group is not restricted by the group types."""
     response = client.post(

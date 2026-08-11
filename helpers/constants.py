@@ -96,6 +96,8 @@ MAX_RECURSION_STEPS = 50  # Maximum number of recursions allowed, to prevent inf
 
 # Event User
 DEFAULT_USER_PRIORITY = "Övrigt"
+# Priorities tied to a nollning group instead of a post
+NOLLNING_PRIORITIES = ["Nolla", "Gruppfadder", "Uppdragsfadder"]
 
 # Guild Meeting
 MAX_GUILD_MEETING_DATE_DESC = 500

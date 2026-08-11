@@ -8,8 +8,19 @@ from db_models.user_model import User_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
-from helpers.constants import DEFAULT_USER_PRIORITY
+from helpers.constants import DEFAULT_USER_PRIORITY, NOLLNING_PRIORITIES
 from helpers.types import GROUP_TYPE
+
+
+def user_matches_existing_event_post_priorities(user: User_DB, event: Event_DB):
+    """Only true if a user has a post which matches one of the event's priorities,
+    and that priority match is not a nollning priority (which are tied to groups instead of posts)."""
+    if not event.priorities:
+        return False
+
+    event_post_priorities = {p.priority for p in event.priorities if p.priority not in NOLLNING_PRIORITIES}
+
+    return any(post.name_sv in event_post_priorities for post in user.posts)
 
 
 def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
@@ -144,7 +155,9 @@ def get_allowed_groups(event: Event_DB, user: User_DB):
 def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
     if event.is_nollning_event:
         if group_name is None:
-            return False
+            # Without a group the user has to qualify through a post priority instead,
+            # since nollning priorities are tied to a group
+            return user_matches_existing_event_post_priorities(user, event)
 
         allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
         is_event_allowed = False
