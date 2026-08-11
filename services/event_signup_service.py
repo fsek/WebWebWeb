@@ -83,20 +83,30 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     if signup is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
+    # Only fields the client actually sent are considered.
+    updates = data.model_dump(exclude_unset=True, exclude={"user_id"})
+
+    if "group_name" in updates and not updates["group_name"]:  # if falsy
+        updates["group_name"] = None
+
+    # Only authorize the group when the client asked to change it, otherwise an update that leaves
+    # the group alone would be rejected on nollning events for not carrying a group at all.
     if (
         manage_permission == False
-        and data.group_name is not None
-        and not is_group_allowed(event, db.query(User_DB).filter(User_DB.id == user_id).one(), data.group_name)
+        and "group_name" in updates
+        and not is_group_allowed(event, db.query(User_DB).filter(User_DB.id == user_id).one(), updates["group_name"])
     ):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
-    for var, value in vars(data).items():
-        if var == "priority" and not value and value is not None:  # falsy but not None
-            setattr(signup, "priority", DEFAULT_USER_PRIORITY)
-        elif var == "group_name" and not value and value is not None:  # falsy but not None
-            setattr(signup, "group_name", None)
-        else:
-            setattr(signup, var, value) if value else None
+    # priority and drinkPackage are not nullable in the database, so a null means "back to default"
+    if "priority" in updates and not updates["priority"]:  # if falsy
+        updates["priority"] = DEFAULT_USER_PRIORITY
+
+    if "drinkPackage" in updates and updates["drinkPackage"] is None:
+        del updates["drinkPackage"]  # None is not a valid value ("None" is), so leave the old value in place
+
+    for var, value in updates.items():
+        setattr(signup, var, value)
 
     if not event.drink_package:
         signup.drinkPackage = "None"

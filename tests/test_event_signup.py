@@ -1,5 +1,6 @@
 # type: ignore
 import pytest
+from helpers.constants import DEFAULT_USER_PRIORITY
 from .basic_factories import add_user_to_group, auth_headers, event_data_factory
 
 
@@ -120,7 +121,7 @@ def test_non_nollning_event_ignores_group_types(client, member_token, membered_u
 def test_update_signup_without_changing_group_name_is_allowed(
     client, member_token, membered_user, nollning_event, mentor_group
 ):
-    """Not sending a group name with update body (or sending null) should make it stay as-is"""
+    """Not sending a group name with the update body should make it stay as-is"""
     signup = client.post(
         f"/event-signup/{nollning_event['id']}",
         json={"user_id": membered_user.id, "group_name": mentor_group.name},
@@ -140,10 +141,11 @@ def test_update_signup_without_changing_group_name_is_allowed(
     assert response.json()["group_name"] == mentor_group.name
 
 
+@pytest.mark.parametrize("sent_group_name", [None, ""])
 def test_nollning_event_update_signup_remove_group_name_is_disallowed(
-    client, member_token, membered_user, nollning_event, mentor_group
+    client, member_token, membered_user, nollning_event, mentor_group, sent_group_name
 ):
-    """Changing a group name to an empty string (removing the group) is disallowed for nollning events"""
+    """Sending a null (or empty) group name to remove the group is disallowed for nollning events"""
     signup = client.post(
         f"/event-signup/{nollning_event['id']}",
         json={"user_id": membered_user.id, "group_name": mentor_group.name},
@@ -154,17 +156,18 @@ def test_nollning_event_update_signup_remove_group_name_is_disallowed(
 
     response = client.patch(
         f"/event-signup/{nollning_event['id']}",
-        json={"group_name": ""},
+        json={"group_name": sent_group_name},
         headers=auth_headers(member_token),
     )
 
     assert response.status_code == 403, response.text
 
 
+@pytest.mark.parametrize("sent_group_name", [None, ""])
 def test_non_nollning_event_update_signup_remove_group_name_is_allowed(
-    client, member_token, membered_user, event, mentor_group
+    client, member_token, membered_user, event, mentor_group, sent_group_name
 ):
-    """Changing a group name to an empty string (removing the group) is allowed for non-nollning events"""
+    """Sending a null (or empty) group name to remove the group is allowed for non-nollning events"""
     signup = client.post(
         f"/event-signup/{event['id']}",
         json={"user_id": membered_user.id, "group_name": mentor_group.name},
@@ -175,13 +178,59 @@ def test_non_nollning_event_update_signup_remove_group_name_is_allowed(
 
     response = client.patch(
         f"/event-signup/{event['id']}",
-        json={"priority": "Nolla", "group_name": ""},
+        json={"priority": "Nolla", "group_name": sent_group_name},
         headers=auth_headers(member_token),
     )
 
     assert response.status_code == 200, response.text
     assert response.json()["priority"] == "Nolla"
     assert response.json()["group_name"] is None
+
+
+def test_update_signup_without_priority_keeps_priority(
+    client, member_token, membered_user, nollning_event, mentor_group
+):
+    """Leaving priority out of the update body should make it stay as-is"""
+    signup = client.post(
+        f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id, "group_name": mentor_group.name, "priority": "Nolla"},
+        headers=auth_headers(member_token),
+    )
+    assert signup.status_code in (200, 201), signup.text
+    assert signup.json()["priority"] == "Nolla"
+
+    response = client.patch(
+        f"/event-signup/{nollning_event['id']}",
+        json={"drinkPackage": "Alcohol"},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["priority"] == "Nolla"
+    assert response.json()["group_name"] == mentor_group.name
+
+
+def test_update_signup_with_null_priority_resets_to_default(
+    client, member_token, membered_user, nollning_event, mentor_group
+):
+    """Sending a null priority should reset it to the default one"""
+    signup = client.post(
+        f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id, "group_name": mentor_group.name, "priority": "Nolla"},
+        headers=auth_headers(member_token),
+    )
+    assert signup.status_code in (200, 201), signup.text
+    assert signup.json()["priority"] == "Nolla"
+
+    response = client.patch(
+        f"/event-signup/{nollning_event['id']}",
+        json={"priority": None},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 200, response.text
+    assert response.json()["priority"] == DEFAULT_USER_PRIORITY
+    assert response.json()["group_name"] == mentor_group.name
 
 
 def test_update_signup_to_disallowed_group(
