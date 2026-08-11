@@ -3,7 +3,7 @@ from helpers.types import datetime_utc
 
 from sqlalchemy import ForeignKey, String
 from db_models.base_model import BaseModel_DB
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
 from .base_model import BaseModel_DB
@@ -36,7 +36,7 @@ class AdventureMission_DB(BaseModel_DB):
 
     min_points: Mapped[int] = mapped_column()
 
-    mission_type: Mapped[int] = mapped_column()
+    mission_type: Mapped[Optional[int]] = mapped_column(default=None)
 
     group_missions: Mapped[list["GroupMission_DB"]] = relationship(
         back_populates="adventure_mission", cascade="all, delete-orphan", init=False
