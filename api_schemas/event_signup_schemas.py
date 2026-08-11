@@ -21,6 +21,8 @@ class EventSignupRead(BaseSchema):
 
 
 class EventSignupUpdate(BaseSchema):
+    """This schema uses partial updates, any field not sent to backend will be ignored and not updated."""
+
     user_id: int | None = None
     priority: str | None = None
     group_name: str | None = None
