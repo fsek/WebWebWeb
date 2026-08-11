@@ -50,6 +50,8 @@ def create_new_event(data: EventCreate, db: Session):
         drink_package=data.drink_package,
         location=data.location,
         is_nollning_event=data.is_nollning_event,
+        mentor_group_types=data.mentor_group_types,
+        allow_other_mentors=data.allow_other_mentors,
         dress_code=data.dress_code,
         price=data.price,
         alcohol_event_type=data.alcohol_event_type,
@@ -88,6 +90,10 @@ def update_event(event_id: int, data: EventUpdate, db: Session):
 
     if not event:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Event not found")
+
+    if data.lottery is not None and data.lottery != event.lottery:
+        if event.event_users_confirmed or any(eu.confirmed_status for eu in event.event_users):
+            raise HTTPException(400, detail="Cannot change lottery after signups are confirmed")
 
     if data.price is not None and data.price < 0:
         raise HTTPException(400, detail="Price cannot be lower than 0")

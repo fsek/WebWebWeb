@@ -128,3 +128,54 @@ def patch_sub_election(client, sub_election_id, token=None, **kwargs):
     data = sub_election_data_factory(**kwargs)
     headers = auth_headers(token) if token else {}
     return client.patch(f"/sub-election/{sub_election_id}", json=data, headers=headers)
+
+
+def event_data_factory(**kwargs):
+    """Factory for creating event payloads with sensible default times."""
+    now = datetime.datetime.now(timezone.utc)
+    default_data = {
+        "starts_at": (now + datetime.timedelta(days=7)).isoformat(),
+        "ends_at": (now + datetime.timedelta(days=7, hours=3)).isoformat(),
+        "signup_start": (now - datetime.timedelta(days=1)).isoformat(),
+        "signup_end": (now + datetime.timedelta(days=6)).isoformat(),
+        "title_sv": "Testevenemang",
+        "title_en": "Test Event",
+        "description_sv": "Svensk beskrivning",
+        "description_en": "English description",
+        "location": "Kårhuset",
+        "max_event_users": 0,
+        "priorities": [],
+        "all_day": False,
+        "recurring": False,
+        "food": False,
+        "closed": False,
+        "can_signup": True,
+        "drink_package": False,
+        "is_nollning_event": False,
+        "mentor_group_types": ["Mentor", "Mission", "Default", "Committee"],
+        "allow_other_mentors": False,
+        "alcohol_event_type": "None",
+        "dress_code": "Ovve",
+        "price": 0,
+        "dot": "None",
+        "lottery": False,
+    }
+    return {**default_data, **kwargs}
+
+
+def add_user_to_group(db_session, user, name, group_type, group_user_type="Mentee"):
+    """Create a group of a given type and put the user in it. Returns the group."""
+    from db_models.group_model import Group_DB
+    from db_models.group_user_model import GroupUser_DB
+
+    group = Group_DB(name=name, group_type=group_type)
+    db_session.add(group)
+    db_session.commit()
+
+    group_user = GroupUser_DB(
+        user=user, user_id=user.id, group=group, group_id=group.id, group_user_type=group_user_type
+    )
+    db_session.add(group_user)
+    db_session.commit()
+
+    return group
