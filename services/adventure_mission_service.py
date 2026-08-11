@@ -14,6 +14,12 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
     if len(data.description_sv) > MAX_ADVENTURE_MISSION_DESC or len(data.description_en) > MAX_ADVENTURE_MISSION_DESC:
         raise HTTPException(400, detail="Description too long")
 
+    if (
+        len(data.unlock_hint_sv or "") > MAX_ADVENTURE_MISSION_DESC
+        or len(data.unlock_hint_en or "") > MAX_ADVENTURE_MISSION_DESC
+    ):
+        raise HTTPException(400, detail="Unlock hint too long")
+
     nollning = db.query(Nollning_DB).filter(Nollning_DB.id == nollning_id).one_or_none()
 
     if not nollning:
@@ -89,6 +95,18 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
 
     adventure_mission = db.query(AdventureMission_DB).filter(AdventureMission_DB.id == id).one_or_none()
 
+    if len(data.title_sv) > MAX_ADVENTURE_MISSION_NAME or len(data.title_en) > MAX_ADVENTURE_MISSION_NAME:
+        raise HTTPException(400, detail="Title too long")
+
+    if len(data.description_sv) > MAX_ADVENTURE_MISSION_DESC or len(data.description_en) > MAX_ADVENTURE_MISSION_DESC:
+        raise HTTPException(400, detail="Description too long")
+
+    if (
+        len(data.unlock_hint_sv or "") > MAX_ADVENTURE_MISSION_DESC
+        or len(data.unlock_hint_en or "") > MAX_ADVENTURE_MISSION_DESC
+    ):
+        raise HTTPException(400, detail="Unlock hint too long")
+
     if not adventure_mission:
         raise HTTPException(404, detail="Mission not found")
 
@@ -100,7 +118,7 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
         data.unlock_hint_en = None
 
     for var, value in vars(data).items():
-        # Allow for clearing of code by allowing setting attributes to None
+        # Allow for clearing of unlock_code by allowing setting attributes to None
         setattr(adventure_mission, var, value)
 
     db.commit()
