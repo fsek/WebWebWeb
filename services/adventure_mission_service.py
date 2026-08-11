@@ -86,6 +86,24 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
     if not adventure_mission:
         raise HTTPException(404, detail="Mission not found")
 
+    if len(data.title_sv) > MAX_ADVENTURE_MISSION_NAME or len(data.title_en) > MAX_ADVENTURE_MISSION_NAME:
+        raise HTTPException(400, detail="Title too long")
+
+    if len(data.description_sv) > MAX_ADVENTURE_MISSION_DESC or len(data.description_en) > MAX_ADVENTURE_MISSION_DESC:
+        raise HTTPException(400, detail="Description too long")
+
+    if data.max_points < data.min_points:
+        raise HTTPException(400, detail="Max points cannot be lower than min points")
+
+    if data.max_points < 1:
+        raise HTTPException(400, detail="Max points has to be atleast 1")
+
+    if data.min_points < 0:
+        raise HTTPException(400, detail="Min points has to be atleast 0")
+
+    if data.mission_type < 0 or data.mission_type > NBR_OF_MISSION_TYPES:
+        raise HTTPException(400, detail="Mission type must be at least 0 and at most " + str(NBR_OF_MISSION_TYPES))
+
     for var, value in vars(data).items():
         setattr(adventure_mission, var, value) if value is not None else None
 
