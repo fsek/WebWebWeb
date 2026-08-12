@@ -3,14 +3,9 @@ from helpers.types import datetime_utc
 
 from sqlalchemy import ForeignKey, String
 from db_models.base_model import BaseModel_DB
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
-from helpers.constants import (
-    MAX_ADVENTURE_MISSION_DESC,
-    MAX_ADVENTURE_MISSION_NAME,
-    MAX_ADVENTURE_MISSION_UNLOCK_CODE,
-    MAX_ADVENTURE_MISSION_UNLOCK_HINT,
-)
+from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .group_mission_model import GroupMission_DB
@@ -41,16 +36,8 @@ class AdventureMission_DB(BaseModel_DB):
 
     min_points: Mapped[int] = mapped_column()
 
-    group_missions: Mapped[list["GroupMission_DB"]] = (
-        relationship(  # many-many relationship with groups requires this, so that groups can track which missions they have completed.
-            back_populates="adventure_mission", cascade="all, delete-orphan", init=False
-        )
+    group_missions: Mapped[list["GroupMission_DB"]] = relationship(
+        back_populates="adventure_mission", cascade="all, delete-orphan", init=False
     )
-
-    # Not secret, passed along with all fetches which can be made by basically anyone.
-    unlock_code: Mapped[Optional[str]] = mapped_column(String(MAX_ADVENTURE_MISSION_UNLOCK_CODE), default=None)
-
-    unlock_hint_sv: Mapped[Optional[str]] = mapped_column(String(MAX_ADVENTURE_MISSION_UNLOCK_HINT), default=None)
-    unlock_hint_en: Mapped[Optional[str]] = mapped_column(String(MAX_ADVENTURE_MISSION_UNLOCK_HINT), default=None)
 
     created_at: Mapped[datetime_utc] = created_at_column()

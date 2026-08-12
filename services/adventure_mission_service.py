@@ -14,12 +14,6 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
     if len(data.description_sv) > MAX_ADVENTURE_MISSION_DESC or len(data.description_en) > MAX_ADVENTURE_MISSION_DESC:
         raise HTTPException(400, detail="Description too long")
 
-    if (
-        len(data.unlock_hint_sv or "") > MAX_ADVENTURE_MISSION_DESC
-        or len(data.unlock_hint_en or "") > MAX_ADVENTURE_MISSION_DESC
-    ):
-        raise HTTPException(400, detail="Unlock hint too long")
-
     nollning = db.query(Nollning_DB).filter(Nollning_DB.id == nollning_id).one_or_none()
 
     if not nollning:
@@ -34,13 +28,6 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
     if data.min_points < 0:
         raise HTTPException(400, detail="Min points has to be atleast 0")
 
-    if data.unlock_code == "":  # Easy guard against accidentally setting unlock_code to empty string
-        data.unlock_code = None
-    if data.unlock_hint_sv == "":
-        data.unlock_hint_sv = None
-    if data.unlock_hint_en == "":
-        data.unlock_hint_en = None
-
     new_adventure_mission = AdventureMission_DB(
         nollning_id=nollning_id,
         nollning_week=data.nollning_week,
@@ -50,9 +37,6 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
         description_en=data.description_en,
         max_points=data.max_points,
         min_points=data.min_points,
-        unlock_code=data.unlock_code,
-        unlock_hint_sv=data.unlock_hint_sv,
-        unlock_hint_en=data.unlock_hint_en,
     )
 
     db.add(new_adventure_mission)
@@ -95,31 +79,11 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
 
     adventure_mission = db.query(AdventureMission_DB).filter(AdventureMission_DB.id == id).one_or_none()
 
-    if len(data.title_sv) > MAX_ADVENTURE_MISSION_NAME or len(data.title_en) > MAX_ADVENTURE_MISSION_NAME:
-        raise HTTPException(400, detail="Title too long")
-
-    if len(data.description_sv) > MAX_ADVENTURE_MISSION_DESC or len(data.description_en) > MAX_ADVENTURE_MISSION_DESC:
-        raise HTTPException(400, detail="Description too long")
-
-    if (
-        len(data.unlock_hint_sv or "") > MAX_ADVENTURE_MISSION_DESC
-        or len(data.unlock_hint_en or "") > MAX_ADVENTURE_MISSION_DESC
-    ):
-        raise HTTPException(400, detail="Unlock hint too long")
-
     if not adventure_mission:
         raise HTTPException(404, detail="Mission not found")
 
-    if data.unlock_code == "":  # Easy guard against accidentally setting unlock_code to empty string
-        data.unlock_code = None
-    if data.unlock_hint_sv == "":
-        data.unlock_hint_sv = None
-    if data.unlock_hint_en == "":
-        data.unlock_hint_en = None
-
     for var, value in vars(data).items():
-        # Allow for clearing of unlock_code by allowing setting attributes to None
-        setattr(adventure_mission, var, value)
+        setattr(adventure_mission, var, value) if value is not None else None
 
     db.commit()
     db.refresh(adventure_mission)

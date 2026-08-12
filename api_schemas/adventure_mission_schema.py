@@ -10,9 +10,6 @@ class AdventureMissionCreate(BaseSchema):
     max_points: int
     min_points: int
     nollning_week: int
-    unlock_code: str | None = None
-    unlock_hint_sv: str | None = None
-    unlock_hint_en: str | None = None
 
 
 class AdventureMissionRead(BaseSchema):
@@ -25,7 +22,4 @@ class AdventureMissionRead(BaseSchema):
     min_points: int
     nollning_id: int
     nollning_week: int
-    unlock_code: str | None = None
-    unlock_hint_sv: str | None = None
-    unlock_hint_en: str | None = None
     created_at: datetime
