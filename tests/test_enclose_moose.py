@@ -5,7 +5,7 @@ from datetime import datetime, UTC, timedelta
 
 
 def create_level(client, token, **kwargs):
-    default_data = {"name": "test", "encoded_grid": ".~.\n.H.\n~.~", "wall_budget": 4}
+    default_data = {"name_sv": "test", "name_en": "test", "encoded_grid": ".~.\n.H.\n~.~", "wall_budget": 4}
     return client.post("/enclose-moose/admin/levels", json=default_data | kwargs, headers=auth_headers(token))
 
 
@@ -76,9 +76,9 @@ def test_admin_manage_level(client, member_token, admin_token):
     assert res_get_submissions.status_code == 200
     assert len(res_get_submissions.json()) == 1
 
-    res_patch = patch_level(client, admin_token, released_level_id, name="updated_name")
+    res_patch = patch_level(client, admin_token, released_level_id, name_sv="updated_name")
     assert res_patch.status_code == 200
-    assert res_patch.json()["name"] == "updated_name"
+    assert res_patch.json()["name_sv"] == "updated_name"
 
     res_delete = delete_level(client, admin_token, released_level_id)
     assert res_delete.status_code == 200
@@ -99,10 +99,10 @@ def test_member_cannot_access_admin_routes(client, member_token, admin_token):
     res_admin_get_all = admin_get_all_levels(client, member_token)
     assert res_admin_get_all.status_code == 403
 
-    res_patch = patch_level(client, member_token, released_level_id, name="updated_name")
+    res_patch = patch_level(client, member_token, released_level_id, name_sv="updated_name")
     assert res_patch.status_code == 403
     res_patch_get = get_level(client, member_token, released_level_id)
-    assert res_patch_get.json()["name"] != "updated_name"
+    assert res_patch_get.json()["name_sv"] != "updated_name"
 
     res_del = delete_level(client, member_token, released_level_id)
     assert res_del.status_code == 403
@@ -177,7 +177,7 @@ def test_submissions_clear(client, member_token, admin_token):
     released_level_id = create_level(client, admin_token).json()["level_id"]
     submit_solution(client, member_token, released_level_id, player_solution=[3, 5, 7])
 
-    patch_level(client, admin_token, released_level_id, name="updated_name")
+    patch_level(client, admin_token, released_level_id, name_sv="updated_name")
     res_get_unchanged = get_submission(client, member_token, released_level_id)
     assert res_get_unchanged.status_code == 200
 

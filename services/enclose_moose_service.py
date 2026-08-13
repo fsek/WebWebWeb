@@ -242,7 +242,8 @@ def level_create(data: EncloseMooseLevelCreate):
     level = EncloseMooseLevel_DB(
         release_date=data.release_date,
         day_index=data.day_index,
-        name=data.name,
+        name_sv=data.name_sv,
+        name_en=data.name_en,
         encoded_grid=data.encoded_grid,
         wall_budget=data.wall_budget,
         optimal_score=optimal_score,

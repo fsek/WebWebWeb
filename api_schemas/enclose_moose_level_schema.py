@@ -9,7 +9,8 @@ class EncloseMooseLevelRead(BaseSchema):
     level_id: int
     release_date: date
     day_index: int | None
-    name: str
+    name_sv: str
+    name_en: str
 
     encoded_grid: str
     wall_budget: int
@@ -37,7 +38,8 @@ class EncloseMooseLevelRead(BaseSchema):
 class EncloseMooseLevelCreate(BaseSchema):
     release_date: date = datetime.now(ZoneInfo("Europe/Stockholm")).date()
     day_index: int | None = None
-    name: str
+    name_sv: str
+    name_en: str
 
     encoded_grid: str
     wall_budget: int
@@ -46,7 +48,8 @@ class EncloseMooseLevelCreate(BaseSchema):
 class EncloseMooseLevelUpdate(BaseSchema):
     release_date: date | None = None
     day_index: int | None = None
-    name: str | None = None
+    name_sv: str | None = None
+    name_en: str | None = None
 
     encoded_grid: str | None = None
     wall_budget: int | None = None

@@ -15,7 +15,8 @@ class EncloseMooseLevel_DB(BaseModel_DB):
     level_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True, init=False)
     release_date: Mapped[Optional[date]] = mapped_column(Date)
     day_index: Mapped[Optional[int]] = mapped_column()
-    name: Mapped[str] = mapped_column(String(MAX_ENCLOSE_LEVEL_NAME))
+    name_sv: Mapped[str] = mapped_column(String(MAX_ENCLOSE_LEVEL_NAME))
+    name_en: Mapped[str] = mapped_column(String(MAX_ENCLOSE_LEVEL_NAME))
 
     encoded_grid: Mapped[str] = mapped_column(String(MAX_ENCLOSE_GRID))
     wall_budget: Mapped[int] = mapped_column()
