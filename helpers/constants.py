@@ -53,6 +53,8 @@ MAX_GROUP_USER_TYPE_NAME = 50
 # Adventure mission
 MAX_ADVENTURE_MISSION_NAME = 200
 MAX_ADVENTURE_MISSION_DESC = 2000
+MAX_ADVENTURE_MISSION_UNLOCK_CODE = 200
+MAX_ADVENTURE_MISSION_UNLOCK_HINT = 200
 
 # Nollning
 MAX_NOLLNING_NAME = 200
@@ -96,6 +98,8 @@ MAX_RECURSION_STEPS = 50  # Maximum number of recursions allowed, to prevent inf
 
 # Event User
 DEFAULT_USER_PRIORITY = "Övrigt"
+# Priorities tied to a nollning group instead of a post
+NOLLNING_PRIORITIES = ["Nolla", "Gruppfadder", "Uppdragsfadder"]
 
 # Guild Meeting
 MAX_GUILD_MEETING_DATE_DESC = 500

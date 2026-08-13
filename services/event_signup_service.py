@@ -8,8 +8,19 @@ from db_models.user_model import User_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
-from helpers.constants import DEFAULT_USER_PRIORITY
+from helpers.constants import DEFAULT_USER_PRIORITY, NOLLNING_PRIORITIES
 from helpers.types import GROUP_TYPE
+
+
+def user_matches_existing_event_post_priorities(user: User_DB, event: Event_DB):
+    """Only true if a user has a post which matches one of the event's priorities,
+    and that priority match is not a nollning priority (which are tied to groups instead of posts)."""
+    if not event.priorities:
+        return False
+
+    event_post_priorities = {p.priority for p in event.priorities if p.priority not in NOLLNING_PRIORITIES}
+
+    return any(post.name_sv in event_post_priorities for post in user.posts)
 
 
 def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, manage_permission: bool, db: Session):
@@ -83,18 +94,30 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     if signup is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
-    if manage_permission == False and not is_group_allowed(
-        event, db.query(User_DB).filter(User_DB.id == user_id).one(), data.group_name
+    # Only fields the client actually sent are considered.
+    updates = data.model_dump(exclude_unset=True, exclude={"user_id"})
+
+    if "group_name" in updates and not updates["group_name"]:  # if falsy
+        updates["group_name"] = None
+
+    # Only authorize the group when the client asked to change it, otherwise an update that leaves
+    # the group alone would be rejected on nollning events for not carrying a group at all.
+    if (
+        manage_permission == False
+        and "group_name" in updates
+        and not is_group_allowed(event, db.query(User_DB).filter(User_DB.id == user_id).one(), updates["group_name"])
     ):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
-    for var, value in vars(data).items():
-        if var == "priority" and not value:
-            setattr(signup, "priority", DEFAULT_USER_PRIORITY)
-        elif var == "group_name" and not value:
-            setattr(signup, "group_name", None)
-        else:
-            setattr(signup, var, value) if value else None
+    # priority and drinkPackage are not nullable in the database, so a null means "back to default"
+    if "priority" in updates and not updates["priority"]:  # if falsy
+        updates["priority"] = DEFAULT_USER_PRIORITY
+
+    if "drinkPackage" in updates and updates["drinkPackage"] is None:
+        del updates["drinkPackage"]  # None is not a valid value ("None" is), so leave the old value in place
+
+    for var, value in updates.items():
+        setattr(signup, var, value)
 
     if not event.drink_package:
         signup.drinkPackage = "None"
@@ -132,7 +155,9 @@ def get_allowed_groups(event: Event_DB, user: User_DB):
 def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
     if event.is_nollning_event:
         if group_name is None:
-            return False
+            # Without a group the user has to qualify through a post priority instead,
+            # since nollning priorities are tied to a group
+            return user_matches_existing_event_post_priorities(user, event)
 
         allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
         is_event_allowed = False
