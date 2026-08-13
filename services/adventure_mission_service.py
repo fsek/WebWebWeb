@@ -3,7 +3,12 @@ from sqlalchemy.orm import Session
 from api_schemas.adventure_mission_schema import AdventureMissionCreate
 from db_models.adventure_mission_model import AdventureMission_DB
 from db_models.nollning_model import Nollning_DB
-from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_NAME
+from helpers.constants import (
+    MAX_ADVENTURE_MISSION_DESC,
+    MAX_ADVENTURE_MISSION_NAME,
+    MAX_ADVENTURE_MISSION_UNLOCK_HINT,
+    MAX_ADVENTURE_MISSION_UNLOCK_CODE,
+)
 
 
 def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollning_id: int):
@@ -15,10 +20,13 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
         raise HTTPException(400, detail="Description too long")
 
     if (
-        len(data.unlock_hint_sv or "") > MAX_ADVENTURE_MISSION_DESC
-        or len(data.unlock_hint_en or "") > MAX_ADVENTURE_MISSION_DESC
+        len(data.unlock_hint_sv or "") > MAX_ADVENTURE_MISSION_UNLOCK_HINT
+        or len(data.unlock_hint_en or "") > MAX_ADVENTURE_MISSION_UNLOCK_HINT
     ):
         raise HTTPException(400, detail="Unlock hint too long")
+
+    if len(data.unlock_code or "") > MAX_ADVENTURE_MISSION_UNLOCK_CODE:
+        raise HTTPException(400, detail="Unlock code too long")
 
     nollning = db.query(Nollning_DB).filter(Nollning_DB.id == nollning_id).one_or_none()
 
@@ -102,10 +110,13 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
         raise HTTPException(400, detail="Description too long")
 
     if (
-        len(data.unlock_hint_sv or "") > MAX_ADVENTURE_MISSION_DESC
-        or len(data.unlock_hint_en or "") > MAX_ADVENTURE_MISSION_DESC
+        len(data.unlock_hint_sv or "") > MAX_ADVENTURE_MISSION_UNLOCK_HINT
+        or len(data.unlock_hint_en or "") > MAX_ADVENTURE_MISSION_UNLOCK_HINT
     ):
         raise HTTPException(400, detail="Unlock hint too long")
+
+    if len(data.unlock_code or "") > MAX_ADVENTURE_MISSION_UNLOCK_CODE:
+        raise HTTPException(400, detail="Unlock code too long")
 
     if not adventure_mission:
         raise HTTPException(404, detail="Mission not found")
