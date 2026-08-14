@@ -1,10 +1,34 @@
+from datetime import UTC, datetime
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from api_schemas.nollning_schema import NollningAddGroup, NollningCreate
 from db_models.group_model import Group_DB
 from db_models.nollning_group_model import NollningGroup_DB
 from db_models.nollning_model import Nollning_DB
+from db_models.user_model import User_DB
 from sqlalchemy.exc import IntegrityError
+
+
+def get_user_nollning_priorities(db: Session, user: User_DB) -> set[str]:
+    """The nollning priorities the user actually holds through this year's nollning."""
+    nollning = db.query(Nollning_DB).filter(Nollning_DB.year == datetime.now(UTC).year).one_or_none()
+    if not nollning:
+        return set()
+
+    priorities: set[str] = set()
+    for nollning_group in nollning.nollning_groups:
+        group_type = nollning_group.group.group_type
+        if group_type not in ("Mentor", "Mission"):
+            continue
+        for group_user in nollning_group.group.group_users:
+            if group_user.user_id != user.id:
+                continue
+            if group_user.group_user_type == "Mentee":
+                priorities.add("Nolla")
+            elif group_user.group_user_type == "Mentor":
+                priorities.add("Gruppfadder" if group_type == "Mentor" else "Uppdragsfadder")
+
+    return priorities
 
 
 def create_nollning(db: Session, data: NollningCreate):

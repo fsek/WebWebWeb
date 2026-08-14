@@ -10,6 +10,26 @@ from db_models.group_user_model import GroupUser_DB
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
 from helpers.constants import DEFAULT_USER_PRIORITY, NOLLNING_PRIORITIES
 from helpers.types import GROUP_TYPE
+from services.nollning_service import get_user_nollning_priorities
+
+
+def get_allowed_signup_priorities(event: Event_DB, user: User_DB, db: Session) -> set[str]:
+    """The priorities the user may sign up to the event with: the event's own priorities which the
+    user actually holds, plus the default priority which everyone falls back on."""
+    allowed = {DEFAULT_USER_PRIORITY}
+    if not event.priorities:
+        return allowed
+
+    user_priorities = {post.name_sv for post in user.posts} | get_user_nollning_priorities(db, user)
+
+    return allowed | ({p.priority for p in event.priorities} & user_priorities)
+
+
+def check_priority_allowed(event: Event_DB, user: User_DB, priority: str, db: Session):
+    """Signups are only ever stored with a priority the user really has, so that the stored
+    signups can be trusted."""
+    if priority not in get_allowed_signup_priorities(event, user, db):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this priority")
 
 
 def user_matches_existing_event_post_priorities(user: User_DB, event: Event_DB):
@@ -47,6 +67,9 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
 
     if manage_permission == False and not is_group_allowed(event, user, data.group_name):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
+
+    if manage_permission == False and data.priority:  # a falsy priority just means the default one
+        check_priority_allowed(event, user, data.priority, db)
 
     signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
 
@@ -105,13 +128,16 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     if (
         manage_permission == False
         and "group_name" in updates
-        and not is_group_allowed(event, db.query(User_DB).filter(User_DB.id == user_id).one(), updates["group_name"])
+        and not is_group_allowed(event, signup.user, updates["group_name"])
     ):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
     # priority and drinkPackage are not nullable in the database, so a null means "back to default"
     if "priority" in updates and not updates["priority"]:  # if falsy
         updates["priority"] = DEFAULT_USER_PRIORITY
+
+    if manage_permission == False and "priority" in updates and updates["priority"] != signup.priority:
+        check_priority_allowed(event, signup.user, updates["priority"], db)
 
     if "drinkPackage" in updates and updates["drinkPackage"] is None:
         del updates["drinkPackage"]  # None is not a valid value ("None" is), so leave the old value in place

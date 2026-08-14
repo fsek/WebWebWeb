@@ -200,12 +200,11 @@ def test_non_nollning_event_update_signup_remove_group_name_is_allowed(
 
     response = client.patch(
         f"/event-signup/{event['id']}",
-        json={"priority": "Nolla", "group_name": sent_group_name},
+        json={"group_name": sent_group_name},
         headers=auth_headers(member_token),
     )
 
     assert response.status_code == 200, response.text
-    assert response.json()["priority"] == "Nolla"
     assert response.json()["group_name"] is None
 
 
@@ -253,6 +252,70 @@ def test_update_signup_with_null_priority_resets_to_default(
     assert response.status_code == 200, response.text
     assert response.json()["priority"] == DEFAULT_USER_PRIORITY
     assert response.json()["group_name"] == mentor_group.name
+
+
+def test_signup_with_priority_the_user_does_not_have(client, member_token, membered_user, nollning_event, mentor_group):
+    """A mentee is not a gruppfadder, so we reject the signup even if the event allows the priority"""
+    response = client.post(
+        f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id, "group_name": mentor_group.name, "priority": "Gruppfadder"},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403, response.text
+
+
+def test_signup_with_priority_not_on_the_event(
+    client, admin_token, admin_council_id, member_token, membered_user, member_post
+):
+    """Signups with a post priority the user holds but which the event does not ask for is rejected."""
+    data = event_data_factory(council_id=admin_council_id, priorities=["Nolla"])
+    event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+    response = client.post(
+        f"/event-signup/{event['id']}",
+        json={"user_id": membered_user.id, "priority": member_post.name_sv},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403, response.text
+
+
+def test_admin_can_sign_up_user_with_any_priority(client, admin_token, membered_user, nollning_event, mentor_group):
+    """Admins make the final call and are not restricted by the priorities."""
+    response = client.post(
+        f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id, "group_name": mentor_group.name, "priority": "Gruppfadder"},
+        headers=auth_headers(admin_token),
+    )
+
+    assert response.status_code in (200, 201), response.text
+    assert response.json()["priority"] == "Gruppfadder"
+
+
+def test_update_signup_to_priority_the_user_does_not_have(
+    client, member_token, membered_user, nollning_event, mentor_group
+):
+    """Switching to a priority the user does not have is rejected, and nothing else is changed."""
+    signup = client.post(
+        f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id, "group_name": mentor_group.name, "priority": "Nolla"},
+        headers=auth_headers(member_token),
+    )
+    assert signup.status_code in (200, 201), signup.text
+
+    response = client.patch(
+        f"/event-signup/{nollning_event['id']}",
+        json={"priority": "Uppdragsfadder", "drinkPackage": "Alcohol"},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403, response.text
+    signup_after = client.get(
+        f"/event-signup/me-signup/{nollning_event['id']}", headers=auth_headers(member_token)
+    ).json()
+    assert signup_after["priority"] == "Nolla"
+    assert signup_after["drinkPackage"] == "None"
 
 
 def test_update_signup_to_disallowed_group(

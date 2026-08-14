@@ -163,6 +163,24 @@ def event_data_factory(**kwargs):
     return {**default_data, **kwargs}
 
 
+def add_group_to_current_nollning(db_session, group):
+    """Put a group in this year's nollning (created if missing). Returns the group."""
+    from db_models.nollning_model import Nollning_DB
+    from db_models.nollning_group_model import NollningGroup_DB
+
+    year = datetime.datetime.now(timezone.utc).year
+    nollning = db_session.query(Nollning_DB).filter_by(year=year).one_or_none()
+    if nollning is None:
+        nollning = Nollning_DB(name=f"Nollning {year}", description="Test nollning", year=year)
+        db_session.add(nollning)
+        db_session.commit()
+
+    db_session.add(NollningGroup_DB(nollning_id=nollning.id, group_id=group.id))
+    db_session.commit()
+
+    return group
+
+
 def add_user_to_group(db_session, user, name, group_type, group_user_type="Mentee"):
     """Create a group of a given type and put the user in it. Returns the group."""
     from db_models.group_model import Group_DB
