@@ -23,10 +23,9 @@ def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
         print("ERROR: Multiple users found with the same ID:", user_id)
         raise HTTPException(500, detail="Multiple users found with the same ID")
 
-    if data.stil_id:
-        if not check_stil_id(data.stil_id):
-            raise HTTPException(400, detail="Invalid stil-id")
-        user.stil_id = data.stil_id
+    if data.stil_id and not check_stil_id(data.stil_id):
+        raise HTTPException(400, detail="Invalid stil-id")
+    user.stil_id = data.stil_id  # Always allow clearing stil_id
 
     VALID_FOOD_PREFS = set(get_args(FOOD_PREFERENCES))
 

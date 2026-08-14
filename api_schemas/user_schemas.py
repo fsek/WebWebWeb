@@ -18,8 +18,9 @@ class StilIdValidationMixin:
     @field_validator("stil_id", mode="after")
     @classmethod
     def validate_stil_id(cls, value: str | None) -> str | None:
-        if value is None:
+        if value is None or not value.strip():
             return None
+        value = value.strip()
         if not check_stil_id(value):
             raise ValueError("Invalid stil-id")
         return value
