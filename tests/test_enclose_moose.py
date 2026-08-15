@@ -208,3 +208,13 @@ def test_non_member_cannot_access_member_routes(client, non_member_token, admin_
 
     res_get_all_submissions = get_all_my_submissions(client, non_member_token)
     assert res_get_all_submissions.status_code == 403
+
+
+def test_leading_newline_rejected(client, admin_token):
+    res_create = create_level(client, admin_token, encoded_grid="\n.~.\n.H.\n~.~")
+    assert res_create.status_code == 400
+
+    res_create_working = create_level(client, admin_token, encoded_grid=".~.\n.H.\n~.~")
+    assert res_create_working.status_code == 200
+    res_patch = patch_level(client, admin_token, res_create_working.json()["level_id"], encoded_grid="\n.~.\n.H.\n~.~")
+    assert res_patch.status_code == 400
