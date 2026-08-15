@@ -1,5 +1,6 @@
 from collections import deque
 from datetime import datetime, timezone
+from typing import Any
 from ortools.sat.python import cp_model
 from fastapi import HTTPException
 from api_schemas.enclose_moose_level_schema import EncloseMooseLevelCreate, EncloseMooseLevelUpdate
@@ -259,7 +260,13 @@ def level_create(data: EncloseMooseLevelCreate):
 
 
 def level_update(level: EncloseMooseLevel_DB, data: EncloseMooseLevelUpdate):
-    updates = data.model_dump(exclude_unset=True)
+    data_dump = data.model_dump(exclude_unset=True)
+    updates: dict[str, Any] = {}
+    for key, value in data_dump.items():
+        if value is not None:
+            updates[key] = value
+        elif key == "day_index":  # day_index is nullable
+            updates[key] = value
 
     used_encoded_grid = updates.get("encoded_grid", level.encoded_grid)
     used_wall_budget = updates.get("wall_budget", level.wall_budget)
@@ -274,10 +281,7 @@ def level_update(level: EncloseMooseLevel_DB, data: EncloseMooseLevelUpdate):
         updates["optimal_is_unique"] = optimal_is_unique
 
     for var, value in updates.items():
-        if value is not None:
-            setattr(level, var, value)
-        elif var == "day_index":  # day_index is nullable
-            setattr(level, "day_index", None)  # level.day_index = None
+        setattr(level, var, value)
 
     return level
 

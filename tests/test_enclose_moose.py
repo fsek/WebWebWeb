@@ -219,3 +219,29 @@ def test_leading_newline_rejected(client, admin_token):
     assert res_create_working.status_code == 200
     res_patch = patch_level(client, admin_token, res_create_working.json()["level_id"], encoded_grid="\n.~.\n.H.\n~.~")
     assert res_patch.status_code == 400
+
+
+def test_updates_with_none(client, admin_token):
+    res_create = create_level(client, admin_token, day_index=1)
+    assert res_create.status_code == 200
+    level_id = res_create.json()["level_id"]
+
+    # Clearable day_index
+    res_patch = patch_level(client, admin_token, level_id, day_index=None)
+    assert res_patch.status_code == 200
+    assert res_patch.json()["day_index"] is None
+
+    res_patch = patch_level(client, admin_token, level_id, day_index=14)
+    assert res_patch.status_code == 200
+    assert res_patch.json()["day_index"] == 14
+
+    # Should not update
+    res_patch_again = patch_level(
+        client, admin_token, level_id, name_sv=None, name_en=None, encoded_grid=None, wall_budget=None, day_index=None
+    )
+    assert res_patch_again.status_code == 200
+    assert res_patch_again.json()["name_sv"] != None
+    assert res_patch_again.json()["name_en"] != None
+    assert res_patch_again.json()["encoded_grid"] != None
+    assert res_patch_again.json()["wall_budget"] != None
+    assert res_patch_again.json()["day_index"] is None
