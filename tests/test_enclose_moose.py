@@ -203,7 +203,7 @@ def test_non_member_cannot_access_member_routes(client, non_member_token, admin_
     res_submit = submit_solution(client, non_member_token, released_level_id, player_solution=[3, 5, 7])
     assert res_submit.status_code == 403
 
-    res_get_submission = submit_solution(client, non_member_token, released_level_id, player_solution=[3, 5, 7])
+    res_get_submission = get_submission(client, non_member_token, released_level_id)
     assert res_get_submission.status_code == 403
 
     res_get_all_submissions = get_all_my_submissions(client, non_member_token)

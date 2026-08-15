@@ -36,7 +36,7 @@ class EncloseMooseLevelRead(BaseSchema):
 
 
 class EncloseMooseLevelCreate(BaseSchema):
-    release_date: date = datetime.now(ZoneInfo("Europe/Stockholm")).date()
+    release_date: date = Field(default_factory=lambda: datetime.now(ZoneInfo("Europe/Stockholm")).date())
     day_index: int | None = None
     name_sv: str
     name_en: str

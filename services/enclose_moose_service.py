@@ -236,6 +236,9 @@ class EncloseGrid:
 
 
 def level_create(data: EncloseMooseLevelCreate):
+    if data.encoded_grid.strip("\n") != data.encoded_grid:
+        raise HTTPException(400, detail="Level must not have leading or trailing newlines")
+
     grid = EncloseGrid(data.encoded_grid, data.wall_budget)
     optimal_score, optimal_solution, optimal_is_unique = grid.find_optimal_solution()
 
@@ -258,6 +261,8 @@ def level_update(level: EncloseMooseLevel_DB, data: EncloseMooseLevelUpdate):
     updates = data.model_dump(exclude_unset=True)
 
     used_encoded_grid = updates.get("encoded_grid", level.encoded_grid)
+    if used_encoded_grid and used_encoded_grid.strip("\n") != used_encoded_grid:
+        raise HTTPException(400, detail="Level must not have leading or trailing newlines")
     used_wall_budget = updates.get("wall_budget", level.wall_budget)
     if used_encoded_grid != level.encoded_grid or used_wall_budget != level.wall_budget:
         level.submissions.clear()

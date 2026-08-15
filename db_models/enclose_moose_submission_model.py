@@ -17,7 +17,10 @@ class EncloseMooseSubmission_DB(BaseModel_DB):
     )
     submission_time: Mapped[datetime_utc] = mapped_column()
 
-    player_id: Mapped[int] = mapped_column(primary_key=True)
+    player_id: Mapped[int] = mapped_column(
+        ForeignKey("user_table.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
     player_score: Mapped[int] = mapped_column()
     player_solution: Mapped[list[int]] = mapped_column(JSON)
 
