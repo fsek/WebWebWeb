@@ -110,3 +110,8 @@ MAX_GUILD_MEETING_TITLE = 200
 # Keyval, used for example for storing the links to different very important documents (e.g. reglementet)
 MAX_KEYVAL_KEY = 100
 MAX_KEYVAL_VALUE = 1000
+
+
+# enclose.moose
+MAX_ENCLOSE_LEVEL_NAME = 100
+MAX_ENCLOSE_GRID = 10000
