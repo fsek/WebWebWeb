@@ -25,7 +25,7 @@ def send_mail(user: User_DB, msg: MIMEText):
         print(f"Failed to send email: {e}")
 
 
-def send_mail_to_address(adress: EmailStr, msg: MIMEText):
+def send_mail_to_address(address: EmailStr, msg: MIMEText):
     env = os.getenv("ENVIRONMENT")
 
     if env != "production" and env != "stage":
@@ -36,7 +36,7 @@ def send_mail_to_address(adress: EmailStr, msg: MIMEText):
         # Create an SMTP session
         with smtplib.SMTP(SMTP_SERVER, smtplib.SMTP_PORT) as server:
             server.starttls()
-            server.sendmail(STANDARD_SENDER, adress, msg.as_string())
-            print(f"Email sent successfully to adress {adress}")
+            server.sendmail(STANDARD_SENDER, address, msg.as_string())
+            print(f"Email sent successfully to address {address}")
     except Exception as e:
         print(f"Failed to send email: {e}")
