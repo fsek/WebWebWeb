@@ -70,6 +70,7 @@ def test_admin_manage_level(client, member_token, admin_token):
 
     res_get_all = admin_get_all_levels(client, admin_token)
     assert res_get_all.status_code == 200
+    assert len(res_get_all.json()) == 1
 
     submit_solution(client, member_token, released_level_id, player_solution=[3, 5, 7])
     res_get_submissions = admin_get_all_level_submissions(client, admin_token, released_level_id)
@@ -141,10 +142,10 @@ def test_levels(client, member_token, admin_token):
 
 
 def test_submission(client, member_token, admin_token):
-    res_non_existent = submit_solution(client, member_token, 42, player_solution=[3, 5, 7])
+    res_non_existent = submit_solution(client, member_token, 99999, player_solution=[3, 5, 7])
     assert res_non_existent.status_code == 404
 
-    res_get_non_existent = get_submission(client, member_token, 42)
+    res_get_non_existent = get_submission(client, member_token, 99999)
     assert res_get_non_existent.status_code == 404
 
     released_level_id = create_level(client, admin_token).json()["level_id"]

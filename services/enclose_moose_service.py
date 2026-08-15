@@ -274,7 +274,10 @@ def level_update(level: EncloseMooseLevel_DB, data: EncloseMooseLevelUpdate):
         updates["optimal_is_unique"] = optimal_is_unique
 
     for var, value in updates.items():
-        setattr(level, var, value)
+        if value is not None:
+            setattr(level, var, value)
+        elif var == "day_index":  # day_index is nullable
+            setattr(level, "day_index", None)  # level.day_index = None
 
     return level
 
