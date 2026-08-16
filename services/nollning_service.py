@@ -11,22 +11,22 @@ from sqlalchemy.exc import IntegrityError
 
 def get_user_nollning_priorities(db: Session, user: User_DB) -> set[str]:
     """The nollning priorities the user actually holds through this year's nollning."""
-    nollning = db.query(Nollning_DB).filter(Nollning_DB.year == datetime.now(UTC).year).one_or_none()
-    if not nollning:
-        return set()
+    year = datetime.now(UTC).year
 
     priorities: set[str] = set()
-    for nollning_group in nollning.nollning_groups:
-        group_type = nollning_group.group.group_type
+
+    for group_user in user.group_users:
+        if not any(nollning.year == year for nollning in group_user.group.nollnings):
+            continue
+
+        group_type = group_user.group.group_type
         if group_type not in ("Mentor", "Mission"):
             continue
-        for group_user in nollning_group.group.group_users:
-            if group_user.user_id != user.id:
-                continue
-            if group_user.group_user_type == "Mentee":
-                priorities.add("Nolla")
-            elif group_user.group_user_type == "Mentor":
-                priorities.add("Gruppfadder" if group_type == "Mentor" else "Uppdragsfadder")
+
+        if group_user.group_user_type == "Mentee":
+            priorities.add("Nolla")
+        elif group_user.group_user_type == "Mentor":
+            priorities.add("Gruppfadder" if group_type == "Mentor" else "Uppdragsfadder")
 
     return priorities
 
