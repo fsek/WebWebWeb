@@ -1,7 +1,7 @@
 # type: ignore
 import pytest
 from helpers.constants import DEFAULT_USER_PRIORITY
-from .basic_factories import add_user_to_group, auth_headers, event_data_factory
+from .basic_factories import add_user_to_group, add_group_to_current_nollning, auth_headers, event_data_factory
 
 
 def test_signup_with_allowed_group_type(client, member_token, membered_user, nollning_event, mentor_group):
@@ -21,6 +21,19 @@ def test_signup_with_disallowed_group_type(client, member_token, membered_user, 
     response = client.post(
         f"/event-signup/{nollning_event['id']}",
         json={"user_id": membered_user.id, "group_name": mission_group.name},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403
+
+
+def test_signup_with_group_type_from_wrong_year(
+    client, member_token, membered_user, nollning_event, last_years_mentor_group
+):
+    """Signup with a group with the correct type but the wrong year is rejected."""
+    response = client.post(
+        f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id, "group_name": last_years_mentor_group.name},
         headers=auth_headers(member_token),
     )
 
@@ -109,6 +122,8 @@ def test_signup_as_mentor_of_group_with_other_type(
 ):
     """A mentor may sign up with a group of a disallowed type only if the event allows it."""
     group = add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentor")
+    add_group_to_current_nollning(db_session, group)
+
     data = event_data_factory(
         council_id=admin_council_id,
         is_nollning_event=True,

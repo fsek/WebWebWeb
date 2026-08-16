@@ -328,3 +328,11 @@ def mission_group(db_session, membered_user):
 
     group = add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentee")
     return add_group_to_current_nollning(db_session, group)
+
+
+@pytest.fixture()
+def last_years_mentor_group(db_session, membered_user):
+    """Create a group of type "Mentor" in last year's nollning, with the member user as a mentee."""
+
+    group = add_user_to_group(db_session, membered_user, "Förfadderiet", "Mentor", "Mentee")
+    return add_group_to_nollning(db_session, group, datetime.now(timezone.utc).year - 1)
