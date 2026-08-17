@@ -138,6 +138,9 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
     if data.unlock_hint_en == "":
         data.unlock_hint_en = None
 
+    if data.mission_category is None:
+        data.mission_category = "Spel"
+
     for var, value in vars(data).items():
         # Allow for clearing of unlock_code by allowing setting attributes to None
         setattr(adventure_mission, var, value)
