@@ -1,5 +1,6 @@
 from datetime import datetime
 from api_schemas.base_schema import BaseSchema
+from helpers.types import MISSION_CATEGORIES
 
 
 class AdventureMissionCreate(BaseSchema):
@@ -10,7 +11,7 @@ class AdventureMissionCreate(BaseSchema):
     max_points: int
     min_points: int
     nollning_week: int
-    mission_type: int | None = None
+    mission_category: MISSION_CATEGORIES | None = None
 
 
 class AdventureMissionRead(BaseSchema):
@@ -23,5 +24,5 @@ class AdventureMissionRead(BaseSchema):
     min_points: int
     nollning_id: int
     nollning_week: int
-    mission_type: int | None = None
+    mission_category: str
     created_at: datetime

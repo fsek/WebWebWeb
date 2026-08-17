@@ -9,6 +9,7 @@ from helpers.constants import MAX_ADVENTURE_MISSION_DESC, MAX_ADVENTURE_MISSION_
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .group_mission_model import GroupMission_DB
+from helpers.types import MISSION_CATEGORIES
 
 if TYPE_CHECKING:
     from .nollning_model import Nollning_DB
@@ -36,7 +37,7 @@ class AdventureMission_DB(BaseModel_DB):
 
     min_points: Mapped[int] = mapped_column()
 
-    mission_type: Mapped[Optional[int]] = mapped_column(default=None)
+    mission_category: Mapped[Optional[MISSION_CATEGORIES]] = mapped_column(default="Spel")
 
     group_missions: Mapped[list["GroupMission_DB"]] = relationship(
         back_populates="adventure_mission", cascade="all, delete-orphan", init=False

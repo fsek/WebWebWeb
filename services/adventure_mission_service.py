@@ -28,9 +28,6 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
     if data.min_points < 0:
         raise HTTPException(400, detail="Min points has to be atleast 0")
 
-    if data.mission_type is not None and data.mission_type < 0:
-        raise HTTPException(400, detail="Mission type must be at least 0")
-
     new_adventure_mission = AdventureMission_DB(
         nollning_id=nollning_id,
         nollning_week=data.nollning_week,
@@ -40,7 +37,7 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
         description_en=data.description_en,
         max_points=data.max_points,
         min_points=data.min_points,
-        mission_type=data.mission_type,
+        mission_category=data.mission_category if data.mission_category is not None else "Spel",
     )
 
     db.add(new_adventure_mission)
@@ -100,9 +97,6 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
 
     if data.min_points < 0:
         raise HTTPException(400, detail="Min points has to be atleast 0")
-
-    if data.mission_type is not None and data.mission_type < 0:
-        raise HTTPException(400, detail="Mission type must be at least 0")
 
     for var, value in vars(data).items():
         setattr(adventure_mission, var, value) if value is not None else None
