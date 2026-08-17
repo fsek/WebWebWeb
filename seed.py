@@ -218,6 +218,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="Document", posts=["Buggmästare"]),
         Permission(action="view", target="Document", posts=["Buggmästare"]),
         Permission(action="manage", target="Moosegame", posts=["Buggmästare"]),
+        Permission(action="manage", target="EncloseMoose", posts=["Buggmästare"]),
         Permission(action="manage", target="UserPost", posts=["Buggmästare"]),
         Permission(action="view", target="GuildMeeting", posts=["Buggmästare"]),
         Permission(action="manage", target="GuildMeeting", posts=["Buggmästare"]),
