@@ -14,6 +14,7 @@ from helpers.constants import (
 from .base_model import BaseModel_DB
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from .group_mission_model import GroupMission_DB
+from helpers.types import MISSION_CATEGORIES
 
 if TYPE_CHECKING:
     from .nollning_model import Nollning_DB
@@ -40,6 +41,8 @@ class AdventureMission_DB(BaseModel_DB):
     max_points: Mapped[int] = mapped_column()
 
     min_points: Mapped[int] = mapped_column()
+
+    mission_category: Mapped[Optional[MISSION_CATEGORIES]] = mapped_column(default="Spel")
 
     group_missions: Mapped[list["GroupMission_DB"]] = (
         relationship(  # many-many relationship with groups requires this, so that groups can track which missions they have completed.

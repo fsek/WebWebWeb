@@ -58,6 +58,7 @@ def create_adventure_mission_(db: Session, data: AdventureMissionCreate, nollnin
         description_en=data.description_en,
         max_points=data.max_points,
         min_points=data.min_points,
+        mission_category=data.mission_category if data.mission_category is not None else "Spel",
         unlock_code=data.unlock_code,
         unlock_hint_sv=data.unlock_hint_sv,
         unlock_hint_en=data.unlock_hint_en,
@@ -121,12 +122,24 @@ def edit_adventure_mission_(db: Session, id: int, data: AdventureMissionCreate):
     if not adventure_mission:
         raise HTTPException(404, detail="Mission not found")
 
+    if data.max_points < data.min_points:
+        raise HTTPException(400, detail="Max points cannot be lower than min points")
+
+    if data.max_points < 1:
+        raise HTTPException(400, detail="Max points has to be atleast 1")
+
+    if data.min_points < 0:
+        raise HTTPException(400, detail="Min points has to be atleast 0")
+
     if data.unlock_code == "":  # Easy guard against accidentally setting unlock_code to empty string
         data.unlock_code = None
     if data.unlock_hint_sv == "":
         data.unlock_hint_sv = None
     if data.unlock_hint_en == "":
         data.unlock_hint_en = None
+
+    if data.mission_category is None:
+        data.mission_category = "Spel"
 
     for var, value in vars(data).items():
         # Allow for clearing of unlock_code by allowing setting attributes to None

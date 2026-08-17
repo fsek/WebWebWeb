@@ -100,6 +100,8 @@ ROOMS = Literal["LC", "Alumni", "SK", "Hilbert Cafe"]
 
 MISSION_CONFIRMED_TYPES = Literal["Accepted", "Failed", "Review"]
 
+MISSION_CATEGORIES = Literal["Barbiedans", "Fadder", "Kreativ", "Resa", "Spel", "Tävling", "Älg"]
+
 ASSETS_BASE_PATH = os.getenv("ASSETS_BASE_PATH")
 
 
