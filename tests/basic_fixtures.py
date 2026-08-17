@@ -302,7 +302,12 @@ def nollning_event(client, admin_token, admin_council_id):
 
     response = client.post(
         "/events/",
-        json=event_data_factory(council_id=admin_council_id, is_nollning_event=True, mentor_group_types=["Mentor"]),
+        json=event_data_factory(
+            council_id=admin_council_id,
+            is_nollning_event=True,
+            mentor_group_types=["Mentor"],
+            priorities=["Nolla", "Gruppfadder", "Uppdragsfadder"],
+        ),
         headers=auth_headers(admin_token),
     )
     assert response.status_code in (200, 201), response.text
@@ -312,13 +317,23 @@ def nollning_event(client, admin_token, admin_council_id):
 
 @pytest.fixture()
 def mentor_group(db_session, membered_user):
-    """Create a group of type "Mentor" with the member user as a mentee."""
+    """Create a group of type "Mentor" in this year's nollning, with the member user as a mentee."""
 
-    return add_user_to_group(db_session, membered_user, "Fadderiet", "Mentor", "Mentee")
+    group = add_user_to_group(db_session, membered_user, "Fadderiet", "Mentor", "Mentee")
+    return add_group_to_current_nollning(db_session, group)
 
 
 @pytest.fixture()
 def mission_group(db_session, membered_user):
-    """Create a group of type "Mission" with the member user as a mentee."""
+    """Create a group of type "Mission" in this year's nollning, with the member user as a mentee."""
 
-    return add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentee")
+    group = add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentee")
+    return add_group_to_current_nollning(db_session, group)
+
+
+@pytest.fixture()
+def last_years_mentor_group(db_session, membered_user):
+    """Create a group of type "Mentor" in last year's nollning, with the member user as a mentee."""
+
+    group = add_user_to_group(db_session, membered_user, "Förfadderiet", "Mentor", "Mentee")
+    return add_group_to_nollning(db_session, group, datetime.now(timezone.utc).year - 1)

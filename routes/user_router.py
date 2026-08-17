@@ -19,11 +19,10 @@ from fastapi_users_pelicanq.manager import BaseUserManager
 from helpers.image_checker import validate_image
 from helpers.rate_limit import rate_limit
 from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
-from db_models.nollning_model import Nollning_DB
 from services import user as user_service
+from services.nollning_service import get_user_nollning_priorities
 from user.permission import Permission
 from api_schemas.post_schemas import PostRead
-import datetime
 
 user_router = APIRouter()
 
@@ -231,29 +230,6 @@ def get_my_priorities(me: Annotated[User_DB, Permission.member()], db: DB_depend
     for post in me.posts:
         priorities.append(post.name_sv)
 
-    now = datetime.datetime.now(datetime.timezone.utc)
-
-    nollning = db.query(Nollning_DB).filter(Nollning_DB.year == now.year).one_or_none()
-
-    found = False
-
-    if nollning:
-        for nollningGroup in nollning.nollning_groups:
-            for groupUser in nollningGroup.group.group_users:
-                if me.id == groupUser.user_id:
-                    if nollningGroup.group.group_type == "Mentor":
-                        if groupUser.group_user_type == "Mentor":
-                            priorities.append("Gruppfadder")
-                        elif groupUser.group_user_type == "Mentee":
-                            priorities.append("Nolla")
-                    elif nollningGroup.group.group_type == "Mission":
-                        if groupUser.group_user_type == "Mentor":
-                            priorities.append("Uppdragsfadder")
-                        elif groupUser.group_user_type == "Mentee":
-                            priorities.append("Nolla")
-                    found = True
-                    break
-            if found:
-                break
+    priorities.extend(get_user_nollning_priorities(db, me))
 
     return priorities
