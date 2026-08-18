@@ -45,8 +45,18 @@ def get_all_scores(db: DB_dependency):
     return users
 
 
+@moose_game_router.delete("/reset", dependencies=[Permission.require("super", "Moosegame")])
+def reset_mouse_game_scores(db: DB_dependency):
+    # Users are banned with -1, so we only reset scores for nice players with a score
+    users = db.query(User_DB).filter(User_DB.moose_game_score > 0).all()
+    for user in users:
+        user.moose_game_score = 0
+    db.commit()
+
+
 @moose_game_router.delete("/{user_id}", dependencies=[Permission.require("manage", "Moosegame")])
 def remove_mouse_game_score(user_id: int, db: DB_dependency):
+    # Bans a user from submitting scores, not a reset score route
     user = db.query(User_DB).get(user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
