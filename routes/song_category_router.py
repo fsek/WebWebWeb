@@ -1,3 +1,5 @@
+from sqlalchemy import func
+
 from database import DB_dependency
 from api_schemas.song_category_schemas import SongCategoryCreate, SongCategoryRead
 from db_models.song_category_model import SongCategory_DB
@@ -23,8 +25,12 @@ def get_song_category(category_id: int, db: DB_dependency):
 
 @song_category_router.post("/", response_model=SongCategoryRead, dependencies=[Permission.require("manage", "Song")])
 def create_song_category(song_category_data: SongCategoryCreate, db: DB_dependency):
-    num_existing = db.query(SongCategory_DB).filter(SongCategory_DB.name == song_category_data.name).count()
-    if num_existing > 0:
+    same_title = (
+        db.query(SongCategory_DB.id)
+        .filter(func.lower(SongCategory_DB.name) == func.lower(song_category_data.name))
+        .first()
+    )
+    if same_title is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This song category already exists")
     songcategory = SongCategory_DB(name=song_category_data.name)
     db.add(songcategory)
@@ -56,6 +62,14 @@ def update_song_category(category_id: int, category_data: SongCategoryCreate, db
     category = db.query(SongCategory_DB).filter_by(id=category_id).one_or_none()
     if category is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND)
+    same_title = (
+        db.query(SongCategory_DB.id)
+        .filter(func.lower(SongCategory_DB.name) == func.lower(category_data.name), SongCategory_DB.id != category_id)
+        .first()
+    )
+    if same_title is not None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This song category already exists")
+
     category.name = category_data.name
     db.commit()
     return category

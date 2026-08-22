@@ -297,6 +297,24 @@ def event(client, admin_token, admin_council_id):
 
 
 @pytest.fixture()
+def song_category(client, admin_token):
+    """Create and return a song category."""
+
+    response = client.post("/songs-category/", json=category_data(), headers=auth_headers(admin_token))
+    assert response.status_code in (200, 201), response.text
+    return response.json()
+
+
+@pytest.fixture()
+def song(client, admin_token, song_category):
+    """Create and return a song in the shared song category."""
+
+    response = client.post("/songs/", json=song_data(song_category["id"]), headers=auth_headers(admin_token))
+    assert response.status_code in (200, 201), response.text
+    return response.json()
+
+
+@pytest.fixture()
 def nollning_event(client, admin_token, admin_council_id):
     """Create and return a nollning event which only accepts groups of type "Mentor"."""
 
