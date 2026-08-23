@@ -21,11 +21,18 @@ class EncloseGrid:
         if self.N <= 1:
             raise HTTPException(400, detail="Level must be bigger than one square")
 
+        seen_moose = False
         for tile in encoded_grid:
+            if tile == "H":
+                if not seen_moose:
+                    seen_moose = True
+                else:
+                    raise HTTPException(400, detail='There can only be one moose ("H")')
+
             if tile not in ("\n", ".", "~", "H", "C", "G", "S") and not tile.isnumeric():
                 raise HTTPException(400, detail=f'Level contained unknown encoding: "{tile}"')
 
-        if "H" not in encoded_grid:
+        if not seen_moose:
             raise HTTPException(400, detail='Level must contain a moose ("H")')
 
         if "\n" not in encoded_grid:
