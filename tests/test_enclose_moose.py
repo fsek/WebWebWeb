@@ -155,11 +155,10 @@ def test_submission(client, member_token, admin_token):
     res_member_invalid = submit_solution(client, member_token, released_level_id, player_solution=[3, 5])
     assert res_member_invalid.status_code == 400
 
-    # TODO: Re-enable when we figured out whats wrong with tokens
-    # res_invalid_token = submit_solution(
-    #     client, member_token, released_level_id, player_solution=[3, 5, 7], secret_header="I love tests!"
-    # )
-    # assert res_invalid_token.status_code == 401
+    res_invalid_token = submit_solution(
+        client, member_token, released_level_id, player_solution=[3, 5, 7], secret_header="I love tests!"
+    )
+    assert res_invalid_token.status_code == 401
 
     res_get = get_submission(client, member_token, released_level_id)
     assert res_get.status_code == 200
