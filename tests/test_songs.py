@@ -27,6 +27,15 @@ class TestCreateSong:
 
         assert response.status_code == 400
 
+    def test_create_song_duplicate_title_is_case_insensitive(self, client, admin_token, song):
+        response = client.post(
+            "/songs/",
+            json=song_data(song["category"]["id"], title=song["title"].upper()),
+            headers=auth_headers(admin_token),
+        )
+
+        assert response.status_code == 400
+
     @pytest.mark.parametrize("token_fixture", ["member_token", "non_member_token"])
     def test_create_song_forbidden(self, client, request, song_category, token_fixture):
         response = client.post(
@@ -88,6 +97,17 @@ class TestUpdateSong:
         assert updated["author"] == song["author"]
         assert updated["melody"] is None
 
+    def test_update_song_keeping_own_title(self, client, admin_token, song):
+        response = client.patch(
+            f"/songs/{song['id']}",
+            json=song_data(song["category"]["id"], title=song["title"], content="Updated lyrics"),
+            headers=auth_headers(admin_token),
+        )
+
+        assert response.status_code == 200, response.text
+        assert response.json()["title"] == song["title"]
+        assert response.json()["content"] == "Updated lyrics"
+
     def test_update_song_duplicate_title_is_rejected(self, client, admin_token, song, song_category):
         other = client.post(
             "/songs/",
@@ -97,7 +117,7 @@ class TestUpdateSong:
 
         response = client.patch(
             f"/songs/{other['id']}",
-            json=song_data(song_category["id"], title=song["title"]),
+            json=song_data(song_category["id"], title=song["title"].upper()),
             headers=auth_headers(admin_token),
         )
 
