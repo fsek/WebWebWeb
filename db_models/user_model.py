@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Callable, Optional
-from fastapi_users_pelicanq.db import SQLAlchemyBaseUserTable
+from fastapi_users.db import SQLAlchemyBaseUserTable
 from sqlalchemy import String, JSON
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 from db_models.candidate_model import Candidate_DB
