@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy import func
 from api_schemas.song_schemas import SongCreate, SongRead
 from database import DB_dependency
 from db_models.song_model import Song_DB
 from user.permission import Permission
-
 
 song_router = APIRouter()
 
@@ -29,8 +29,8 @@ def get_song(song_id: int, db: DB_dependency):
 
 @song_router.post("/", response_model=SongRead, dependencies=[Permission.require("manage", "Song")])
 def create_song(song_data: SongCreate, db: DB_dependency):
-    num_existing = db.query(Song_DB).filter(Song_DB.title == song_data.title).count()
-    if num_existing > 0:
+    same_title = db.query(Song_DB.id).filter(func.lower(Song_DB.title) == func.lower(song_data.title)).first()
+    if same_title is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This song already exists")
     song = Song_DB(
         title=song_data.title,
@@ -61,8 +61,12 @@ def update_song(song_id: int, song_data: SongCreate, db: DB_dependency):
         raise HTTPException(status.HTTP_404_NOT_FOUND)
 
     # simply check if the title is being changed to an already existing title, if so, throw an error.
-    num_existing = db.query(Song_DB).filter(Song_DB.title == song_data.title).count()
-    if num_existing > 0:
+    same_title = (
+        db.query(Song_DB.id)
+        .filter(func.lower(Song_DB.title) == func.lower(song_data.title), Song_DB.id != song_id)
+        .first()
+    )
+    if same_title is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="This song already exists")
     # Allow for partial updates (kinda). We handle melody separately since we want to allow for None
     for var, value in vars(song_data).items():

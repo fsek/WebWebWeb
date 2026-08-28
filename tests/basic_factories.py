@@ -50,6 +50,21 @@ def auth_headers(token):
     return {"Authorization": f"Bearer {token}"}
 
 
+def category_data(name="Testkategori"):
+    return {"name": name}
+
+
+def song_data(category_id, **kwargs):
+    data = {
+        "title": "Testsång",
+        "author": "Testförfattare",
+        "melody": "Testmelodi",
+        "content": "Testsångtext",
+        "category_id": category_id,
+    }
+    return {**data, **kwargs}
+
+
 def council_data_factory(**kwargs):
     """Factory for council create/update payloads."""
     default_data = {
