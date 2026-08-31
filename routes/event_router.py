@@ -220,15 +220,26 @@ def create_event_signup_list(event_id: int, db: DB_dependency):
         if person.priority in priorites:
             prioritized_people.append(person)
 
-    places_left = event.max_event_users - len(prioritized_people)
+    # If we are going to hit a limit with the prioritized people, hand out slots based on sorting methods
+    if len(prioritized_people) > event.max_event_users:
+        if event.lottery:
+            random.seed(event_id)
+            random.shuffle(prioritized_people)
+        else:
+            prioritized_people.sort(key=lambda p: p.created_at)
 
-    if event.lottery:
+        prioritized_people = prioritized_people[: event.max_event_users]
+
+    # Floor at 0 to not lie about how many places are left
+    places_left = max(event.max_event_users - len(prioritized_people), 0)
+
+    if event.lottery and places_left > 0:
         # Random fill
         non_prioritized = [p for p in people_signups if p not in prioritized_people]
         random.seed(event_id)
         random.shuffle(non_prioritized)
         prioritized_people.extend(non_prioritized[:places_left])
-    else:
+    elif places_left > 0:
         # FIFO fill
         non_prioritized = (
             db.query(EventUser_DB).filter_by(event_id=event_id).order_by(EventUser_DB.created_at.asc()).all()

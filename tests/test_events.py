@@ -1,6 +1,13 @@
 # type: ignore
 import pytest
-from .basic_factories import add_user_to_group, auth_headers, event_data_factory
+from datetime import datetime, timedelta, timezone
+from helpers.constants import DEFAULT_USER_PRIORITY
+from .basic_factories import (
+    add_user_to_group,
+    auth_headers,
+    create_membered_user,
+    event_data_factory,
+)
 
 
 class TestCreateEvent:
@@ -155,3 +162,111 @@ class TestDeleteEvent:
         response = client.delete(f"/events/{event['id']}", headers=auth_headers(member_token))
 
         assert response.status_code == 403
+
+
+def _close_signup(db_session, event_id):
+    """Move the signup deadline into the past so that spots may be handed out."""
+    from db_models.event_model import Event_DB
+
+    event = db_session.query(Event_DB).filter_by(id=event_id).one()
+    event.signup_end = datetime.now(timezone.utc) - timedelta(minutes=1)
+    db_session.commit()
+
+    return event
+
+
+def _signup_users(client, db_session, admin_token, event_id, count, priority, email_prefix):
+    """Sign `count` fresh users up to the event as an admin, which bypasses the signup checks."""
+    users = []
+    for i in range(count):
+        user = create_membered_user(client, db_session, email=f"{email_prefix}{i}@example.com")
+        response = client.post(
+            f"/event-signup/{event_id}",
+            json={"user_id": user.id, "priority": priority},
+            headers=auth_headers(admin_token),
+        )
+        assert response.status_code in (200, 201), response.text
+        users.append(user)
+
+    return users
+
+
+def _hand_out_spots(client, admin_token, event_id):
+    return client.post(f"/events/event-signups/{event_id}", headers=auth_headers(admin_token))
+
+
+def _confirmed_signups(client, admin_token, event_id):
+    response = client.get(f"/events/event-signups/all/{event_id}", headers=auth_headers(admin_token))
+    assert response.status_code == 200, response.text
+
+    return [signup for signup in response.json() if signup["confirmed_status"]]
+
+
+class TestHandOutSpots:
+    """Test POST /events/event-signups/{event_id}, the "dela ut platser" endpoint"""
+
+    def test_prioritized_people_do_not_exceed_max_event_users(self, client, db_session, admin_token, admin_council_id):
+        """More prioritized signups than seats must not confirm more people than there are seats."""
+        data = event_data_factory(council_id=admin_council_id, max_event_users=2, priorities=["Nolla"])
+        event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+        _signup_users(client, db_session, admin_token, event["id"], 3, "Nolla", "nolla")
+        _close_signup(db_session, event["id"])
+
+        response = _hand_out_spots(client, admin_token, event["id"])
+
+        assert response.status_code in (200, 201), response.text
+        assert len(response.json()) == 2
+        assert len(_confirmed_signups(client, admin_token, event["id"])) == 2
+
+    def test_oversubscribed_priority_does_not_let_in_non_prioritized_people(
+        self, client, db_session, admin_token, admin_council_id
+    ):
+        """The negative `places_left` must not be used as a slice, which would admit extra people."""
+        data = event_data_factory(council_id=admin_council_id, max_event_users=2, priorities=["Nolla"])
+        event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+        _signup_users(client, db_session, admin_token, event["id"], 3, "Nolla", "nolla")
+        _signup_users(client, db_session, admin_token, event["id"], 3, DEFAULT_USER_PRIORITY, "ovrig")
+        _close_signup(db_session, event["id"])
+
+        response = _hand_out_spots(client, admin_token, event["id"])
+
+        assert response.status_code in (200, 201), response.text
+        confirmed = _confirmed_signups(client, admin_token, event["id"])
+        assert len(confirmed) == 2
+        assert all(signup["priority"] == "Nolla" for signup in confirmed)
+
+    def test_lottery_event_also_stops_at_max_event_users(self, client, db_session, admin_token, admin_council_id):
+        """The lottery branch is capped just like the FIFO one."""
+        data = event_data_factory(council_id=admin_council_id, max_event_users=2, priorities=["Nolla"], lottery=True)
+        event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+        _signup_users(client, db_session, admin_token, event["id"], 4, "Nolla", "nolla")
+        _signup_users(client, db_session, admin_token, event["id"], 2, DEFAULT_USER_PRIORITY, "ovrig")
+        _close_signup(db_session, event["id"])
+
+        response = _hand_out_spots(client, admin_token, event["id"])
+
+        assert response.status_code in (200, 201), response.text
+        confirmed = _confirmed_signups(client, admin_token, event["id"])
+        assert len(confirmed) == 2
+        assert all(signup["priority"] == "Nolla" for signup in confirmed)
+
+    def test_places_left_are_filled_with_non_prioritized_people(
+        self, client, db_session, admin_token, admin_council_id
+    ):
+        """Seats the prioritized people do not use are still handed out to everyone else."""
+        data = event_data_factory(council_id=admin_council_id, max_event_users=3, priorities=["Nolla"])
+        event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+        prioritized = _signup_users(client, db_session, admin_token, event["id"], 1, "Nolla", "nolla")
+        _signup_users(client, db_session, admin_token, event["id"], 4, DEFAULT_USER_PRIORITY, "ovrig")
+        _close_signup(db_session, event["id"])
+
+        response = _hand_out_spots(client, admin_token, event["id"])
+
+        assert response.status_code in (200, 201), response.text
+        confirmed = _confirmed_signups(client, admin_token, event["id"])
+        assert len(confirmed) == 3
+        assert prioritized[0].id in {signup["user"]["id"] for signup in confirmed}
