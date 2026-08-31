@@ -100,6 +100,12 @@ MAX_RECURSION_STEPS = 50  # Maximum number of recursions allowed, to prevent inf
 DEFAULT_USER_PRIORITY = "Övrigt"
 # Priorities tied to a nollning group instead of a post
 NOLLNING_PRIORITIES = ["Nolla", "Gruppfadder", "Uppdragsfadder"]
+# The nollning priorities a member of a group can hold, per group type. Group types which are not
+# part of a nollning (Default, Committee) grant no priority at all.
+NOLLNING_PRIORITIES_BY_GROUP_TYPE = {
+    "Mentor": {"Nolla", "Gruppfadder"},
+    "Mission": {"Nolla", "Uppdragsfadder"},
+}
 
 # Guild Meeting
 MAX_GUILD_MEETING_DATE_DESC = 500

@@ -8,25 +8,33 @@ from db_models.user_model import User_DB
 from db_models.group_model import Group_DB
 from db_models.group_user_model import GroupUser_DB
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupUpdate
-from helpers.constants import DEFAULT_USER_PRIORITY, NOLLNING_PRIORITIES
+from helpers.constants import DEFAULT_USER_PRIORITY, NOLLNING_PRIORITIES, NOLLNING_PRIORITIES_BY_GROUP_TYPE
 from helpers.types import GROUP_TYPE
 from services.nollning_service import get_user_nollning_priorities
 
 
 def get_allowed_signup_priorities(event: Event_DB, user: User_DB, db: Session) -> set[str]:
     """The priorities the user may sign up to the event with: the event's own priorities which the
-    user actually holds, or else the default priority which everyone falls back on.
+    user actually holds, plus the ones implied by the group types the event is open to, or else the
+    default priority which everyone falls back on.
     This effectively blocks signups with the default priority, if a user has a stronger one."""
-    allowed = {DEFAULT_USER_PRIORITY}
-    if not event.priorities:
-        return allowed
-
     user_priorities = {post.name_sv for post in user.posts} | get_user_nollning_priorities(db, user)
-    matching = {p.priority for p in event.priorities} & user_priorities
 
-    # Someone who holds one of the event's priorities has to sign up with it, since the default
-    # priority would silently cost them their place when the spots are handed out.
-    return matching or allowed
+    # An event which lets an Uppdragsgrupp sign up also accepts its members' Uppdragsfadder
+    # priority, without having to repeat it in the event's own priority list.
+    group_type_priorities: set[str] = set()
+    if event.is_nollning_event:
+        for group_type in event.mentor_group_types or get_args(GROUP_TYPE):
+            group_type_priorities = group_type_priorities | NOLLNING_PRIORITIES_BY_GROUP_TYPE.get(group_type, set())
+        if event.allow_other_mentors:  # a mentor of any group type may sign up, so may their priority
+            group_type_priorities = group_type_priorities | {"Gruppfadder", "Uppdragsfadder"}
+
+    allowed = ({p.priority for p in event.priorities} | group_type_priorities) & user_priorities
+
+    # Someone who holds one of the event's priorities, or one implied by its group types, has to
+    # sign up with it, since the default priority could silently cost them their place when the
+    # spots are handed out, and it is confusing for event organizers.
+    return allowed or {DEFAULT_USER_PRIORITY}
 
 
 def check_priority_allowed(event: Event_DB, user: User_DB, priority: str, db: Session):

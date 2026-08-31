@@ -134,7 +134,7 @@ def test_signup_as_mentor_of_group_with_other_type(
 
     response = client.post(
         f"/event-signup/{event['id']}",
-        json={"user_id": membered_user.id, "group_name": group.name},
+        json={"user_id": membered_user.id, "group_name": group.name, "priority": "Uppdragsfadder"},
         headers=auth_headers(member_token),
     )
 
@@ -493,3 +493,131 @@ def test_update_signup_to_default_priority_when_matching_a_priority_is_blocked(
         f"/event-signup/me-signup/{nollning_event['id']}", headers=auth_headers(member_token)
     ).json()
     assert signup_after["priority"] == "Nolla"
+
+
+def test_signup_with_priority_implied_by_the_events_group_types(
+    client, db_session, admin_token, admin_council_id, member_token, membered_user
+):
+    """An event open to Uppdragsgrupper accepts an uppdragsfadder's priority, even though the event
+    does not list it among its own priorities."""
+    group = add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentor")
+    add_group_to_current_nollning(db_session, group)
+
+    data = event_data_factory(
+        council_id=admin_council_id,
+        is_nollning_event=True,
+        mentor_group_types=["Mission"],
+        priorities=["Nolla"],
+    )
+    event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+    response = client.post(
+        f"/event-signup/{event['id']}",
+        json={"user_id": membered_user.id, "group_name": group.name, "priority": "Uppdragsfadder"},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code in (200, 201), response.text
+    assert response.json()["priority"] == "Uppdragsfadder"
+
+
+def test_priority_implied_by_group_types_is_forced(
+    client, db_session, admin_token, admin_council_id, member_token, membered_user
+):
+    """A priority implied by the event's group types is binding just like the event's own ones, so
+    the user cannot fall back on the default priority."""
+    group = add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentor")
+    add_group_to_current_nollning(db_session, group)
+
+    data = event_data_factory(
+        council_id=admin_council_id,
+        is_nollning_event=True,
+        mentor_group_types=["Mission"],
+        priorities=["Nolla"],
+    )
+    event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+    response = client.post(
+        f"/event-signup/{event['id']}",
+        json={"user_id": membered_user.id, "group_name": group.name},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403, response.text
+
+
+def test_signup_with_priority_of_a_group_type_the_event_excludes(
+    client, db_session, admin_token, admin_council_id, member_token, membered_user
+):
+    """An event which is not open to Uppdragsgrupper does not imply the uppdragsfadder priority,
+    so a signup carrying it is still rejected."""
+    mission_group = add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentor")
+    add_group_to_current_nollning(db_session, mission_group)
+    mentor_group = add_user_to_group(db_session, membered_user, "Fadderiet", "Mentor", "Mentee")
+    add_group_to_current_nollning(db_session, mentor_group)
+
+    data = event_data_factory(
+        council_id=admin_council_id,
+        is_nollning_event=True,
+        mentor_group_types=["Mentor"],
+        priorities=["Nolla"],
+    )
+    event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+    response = client.post(
+        f"/event-signup/{event['id']}",
+        json={"user_id": membered_user.id, "group_name": mentor_group.name, "priority": "Uppdragsfadder"},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403, response.text
+
+
+def test_signup_with_nolla_priority_implied_by_the_events_group_types(
+    client, db_session, admin_token, admin_council_id, member_token, membered_user
+):
+    """A nolla's priority is implied by the event's group types in the same way, so it is accepted
+    even though the event only prioritizes faddrar."""
+    group = add_user_to_group(db_session, membered_user, "Fadderiet", "Mentor", "Mentee")
+    add_group_to_current_nollning(db_session, group)
+
+    data = event_data_factory(
+        council_id=admin_council_id,
+        is_nollning_event=True,
+        mentor_group_types=["Mentor"],
+        priorities=["Gruppfadder"],
+    )
+    event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+    response = client.post(
+        f"/event-signup/{event['id']}",
+        json={"user_id": membered_user.id, "group_name": group.name, "priority": "Nolla"},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code in (200, 201), response.text
+    assert response.json()["priority"] == "Nolla"
+
+
+def test_nolla_priority_implied_by_group_types_is_forced(
+    client, db_session, admin_token, admin_council_id, member_token, membered_user
+):
+    """And it is binding too, so a nolla cannot fall back on the default priority."""
+    group = add_user_to_group(db_session, membered_user, "Fadderiet", "Mentor", "Mentee")
+    add_group_to_current_nollning(db_session, group)
+
+    data = event_data_factory(
+        council_id=admin_council_id,
+        is_nollning_event=True,
+        mentor_group_types=["Mentor"],
+        priorities=["Gruppfadder"],
+    )
+    event = client.post("/events/", json=data, headers=auth_headers(admin_token)).json()
+
+    response = client.post(
+        f"/event-signup/{event['id']}",
+        json={"user_id": membered_user.id, "group_name": group.name},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == 403, response.text
