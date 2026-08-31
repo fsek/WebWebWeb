@@ -69,7 +69,7 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     ):
         raise HTTPException(400, detail="User already signed up to chosen event")
 
-    if manage_permission == False and not is_group_allowed(event, user, data.group_name):
+    if manage_permission == False and not is_group_allowed(event, user, data.group_name, db):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
     if manage_permission == False:  # a falsy priority is stored as, and checked as, the default one
@@ -132,7 +132,7 @@ def update_event_signup(event: Event_DB, data: EventSignupUpdate, user_id: int, 
     if (
         manage_permission == False
         and "group_name" in updates
-        and not is_group_allowed(event, signup.user, updates["group_name"])
+        and not is_group_allowed(event, signup.user, updates["group_name"], db)
     ):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
@@ -182,12 +182,17 @@ def get_allowed_groups(event: Event_DB, user: User_DB):
     return allowed_groups
 
 
-def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None):
+def is_group_allowed(event: Event_DB, user: User_DB, group_name: str | None, db: Session):
     if event.is_nollning_event:
         if group_name is None:
             # Without a group the user has to qualify through a post priority instead,
             # since nollning priorities are tied to a group
-            return user_matches_existing_event_post_priorities(user, event)
+            if user_matches_existing_event_post_priorities(user, event):
+                return True
+
+            # Anyone taking part in this year's nollning holds their priority through a group and
+            # has to sign up with it, while members outside it have no group to pick and may go without.
+            return not get_user_nollning_priorities(db, user)
 
         allowed_group_types = event.mentor_group_types or list(get_args(GROUP_TYPE))
         is_event_allowed = False
