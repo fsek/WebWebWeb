@@ -15,14 +15,18 @@ from services.nollning_service import get_user_nollning_priorities
 
 def get_allowed_signup_priorities(event: Event_DB, user: User_DB, db: Session) -> set[str]:
     """The priorities the user may sign up to the event with: the event's own priorities which the
-    user actually holds, plus the default priority which everyone falls back on."""
+    user actually holds, or else the default priority which everyone falls back on.
+    This effectively blocks signups with the default priority, if a user has a stronger one."""
     allowed = {DEFAULT_USER_PRIORITY}
     if not event.priorities:
         return allowed
 
     user_priorities = {post.name_sv for post in user.posts} | get_user_nollning_priorities(db, user)
+    matching = {p.priority for p in event.priorities} & user_priorities
 
-    return allowed | ({p.priority for p in event.priorities} & user_priorities)
+    # Someone who holds one of the event's priorities has to sign up with it, since the default
+    # priority would silently cost them their place when the spots are handed out.
+    return matching or allowed
 
 
 def check_priority_allowed(event: Event_DB, user: User_DB, priority: str, db: Session):
@@ -68,8 +72,8 @@ def signup_to_event(event: Event_DB, user: User_DB, data: EventSignupCreate, man
     if manage_permission == False and not is_group_allowed(event, user, data.group_name):
         raise HTTPException(status.HTTP_403_FORBIDDEN, detail="User cannot sign up with this group")
 
-    if manage_permission == False and data.priority:  # a falsy priority just means the default one
-        check_priority_allowed(event, user, data.priority, db)
+    if manage_permission == False:  # a falsy priority is stored as, and checked as, the default one
+        check_priority_allowed(event, user, data.priority or DEFAULT_USER_PRIORITY, db)
 
     signup = EventUser_DB(user=user, user_id=user.id, event=event, event_id=event.id)
 
