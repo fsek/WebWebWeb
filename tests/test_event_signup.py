@@ -62,6 +62,20 @@ def test_nollning_event_signup_without_group(client, member_token, membered_user
     assert response.status_code == 403, response.text
 
 
+def test_nollning_event_signup_without_group_outside_nollning(client, member_token, membered_user, nollning_event):
+    """A member who does not take part in this year's nollning has no group to pick,
+    and may sign up to a nollning event without one."""
+    response = client.post(
+        f"/event-signup/{nollning_event['id']}",
+        json={"user_id": membered_user.id},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code in (200, 201), response.text
+    assert response.json()["group_name"] is None
+    assert response.json()["priority"] == DEFAULT_USER_PRIORITY
+
+
 def test_nollning_event_signup_without_group_with_post_priority(
     client, admin_token, admin_council_id, member_token, membered_user, member_post
 ):
