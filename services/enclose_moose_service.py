@@ -135,10 +135,12 @@ class EncloseGrid:
                 edges.append((u, v))
 
         # Declare flow
-        flow: dict[tuple[int, int], cp_model.IntVar] = {}
+        in_flows: dict[int, list[cp_model.IntVar]] = {}
+        out_flows: dict[int, list[cp_model.IntVar]] = {}
         for u, v in edges:
             f_var = model.new_int_var(0, self.N, f"f_{u}_{v}")
-            flow[(u, v)] = f_var
+            out_flows.setdefault(u, []).append(f_var)
+            in_flows.setdefault(v, []).append(f_var)
             model.add(f_var <= self.N * e[v])  # Just an upper bound on flow (and 0 flow for non-enclosed)
 
         # Handle enclosure spreading
@@ -147,8 +149,8 @@ class EncloseGrid:
             if i in never_enclosed_indices:
                 continue
 
-            in_flow = [flow[(u, i)] for u, v in edges if v == i]
-            out_flow = [flow[(i, v)] for u, v in edges if u == i]
+            in_flow = in_flows.get(i, [])
+            out_flow = out_flows.get(i, [])
 
             if i == self.moose_index:
                 model.add(sum(out_flow) - sum(in_flow) == total_other_enclosed)  # Moose generates flow
