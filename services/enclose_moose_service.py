@@ -108,45 +108,66 @@ class EncloseGrid:
 
         model.add(sum(w) <= self.wall_budget)  # Enforce wall budget
 
-        d = [model.new_int_var(0, self.N, f"d_{i}") for i in range(self.N)]  # Distance from moose
-        model.add(d[self.moose_index] == 0)  # Moose is at distance 0 from moose.
-
+        """  # If isolated walls should be disallowed in optimal solution
         for flat_index, tile in enumerate(self.grid_string):
-            if flat_index in never_enclosed_indices:
+        if tile == ".":
+            neighbors = self.get_neighbors(flat_index)
+            neighbor_e_vars = [e[nbr] for nbr in neighbors]
+            if neighbor_e_vars:
+                model.add(w[flat_index] <= sum(neighbor_e_vars))
+            else:
+                model.add(w[flat_index] == 0)
+        """
+
+        # Build edges
+        edges: list[tuple[int, int]] = []
+        for u in range(self.N):
+            if u in never_enclosed_indices:
                 continue
 
-            parents: list[cp_model.IntVar] = []
-            for neighbor_index in self.get_neighbors(flat_index):
-                if self.grid_string[neighbor_index] == "~":
+            for v in self.get_neighbors(u):
+                if self.grid_string[v] == "~":
                     continue
 
                 model.add(
-                    e[flat_index] <= e[neighbor_index] + w[neighbor_index]
-                )  # If a tile is enclosed, its neighbor must either also be enclosed or have a wall
+                    e[u] <= e[v] + w[v]
+                )  # If a tile is enclosed, its neighbour is either also enclosed or a wall (or water)
+                edges.append((u, v))
 
-                if flat_index != self.moose_index:
-                    p_var = model.new_bool_var(
-                        f"p_{neighbor_index}_{flat_index}"
-                    )  # Whether neighbor_index is parent of flat_index
-                    parents.append(p_var)
+        # Declare flow
+        in_flows: dict[int, list[cp_model.IntVar]] = {}
+        out_flows: dict[int, list[cp_model.IntVar]] = {}
+        for u, v in edges:
+            f_var = model.new_int_var(0, self.N, f"f_{u}_{v}")
+            out_flows.setdefault(u, []).append(f_var)
+            in_flows.setdefault(v, []).append(f_var)
+            model.add(f_var <= self.N * e[v])  # Just an upper bound on flow (and 0 flow for non-enclosed)
 
-                    model.add_implication(p_var, e[neighbor_index])  # A parent must be an enclosed tile
-                    model.add(d[flat_index] == d[neighbor_index] + 1).only_enforce_if(  # pyright: ignore
-                        p_var
-                    )  # Distance increases to prevent cycles (isolated enclosed areas)
+        # Handle enclosure spreading
+        total_other_enclosed = sum(e[i] for i in range(self.N) if i != self.moose_index)
+        for i in range(self.N):
+            if i in never_enclosed_indices:
+                continue
 
-            if flat_index != self.moose_index:
-                if parents:
-                    model.add(sum(parents) == e[flat_index])  # If a tile is enclosed, it has exactly one parent
-                else:
-                    model.add(e[flat_index] == 0)  # If completely surrounded by water, it cannot be enclosed
+            in_flow = in_flows.get(i, [])
+            out_flow = out_flows.get(i, [])
 
-        enclosed_score = [self.score_tile(tile) * e[flat_index] for flat_index, tile in enumerate(self.grid_string)]
-        model.maximize(sum(enclosed_score))
+            if i == self.moose_index:
+                model.add(sum(out_flow) - sum(in_flow) == total_other_enclosed)  # Moose generates flow
+            else:
+                model.add(sum(in_flow) - sum(out_flow) == e[i])  # All other tiles are enclosed iff net flow is 1
+
+        enclosed_score = sum(
+            [self.score_tile(tile) * e[flat_index] for flat_index, tile in enumerate(self.grid_string)]
+        )
+        model.maximize(enclosed_score)
 
         solver = cp_model.CpSolver()
         solver.parameters.max_time_in_seconds = 15
         solver.parameters.num_search_workers = 8
+        solver.parameters.linearization_level = (
+            2  # Don't really know what this is (think 2 might already be default) but should speed it up
+        )
 
         status = solver.solve(model)
         # print(f"Solving took {solver.wall_time} seconds")
@@ -160,49 +181,23 @@ class EncloseGrid:
         if status == cp_model.INFEASIBLE:
             raise HTTPException(400, detail="Level is unsolvable")
 
-        score = int(solver.objective_value)
+        solution_score = int(solver.objective_value)
         wall_indices = set(i for i in range(self.N) if solver.value(w[i]) == 1)
 
+        # Check uniqueness of solution
+        model.add(enclosed_score == solution_score)
         model.add_bool_or(
             [w[i].Not() for i in wall_indices] + [w_i for i, w_i in enumerate(w) if i not in wall_indices]
         )
         status2 = solver.solve(model)
-        if status2 == cp_model.OPTIMAL:
-            solution_is_unique = int(solver.objective_value) != score
-        elif status2 == cp_model.INFEASIBLE:
+        if status2 == cp_model.INFEASIBLE:
             solution_is_unique = True
-        else:
+        elif status2 == cp_model.UNKNOWN:
             solution_is_unique = None
+        else:
+            solution_is_unique = False
 
-        """  # Some debug visualisations
-        import numpy as np
-
-        e_sol = np.array([solver.value(e[i]) for i in range(self.N)])
-
-        np.set_printoptions(linewidth=1000)
-        print("MAP")
-        grid: list[list[str]] = []
-        for flat_index, tile in enumerate(self.grid_string):
-            if flat_index % self.grid_width == 0:
-                grid.append([])
-
-            if flat_index in wall_indices:
-                grid[-1].append("W")
-            else:
-                grid[-1].append(tile)
-        print(np.array(grid).reshape((self.grid_height, self.grid_width)))
-
-        print("REGION")
-        print(e_sol.reshape((self.grid_height, self.grid_width)))
-        print("SCORES")
-        print(
-            (e_sol * np.array(list(map(self.score_tile, self.grid_string))))
-            .astype(int)
-            .reshape((self.grid_height, self.grid_width))
-        )
-        """
-
-        return score, wall_indices, solution_is_unique
+        return solution_score, wall_indices, solution_is_unique
 
     def score_solution(self, solution: set[int]):
         if len(solution) > self.wall_budget:
