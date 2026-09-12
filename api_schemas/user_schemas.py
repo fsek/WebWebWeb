@@ -1,7 +1,7 @@
 from typing import TYPE_CHECKING, Annotated, Literal
 from pydantic import StringConstraints, field_validator
 from helpers.check_stil_id import check_stil_id
-from fastapi_users_pelicanq import schemas as fastapi_users_schemas
+from fastapi_users import schemas as fastapi_users_schemas
 from api_schemas.post_schemas import PostRead
 from helpers.constants import MAX_FIRST_NAME_LEN, MAX_LAST_NAME_LEN
 from api_schemas.base_schema import BaseSchema
