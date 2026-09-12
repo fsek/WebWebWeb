@@ -6,8 +6,28 @@ import pandas as pd
 
 from api_schemas.csv_schemas.base_csv_schema import BaseCsvSchema
 
-
 T = TypeVar("T", bound=BaseCsvSchema)
+
+# Characters which make Excel/LibreOffice treat a cell as a formula instead of text.
+# Leading tab/CR are included because spreadsheet apps strip them before parsing.
+FORMULA_TRIGGERS = ("=", "+", "-", "@", "\t", "\r")
+
+
+def escape_csv_value(value: str) -> str:
+    """
+    Neutralize spreadsheet formula injection (CWE-1236).
+
+    Much of what we export is free text written by ordinary members (names,
+    food preferences, motivations). Without this, a member can set their food
+    preference to something like `=cmd|'/c calc'!A1` and get it executed on the
+    machine of whichever admin opens the exported file.
+
+    Prefixing with a single quote makes the spreadsheet render the literal text.
+    This is pretty standard, as per CWE-1236. Only the first char matters.
+    """
+    if value.startswith(FORMULA_TRIGGERS):
+        return f"'{value}"
+    return value
 
 
 class CsvResponseFactory(Generic[T]):
@@ -22,7 +42,7 @@ class CsvResponseFactory(Generic[T]):
 
         dump = row.model_dump(by_alias=True)
         for k in self.__columns.keys():
-            self.__columns[k].append(str(dump.get(k) or self.none_str))
+            self.__columns[k].append(escape_csv_value(str(dump.get(k) or self.none_str)))
 
     def __initialize_headers(self, row: T) -> None:
         model_fields = {
