@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Annotated, Optional
 from fastapi.responses import FileResponse
-from sqlalchemy import ColumnElement, and_, or_
+from sqlalchemy import ColumnElement, and_, or_, func
 from fastapi import APIRouter, Depends, File, HTTPException, Query, Response, UploadFile, status
 from database import DB_dependency
 from db_models.user_model import User_DB
@@ -19,11 +19,10 @@ from fastapi_users_pelicanq.manager import BaseUserManager
 from helpers.image_checker import validate_image
 from helpers.rate_limit import rate_limit
 from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
-from db_models.nollning_model import Nollning_DB
 from services import user as user_service
+from services.nollning_service import get_user_nollning_priorities
 from user.permission import Permission
 from api_schemas.post_schemas import PostRead
-import datetime
 
 user_router = APIRouter()
 
@@ -138,10 +137,17 @@ def search_users(
 ):
     users = db.query(User_DB)
 
+    # The idea is to not get one million results before you have even typed anything useful.
+    # However, in special cases with very short names you do get results if you type them excactly.
     if name:
         name_filters: list[ColumnElement[bool]] = []
-        for term in name.split(" "):
-            name_filters.append(or_(User_DB.first_name.ilike(f"%{term}%"), User_DB.last_name.ilike(f"%{term}%")))
+        if len(name) < 3:
+            name_filters.append(
+                or_(func.lower(User_DB.first_name) == name.lower(), func.lower(User_DB.last_name) == name.lower())
+            )
+        else:
+            for term in name.split(" "):
+                name_filters.append(or_(User_DB.first_name.ilike(f"%{term}%"), User_DB.last_name.ilike(f"%{term}%")))
         users = users.filter(and_(*name_filters))
 
     if program:
@@ -224,29 +230,6 @@ def get_my_priorities(me: Annotated[User_DB, Permission.member()], db: DB_depend
     for post in me.posts:
         priorities.append(post.name_sv)
 
-    now = datetime.datetime.now(datetime.timezone.utc)
-
-    nollning = db.query(Nollning_DB).filter(Nollning_DB.year == now.year).one_or_none()
-
-    found = False
-
-    if nollning:
-        for nollningGroup in nollning.nollning_groups:
-            for groupUser in nollningGroup.group.group_users:
-                if me.id == groupUser.user_id:
-                    if nollningGroup.group.group_type == "Mentor":
-                        if groupUser.group_user_type == "Mentor":
-                            priorities.append("Gruppfadder")
-                        elif groupUser.group_user_type == "Mentee":
-                            priorities.append("Nolla")
-                    elif nollningGroup.group.group_type == "Mission":
-                        if groupUser.group_user_type == "Mentor":
-                            priorities.append("Uppdragsfadder")
-                        elif groupUser.group_user_type == "Mentee":
-                            priorities.append("Nolla")
-                    found = True
-                    break
-            if found:
-                break
+    priorities.extend(get_user_nollning_priorities(db, me))
 
     return priorities

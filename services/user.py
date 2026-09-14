@@ -4,16 +4,9 @@ from database import DB_dependency
 from db_models.user_model import User_DB
 from fastapi import HTTPException, status
 from sqlalchemy.exc import DataError, NoResultFound, MultipleResultsFound
-import re
 from helpers.types import FOOD_PREFERENCES
 from db_models.post_model import Post_DB
-
-
-def check_stil_id(s: str) -> bool:
-    if not len(s) == 10:
-        return False
-    pattern = r"^[a-z]{2}\d{4}[a-z]{2}-s$"
-    return bool(re.fullmatch(pattern, s))
+from helpers.check_stil_id import check_stil_id
 
 
 def condition(model, asset):
@@ -30,10 +23,10 @@ def update_user(user_id: int, data: UserUpdate, db: DB_dependency):
         print("ERROR: Multiple users found with the same ID:", user_id)
         raise HTTPException(500, detail="Multiple users found with the same ID")
 
-    if data.stil_id:
-        if not check_stil_id(data.stil_id):
+    if "stil_id" in data.model_fields_set:
+        if data.stil_id and not check_stil_id(data.stil_id):
             raise HTTPException(400, detail="Invalid stil-id")
-        user.stil_id = data.stil_id
+        user.stil_id = data.stil_id  # Explicitly provided, so allow clearing stil_id
 
     VALID_FOOD_PREFS = set(get_args(FOOD_PREFERENCES))
 

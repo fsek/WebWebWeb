@@ -10,6 +10,10 @@ from db_models.base_model import BaseModel_DB
 
 # Ensure we're in testing mode before importing important modules
 os.environ["ENVIRONMENT"] = "testing"
+
+# Must match the value used in test_enclose_moose.py
+os.environ["ENCLOSE_MOOSE_TOKEN"] = "happy_secret_key"
+
 from main import app
 from database import get_db
 from .basic_fixtures import *

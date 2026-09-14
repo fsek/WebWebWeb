@@ -218,6 +218,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="manage", target="Document", posts=["Buggmästare"]),
         Permission(action="view", target="Document", posts=["Buggmästare"]),
         Permission(action="manage", target="Moosegame", posts=["Buggmästare"]),
+        Permission(action="manage", target="EncloseMoose", posts=["Buggmästare"]),
         Permission(action="manage", target="UserPost", posts=["Buggmästare"]),
         Permission(action="view", target="GuildMeeting", posts=["Buggmästare"]),
         Permission(action="manage", target="GuildMeeting", posts=["Buggmästare"]),
@@ -225,6 +226,7 @@ def seed_permissions(db: Session, posts: list[Post_DB]):
         Permission(action="view", target="Tools", posts=["Buggmästare"]),
         Permission(action="manage", target="ToolBookings", posts=["Buggmästare"]),
         Permission(action="view", target="ToolBookings", posts=["Buggmästare"]),
+        Permission(action="manage", target="Keyvals", posts=["Buggmästare"]),
     ]
 
     [
@@ -270,6 +272,7 @@ def seed_news(db: Session, user: User_DB):
             content_sv="Oj här var det ju en massa spännande saker man kunde läsa!",
             content_en="Whoops here there was a lot of content to read!",
             author_id=user.id,
+            image_exist=False,
         ),
         News_DB(
             title_sv="En annan nyhet",
@@ -277,6 +280,7 @@ def seed_news(db: Session, user: User_DB):
             content_sv="Lite mer content",
             content_en="A bit more content",
             author_id=user.id,
+            image_exist=False,
         ),
     ]
 
@@ -288,6 +292,7 @@ def seed_news(db: Session, user: User_DB):
                 content_sv="Lite mer content",
                 content_en="A bit more content",
                 author_id=user.id,
+                image_exist=False,
             )
         )
 

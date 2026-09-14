@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from .mail_alias_router import mail_alias_router
 from .moose_game_router import moose_game_router
+from .enclose_moose_router import enclose_moose_router
 from .council_router import council_router
 from .user_router import user_router
 from .post_router import post_router
@@ -33,6 +34,8 @@ from .nomination_router import nomination_router
 from .guild_meeting_router import guild_meeting_router
 from .tool_router import tool_router
 from .tool_booking_router import tool_booking_router
+from .keyval_router import keyval_router
+from .prereg_member_router import prereg_member_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -87,6 +90,8 @@ main_router.include_router(room_router, prefix="/rooms", tags=["room booking"])
 
 main_router.include_router(moose_game_router, prefix="/moose-game", tags=["moose-game"])
 
+main_router.include_router(enclose_moose_router, prefix="/enclose-moose", tags=["enclose-moose"])
+
 main_router.include_router(mail_alias_router, prefix="/mail-alias", tags=["mail-alias"])
 
 main_router.include_router(access_serve_router, prefix="/access-serve", tags=["access serve"])
@@ -100,3 +105,6 @@ main_router.include_router(guild_meeting_router, prefix="/guild-meeting", tags=[
 main_router.include_router(tool_router, prefix="/tools", tags=["tools"])
 
 main_router.include_router(tool_booking_router, prefix="/tool-booking", tags=["tool booking"])
+main_router.include_router(keyval_router, prefix="/keyvals", tags=["keyvals"])
+
+main_router.include_router(prereg_member_router, prefix="/prereg-members", tags=["prereg members"])

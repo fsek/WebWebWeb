@@ -1,8 +1,10 @@
 from typing import Annotated
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Response, status
 from datetime import datetime, timezone
 
+
 from api_schemas.candidate_schema import CandidateRead, CandidatePostRead
+from api_schemas.csv_schemas.candidate_csv_schema import CandidatesCsvSchema
 from database import DB_dependency
 from db_models.candidate_model import Candidate_DB
 from db_models.candidate_post_model import Candidation_DB
@@ -10,6 +12,7 @@ from db_models.election_model import Election_DB
 from db_models.sub_election_model import SubElection_DB
 from db_models.election_post_model import ElectionPost_DB
 from db_models.user_model import User_DB
+from helpers.csv_response_factory import CsvResponseFactory
 from user.permission import Permission
 
 
@@ -40,6 +43,21 @@ def get_all_sub_election_candidates(sub_election_id: int, db: DB_dependency):
     candidates = db.query(Candidate_DB).filter(Candidate_DB.sub_election_id == sub_election_id).all()
 
     return candidates
+
+
+@candidate_router.get("/sub-election/{sub_election_id}/csv", dependencies=[Permission.require("view", "Election")])
+def get_all_sub_election_candidations_csv(sub_election_id: int, db: DB_dependency):
+    sub_election = db.query(SubElection_DB).filter(SubElection_DB.sub_election_id == sub_election_id).one_or_none()
+    if sub_election is None:
+        raise HTTPException(404, detail="Sub election not found")
+
+    factory: CsvResponseFactory[CandidatesCsvSchema] = CsvResponseFactory()
+
+    for c in sub_election.candidations:
+        row = CandidatesCsvSchema.model_validate(c)
+        factory.append(row)
+
+    return factory.to_response("candidations.csv")
 
 
 @candidate_router.get(

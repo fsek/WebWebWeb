@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Annotated
 from api_schemas.base_schema import BaseSchema
 from db_models.priority_model import Priority_DB
 from helpers.constants import MAX_EVENT_DESC, MAX_EVENT_TITLE
-from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, datetime_utc
+from helpers.types import ALCOHOL_EVENT_TYPES, EVENT_DOT_TYPES, GROUP_TYPE, datetime_utc
 from pydantic import StringConstraints
 
 if TYPE_CHECKING:
@@ -31,6 +31,8 @@ class EventRead(BaseSchema):
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
+    mentor_group_types: list[GROUP_TYPE]
+    allow_other_mentors: bool
     alcohol_event_type: str
     dress_code: str
     price: int
@@ -64,6 +66,8 @@ class EventCreate(BaseSchema):
     can_signup: bool
     drink_package: bool
     is_nollning_event: bool
+    mentor_group_types: list[GROUP_TYPE]
+    allow_other_mentors: bool
     alcohol_event_type: ALCOHOL_EVENT_TYPES
     dress_code: str
     price: int
@@ -90,11 +94,14 @@ class EventUpdate(BaseSchema):
     can_signup: bool | None = None
     drink_package: bool | None = None
     is_nollning_event: bool | None = None
+    mentor_group_types: list[GROUP_TYPE] | None = None
+    allow_other_mentors: bool | None = None
     priorities: list[str] | None = None
     alcohol_event_type: ALCOHOL_EVENT_TYPES | None = None
     dress_code: str | None = None
     price: int | None = None
     dot: EVENT_DOT_TYPES | None = None
+    lottery: bool | None = None
 
 
 class AddEventTag(BaseSchema):

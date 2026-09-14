@@ -38,6 +38,8 @@ class News_DB(BaseModel_DB):
 
     pinned_to: Mapped[Optional[datetime_utc]] = mapped_column(default=None)
 
+    image_exist: Mapped[bool] = mapped_column(default=False)
+
     news_tags: Mapped[list["NewsTag_DB"]] = relationship(
         back_populates="news", cascade="all, delete-orphan", init=False
     )

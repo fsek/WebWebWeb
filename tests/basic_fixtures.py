@@ -90,6 +90,7 @@ def admin_post(db_session):
         Permission_DB(action="view", target="Council"),
         Permission_DB(action="manage", target="User"),
         Permission_DB(action="manage", target="RoomBookings"),
+        Permission_DB(action="manage", target="EncloseMoose"),
         Permission_DB(action="view", target="UserPost"),
         Permission_DB(action="manage", target="UserPost"),
         Permission_DB(action="view", target="RoomBookings"),
@@ -98,6 +99,8 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="Document"),
         Permission_DB(action="view", target="GuildMeeting"),
         Permission_DB(action="manage", target="GuildMeeting"),
+        Permission_DB(action="view", target="Keyvals"),
+        Permission_DB(action="manage", target="Keyvals"),
     ]
     post.permissions.extend(permissions)
     db_session.commit()
@@ -279,3 +282,76 @@ def open_sub_election(db_session, open_election, admin_post, member_post):
     db_session.commit()
     db_session.refresh(sub_election)
     return sub_election
+
+
+@pytest.fixture()
+def event(client, admin_token, admin_council_id):
+    """Create and return a plain event which is open for signup."""
+
+    response = client.post(
+        "/events/", json=event_data_factory(council_id=admin_council_id), headers=auth_headers(admin_token)
+    )
+    assert response.status_code in (200, 201), response.text
+
+    return response.json()
+
+
+@pytest.fixture()
+def song_category(client, admin_token):
+    """Create and return a song category."""
+
+    response = client.post("/songs-category/", json=category_data(), headers=auth_headers(admin_token))
+    assert response.status_code in (200, 201), response.text
+    return response.json()
+
+
+@pytest.fixture()
+def song(client, admin_token, song_category):
+    """Create and return a song in the shared song category."""
+
+    response = client.post("/songs/", json=song_data(song_category["id"]), headers=auth_headers(admin_token))
+    assert response.status_code in (200, 201), response.text
+    return response.json()
+
+
+@pytest.fixture()
+def nollning_event(client, admin_token, admin_council_id):
+    """Create and return a nollning event which only accepts groups of type "Mentor"."""
+
+    response = client.post(
+        "/events/",
+        json=event_data_factory(
+            council_id=admin_council_id,
+            is_nollning_event=True,
+            mentor_group_types=["Mentor"],
+            priorities=["Nolla", "Gruppfadder", "Uppdragsfadder"],
+        ),
+        headers=auth_headers(admin_token),
+    )
+    assert response.status_code in (200, 201), response.text
+
+    return response.json()
+
+
+@pytest.fixture()
+def mentor_group(db_session, membered_user):
+    """Create a group of type "Mentor" in this year's nollning, with the member user as a mentee."""
+
+    group = add_user_to_group(db_session, membered_user, "Fadderiet", "Mentor", "Mentee")
+    return add_group_to_current_nollning(db_session, group)
+
+
+@pytest.fixture()
+def mission_group(db_session, membered_user):
+    """Create a group of type "Mission" in this year's nollning, with the member user as a mentee."""
+
+    group = add_user_to_group(db_session, membered_user, "Uppdraget", "Mission", "Mentee")
+    return add_group_to_current_nollning(db_session, group)
+
+
+@pytest.fixture()
+def last_years_mentor_group(db_session, membered_user):
+    """Create a group of type "Mentor" in last year's nollning, with the member user as a mentee."""
+
+    group = add_user_to_group(db_session, membered_user, "Förfadderiet", "Mentor", "Mentee")
+    return add_group_to_nollning(db_session, group, datetime.now(timezone.utc).year - 1)

@@ -30,7 +30,9 @@ class UserManager(IntegerIDMixin, BaseUserManager[User_DB, int]):
         if len(password) < 8:
             raise InvalidPasswordException(reason="Password should be at least 8 characters")
 
-        if user.email.lower() in password.lower():
+        if (user.email.lower() in password.lower()) or (
+            user.email.split("@")[0].lower() in password.lower() and len(user.email.split("@")[0]) > 3
+        ):
             raise InvalidPasswordException(reason="Password should not contain your e-mail")
 
         if not re.search(r"[A-Za-z]", password) or not re.search(r"\d", password):

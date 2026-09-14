@@ -57,10 +57,12 @@ PERMISSION_TARGET = Literal[
     "Council",
     "RoomBookings",
     "Moosegame",
+    "EncloseMoose",
     "MailAlias",
     "GuildMeeting",
     "Tools",
     "ToolBookings",
+    "Keyvals",
 ]
 
 # This is a little ridiculous now, but if we have many actions, this is a neat system.
@@ -99,6 +101,8 @@ PROGRAM_TYPE = Literal["Oklart", "F", "Pi", "N"]
 ROOMS = Literal["LC", "Alumni", "SK", "Hilbert Cafe"]
 
 MISSION_CONFIRMED_TYPES = Literal["Accepted", "Failed", "Review"]
+
+MISSION_CATEGORIES = Literal["Barbiedans", "Fadder", "Kreativ", "Resa", "Spel", "Tävling", "Älg"]
 
 ASSETS_BASE_PATH = os.getenv("ASSETS_BASE_PATH")
 
