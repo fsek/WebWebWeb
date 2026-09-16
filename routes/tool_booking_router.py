@@ -4,6 +4,7 @@ from api_schemas.tool_booking_schema import (
     ToolBookingCreate,
     ToolBookingRead,
     ToolBookingUpdate,
+    SimpleToolBookingRead,
 )
 from database import DB_dependency
 from typing import Annotated
@@ -80,6 +81,16 @@ def get_tool_booking(booking_id: int, db: DB_dependency):
         raise HTTPException(404, "Tool booking not found")
     return booking
 
+@tool_booking_router.get(
+    "/get_simple_booking/{booking_id}",
+    response_model=SimpleToolBookingRead,
+)
+def get_public_tool_booking(booking_id: int, db: DB_dependency,current_user: Annotated[User_DB, Permission.member()]):
+    booking = db.query(ToolBooking_DB).filter(ToolBooking_DB.id == booking_id).one_or_none()
+    if booking is None:
+        raise HTTPException(404, "Tool booking not found")
+    return booking
+
 
 @tool_booking_router.get(
     "/get_all",
@@ -90,6 +101,13 @@ def get_all_tool_bookings(db: DB_dependency):
     bookings = db.query(ToolBooking_DB).all()
     return bookings
 
+@tool_booking_router.get(
+    "/get_simple_all",
+    response_model=list[SimpleToolBookingRead],
+)
+def get_all_tool_bookings(db: DB_dependency,current_user: Annotated[User_DB, Permission.member()]):
+    bookings = db.query(ToolBooking_DB).all()
+    return bookings
 
 @tool_booking_router.get(
     "/get_between_times",
@@ -104,6 +122,18 @@ def get_tool_bookings_between_times(db: DB_dependency, start_time: datetime_utc,
     )
     return bookings
 
+@tool_booking_router.get(
+    "/get_simple_between_times",
+    response_model=list[SimpleToolBookingRead],
+)
+def get_tool_bookings_between_times(db: DB_dependency, start_time: datetime_utc, end_time: datetime_utc,current_user: Annotated[User_DB, Permission.member()]):
+    bookings = (
+        db.query(ToolBooking_DB)
+        .filter(and_(ToolBooking_DB.start_time >= start_time, ToolBooking_DB.end_time <= end_time))
+        .all()
+    )
+    return bookings
+
 
 @tool_booking_router.get(
     "/get_by_tool/",
@@ -111,6 +141,17 @@ def get_tool_bookings_between_times(db: DB_dependency, start_time: datetime_utc,
     dependencies=[Permission.require("view", "ToolBookings")],
 )
 def get_tool_bookings_by_tool(tool_id: int, db: DB_dependency):
+    tool = db.query(Tool_DB).filter(Tool_DB.id == tool_id).one_or_none()
+    if tool is None:
+        raise HTTPException(404, "Tool not found")
+    bookings = tool.bookings
+    return bookings
+
+@tool_booking_router.get(
+    "/get_simple_by_tool/",
+    response_model=list[SimpleToolBookingRead],
+)
+def get_tool_bookings_by_tool(tool_id: int, db: DB_dependency,current_user: Annotated[User_DB, Permission.member()]):
     tool = db.query(Tool_DB).filter(Tool_DB.id == tool_id).one_or_none()
     if tool is None:
         raise HTTPException(404, "Tool not found")

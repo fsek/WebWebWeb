@@ -4,6 +4,8 @@ from api_schemas.tool_schema import ToolCreate, ToolRead, ToolUpdate
 from db_models.tool_model import Tool_DB
 from user.permission import Permission
 from database import DB_dependency
+from typing import Annotated
+from db_models.user_model import User_DB
 
 
 tool_router = APIRouter()
@@ -33,13 +35,13 @@ def create_tool(data: ToolCreate, db: DB_dependency):
     return tool
 
 
-@tool_router.get("/", response_model=list[ToolRead], dependencies=[Permission.require("view", "Tools")])
-def get_all_tools(db: DB_dependency):
+@tool_router.get("/", response_model=list[ToolRead])
+def get_all_tools(db: DB_dependency,current_user: Annotated[User_DB, Permission.member()]):
     return db.query(Tool_DB).all()
 
 
-@tool_router.get("/{tool_id}", response_model=ToolRead, dependencies=[Permission.require("view", "Tools")])
-def get_tool(tool_id: int, db: DB_dependency):
+@tool_router.get("/{tool_id}", response_model=ToolRead)
+def get_tool(tool_id: int, db: DB_dependency,current_user: Annotated[User_DB, Permission.member()]):
     tool = db.query(Tool_DB).filter_by(id=tool_id).one_or_none()
     if tool is None:
         raise HTTPException(404, detail="Tool not found")
