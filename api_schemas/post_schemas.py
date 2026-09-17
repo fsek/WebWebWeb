@@ -23,9 +23,6 @@ class PostRead(BaseSchema):
     elected_user_recommended_limit: int
     elected_user_max_limit: int
 
-    class Config:
-        from_attributes = True
-
 
 class PostUpdate(BaseSchema):
     name_sv: str | None = None
@@ -57,6 +54,3 @@ class PostCreate(BaseSchema):
 class PostDoorAccessRead(BaseSchema):
     id: int
     door: DOOR_ACCESSES
-
-    class Config:
-        from_attributes = True
