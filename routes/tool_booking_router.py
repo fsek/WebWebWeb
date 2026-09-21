@@ -15,13 +15,10 @@ from db_models.tool_booking_model import ToolBooking_DB
 from helpers.types import datetime_utc
 from services import tool_booking_service
 
-
 tool_booking_router = APIRouter()
 
 
-@tool_booking_router.post(
-    "/", response_model=ToolBookingRead, dependencies=[Permission.require("manage", "ToolBookings")]
-)
+@tool_booking_router.post("/", response_model=ToolBookingRead)
 def create_tool_booking(
     data: ToolBookingCreate,
     current_user: Annotated[User_DB, Permission.require("manage", "ToolBookings")],
@@ -81,11 +78,12 @@ def get_tool_booking(booking_id: int, db: DB_dependency):
         raise HTTPException(404, "Tool booking not found")
     return booking
 
+
 @tool_booking_router.get(
     "/get_simple_booking/{booking_id}",
     response_model=SimpleToolBookingRead,
 )
-def get_public_tool_booking(booking_id: int, db: DB_dependency,current_user: Annotated[User_DB, Permission.member()]):
+def get_public_tool_booking(booking_id: int, db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]):
     booking = db.query(ToolBooking_DB).filter(ToolBooking_DB.id == booking_id).one_or_none()
     if booking is None:
         raise HTTPException(404, "Tool booking not found")
@@ -101,13 +99,15 @@ def get_all_tool_bookings(db: DB_dependency):
     bookings = db.query(ToolBooking_DB).all()
     return bookings
 
+
 @tool_booking_router.get(
     "/get_simple_all",
     response_model=list[SimpleToolBookingRead],
 )
-def get_all_tool_bookings(db: DB_dependency,current_user: Annotated[User_DB, Permission.member()]):
+def get_public_all_tool_bookings(db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]):
     bookings = db.query(ToolBooking_DB).all()
     return bookings
+
 
 @tool_booking_router.get(
     "/get_between_times",
@@ -117,19 +117,25 @@ def get_all_tool_bookings(db: DB_dependency,current_user: Annotated[User_DB, Per
 def get_tool_bookings_between_times(db: DB_dependency, start_time: datetime_utc, end_time: datetime_utc):
     bookings = (
         db.query(ToolBooking_DB)
-        .filter(and_(ToolBooking_DB.start_time >= start_time, ToolBooking_DB.end_time <= end_time))
+        .filter(and_(ToolBooking_DB.start_time < end_time, start_time < ToolBooking_DB.end_time))
         .all()
     )
     return bookings
+
 
 @tool_booking_router.get(
     "/get_simple_between_times",
     response_model=list[SimpleToolBookingRead],
 )
-def get_tool_bookings_between_times(db: DB_dependency, start_time: datetime_utc, end_time: datetime_utc,current_user: Annotated[User_DB, Permission.member()]):
+def get_public_tool_bookings_between_times(
+    db: DB_dependency,
+    start_time: datetime_utc,
+    end_time: datetime_utc,
+    current_user: Annotated[User_DB, Permission.member()],
+):
     bookings = (
         db.query(ToolBooking_DB)
-        .filter(and_(ToolBooking_DB.start_time >= start_time, ToolBooking_DB.end_time <= end_time))
+        .filter(and_(ToolBooking_DB.start_time < end_time, start_time < ToolBooking_DB.end_time))
         .all()
     )
     return bookings
@@ -147,11 +153,14 @@ def get_tool_bookings_by_tool(tool_id: int, db: DB_dependency):
     bookings = tool.bookings
     return bookings
 
+
 @tool_booking_router.get(
     "/get_simple_by_tool/",
     response_model=list[SimpleToolBookingRead],
 )
-def get_tool_bookings_by_tool(tool_id: int, db: DB_dependency,current_user: Annotated[User_DB, Permission.member()]):
+def get_public_tool_bookings_by_tool(
+    tool_id: int, db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]
+):
     tool = db.query(Tool_DB).filter(Tool_DB.id == tool_id).one_or_none()
     if tool is None:
         raise HTTPException(404, "Tool not found")
@@ -194,10 +203,11 @@ def update_tool_booking(
     if data.end_time <= data.start_time:
         raise HTTPException(400, "End time must be after start time")
 
-    if data.amount is not None:
-        if data.amount <= 0:
-            raise HTTPException(400, "Amount must be positive")
+    if data.amount is not None and data.amount <= 0:
+        raise HTTPException(400, "Amount must be positive")
+    amount = data.amount if data.amount is not None else tool_booking.amount
 
+    if data.amount is not None or data.start_time != tool_booking.start_time or data.end_time != tool_booking.end_time:
         overlapping_bookings = (
             db.query(ToolBooking_DB)
             .filter(
@@ -213,11 +223,16 @@ def update_tool_booking(
 
         booked_amount = tool_booking_service.max_booked(overlapping_bookings)
 
-        if booked_amount + data.amount > tool_booking.tool.amount:
+        if booked_amount + amount > tool_booking.tool.amount:
             raise HTTPException(400, "Not enough tools available at that time")
 
     for var, value in vars(data).items():
-        setattr(tool_booking, var, value) if value else None
+        # description may be explicitly set to None or "", other fields are only updated if given
+        if var == "description":
+            if "description" in data.model_fields_set:
+                tool_booking.description = value
+        elif value is not None:
+            setattr(tool_booking, var, value)
 
     db.commit()
     db.refresh(tool_booking)

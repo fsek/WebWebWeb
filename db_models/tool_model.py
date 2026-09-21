@@ -25,5 +25,3 @@ class Tool_DB(BaseModel_DB):
 
     description_sv: Mapped[Optional[str]] = mapped_column(String(MAX_TOOL_DESC), default=None)
     description_en: Mapped[Optional[str]] = mapped_column(String(MAX_TOOL_DESC), default=None)
-
-    pass

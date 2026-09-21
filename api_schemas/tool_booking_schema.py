@@ -18,17 +18,20 @@ class ToolBookingCreate(BaseSchema):
 class ToolBookingRead(BaseSchema):
     id: int
     tool: SimpleToolRead
+    amount: int
     user: SimpleUserRead
     start_time: datetime_utc
     end_time: datetime_utc
-    description: str
+    description: str | None
+
 
 class SimpleToolBookingRead(BaseSchema):
     id: int
     tool: SimpleToolRead
+    amount: int
     start_time: datetime_utc
     end_time: datetime_utc
-    description: str
+    description: str | None
 
 
 class ToolBookingUpdate(BaseSchema):

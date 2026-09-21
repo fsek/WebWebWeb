@@ -23,9 +23,7 @@ class ToolBooking_DB(BaseModel_DB):
     tool_id: Mapped[int] = mapped_column(ForeignKey("tool_table.id"))
     tool: Mapped["Tool_DB"] = relationship(back_populates="bookings", init=False)
 
-    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id"))
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("user_table.id", ondelete="CASCADE"))
     user: Mapped[Optional["User_DB"]] = relationship(back_populates="tool_bookings", init=False)
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_TOOL_BOOKING_DESC), default=None)
-
-    pass
