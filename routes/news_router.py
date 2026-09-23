@@ -17,7 +17,6 @@ from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASS
 from services.news_service import create_new_news, update_existing_news, bump_existing_news
 from user.permission import Permission
 
-
 news_router = APIRouter()
 
 
@@ -59,10 +58,13 @@ async def post_news_image(news_id: int, db: DB_dependency, image: UploadFile = F
         if ext not in ALLOWED_EXT:
             raise HTTPException(400, "file extension not allowed")
 
-        dest_path = Path(f"{ASSETS_BASE_PATH}/news/{news.id}{ext}")
-        dest_path.write_bytes(image.file.read())
-
         news.image_exist = True
+
+        try:
+            dest_path = Path(f"{ASSETS_BASE_PATH}/news/{news.id}{ext}")
+            dest_path.write_bytes(image.file.read())
+        except:
+            news.image_exist = False
         db.commit()
 
 
