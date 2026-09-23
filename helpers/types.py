@@ -60,6 +60,8 @@ PERMISSION_TARGET = Literal[
     "EncloseMoose",
     "MailAlias",
     "GuildMeeting",
+    "Tools",
+    "ToolBookings",
     "Keyvals",
 ]
 
