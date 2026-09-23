@@ -203,11 +203,16 @@ def update_tool_booking(
     if data.end_time <= data.start_time:
         raise HTTPException(400, "End time must be after start time")
 
-    if data.amount is not None and data.amount <= 0:
+    if data.amount is None:
+        data.amount = tool_booking.amount
+    elif data.amount <= 0:
         raise HTTPException(400, "Amount must be positive")
-    amount = data.amount if data.amount is not None else tool_booking.amount
 
-    if data.amount is not None or data.start_time != tool_booking.start_time or data.end_time != tool_booking.end_time:
+    if (
+        data.amount != tool_booking.amount
+        or data.start_time != tool_booking.start_time
+        or data.end_time != tool_booking.end_time
+    ):
         overlapping_bookings = (
             db.query(ToolBooking_DB)
             .filter(
@@ -223,7 +228,7 @@ def update_tool_booking(
 
         booked_amount = tool_booking_service.max_booked(overlapping_bookings)
 
-        if booked_amount + amount > tool_booking.tool.amount:
+        if booked_amount + data.amount > tool_booking.tool.amount:
             raise HTTPException(400, "Not enough tools available at that time")
 
     for var, value in vars(data).items():
@@ -231,7 +236,7 @@ def update_tool_booking(
         if var == "description":
             if "description" in data.model_fields_set:
                 tool_booking.description = value
-        elif value is not None:
+        else:
             setattr(tool_booking, var, value)
 
     db.commit()
