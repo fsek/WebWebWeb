@@ -99,6 +99,10 @@ def admin_post(db_session):
         Permission_DB(action="manage", target="Document"),
         Permission_DB(action="view", target="GuildMeeting"),
         Permission_DB(action="manage", target="GuildMeeting"),
+        Permission_DB(action="view", target="Tools"),
+        Permission_DB(action="manage", target="Tools"),
+        Permission_DB(action="view", target="ToolBookings"),
+        Permission_DB(action="manage", target="ToolBookings"),
         Permission_DB(action="view", target="Keyvals"),
         Permission_DB(action="manage", target="Keyvals"),
     ]

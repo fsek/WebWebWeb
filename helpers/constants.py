@@ -106,6 +106,10 @@ MAX_GUILD_MEETING_DATE_DESC = 500
 MAX_GUILD_MEETING_DESC = 10000
 MAX_GUILD_MEETING_TITLE = 200
 
+# Tool booking
+MAX_TOOL_NAME = 100
+MAX_TOOL_DESC = 1000
+MAX_TOOL_BOOKING_DESC = 1000
 
 # Keyval, used for example for storing the links to different very important documents (e.g. reglementet)
 MAX_KEYVAL_KEY = 100

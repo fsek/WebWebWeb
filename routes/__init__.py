@@ -32,6 +32,8 @@ from .access_serve_router import access_serve_router
 from .sub_election_router import sub_election_router
 from .nomination_router import nomination_router
 from .guild_meeting_router import guild_meeting_router
+from .tool_router import tool_router
+from .tool_booking_router import tool_booking_router
 from .keyval_router import keyval_router
 from .prereg_member_router import prereg_member_router
 
@@ -100,6 +102,9 @@ main_router.include_router(nomination_router, prefix="/nominations", tags=["nomi
 
 main_router.include_router(guild_meeting_router, prefix="/guild-meeting", tags=["guild meeting"])
 
+main_router.include_router(tool_router, prefix="/tools", tags=["tools"])
+
+main_router.include_router(tool_booking_router, prefix="/tool-booking", tags=["tool booking"])
 main_router.include_router(keyval_router, prefix="/keyvals", tags=["keyvals"])
 
 main_router.include_router(prereg_member_router, prefix="/prereg-members", tags=["prereg members"])
