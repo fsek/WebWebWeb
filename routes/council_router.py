@@ -1,12 +1,13 @@
 from typing import Annotated
 from fastapi import APIRouter, HTTPException, status
+from sqlalchemy.orm import selectinload
 from api_schemas.council_schema import CouncilCreate, CouncilRead, CouncilUpdate
 from db_models.council_model import Council_DB
 from user.permission import Permission
 from database import DB_dependency
 from db_models.council_model import Council_DB
+from db_models.post_model import Post_DB
 from db_models.user_model import User_DB
-
 
 council_router = APIRouter()
 
@@ -16,6 +17,10 @@ def create_council(data: CouncilCreate, db: DB_dependency):
     council = db.query(Council_DB).filter_by(name_sv=data.name_sv).one_or_none()
     if council is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Council already exists")
+    if data.contact_post_id is not None:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "Contact post must belong to the council, so it cannot be set on creation"
+        )
     council = Council_DB(
         name_sv=data.name_sv,
         description_sv=data.description_sv,
@@ -29,7 +34,11 @@ def create_council(data: CouncilCreate, db: DB_dependency):
 
 @council_router.get("/", response_model=list[CouncilRead])
 def get_all_councils(current_user: Annotated[User_DB, Permission.member()], db: DB_dependency):
-    return db.query(Council_DB).all()
+    return (
+        db.query(Council_DB)
+        .options(selectinload(Council_DB.contact_post), selectinload(Council_DB.events))
+        .all()
+    )
 
 
 @council_router.get("/{council_id}", response_model=CouncilRead)
@@ -49,7 +58,20 @@ def update_council(council_id: int, data: CouncilUpdate, db: DB_dependency):
     if council is None:
         raise HTTPException(404, detail="Council not found")
 
+    if "contact_post_id" in data.model_fields_set:
+        if data.contact_post_id is None:
+            council.contact_post = None
+        else:
+            post = db.query(Post_DB).filter_by(id=data.contact_post_id).one_or_none()
+            if post is None:
+                raise HTTPException(404, detail="Post not found")
+            if post.council_id != council.id:
+                raise HTTPException(400, detail="Post does not belong to this council")
+            council.contact_post = post
+
     for var, value in vars(data).items():
+        if var == "contact_post_id":
+            continue
         setattr(council, var, value) if value is not None else None
 
     db.commit()
