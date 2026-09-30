@@ -291,3 +291,91 @@ class TestUpdateCouncil:
         assert data["description_sv"] == "Original Description"  # Should remain unchanged
         assert data["name_en"] == "Original Name EN"  # Should remain unchanged
         assert data["description_en"] == "Updated Description EN"
+
+
+class TestCouncilContactPost:
+    """Test the contact_post_id foreign key on councils"""
+
+    @pytest.fixture
+    def post(self, db_session):
+        """A post in a freshly created council."""
+        from db_models.council_model import Council_DB
+        from db_models.post_model import Post_DB
+
+        council = Council_DB(**council_data_factory())
+        db_session.add(council)
+        db_session.commit()
+        post = Post_DB(name_sv="Ordförande", name_en="Chairperson", council_id=council.id)
+        db_session.add(post)
+        db_session.commit()
+        return post
+
+    @pytest.fixture
+    def council(self, db_session, post):
+        """A council whose contact post is already set."""
+        post.council.contact_post = post
+        db_session.commit()
+        return post.council
+
+    def test_set_contact_post(self, client, admin_token, post):
+        """Contact post can be set and is returned when reading the council."""
+        response = update_council(client, post.council_id, admin_token, contact_post_id=post.id)
+
+        assert response.status_code == 200
+        assert response.json()["contact_post"]["id"] == post.id
+        assert get_council(client, post.council_id, admin_token).json()["contact_post"]["name_en"] == "Chairperson"
+
+    def test_clear_contact_post_with_explicit_null(self, client, admin_token, db_session, council):
+        """Explicitly sending null clears the contact post, unlike other fields."""
+        response = update_council(client, council.id, admin_token, contact_post_id=None)
+
+        assert response.status_code == 200
+        assert response.json()["contact_post"] is None
+        db_session.refresh(council)
+        assert council.contact_post_id is None
+
+    def test_omitting_contact_post_leaves_it_untouched(self, client, admin_token, council):
+        """A patch that does not mention contact_post_id must not clear it."""
+        response = update_council(client, council.id, admin_token, name_en="Renamed Council")
+
+        assert response.status_code == 200
+        assert response.json()["name_en"] == "Renamed Council"
+        assert response.json()["contact_post"]["id"] == council.contact_post_id
+
+    def test_set_contact_post_to_missing_post(self, client, admin_token, council):
+        """An unknown post id is a 404, not a foreign key violation."""
+        response = update_council(client, council.id, admin_token, contact_post_id=99999)
+
+        assert response.status_code == 404
+        assert "Post not found" in response.json()["detail"]
+
+    def test_create_council_with_contact_post_is_rejected(self, client, admin_token):
+        """A new council owns no posts yet, so a contact post cannot be set on creation."""
+        response = create_council(client, admin_token, name_sv="Bad Contact", contact_post_id=99999)
+
+        assert response.status_code == 400
+        assert "must belong to the council" in response.json()["detail"]
+
+    def test_set_contact_post_from_another_council(self, client, admin_token, post):
+        """A post owned by a different council cannot be used as contact post."""
+        other = create_council(client, admin_token, name_sv="Annat utskott", name_en="Other Council").json()
+        response = update_council(client, other["id"], admin_token, contact_post_id=post.id)
+
+        assert response.status_code == 400
+        assert "does not belong to this council" in response.json()["detail"]
+
+    def test_deleting_contact_post_keeps_council(self, client, admin_token, db_session, council):
+        """Deleting the contact post must clear the reference, not delete the council."""
+        from db_models.council_model import Council_DB
+        from db_models.post_model import Post_DB
+
+        council_id, post_id = council.id, council.contact_post_id
+
+        response = client.delete(f"/posts/{post_id}", headers=auth_headers(admin_token))
+        assert response.status_code == 204
+
+        db_session.expire_all()
+        assert db_session.query(Post_DB).filter_by(id=post_id).one_or_none() is None
+        surviving = db_session.query(Council_DB).filter_by(id=council_id).one_or_none()
+        assert surviving is not None, "council must survive deletion of its contact post"
+        assert surviving.contact_post_id is None
