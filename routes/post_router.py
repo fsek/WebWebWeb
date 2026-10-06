@@ -124,7 +124,7 @@ def get_post(post_id: int, db: DB_dependency):
     return post
 
 
-@post_router.get("/users/{post_id}", response_model=list[SimpleUserRead])
+@post_router.get("/users/{post_id}", response_model=list[SimpleUserRead], dependencies=[Permission.member()])
 def get_all_users_with_post(post_id: int, db: DB_dependency):
     posts = db.query(Post_DB).filter_by(id=post_id).one_or_none()
     if posts is None:
