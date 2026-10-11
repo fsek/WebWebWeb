@@ -14,7 +14,7 @@ cryptography==42.0.1
 dnspython==2.8.0
 email-validator==2.1.0.post1
 fakeredis==2.31.0
-fastapi==0.115.0
+fastapi==0.135.3
 fastapi-users-db-sqlalchemy-pelicanq==6.0.6
 fastapi-users-pelicanq==13.0.4
 google-api-core==2.25.1
