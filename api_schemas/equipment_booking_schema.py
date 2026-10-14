@@ -8,7 +8,7 @@ from helpers.constants import MAX_EQUIPMENT_BOOKING_DESC
 
 
 class EquipmentBookingCreate(BaseSchema):
-    tool_id: int
+    equipment_id: int
     amount: int
     start_time: datetime_utc
     end_time: datetime_utc
@@ -17,7 +17,7 @@ class EquipmentBookingCreate(BaseSchema):
 
 class EquipmentBookingRead(BaseSchema):
     id: int
-    tool: SimpleEquipmentRead
+    equipment: SimpleEquipmentRead
     amount: int
     user: SimpleUserRead
     start_time: datetime_utc
@@ -27,7 +27,7 @@ class EquipmentBookingRead(BaseSchema):
 
 class SimpleEquipmentBookingRead(BaseSchema):
     id: int
-    tool: SimpleEquipmentRead
+    equipment: SimpleEquipmentRead
     amount: int
     start_time: datetime_utc
     end_time: datetime_utc
