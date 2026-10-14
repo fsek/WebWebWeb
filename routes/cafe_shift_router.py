@@ -80,7 +80,7 @@ def create_multiple_shifts(data: CafeShiftCreateMulti, db: DB_dependency):
     shifts: list[CafeShift_DB] = []
 
     # Define shift times
-    shift_times = [(8, 10), (10, 13)]
+    shift_times = [(8, 10), (10, 12)]
 
     current_week = data.startWeekStart.date()
     end_week = data.endWeekStart.date()
