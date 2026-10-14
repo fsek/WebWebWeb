@@ -60,61 +60,63 @@ def create_equipment_booking(
         description=data.description,
     )
 
-    db.add(tool_booking)
+    db.add(equipment_booking)
 
     db.commit()
 
-    return tool_booking
+    return equipment_booking
 
 
-@tool_booking_router.get(
+@equipment_booking_router.get(
     "/get_booking/{booking_id}",
     response_model=EquipmentBookingRead,
     dependencies=[Permission.require("view", "EquipmentBookings")],
 )
-def get_tool_booking(booking_id: int, db: DB_dependency):
+def get_equipment_booking(booking_id: int, db: DB_dependency):
     booking = db.query(EquipmentBooking_DB).filter(EquipmentBooking_DB.id == booking_id).one_or_none()
     if booking is None:
         raise HTTPException(404, "Equipment booking not found")
     return booking
 
 
-@tool_booking_router.get(
+@equipment_booking_router.get(
     "/get_simple_booking/{booking_id}",
     response_model=SimpleEquipmentBookingRead,
 )
-def get_public_tool_booking(booking_id: int, db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]):
+def get_public_equipment_booking(
+    booking_id: int, db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]
+):
     booking = db.query(EquipmentBooking_DB).filter(EquipmentBooking_DB.id == booking_id).one_or_none()
     if booking is None:
-        raise HTTPException(404, "Tool booking not found")
+        raise HTTPException(404, "Equipment booking not found")
     return booking
 
 
-@tool_booking_router.get(
+@equipment_booking_router.get(
     "/get_all",
     response_model=list[EquipmentBookingRead],
     dependencies=[Permission.require("view", "EquipmentBookings")],
 )
-def get_all_tool_bookings(db: DB_dependency):
+def get_all_equipment_bookings(db: DB_dependency):
     bookings = db.query(EquipmentBooking_DB).all()
     return bookings
 
 
-@tool_booking_router.get(
+@equipment_booking_router.get(
     "/get_simple_all",
     response_model=list[SimpleEquipmentBookingRead],
 )
-def get_public_all_tool_bookings(db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]):
+def get_public_all_equipment_bookings(db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]):
     bookings = db.query(EquipmentBooking_DB).all()
     return bookings
 
 
-@tool_booking_router.get(
+@equipment_booking_router.get(
     "/get_between_times",
     response_model=list[EquipmentBookingRead],
     dependencies=[Permission.require("view", "EquipmentBookings")],
 )
-def get_tool_bookings_between_times(db: DB_dependency, start_time: datetime_utc, end_time: datetime_utc):
+def get_equipment_bookings_between_times(db: DB_dependency, start_time: datetime_utc, end_time: datetime_utc):
     bookings = (
         db.query(EquipmentBooking_DB)
         .filter(and_(EquipmentBooking_DB.start_time < end_time, start_time < EquipmentBooking_DB.end_time))
@@ -123,11 +125,11 @@ def get_tool_bookings_between_times(db: DB_dependency, start_time: datetime_utc,
     return bookings
 
 
-@tool_booking_router.get(
+@equipment_booking_router.get(
     "/get_simple_between_times",
     response_model=list[SimpleEquipmentBookingRead],
 )
-def get_public_tool_bookings_between_times(
+def get_public_equipment_bookings_between_times(
     db: DB_dependency,
     start_time: datetime_utc,
     end_time: datetime_utc,
@@ -141,39 +143,39 @@ def get_public_tool_bookings_between_times(
     return bookings
 
 
-@tool_booking_router.get(
-    "/get_by_tool/",
+@equipment_booking_router.get(
+    "/get_by_equipment/",
     response_model=list[EquipmentBookingRead],
     dependencies=[Permission.require("view", "EquipmentBookings")],
 )
-def get_tool_bookings_by_tool(tool_id: int, db: DB_dependency):
-    tool = db.query(Equipment_DB).filter(Equipment_DB.id == tool_id).one_or_none()
-    if tool is None:
+def get_equipment_bookings_by_equipment(equipment_id: int, db: DB_dependency):
+    equipment = db.query(Equipment_DB).filter(Equipment_DB.id == equipment_id).one_or_none()
+    if equipment is None:
         raise HTTPException(404, "Equipment not found")
-    bookings = tool.bookings
+    bookings = equipment.bookings
     return bookings
 
 
-@tool_booking_router.get(
-    "/get_simple_by_tool/",
+@equipment_booking_router.get(
+    "/get_simple_by_equipment/",
     response_model=list[SimpleEquipmentBookingRead],
 )
-def get_public_tool_bookings_by_tool(
-    tool_id: int, db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]
+def get_public_equipment_bookings_by_equipment(
+    equipment_id: int, db: DB_dependency, current_user: Annotated[User_DB, Permission.member()]
 ):
-    tool = db.query(Equipment_DB).filter(Equipment_DB.id == tool_id).one_or_none()
-    if tool is None:
+    equipment = db.query(Equipment_DB).filter(Equipment_DB.id == equipment_id).one_or_none()
+    if equipment is None:
         raise HTTPException(404, "Equipment not found")
-    bookings = tool.bookings
+    bookings = equipment.bookings
     return bookings
 
 
-@tool_booking_router.delete(
+@equipment_booking_router.delete(
     "/{booking_id}",
     response_model=EquipmentBookingRead,
     dependencies=[Permission.require("manage", "EquipmentBookings")],
 )
-def remove_tool_booking(
+def remove_equipment_booking(
     booking_id: int,
     db: DB_dependency,
 ):
@@ -186,43 +188,43 @@ def remove_tool_booking(
     return booking
 
 
-@tool_booking_router.patch(
+@equipment_booking_router.patch(
     "/{booking_id}",
     response_model=EquipmentBookingRead,
     dependencies=[Permission.require("manage", "EquipmentBookings")],
 )
-def update_tool_booking(
+def update_equipment_booking(
     booking_id: int,
     data: EquipmentBookingUpdate,
     db: DB_dependency,
 ):
-    tool_booking = db.query(EquipmentBooking_DB).filter(EquipmentBooking_DB.id == booking_id).one_or_none()
-    if tool_booking is None:
+    equipment_booking = db.query(EquipmentBooking_DB).filter(EquipmentBooking_DB.id == booking_id).one_or_none()
+    if equipment_booking is None:
         raise HTTPException(404, "Equipment booking not found")
 
     if data.start_time is None:
-        data.start_time = tool_booking.start_time
+        data.start_time = equipment_booking.start_time
     if data.end_time is None:
-        data.end_time = tool_booking.end_time
+        data.end_time = equipment_booking.end_time
     if data.end_time <= data.start_time:
         raise HTTPException(400, "End time must be after start time")
 
     if data.amount is None:
-        data.amount = tool_booking.amount
+        data.amount = equipment_booking.amount
     elif data.amount <= 0:
         raise HTTPException(400, "Amount must be positive")
 
     if (
-        data.amount != tool_booking.amount
-        or data.start_time != tool_booking.start_time
-        or data.end_time != tool_booking.end_time
+        data.amount != equipment_booking.amount
+        or data.start_time != equipment_booking.start_time
+        or data.end_time != equipment_booking.end_time
     ):
         overlapping_bookings = (
             db.query(EquipmentBooking_DB)
             .filter(
                 and_(
                     EquipmentBooking_DB.id != booking_id,
-                    EquipmentBooking_DB.tool_id == tool_booking.tool_id,
+                    EquipmentBooking_DB.equipment_id == equipment_booking.equipment_id,
                     EquipmentBooking_DB.start_time < data.end_time,
                     data.start_time < EquipmentBooking_DB.end_time,
                 )
@@ -230,19 +232,19 @@ def update_tool_booking(
             .all()
         )
 
-        booked_amount = tool_booking_service.max_booked(overlapping_bookings)
+        booked_amount = equipment_booking_service.max_booked(overlapping_bookings)
 
-        if booked_amount + data.amount > tool_booking.tool.amount:
-            raise HTTPException(400, "Not enough tools available at that time")
+        if booked_amount + data.amount > equipment_booking.equipment.amount:
+            raise HTTPException(400, "Not enough equipment available at that time")
 
     for var, value in vars(data).items():
         # description may be explicitly set to None or "", other fields are only updated if given
         if var == "description":
             if "description" in data.model_fields_set:
-                tool_booking.description = value
+                equipment_booking.description = value
         else:
-            setattr(tool_booking, var, value)
+            setattr(equipment_booking, var, value)
 
     db.commit()
-    db.refresh(tool_booking)
-    return tool_booking
+    db.refresh(equipment_booking)
+    return equipment_booking
