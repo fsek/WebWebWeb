@@ -146,10 +146,9 @@ def create_new_booking(
     db.add(db_booking)
 
     db.flush()
+    db.commit()
 
     bilf_mailer.bilf_mailer(db_booking)
-
-    db.commit()
 
     return db_booking
 
@@ -263,5 +262,8 @@ def booking_update(
             setattr(car_booking, attr, value)
 
     db.commit()
+
+    if car_booking.personal:
+        bilf_mailer.bilf_mailer(car_booking, is_update=True)
 
     return car_booking

@@ -1,7 +1,10 @@
 # type: ignore
+from types import SimpleNamespace
+
 import pytest
 from main import app
 from datetime import datetime, timedelta, timezone
+from mailer import bilf_mailer as bilf_mailer_module
 from .basic_factories import auth_headers
 
 # Helper to get Stockholm local time (UTC+1 or UTC+2 DST, but for simplicity, use UTC+1)
@@ -28,6 +31,54 @@ def create_booking(client, token, start, end, description, council_id=None, pers
 
 def patch_booking(client, token, booking_id, **kwargs):
     return client.patch(f"/car/{booking_id}", json=kwargs, headers=auth_headers(token))
+
+
+def test_private_booking_email_includes_ics_and_update_notice(monkeypatch):
+    captured = {}
+
+    def fake_send_mail_to_address(address, msg):
+        captured["address"] = address
+        captured["msg"] = msg
+
+    monkeypatch.setattr(bilf_mailer_module, "send_mail_to_address", fake_send_mail_to_address)
+
+    booking = SimpleNamespace(
+        booking_id=42,
+        personal=True,
+        start_time=datetime(2030, 1, 8, 9, 0, tzinfo=timezone.utc),
+        end_time=datetime(2030, 1, 8, 12, 0, tzinfo=timezone.utc),
+        user=SimpleNamespace(first_name="Ada", last_name="Lovelace"),
+        council=None,
+    )
+
+    bilf_mailer_module.bilf_mailer(booking)
+    assert captured["address"] == "bil@fsektionen.se"
+    assert captured["msg"].get_content_type() == "multipart/mixed"
+    calendar_part = next(part for part in captured["msg"].walk() if part.get_content_type() == "text/calendar")
+    payload = calendar_part.get_payload(decode=True).decode("utf-8")
+    assert "BEGIN:VCALENDAR" in payload
+    assert "UID:car-booking-42@fsektionen.se" in payload
+    assert "DTSTART:" in payload
+    assert "DTEND:" in payload
+
+    bilf_mailer_module.bilf_mailer(booking, is_update=True)
+    assert "Updated private car booking" in captured["msg"]["Subject"]
+
+
+def test_council_booking_creation_sends_email(client, admin_token, admin_council_id, monkeypatch):
+    sent_bookings = []
+    monkeypatch.setattr(bilf_mailer_module, "bilf_mailer", lambda booking: sent_bookings.append(booking))
+
+    start = stockholm_dt(2030, 1, 8, 10)
+    end = stockholm_dt(2030, 1, 8, 12)
+    response = create_booking(
+        client, admin_token, start, end, "council booking", council_id=admin_council_id
+    )
+
+    assert response.status_code in (200, 201)
+    assert len(sent_bookings) == 1
+    assert sent_bookings[0].personal is False
+    assert sent_bookings[0].council_id == admin_council_id
 
 
 def test_admin_autoconfirm_council(client, admin_token, admin_council_id):
