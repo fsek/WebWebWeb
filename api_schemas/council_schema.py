@@ -1,5 +1,5 @@
 from api_schemas.base_schema import BaseSchema
-from api_schemas.post_schemas import PostRead
+from api_schemas.post_schemas import PostRead, SimplePostRead
 from api_schemas.event_schemas import EventRead
 
 
@@ -18,6 +18,7 @@ class CouncilRead(BaseSchema):
     events: list[EventRead]
     description_sv: str | None
     description_en: str | None
+    contact_post: SimplePostRead | None
 
 
 class CouncilUpdate(BaseSchema):
@@ -25,9 +26,11 @@ class CouncilUpdate(BaseSchema):
     name_en: str | None = None
     description_sv: str | None = None
     description_en: str | None = None
+    contact_post_id: int | None = None
 
 
 class SimpleCouncilRead(BaseSchema):
     id: int
     name_sv: str
     name_en: str
+    contact_post: SimplePostRead | None

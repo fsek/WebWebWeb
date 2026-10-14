@@ -8,6 +8,14 @@ class _PostPermissionRead(BaseSchema):
     target: str
 
 
+class SimplePostRead(BaseSchema):
+    id: int
+    name_sv: str
+    name_en: str
+    council_id: int
+    email: str
+
+
 class PostRead(BaseSchema):
     id: int
     name_sv: str
