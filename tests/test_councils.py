@@ -349,13 +349,6 @@ class TestCouncilContactPost:
         assert response.status_code == 404
         assert "Post not found" in response.json()["detail"]
 
-    def test_create_council_with_contact_post_is_rejected(self, client, admin_token):
-        """A new council owns no posts yet, so a contact post cannot be set on creation."""
-        response = create_council(client, admin_token, name_sv="Bad Contact", contact_post_id=99999)
-
-        assert response.status_code == 400
-        assert "must belong to the council" in response.json()["detail"]
-
     def test_set_contact_post_from_another_council(self, client, admin_token, post):
         """A post owned by a different council cannot be used as contact post."""
         other = create_council(client, admin_token, name_sv="Annat utskott", name_en="Other Council").json()

@@ -17,10 +17,6 @@ def create_council(data: CouncilCreate, db: DB_dependency):
     council = db.query(Council_DB).filter_by(name_sv=data.name_sv).one_or_none()
     if council is not None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Council already exists")
-    if data.contact_post_id is not None:
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST, "Contact post must belong to the council, so it cannot be set on creation"
-        )
     council = Council_DB(
         name_sv=data.name_sv,
         description_sv=data.description_sv,

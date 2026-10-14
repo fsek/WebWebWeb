@@ -8,7 +8,6 @@ class CouncilCreate(BaseSchema):
     name_en: str
     description_sv: str | None = None
     description_en: str | None = None
-    contact_post_id: int | None = None
 
 
 class CouncilRead(BaseSchema):
