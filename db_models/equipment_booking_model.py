@@ -16,6 +16,7 @@ class EquipmentBooking_DB(BaseModel_DB):
     id: Mapped[int] = mapped_column(primary_key=True, init=False)
 
     amount: Mapped[int] = mapped_column()
+    payed: Mapped[bool] = mapped_column()
 
     start_time: Mapped[datetime_utc] = mapped_column()
     end_time: Mapped[datetime_utc] = mapped_column()

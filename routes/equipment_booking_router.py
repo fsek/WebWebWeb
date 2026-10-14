@@ -58,6 +58,7 @@ def create_equipment_booking(
         end_time=data.end_time,
         user_id=current_user.id,
         description=data.description,
+        payed=False,
     )
 
     db.add(equipment_booking)
