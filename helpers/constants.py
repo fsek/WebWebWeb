@@ -111,6 +111,15 @@ MAX_TOOL_NAME = 100
 MAX_TOOL_DESC = 1000
 MAX_TOOL_BOOKING_DESC = 1000
 
+# Equipment booking
+MAX_EQUIPMENT_NAME = 100
+MAX_EQUIPMENT_DESC = 2000
+MAX_EQUIPMENT_BOOKING_DESC = 2000
+
+"""
+Note regarding equipment booking. Higher max name and description than tool due to payment and potentially safety being involved
+"""
+
 # Keyval, used for example for storing the links to different very important documents (e.g. reglementet)
 MAX_KEYVAL_KEY = 100
 MAX_KEYVAL_VALUE = 1000
