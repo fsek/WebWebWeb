@@ -2,18 +2,18 @@ from api_schemas.base_schema import BaseSchema
 from typing import Annotated
 from pydantic import StringConstraints
 
-from helpers.constants import MAX_TOOL_DESC
+from helpers.constants import MAX_EQUIPMENT_DESC
 
 
-class ToolCreate(BaseSchema):
+class EquipmentCreate(BaseSchema):
     name_sv: str
     name_en: str
     amount: int
-    description_sv: Annotated[str, StringConstraints(max_length=MAX_TOOL_DESC)] | None = None
-    description_en: Annotated[str, StringConstraints(max_length=MAX_TOOL_DESC)] | None = None
+    description_sv: Annotated[str, StringConstraints(max_length=MAX_EQUIPMENT_DESC)] | None = None
+    description_en: Annotated[str, StringConstraints(max_length=MAX_EQUIPMENT_DESC)] | None = None
 
 
-class ToolRead(BaseSchema):
+class EquipmentRead(BaseSchema):
     id: int
     name_sv: str
     name_en: str
@@ -22,14 +22,14 @@ class ToolRead(BaseSchema):
     description_en: str | None
 
 
-class ToolUpdate(BaseSchema):
+class EquipmentUpdate(BaseSchema):
     name_sv: str
     name_en: str
     amount: int
-    description_sv: Annotated[str, StringConstraints(max_length=MAX_TOOL_DESC)] | None = None
-    description_en: Annotated[str, StringConstraints(max_length=MAX_TOOL_DESC)] | None = None
+    description_sv: Annotated[str, StringConstraints(max_length=MAX_EQUIPMENT_DESC)] | None = None
+    description_en: Annotated[str, StringConstraints(max_length=MAX_EQUIPMENT_DESC)] | None = None
 
 
-class SimpleToolRead(BaseSchema):
+class SimpleEquipmentRead(BaseSchema):
     id: int
     amount: int
