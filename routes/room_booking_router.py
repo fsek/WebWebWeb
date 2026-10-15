@@ -13,6 +13,7 @@ from db_models.user_model import User_DB
 from db_models.room_booking_model import RoomBooking_DB
 from helpers.types import ROOMS
 from services.room_booking_service import create_new_room_booking
+from mailer import cafe_mailer
 from helpers.constants import MAX_RECURSION_TIME, MAX_RECURSION_STEPS
 from datetime import timezone
 from zoneinfo import ZoneInfo
@@ -76,6 +77,11 @@ def create_room_booking(
             index += 1
 
     db.add_all(booking_list)
+    db.flush()
+
+    if room_booking.room == "Hilbert Cafe":
+        cafe_mailer.cafe_mailer(room_booking, len(booking_list))
+
     db.commit()
 
     return booking_list
@@ -180,6 +186,24 @@ def update_room_booking(
     for var, value in vars(data).items():
         setattr(booking, var, value) if value else None
 
+    db.commit()
+    db.refresh(booking)
+    return booking
+
+
+# For now this is hardcoded to cafe, so the permission is also hardcoded to cafe.
+@room_router.patch(
+    "/confirm/{booking_id}", response_model=RoomBookingRead, dependencies=[Permission.require("manage", "Cafe")]
+)
+def confirm_room_booking(
+    booking_id: int,
+    db: DB_dependency,
+):
+    booking = db.query(RoomBooking_DB).filter(RoomBooking_DB.id == booking_id).one_or_none()
+    if booking is None:
+        raise HTTPException(404, "Room booking not found")
+
+    booking.confirmed = True
     db.commit()
     db.refresh(booking)
     return booking

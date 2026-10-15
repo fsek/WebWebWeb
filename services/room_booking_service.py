@@ -33,6 +33,10 @@ def create_new_room_booking(
     if council is None:
         raise HTTPException(404, "Council not found")
 
+    should_confirm = True
+    if data.room == "Hilbert Cafe":
+        should_confirm = False
+
     room_booking = RoomBooking_DB(
         room=data.room,
         start_time=data.start_time,
@@ -40,6 +44,7 @@ def create_new_room_booking(
         description=data.description,
         council_id=data.council_id,
         user_id=current_user.id,
+        confirmed=should_confirm,
     )
 
     return room_booking

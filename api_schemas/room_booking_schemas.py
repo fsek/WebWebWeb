@@ -25,6 +25,7 @@ class RoomBookingRead(BaseSchema):
     description: str
     user: SimpleUserRead
     council: SimpleCouncilRead
+    confirmed: bool
 
 
 class RoomBookingUpdate(BaseSchema):

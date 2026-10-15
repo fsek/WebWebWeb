@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>Ny bokning av Hilbert Café {{ booking.date }}</title>
+</head>
+<body style="font-family: sans-serif; color: #333; line-height: 1.5; margin:0; padding:0;">
+  <div style="text-align: center; padding: 10px; background-color: #f5f5f5; font-size: 14px; color: #666;">
+    This email is available in Swedish above and English below / Detta mail finns på svenska ovan och engelska nedan
+  </div>
+
+  <!-- Swedish Version -->
+  <!-- Header -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FF6600;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <img src="https://i.imgur.com/vajEXHm.png" alt="F-sektionen ikon" width="80"
+          style="display:block; height:auto; border:none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;">
+      </td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="20" cellspacing="0">
+    <tr>
+      <td align="center">
+        <p>Hej Caféet!,</p>
+        <p>En ny bokning av Hilbert Café har gjorts!</p>
+        <p>Caféet är bokat av {{ booking.name }} från {{ booking.council_sv }} den {{ booking.date }} klockan {{ booking.start_time }}-{{ booking.end_time }}.{{ booking.recurring_sv }}</p>
+        <p>Beskrivning: {{ booking.description }}</p>
+        <p>Bokningen behöver bekräftas på hemsidan.</p>
+        <p>Med Vänliga hälsningar,<br>
+          De små tomtarna som sitter i sektionens SMTP-server och matar brevduvorna</p>
+      </td>
+    </tr>
+  </table>
+
+  <!-- Separator -->
+  <div style="height: 40px; background-color: #f5f5f5; border-top: 2px solid #ddd; border-bottom: 2px solid #ddd;"></div>
+
+  <!-- English Version -->
+  <!-- Header -->
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#FF6600;padding:20px 0;">
+    <tr>
+      <td align="center">
+        <img src="https://i.imgur.com/vajEXHm.png" alt="F-sektionen icon" width="80"
+          style="display:block; height:auto; border:none; outline:none; text-decoration:none; -ms-interpolation-mode:bicubic;">
+      </td>
+    </tr>
+  </table>
+  <table width="100%" cellpadding="20" cellspacing="0">
+    <tr>
+      <td align="center">
+        <p>Hello Café!,</p>
+        <p>A new booking of Hilbert Café has been made!</p>
+        <p>The café is booked by {{ booking.name }} from {{ booking.council_en }} on {{ booking.date }} at {{ booking.start_time }}-{{ booking.end_time }}.{{ booking.recurring_en }}</p>
+        <p>Description: {{ booking.description }}</p>
+        <p>The booking needs to be confirmed on the website.</p>
+        <p>Best regards,<br>
+          The little gnomes that inhabit the guild's SMTP server and feed the carrier pigeons</p>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
