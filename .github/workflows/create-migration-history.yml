@@ -11,7 +11,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:15-alpine
+        image: postgres:18-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -60,14 +60,15 @@ jobs:
         id: gen
         run: |
           alembic revision --autogenerate -m "chore(migration): auto-generated on ${{ github.sha }}"
-          LATEST=$(ls migrations/versions | tail -n1)
+          LATEST=$(ls -t migrations/versions/*.py | head -n1)
           echo "revision_file=${LATEST}" >> $GITHUB_OUTPUT
 
       - name: Check for new migrations
         id: check
         run: |
-          CHANGED=$(git status --porcelain migrations/versions)
-          echo "changed=$CHANGED" >> $GITHUB_ENV
+          if [ -n "$(git status --porcelain migrations/versions)" ]; then
+            echo "changed=true" >> "$GITHUB_ENV"
+          fi
 
       - name: Create or update Pull Request
         if: env.changed != ''

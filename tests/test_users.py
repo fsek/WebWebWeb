@@ -28,6 +28,46 @@ def test_register_user_invalid_stil_id(client):
     assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
+def test_register_user_empty_stil_id(client, admin_token):
+    """An empty stil_id means the optional field was left blank, and should be stored as None"""
+    user_data = user_data_factory(email="test2@example.com", stil_id="")
+    response = client.post("/auth/register", json=user_data)
+
+    assert response.status_code == status.HTTP_201_CREATED, response.text
+    user = client.get(f"/users/admin/{response.json()['id']}", headers=auth_headers(admin_token)).json()
+    assert user["stil_id"] is None
+
+
+@pytest.mark.parametrize("sent_stil_id", ["", None])
+def test_update_user_clear_stil_id(client, member_token, sent_stil_id):
+    """An empty (or null) stil_id on update means the user blanked the optional field, and should clear it"""
+    set_response = client.patch(
+        "/users/update/me",
+        json={"stil_id": "ab1234cd-s"},
+        headers=auth_headers(member_token),
+    )
+    assert set_response.status_code == status.HTTP_200_OK, set_response.text
+    assert set_response.json()["stil_id"] == "ab1234cd-s"
+
+    response = client.patch(
+        "/users/update/me",
+        json={"stil_id": sent_stil_id},
+        headers=auth_headers(member_token),
+    )
+
+    assert response.status_code == status.HTTP_200_OK, response.text
+    assert response.json()["stil_id"] is None
+    assert client.get("/users/me", headers=auth_headers(member_token)).json()["stil_id"] is None
+
+
+def test_register_user_password_containing_email_name(client):
+    """The local part of the e-mail may not be used as the password either"""
+    user_data = user_data_factory(email="somename@example.com", password="somename123")
+    response = client.post("/auth/register", json=user_data)
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST, response.text
+
+
 def test_register_duplicate_user(client, user1_data):
     """Test registration with duplicate email fails"""
     # Register first user

@@ -1,12 +1,20 @@
-from typing import Annotated
+from typing import Annotated, get_args
 from fastapi import APIRouter, HTTPException, status
+from api_schemas.user_schemas import UserForEventSignupRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
 from db_models.user_model import User_DB
-from services.event_signup_service import signup_to_event, signoff_from_event, update_event_signup, check_me_signup
+from db_models.group_model import Group_DB
+from helpers.types import GROUP_TYPE
+from services.event_signup_service import (
+    get_allowed_groups,
+    signup_to_event,
+    signoff_from_event,
+    update_event_signup,
+    check_me_signup,
+)
 from user.permission import Permission
 from api_schemas.event_signup_schemas import EventSignupCreate, EventSignupRead, EventSignupUpdate
-
 
 event_signup_router = APIRouter()
 
@@ -86,6 +94,15 @@ def get_me_event_signup(event_id: int, me: Annotated[User_DB, Permission.member(
         raise HTTPException(404, detail="Event not found")
 
     return check_me_signup(event_id, me, db)
+
+
+@event_signup_router.get("/me/{event_id}", response_model=UserForEventSignupRead)
+def get_me_for_event_signup(event_id: int, user: Annotated[User_DB, Permission.member()], db: DB_dependency):  # type: ignore
+    event = db.query(Event_DB).filter_by(id=event_id).one_or_none()
+    if event is None:
+        raise HTTPException(404, detail="Event not found")
+
+    return {**user.__dict__, "groups": get_allowed_groups(event, user)}  # type: ignore
 
 
 # @event_signup_router.get("/{event_id}", response_model=list[EventSignupRead])
