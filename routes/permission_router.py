@@ -20,6 +20,7 @@ from services.permission_service import (
     unassign_permission_mult,
 )
 from user.permission import Permission
+from user.user_stuff import current_verified_user
 
 permission_router = APIRouter()
 
@@ -32,19 +33,13 @@ def get_all_permissions(db: Annotated[Session, Depends(get_db)]):
     return res
 
 
+# We currently do not require post holders with perms to be members in the rest of the code,
+# which is why this route is not member-only.
 @permission_router.get("/me", response_model=list[tuple[str, str]] | None)
-def get_my_permissions(member: Annotated[User_DB | bool | None, Permission.check_member()]):
-    if not member or isinstance(member, bool):
+def get_my_permissions(user: Annotated[User_DB | None, Depends(current_verified_user)]):
+    if user is None:
         return None
-    seen: set[tuple[str, str]] = set()
-    result: list[tuple[str, str]] = []
-    for post in member.posts:
-        for perm in post.permissions:
-            key: tuple[str, str] = (perm.action, perm.target)
-            if key not in seen:
-                seen.add(key)
-                result.append(key)
-    return result
+    return list(dict.fromkeys((perm.action, perm.target) for post in user.posts for perm in post.permissions))
 
 
 # Create a new permission which later can be assigned to posts

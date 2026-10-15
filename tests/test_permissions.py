@@ -199,12 +199,12 @@ def test_member_without_permissions_is_forbidden(client, member_token):
     assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
-def test_get_my_permissions_requires_member_status(client, non_member_token):
-    """Test that /permissions/me returns null for verified non-members and anonymous users."""
+def test_get_my_permissions_non_member_and_anonymous(client, non_member_token):
+    """Test that /permissions/me returns a list for verified non-members and null for anonymous users."""
 
     response = client.get("/permissions/me", headers=auth_headers(non_member_token))
     assert response.status_code == status.HTTP_200_OK
-    assert response.json() is None
+    assert response.json() == []
 
     response = client.get("/permissions/me")
     assert response.status_code == status.HTTP_200_OK

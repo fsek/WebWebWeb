@@ -1,6 +1,6 @@
 import os
 import secrets
-from typing import Optional, TypedDict, Generic
+from typing import Optional, Generic
 from fastapi_users import BaseUserManager
 from fastapi_users.authentication import JWTStrategy
 from db_models.user_model import User_DB
@@ -104,6 +104,5 @@ def get_jwt_strategy(
 def get_refresh_redis_strategy(
     redis=Depends(get_redis),
 ) -> CustomRedisRefreshStrategy[User_DB, int]:
-    # The refresh tokens do not need to contain permissions
     strat = CustomRedisRefreshStrategy[User_DB, int](redis, lifetime_seconds=LOGIN_TIMEOUT)
     return strat
