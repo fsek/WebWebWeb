@@ -31,3 +31,7 @@ class SimpleCouncilRead(BaseSchema):
     id: int
     name_sv: str
     name_en: str
+
+
+EventRead.model_rebuild()
+CouncilRead.model_rebuild()

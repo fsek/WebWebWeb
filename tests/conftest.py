@@ -15,7 +15,7 @@ os.environ["ENVIRONMENT"] = "testing"
 os.environ["ENCLOSE_MOOSE_TOKEN"] = "happy_secret_key"
 
 from main import app
-from database import get_db
+from database import get_db, engine as app_engine
 from .basic_fixtures import *
 
 # Set test database URL if not already set
@@ -52,6 +52,7 @@ def setup_test_environment():
 
     # Cleanup
     engine.dispose()
+    app_engine.dispose()  # The app's lifespan leaves a pooled connection open
     drop_database(TEST_DATABASE_URL)
 
 
