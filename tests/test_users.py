@@ -25,7 +25,7 @@ def test_register_user_invalid_stil_id(client):
         stil_id="invalid_stil_id",
     )
     response = client.post("/auth/register", json=user_data)
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 def test_register_user_empty_stil_id(client, admin_token):
@@ -243,7 +243,7 @@ def test_change_phone_num_invalid_format(membered_user, client, db_session, memb
         json={"telephone_number": invalid_phone_number},
         headers=auth_headers(member_token),
     )
-    assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
     # Verify the phone number was not updated
     updated_user = db_session.query(User_DB).filter_by(id=membered_user.id).one()
