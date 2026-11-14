@@ -2,12 +2,14 @@ from datetime import datetime
 import os
 from fastapi import APIRouter, File, HTTPException, Response, UploadFile, status
 from fastapi.responses import FileResponse
+from sqlalchemy.orm import selectinload
 from psycopg import IntegrityError
 from api_schemas.csv_schemas.event_user_csv_schema import EventUserCsvSchema
 from api_schemas.event_signup_schemas import EventSignupRead
 from api_schemas.tag_schema import EventTagRead
 from database import DB_dependency
 from db_models.event_model import Event_DB
+from db_models.council_model import Council_DB
 from api_schemas.event_schemas import AddEventTag, EventCreate, EventRead, EventUpdate
 from db_models.event_user_model import EventUser_DB
 from db_models.user_model import User_DB
@@ -26,7 +28,11 @@ event_router = APIRouter()
 
 @event_router.get("/", response_model=list[EventRead])
 def get_all_events(db: DB_dependency):
-    events = db.query(Event_DB).all()
+    events = (
+        db.query(Event_DB)
+        .options(selectinload(Event_DB.council).selectinload(Council_DB.contact_post))
+        .all()
+    )
     return events
 
 

@@ -32,7 +32,7 @@ class Post_DB(BaseModel_DB):
     name_en: Mapped[str] = mapped_column(String(MAX_POST_NAME))
 
     council_id: Mapped[int] = mapped_column(ForeignKey("council_table.id"))
-    council: Mapped["Council_DB"] = relationship(back_populates="posts", init=False)
+    council: Mapped["Council_DB"] = relationship(back_populates="posts", foreign_keys=[council_id], init=False)
 
     elected_at_semester: Mapped[Optional[POST_ELECTION_SEMESTERS]] = mapped_column(default=None)
     elected_by: Mapped[Optional[ELECTION_ELECTORS]] = mapped_column(default=None)
