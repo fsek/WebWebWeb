@@ -6,6 +6,7 @@ from services.car_renting_service import create_new_booking, booking_update, is_
 from user.permission import Permission
 from db_models.user_model import User_DB
 from db_models.car_booking_model import CarBooking_DB
+from mailer import bilf_mailer
 
 car_router = APIRouter()
 
@@ -67,8 +68,12 @@ def remove_car_booking(
     if car_booking is None:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Booking not found.")
     if (car_booking.user == current_user) or manage_permission:
+        # Build the cancellation before deleting, while the booking's relationships can still be loaded
+        cancel_mail = bilf_mailer.build_bilf_mail(car_booking, action="deleted") if car_booking.personal else None
         db.delete(car_booking)
         db.commit()
+        if cancel_mail is not None:
+            bilf_mailer.send_bilf_mail(cancel_mail)
         return car_booking
 
     raise HTTPException(status.HTTP_401_UNAUTHORIZED)

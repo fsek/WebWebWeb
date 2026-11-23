@@ -146,10 +146,9 @@ def create_new_booking(
     db.add(db_booking)
 
     db.flush()
+    db.commit()
 
     bilf_mailer.bilf_mailer(db_booking)
-
-    db.commit()
 
     return db_booking
 
@@ -255,6 +254,7 @@ def booking_update(
             status.HTTP_400_BAD_REQUEST, detail="Council ID is required when making non-personal booking."
         )
 
+    was_personal = car_booking.personal
     car_booking.confirmed = booking_confirmed
 
     for attr in ["description", "start_time", "end_time", "personal", "council_id"]:
@@ -263,5 +263,10 @@ def booking_update(
             setattr(car_booking, attr, value)
 
     db.commit()
+
+    if car_booking.personal:
+        bilf_mailer.bilf_mailer(car_booking, action="updated")
+    elif was_personal:
+        bilf_mailer.bilf_mailer(car_booking, action="moved_to_council")
 
     return car_booking
