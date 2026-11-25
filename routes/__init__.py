@@ -36,6 +36,7 @@ from .tool_router import tool_router
 from .tool_booking_router import tool_booking_router
 from .keyval_router import keyval_router
 from .prereg_member_router import prereg_member_router
+from .contact_router import contact_router
 
 # here comes the big momma router
 main_router = APIRouter()
@@ -108,3 +109,5 @@ main_router.include_router(tool_booking_router, prefix="/tool-booking", tags=["t
 main_router.include_router(keyval_router, prefix="/keyvals", tags=["keyvals"])
 
 main_router.include_router(prereg_member_router, prefix="/prereg-members", tags=["prereg members"])
+
+main_router.include_router(contact_router, prefix="/contacts", tags=["contacts"])
