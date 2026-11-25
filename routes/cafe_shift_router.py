@@ -14,8 +14,12 @@ from api_schemas.cafe_schemas import (
     CafeViewBetweenDates,
     CafeShiftCreateMulti,
     AdminCafeShiftRead,
+    CafeLeaderboardStartUpdate,
 )
+from api_schemas.keyval_schema import KeyvalRead
+from db_models.keyval_model import Keyval_DB
 from user.permission import Permission
+from helpers.constants import CAFE_LEADERBOARD_START_KEY
 
 cafe_shift_router = APIRouter()
 
@@ -80,7 +84,7 @@ def create_multiple_shifts(data: CafeShiftCreateMulti, db: DB_dependency):
     shifts: list[CafeShift_DB] = []
 
     # Define shift times
-    shift_times = [(8, 10), (10, 13)]
+    shift_times = [(8, 10), (10, 12)]
 
     current_week = data.startWeekStart.date()
     end_week = data.endWeekStart.date()
@@ -208,3 +212,20 @@ def signoff_from_shift(
     shift.user_id = None
     db.commit()
     return shift
+
+
+@cafe_shift_router.patch(
+    "/leaderboard-start", dependencies=[Permission.require("manage", "Cafe")], response_model=KeyvalRead
+)
+def set_leaderboard_start(data: CafeLeaderboardStartUpdate, db: DB_dependency):
+    # Stored as a keyval so it can be read publicly via GET /keyvals/cafe_leaderboard_start
+    value = data.starts_at.isoformat()
+    keyval = db.query(Keyval_DB).filter(Keyval_DB.key == CAFE_LEADERBOARD_START_KEY).one_or_none()
+    if keyval is None:
+        keyval = Keyval_DB(key=CAFE_LEADERBOARD_START_KEY, value=value)
+        db.add(keyval)
+    else:
+        keyval.value = value
+
+    db.commit()
+    return keyval

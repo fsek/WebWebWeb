@@ -37,3 +37,7 @@ class CafeShiftUpdate(BaseSchema):
 class CafeViewBetweenDates(BaseSchema):
     start_date: datetime_utc
     end_date: datetime_utc
+
+
+class CafeLeaderboardStartUpdate(BaseSchema):
+    starts_at: datetime_utc

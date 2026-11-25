@@ -114,7 +114,7 @@ MAX_TOOL_BOOKING_DESC = 1000
 # Keyval, used for example for storing the links to different very important documents (e.g. reglementet)
 MAX_KEYVAL_KEY = 100
 MAX_KEYVAL_VALUE = 1000
-
+CAFE_LEADERBOARD_START_KEY = "cafe_leaderboard_start"
 
 # enclose.moose
 MAX_ENCLOSE_LEVEL_NAME = 100

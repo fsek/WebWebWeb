@@ -28,4 +28,6 @@ class RoomBooking_DB(BaseModel_DB):
 
     description: Mapped[Optional[str]] = mapped_column(String(MAX_ROOM_DESC), default=None)
 
+    confirmed: Mapped[bool] = mapped_column(default=False)
+
     pass
