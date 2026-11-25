@@ -3,6 +3,7 @@ from pydantic import StringConstraints
 from api_schemas.base_schema import BaseSchema
 from helpers.constants import MAX_BOOK_AUTHOR, MAX_BOOK_TITLE
 
+
 class AdRead(BaseSchema):
     ad_id: int
     title: str
@@ -12,17 +13,17 @@ class AdRead(BaseSchema):
     user_id: int
     selling: bool
     condition: int
-    
-    
+
+
 class AdCreate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_BOOK_TITLE)]
     author: Annotated[str, StringConstraints(max_length=MAX_BOOK_AUTHOR)] | None
     price: int | None
     course: Annotated[str, StringConstraints(max_length=MAX_BOOK_TITLE)] | None
-    user_id: int
     selling: bool
     condition: int
-    
+
+
 class AdUpdate(BaseSchema):
     title: Annotated[str, StringConstraints(max_length=MAX_BOOK_TITLE)] | None = None
     author: Annotated[str, StringConstraints(max_length=MAX_BOOK_AUTHOR)] | None = None

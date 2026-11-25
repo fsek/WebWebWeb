@@ -15,7 +15,7 @@ from api_schemas.user_schemas import (
     UpdateUserPosts,
 )
 from user.user_stuff import USERS
-from fastapi_users_pelicanq.manager import BaseUserManager
+from fastapi_users.manager import BaseUserManager
 from helpers.image_checker import validate_image
 from helpers.rate_limit import rate_limit
 from helpers.types import ALLOWED_EXT, ALLOWED_IMG_SIZES, ALLOWED_IMG_TYPES, ASSETS_BASE_PATH
